@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+:root {
+  --background: #070e1d;
+  --foreground: #ebf0fa;
+}
+
+@theme {
+  --color-dasi-black-50: #ebf0fa;
+  --color-dasi-black-100: #d6e0f5;
+  --color-dasi-black-200: #adc2eb;
+  --color-dasi-black-300: #85a3e0;
+  --color-dasi-black-400: #5c85d6;
+  --color-dasi-black-500: #3366cc;
+  --color-dasi-black-600: #2952a3;
+  --color-dasi-black-700: #1f3d7a;
+  --color-dasi-black-800: #142952;
+  --color-dasi-black-900: #0a1429;
+  --color-dasi-black-950: #070e1d;
+
+  --color-dasi-ink-50: #edf0f7;
+  --color-dasi-ink-100: #dce2ef;
+  --color-dasi-ink-200: #b8c5e0;
+  --color-dasi-ink-300: #95a8d0;
+  --color-dasi-ink-400: #718ac1;
+  --color-dasi-ink-500: #4e6db1;
+  --color-dasi-ink-600: #3e578e;
+  --color-dasi-ink-700: #2f426a;
+  --color-dasi-ink-800: #1f2c47;
+  --color-dasi-ink-900: #101623;
+  --color-dasi-ink-950: #0b0f19;
+
+  --color-dasi-steel-50: #f0f2f5;
+  --color-dasi-steel-100: #e0e5eb;
+  --color-dasi-steel-200: #c2cad6;
+  --color-dasi-steel-300: #a3b0c2;
+  --color-dasi-steel-400: #8596ad;
+  --color-dasi-steel-500: #667b99;
+  --color-dasi-steel-600: #52637a;
+  --color-dasi-steel-700: #3d4a5c;
+  --color-dasi-steel-800: #29313d;
+  --color-dasi-steel-900: #14191f;
+  --color-dasi-steel-950: #0e1115;
+
+  --color-dasi-charcoal-50: #eff2f5;
+  --color-dasi-charcoal-100: #dfe4ec;
+  --color-dasi-charcoal-200: #bfcad9;
+  --color-dasi-charcoal-300: #9fafc6;
+  --color-dasi-charcoal-400: #8095b3;
+  --color-dasi-charcoal-500: #607a9f;
+  --color-dasi-charcoal-600: #4d6280;
+  --color-dasi-charcoal-700: #394960;
+  --color-dasi-charcoal-800: #263140;
+  --color-dasi-charcoal-900: #131820;
+  --color-dasi-charcoal-950: #0d1116;
+
+  --color-dasi-alice-50: #eff4f5;
+  --color-dasi-alice-100: #e0e9eb;
+  --color-dasi-alice-200: #c0d3d8;
+  --color-dasi-alice-300: #a1bcc4;
+  --color-dasi-alice-400: #82a6b0;
+  --color-dasi-alice-500: #62909d;
+  --color-dasi-alice-600: #4f737d;
+  --color-dasi-alice-700: #3b565e;
+  --color-dasi-alice-800: #273a3f;
+  --color-dasi-alice-900: #141d1f;
+  --color-dasi-alice-950: #0e1416;
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom glow utility */
+.glow-text-cyan {
+  text-shadow: 0 0 10px rgba(98, 144, 157, 0.4), 0 0 20px rgba(98, 144, 157, 0.2);
+}
+
+.glow-border-cyan {
+  box-shadow: 0 0 15px rgba(98, 144, 157, 0.25);
+  border-color: #82a6b0;
+}
+
+/* Glassmorphism containers */
+.glass-panel {
+  background: rgba(10, 20, 41, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.glass-panel-hover:hover {
+  background: rgba(10, 20, 41, 0.85);
+  border-color: rgba(98, 144, 157, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #070e1d;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f3d7a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3366cc;
+}
+

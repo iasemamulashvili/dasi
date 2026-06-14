@@ -1,0 +1,60 @@
+--color-black-50 #ebf0fa;
+--color-black-100 #d6e0f5;
+--color-black-200 #adc2eb;
+--color-black-300 #85a3e0;
+--color-black-400 #5c85d6;
+--color-black-500 #3366cc;
+--color-black-600 #2952a3;
+--color-black-700 #1f3d7a;
+--color-black-800 #142952;
+--color-black-900 #0a1429;
+--color-black-950 #070e1d;
+
+--color-ink-black-50 #edf0f7;
+--color-ink-black-100 #dce2ef;
+--color-ink-black-200 #b8c5e0;
+--color-ink-black-300 #95a8d0;
+--color-ink-black-400 #718ac1;
+--color-ink-black-500 #4e6db1;
+--color-ink-black-600 #3e578e;
+--color-ink-black-700 #2f426a;
+--color-ink-black-800 #1f2c47;
+--color-ink-black-900 #101623;
+--color-ink-black-950 #0b0f19;
+
+--color-cool-steel-50 #f0f2f5;
+--color-cool-steel-100 #e0e5eb;
+--color-cool-steel-200 #c2cad6;
+--color-cool-steel-300 #a3b0c2;
+--color-cool-steel-400 #8596ad;
+--color-cool-steel-500 #667b99;
+--color-cool-steel-600 #52637a;
+--color-cool-steel-700 #3d4a5c;
+--color-cool-steel-800 #29313d;
+--color-cool-steel-900 #14191f;
+--color-cool-steel-950 #0e1115;
+
+--color-charcoal-blue-50 #eff2f5;
+--color-charcoal-blue-100 #dfe4ec;
+--color-charcoal-blue-200 #bfcad9;
+--color-charcoal-blue-300 #9fafc6;
+--color-charcoal-blue-400 #8095b3;
+--color-charcoal-blue-500 #607a9f;
+--color-charcoal-blue-600 #4d6280;
+--color-charcoal-blue-700 #394960;
+--color-charcoal-blue-800 #263140;
+--color-charcoal-blue-900 #131820;
+--color-charcoal-blue-950 #0d1116;
+
+--color-alice-blue-50 #eff4f5;
+--color-alice-blue-100 #e0e9eb;
+--color-alice-blue-200 #c0d3d8;
+--color-alice-blue-300 #a1bcc4;
+--color-alice-blue-400 #82a6b0;
+--color-alice-blue-500 #62909d;
+--color-alice-blue-600 #4f737d;
+--color-alice-blue-700 #3b565e;
+--color-alice-blue-800 #273a3f;
+--color-alice-blue-900 #141d1f;
+--color-alice-blue-950 #0e1416;
+

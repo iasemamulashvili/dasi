@@ -1,0 +1,54 @@
+[
+  {
+    "id": "unity-developer",
+    "title": "Unity Developer",
+    "location": "Tbilisi, Georgia (On-site)",
+    "description": "We are looking for a passionate Unity Developer to join our team in Tbilisi. You will write clean gameplay code, optimize performance on mobile platforms, and collaborate with artists/designers to create high-quality games.",
+    "requirements": [
+      "2+ years of experience with Unity and C#",
+      "Strong understanding of mobile game optimization techniques",
+      "Experience with git version control",
+      "Good communication skills and teamwork mindset"
+    ],
+    "responsibilities": [
+      "Implement gameplay mechanics and systems in Unity",
+      "Optimize rendering and CPU performance for iOS/Android",
+      "Collaborate with 3D artists to integrate assets",
+      "Write clean, maintainable, and well-documented code"
+    ]
+  },
+  {
+    "id": "3d-game-artist",
+    "title": "3D Game Artist",
+    "location": "Tbilisi, Georgia (On-site)",
+    "description": "We are seeking a creative 3D Game Artist with a strong eye for detail and styling. You will craft 3D assets, environment props, character models, and textures that define the unique visual themes of our arcade and tycoon titles.",
+    "requirements": [
+      "Proficiency in Blender, Maya, or 3ds Max",
+      "Experience with texturing tools (Substance Painter/Photoshop)",
+      "Understanding of mobile polygon budgets and draw call limits",
+      "Portfolio showcasing stylised or low-poly 3D models"
+    ],
+    "responsibilities": [
+      "Model, texture, and rig 3D assets for mobile games",
+      "Work closely with developers to ensure correct assets integration",
+      "Establish visual style guides and reference documents",
+      "Participate in creative brainstorms for gameplay concepts"
+    ]
+  },
+  {
+    "id": "open-application",
+    "title": "Open Application",
+    "location": "Tbilisi, Georgia (Flexible)",
+    "description": "Don't see your specific role listed above but want to join our adventure? We are always on the lookout for brilliant minds (QA engineers, game designers, sound producers, project managers) who want to shape the future of gaming. Send us your CV and tell us how you can make a difference!",
+    "requirements": [
+      "Passion for video games and game development",
+      "Proactive attitude and strong learning drive",
+      "Ability to work in a collaborative, fast-paced environment"
+    ],
+    "responsibilities": [
+      "Collaborate with multi-disciplinary teams",
+      "Bring fresh ideas and industry standards to our studio workflows",
+      "Continuously improve product quality and user experiences"
+    ]
+  }
+]

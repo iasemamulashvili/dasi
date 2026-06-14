@@ -1,0 +1,153 @@
+{
+    "consts": {
+        "playstoreIconSrc": "Images/low_res_images/playstore_icon.png",
+        "appstoreIconSrc": "Images/low_res_images/appstore_icon.png",
+        "pokiIconSrc": "Images/low_res_images/poki-badge_icon.png"
+    },
+    "games": [
+        {
+            "iconSrc": "https://play-lh.googleusercontent.com/YI2kzNZ-04oONlOGjZRriWAu80b6Gve8oXs0I2A1xLreESb4fwES4FT0aP3HrgvOFw=s256-rw",
+            "iconAlt": "Crown_Quest",
+            "title": "Crown Quest",
+            "description": "Begin adventure, conquer battles, build kingdom",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=dasi.arpg.crownquest&hl=en",
+            "appstoreLink": "https://apps.apple.com/us/app/crown-quest-action-rpg/id6477858164",
+            "pokiLink": "#",
+            "isAndroid": "true",
+            "isIOS": "true",
+            "isPoki": "false"
+        },
+        {
+            "iconSrc": "https://play-lh.googleusercontent.com/0_2l4Yk9uqKwTvAv-yZp02Og-DRr5GT-AfsH42zjExvkQkKsP4NUsyZz0lp8APHMaQ=s256-rw",
+            "iconAlt": "Lumber_Chopper",
+            "title": "Lumber Chopper",
+            "description": "Run a successfull and profitable wood business",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=dasi.prs2.lumberchopper&hl=en",
+            "appstoreLink": "https://apps.apple.com/us/app/lumber-chopper-harvest-empire/id6738272884",
+            "pokiLink": "#",
+            "isAndroid": "true",
+            "isIOS": "true",
+            "isPoki": "false"
+        },
+        {
+            "iconSrc": "https://play-lh.googleusercontent.com/Z3HMAnuhBtnY9EvIUO_xRQCc9ciOscrn74X16Jp0BASxll1Wfdxih_HLxpKqO3asZe0=s256-rw",
+            "iconAlt": "Hotel_Manager",
+            "title": "Hotel Manager",
+            "description": "Turn your cozy inn into a world-class luxury resort",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=dasi.prs3.hotelmanager&hl=en",
+            "appstoreLink": "https://apps.apple.com/us/app/hotel-manager-resort-empire/id6748454899",
+            "pokiLink": "#",
+            "isAndroid": "true",
+            "isIOS": "true",
+            "isPoki": "false"
+        },
+        {
+            "iconSrc": "https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=256,height=256,fit=cover,f=auto/4316bedecdcabc2e0135b69e83094078.png",
+            "iconAlt": "Coworking_Space",
+            "title": "Coworking Manager",
+            "description": "Grow your tiny office into a bustling workspace",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=dasi.prk1.coworking",
+            "appstoreLink": "https://apps.apple.com/us/app/coworking-space-manager/id6477774068",
+            "pokiLink": "https://poki.com/en/g/dasi-office-manager",
+            "isAndroid": "true",
+            "isIOS": "true",
+            "isPoki": "true"
+        },
+        {
+            "iconSrc": "https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=256,height=256,fit=cover,f=auto/ce0c769964665f7a1114f732d0117c3e.png",
+            "iconAlt": "Hospital_Manager",
+            "title": "Hospital Manager",
+            "description": "Manage a huge hospital and save people's lives",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=dasi.pr14.hospital&hl=en",
+            "appstoreLink": "#",
+            "pokiLink": "https://poki.com/en/g/dasi-hospital-manager",
+            "isAndroid": "false",
+            "isIOS": "false",
+            "isPoki": "true"
+        },
+        {
+            "iconSrc": "https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=256,height=256,fit=cover,f=auto/58ec31c3f7cb2b5117fd36fc82bb139e.png",
+            "iconAlt": "My_Spa_Resort",
+            "title": "My Spa Resort",
+            "description": "Comfort guests, maintain spaces, hire spa experts",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=dasi.pr63.mysparesort&hl=en",
+            "pokiLink": "https://poki.com/en/g/my-spa-manager",
+            "appstoreLink": "#",
+            "isAndroid": "false",
+            "isIOS": "false",
+            "isPoki": "true"
+        },
+        {
+            "iconSrc": "https://img.poki-cdn.com/cdn-cgi/image/quality=78,width=256,height=256,fit=cover,f=auto/d89aa6e42a621b7cc0094f34f22a01cb.png",
+            "iconAlt": "Dream_Library",
+            "title": "Dream Library",
+            "description": "Run a bookstore, lend books, and hire helpers",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=dasi.pr61.mydreamlibrary&hl=en",
+            "appstoreLink": "#",
+            "pokiLink": "https://poki.com/en/g/dasi-library-manager",
+            "isAndroid": "false",
+            "isIOS": "false",
+            "isPoki": "true"
+        },
+        {
+            "iconSrc": "https://play-lh.googleusercontent.com/HMuXSJIEBh8F21Wk8PdSCcRC1BrFSTv-X06Wgx20h98OPseXsaELlgZDdL3MuJQhQAs=s256-rw",
+            "iconAlt": "Bar_Rumble",
+            "title": "Bar Rumble",
+            "description": "Manage a bustling bar, keep customers happy",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=com.udogames.barrumble&hl=en",
+            "appstoreLink": "https://apps.apple.com/us/app/bar-rumble/id6497334742",
+            "pokiLink": "#",
+            "isAndroid": "true",
+            "isIOS": "true",
+            "isPoki": "false"
+        },
+        {
+            "iconSrc": "https://play-lh.googleusercontent.com/YOs43R3IZbo3JUeg4rX1Tdr5rNBE4-NRIB37Exu2ho9RHqkmub4ktH7Skt7KM3AY_0o=s256-rw",
+            "iconAlt": "Police_Officer",
+            "title": "Police Officer",
+            "description": "Catch criminals, restore order, grow tour station",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=com.dasigames.policeofficer&hl=en",
+            "appstoreLink": "#",
+            "pokiLink": "#",
+            "isAndroid": "true",
+            "isIOS": "false",
+            "isPoki": "false"
+        },
+        {
+            "iconSrc": "https://play-lh.googleusercontent.com/I8DMI-Ddl6K1_DwH5ZE32zYlSdEF9E-HbLld6Ck6HEcE_6U4yqX-AwsThq08k_5qqAc=s256-rw",
+            "iconAlt": "Tank_Merger",
+            "title": "Idle Wars",
+            "description": "Build tanks, merge them, capture enemy bases",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=dasi.pi1.idlewars&hl=en",
+            "appstoreLink": "#",
+            "pokiLink": "#",
+            "isAndroid": "true",
+            "isIOS": "false",
+            "isPoki": "false"
+        },
+        {
+            "iconSrc": "https://play-lh.googleusercontent.com/wcEfwGECsqqAnaCyAmaKeEuL4_3n9gJoTdHSBLIW1nF3PtxVc6j9pyoWVo8cUaPPfa64=s256-rw",
+            "iconAlt": "Wild_West",
+            "title": "Wild West",
+            "description": "Survive, gather, and upgrade in the Wild West",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=dasi.pr44.wildwest&hl=en",
+            "appstoreLink": "#",
+            "pokiLink": "#",
+            "isAndroid": "true",
+            "isIOS": "false",
+            "isPoki": "false"
+        },
+        {
+            "iconSrc": "https://play-lh.googleusercontent.com/O0Yaav0i6vlIpBcX4nxV4pMP6NhTQxkZJdgcWMsk_9evOAg-PanMZVencHw5N0LOK80=w240-h480-rw",
+            "iconAlt": "Police_Commander",
+            "title": "Police Commander",
+            "description": "Lead your team, manage stations, catch criminals",
+            "playstoreLink": "https://play.google.com/store/apps/details?id=dasi.pr12.policecommander&hl=en",
+            "appstoreLink": "#",
+            "pokiLink": "#",
+            "isAndroid": "true",
+            "isIOS": "false",
+            "isPoki": "false"
+        }
+    ]
+}
