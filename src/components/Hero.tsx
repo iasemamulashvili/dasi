@@ -146,39 +146,28 @@ export default function Hero() {
           const letter = letterRefs.current[index];
           if (letter) {
             const rect = letter.getBoundingClientRect();
-            // Target coordinates relative to the letter's default position
-            // Since we're translating, we calculate current absolute pos, find distance to mouse, and move
-            const letterHomeX = rect.left - parseFloat(letter.style.left || '0');
-            const letterHomeY = rect.top - parseFloat(letter.style.top || '0');
-
-            // Float around the cursor with spring lag
-            // Each letter gets a slightly offset angle to hover around the cursor rather than directly on top
-            const angle = (index / titleText.length) * Math.PI * 2 + (Date.now() * 0.003);
-            const radius = 25 + Math.sin(Date.now() * 0.002 + index) * 5;
-            const targetX = mousePos.current.x + Math.cos(angle) * radius - rect.width / 2;
-            const targetY = mousePos.current.y + Math.sin(angle) * radius - rect.height / 2;
-
-            // Find current style translates
             const currentX = gsap.getProperty(letter, 'x') as number || 0;
             const currentY = gsap.getProperty(letter, 'y') as number || 0;
 
-            // Get absolute current position
-            const docRect = containerRef.current?.getBoundingClientRect();
-            const parentOffsetLeft = docRect?.left || 0;
-            const parentOffsetTop = docRect?.top || 0;
+            // 1. Calculate static home coordinates in viewport space
+            const homeViewportX = rect.left - currentX;
+            const homeViewportY = rect.top - currentY;
 
-            const letterDefaultLeft = letter.offsetLeft;
-            const letterDefaultTop = letter.offsetTop;
+            // 2. Set target position in viewport space (bottom-right of cursor, aligned by top-left bounds to prevent overlap)
+            const angle = (index / titleText.length) * Math.PI * 2 + (Date.now() * 0.003);
+            const radius = 3; // Tight cluster radius
+            const targetViewportX = mousePos.current.x + 30 + Math.cos(angle) * radius;
+            const targetViewportY = mousePos.current.y + 30 + Math.sin(angle) * radius;
 
-            // Target relative coordinates for GSAP translate
-            const relTargetX = targetX - (letterDefaultLeft + parentOffsetLeft);
-            const relTargetY = targetY - (letterDefaultTop + parentOffsetTop);
+            // 3. Compute relative offsets for GSAP
+            const relTargetX = targetViewportX - homeViewportX;
+            const relTargetY = targetViewportY - homeViewportY;
 
-            // Interpolate toward target
+            // 4. Interpolate toward target (0.12 factor for smoother trailing lag behind cursor)
             gsap.set(letter, {
-              x: currentX + (relTargetX - currentX) * 0.1,
-              y: currentY + (relTargetY - currentY) * 0.1,
-              rotation: currentX * 0.2,
+              x: currentX + (relTargetX - currentX) * 0.12,
+              y: currentY + (relTargetY - currentY) * 0.12,
+              rotation: currentX * 0.1,
               scale: 0.9,
               color: '#62909d',
               zIndex: 100,
@@ -230,13 +219,13 @@ export default function Hero() {
     // Return all letters to slots
     letterRefs.current.forEach((letter, index) => {
       if (letter && collectedLetters.current.has(index)) {
-        // Explode outward then snap back to original position
-        const tl = gsap.timeline();
+        // Explode outward then snap back to original position with stream lag
+        const tl = gsap.timeline({ delay: index * 0.05 });
         tl.to(letter, {
-          x: '+=random(-50, 50)',
-          y: '+=random(-50, 50)',
-          rotation: 'random(-180, 180)',
-          duration: 0.3,
+          x: '+=random(-30, 30)',
+          y: '+=random(-30, 30)',
+          rotation: 'random(-90, 90)',
+          duration: 0.2,
           ease: 'power2.out',
         }).to(letter, {
           x: 0,
@@ -244,8 +233,8 @@ export default function Hero() {
           rotation: 0,
           scale: 1,
           color: '#ebf0fa',
-          duration: 0.8,
-          ease: 'elastic.out(1, 0.4)',
+          duration: 0.6,
+          ease: 'power4.out',
         });
       }
     });
@@ -307,7 +296,7 @@ export default function Hero() {
         {collectedCount > 0 && (
           <div className="flex items-center gap-2 px-3 py-1 bg-dasi-alice-950/40 border border-dasi-alice-500/20 rounded-full text-xs font-semibold text-dasi-alice-400 animate-pulse">
             <Sparkles size={12} />
-            <span>Hovering {collectedCount} letters! Move mouse to anchor to return them!</span>
+            <span>Carrying {collectedCount} letters! Hover over RELEASE to snap them back!</span>
           </div>
         )}
 
@@ -332,17 +321,31 @@ export default function Hero() {
             );
           })}
           
-          {/* Dump Zone (Anchor Site) */}
+          {/* Drop Zone (dashed game box with letter slot icon) */}
           <div
             ref={dumpZoneRef}
             onMouseEnter={handleDumpZoneMouseEnter}
-            className={`inline-flex items-center justify-center ml-4 md:ml-8 px-4 py-2 border rounded-xl text-xs font-bold transition-all duration-300 ${
+            className={`inline-flex items-center gap-2 ml-4 md:ml-8 px-4 py-2 border-dashed border-2 rounded-xl text-xs font-bold transition-all duration-300 ${
               collectedCount > 0
-                ? 'border-dasi-alice-400 text-dasi-alice-400 bg-dasi-alice-950/40 glow-border-cyan animate-bounce'
-                : 'border-white/10 text-dasi-steel-500 bg-transparent'
+                ? 'border-dasi-alice-400 text-dasi-alice-400 bg-dasi-alice-950/40 glow-border-cyan scale-105 animate-pulse'
+                : 'border-white/10 text-dasi-steel-500 bg-transparent hover:border-white/25'
             }`}
           >
-            ANCHOR ZONE
+            <svg
+              className={`w-4 h-4 transition-all duration-300 ${
+                collectedCount > 0 ? 'text-dasi-alice-400 scale-110' : 'text-dasi-steel-500'
+              }`}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m5 15 4-8 4 8M6 13h6" />
+              <path d="M2 6V2h4M18 2h4v4M22 18v4h-4M6 22H2v-4" strokeDasharray="1.5 1.5" className="opacity-80" />
+            </svg>
+            <span>RELEASE</span>
           </div>
         </h1>
 

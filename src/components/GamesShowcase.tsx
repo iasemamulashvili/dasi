@@ -8,61 +8,7 @@ import { Game } from '@/utils/db';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Particle system helper for the canvas video fallback
-class Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  color: string;
-  alpha: number;
-  decay: number;
-  gravity?: number;
-
-  constructor(x: number, y: number, color: string, type: string) {
-    this.x = x;
-    this.y = y;
-    this.radius = Math.random() * 3 + 1;
-    this.color = color;
-    this.alpha = 1;
-    this.decay = Math.random() * 0.02 + 0.005;
-
-    if (type === 'crown-quest') {
-      // Fire particle rising
-      this.vx = Math.random() * 1.5 - 0.75;
-      this.vy = -(Math.random() * 2 + 1);
-    } else if (type === 'lumber-chopper') {
-      // Wood chips falling
-      this.vx = Math.random() * 2 - 1;
-      this.vy = Math.random() * 2 + 1.5;
-      this.gravity = 0.05;
-    } else {
-      // General floating nodes
-      this.vx = Math.random() * 0.8 - 0.4;
-      this.vy = Math.random() * 0.8 - 0.4;
-    }
-  }
-
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    if (this.gravity) this.vy += this.gravity;
-    this.alpha -= this.decay;
-  }
-
-  draw(ctx: CanvasRenderingContext2D) {
-    ctx.save();
-    ctx.globalAlpha = this.alpha;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
-// Canvas Fallback component
+// Canvas Fallback component drawing premium neon bezier fluid waves
 function GameVideoFallback({ gameId }: { gameId: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -73,13 +19,22 @@ function GameVideoFallback({ gameId }: { gameId: string }) {
     if (!ctx) return;
 
     let animationId: number;
-    const particles: Particle[] = [];
+    let time = 0;
 
-    // Colors matching game themes
-    let colors = ['#62909d', '#82a6b0', '#ebf0fa']; // general
-    if (gameId === 'crown-quest') colors = ['#e05a36', '#f39c12', '#f1c40f']; // fire/gold
-    if (gameId === 'lumber-chopper') colors = ['#27ae60', '#2ecc71', '#d35400']; // green/orange
-    if (gameId === 'hotel-manager') colors = ['#3498db', '#9b59b6', '#ecf0f1']; // luxury blue/purple
+    // Theme-based colors for neon waves
+    let primaryColor = 'rgba(98, 144, 157, 0.6)'; // Alice blue (teal accent)
+    let secondaryColor = 'rgba(51, 102, 204, 0.4)'; // Dasi blue
+    
+    if (gameId === 'crown-quest') {
+      primaryColor = 'rgba(224, 90, 54, 0.7)'; // Warm orange
+      secondaryColor = 'rgba(241, 196, 15, 0.4)'; // Gold
+    } else if (gameId === 'lumber-chopper') {
+      primaryColor = 'rgba(39, 174, 96, 0.7)'; // Emerald green
+      secondaryColor = 'rgba(46, 204, 113, 0.4)'; // Light green
+    } else if (gameId === 'hotel-manager') {
+      primaryColor = 'rgba(52, 152, 219, 0.7)'; // Bright blue
+      secondaryColor = 'rgba(155, 89, 182, 0.4)'; // Amethyst purple
+    }
 
     const resizeCanvas = () => {
       canvas.width = canvas.parentElement?.offsetWidth || 300;
@@ -89,46 +44,49 @@ function GameVideoFallback({ gameId }: { gameId: string }) {
     window.addEventListener('resize', resizeCanvas);
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(7, 14, 29, 0.2)'; // fade trail
+      ctx.fillStyle = 'rgba(7, 14, 29, 0.08)'; // Deep trailing fade
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Add particles
-      if (Math.random() < 0.2) {
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        if (gameId === 'crown-quest') {
-          // Add flame particles at bottom center
-          particles.push(new Particle(canvas.width / 2 + (Math.random() * 40 - 20), canvas.height - 10, color, gameId));
-        } else if (gameId === 'lumber-chopper') {
-          // Add wood chip particles from top
-          particles.push(new Particle(Math.random() * canvas.width, 0, color, gameId));
-        } else {
-          // Random float
-          particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height, color, gameId));
-        }
+      // Draw Wave 1
+      ctx.beginPath();
+      ctx.strokeStyle = primaryColor;
+      ctx.lineWidth = 2.5;
+      for (let x = 0; x <= canvas.width; x += 5) {
+        const y = canvas.height / 2 + 
+          Math.sin(x * 0.008 + time * 0.04) * 25 * Math.cos(x * 0.003 + time * 0.02);
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
+      ctx.stroke();
 
-      // Draw and clean particles
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.update();
-        p.draw(ctx);
-        if (p.alpha <= 0) {
-          particles.splice(i, 1);
-        }
+      // Draw Wave 2
+      ctx.beginPath();
+      ctx.strokeStyle = secondaryColor;
+      ctx.lineWidth = 1.5;
+      for (let x = 0; x <= canvas.width; x += 5) {
+        const y = canvas.height / 2 + 
+          Math.cos(x * 0.012 - time * 0.03) * 20 * Math.sin(x * 0.005 + time * 0.01);
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
+      ctx.stroke();
 
-      // Special backdrop effects
-      if (gameId === 'crown-quest') {
-        // Draw a central glowing orb
-        const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 10, canvas.width / 2, canvas.height / 2, 80);
-        grad.addColorStop(0, 'rgba(224, 90, 54, 0.15)');
-        grad.addColorStop(1, 'rgba(7, 14, 29, 0)');
-        ctx.fillStyle = grad;
+      // Draw moving light node across the wave path
+      const nodeX = (time * 1.5) % (canvas.width + 100) - 50;
+      const nodeY = canvas.height / 2 + 
+        Math.sin(nodeX * 0.008 + time * 0.04) * 25 * Math.cos(nodeX * 0.003 + time * 0.02);
+
+      if (nodeX > 0 && nodeX < canvas.width) {
         ctx.beginPath();
-        ctx.arc(canvas.width / 2, canvas.height / 2, 80, 0, Math.PI * 2);
+        ctx.arc(nodeX, nodeY, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#ebf0fa';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = primaryColor;
         ctx.fill();
+        ctx.shadowBlur = 0; // reset
       }
 
+      time += 0.5;
       animationId = requestAnimationFrame(animate);
     };
     animate();
@@ -262,7 +220,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                 setHoveredCardIndex(null);
               }}
               onMouseEnter={() => setHoveredCardIndex(index)}
-              className="relative w-[320px] md:w-[360px] h-[460px] md:h-[500px] bg-dasi-black-900 border border-white/5 rounded-2xl overflow-hidden glass-panel glass-panel-hover flex flex-col p-6 cursor-pointer select-none transition-all duration-300 transform-gpu"
+              className="relative w-[320px] md:w-[360px] h-[460px] md:h-[500px] bg-dasi-black-900 border border-white/5 rounded-2xl overflow-hidden glass-panel glass-panel-hover flex flex-col p-6 cursor-pointer select-none transition-all duration-300 transform-gpu group"
               style={{ transformStyle: 'preserve-3d' }}
             >
               {/* Card Glow Border */}
@@ -302,7 +260,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                   <img
                     src={game.iconSrc}
                     alt={game.iconAlt}
-                    className="w-24 h-24 rounded-2xl object-cover shadow-lg shadow-black/40 border border-white/10"
+                    className="w-32 h-32 rounded-3xl object-cover shadow-2xl shadow-black/60 border border-white/10 group-hover:scale-105 group-hover:shadow-[0_0_35px_rgba(98,144,157,0.3)] transition-all duration-500"
                   />
                 </div>
 

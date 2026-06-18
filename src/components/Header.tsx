@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, X, Terminal } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -85,23 +85,9 @@ export default function Header() {
               {link.label}
             </a>
           ))}
-          <Link
-            href="/admin/login"
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold tracking-widest text-dasi-alice-400 hover:text-white border border-dasi-alice-500/20 hover:border-dasi-alice-400 rounded-md transition-all duration-300 bg-dasi-alice-950/20"
-          >
-            <Terminal size={14} />
-            ADMIN
-          </Link>
         </nav>
 
-        {/* Mobile menu button */}
         <div className="flex md:hidden items-center gap-4">
-          <Link
-            href="/admin/login"
-            className="flex items-center justify-center p-2 text-dasi-alice-400 hover:text-white border border-dasi-alice-500/10 hover:border-dasi-alice-400 rounded-md transition-all"
-          >
-            <Terminal size={16} />
-          </Link>
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="text-dasi-steel-200 hover:text-white focus:outline-none"
