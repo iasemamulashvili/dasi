@@ -47,8 +47,8 @@ const isLocalFileSystemWritable = () => {
 
 // Vercel KV Helper
 const getKVConfig = () => {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
+  const url = process.env.KV_REST_API_URL || process.env.KV_URL || process.env.STORAGE_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.KV_TOKEN || process.env.STORAGE_TOKEN;
   if (url && token) {
     return { url, token };
   }
