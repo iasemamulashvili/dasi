@@ -19,6 +19,7 @@ export default function Hero() {
 
   // Letter Collector state
   const [collectedCount, setCollectedCount] = useState(0);
+  const [isBlowing, setIsBlowing] = useState(false);
   const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const collectedLetters = useRef<Set<number>>(new Set());
   const mousePos = useRef({ x: 0, y: 0 });
@@ -216,25 +217,44 @@ export default function Hero() {
   const handleDumpZoneMouseEnter = () => {
     if (collectedLetters.current.size === 0) return;
 
+    setIsBlowing(true);
+    setTimeout(() => {
+      setIsBlowing(false);
+    }, 1200);
+
+    // Animate wind lines shooting left
+    gsap.fromTo('.wind-line',
+      { scaleX: 0, x: 20, opacity: 0.8 },
+      {
+        scaleX: 2.2,
+        x: -240,
+        opacity: 0,
+        stagger: 0.08,
+        duration: 0.9,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      }
+    );
+
     // Return all letters to slots
     letterRefs.current.forEach((letter, index) => {
       if (letter && collectedLetters.current.has(index)) {
-        // Explode outward then snap back to original position with stream lag
-        const tl = gsap.timeline({ delay: index * 0.05 });
+        // Blow letters to the left (wind blast) then bring them smoothly back home
+        const tl = gsap.timeline({ delay: index * 0.04 });
         tl.to(letter, {
-          x: '+=random(-30, 30)',
-          y: '+=random(-30, 30)',
-          rotation: 'random(-90, 90)',
-          duration: 0.2,
-          ease: 'power2.out',
+          x: '-=150',
+          y: '+=random(-25, 25)',
+          rotation: 'random(-60, 60)',
+          duration: 0.28,
+          ease: 'power1.out',
         }).to(letter, {
           x: 0,
           y: 0,
           rotation: 0,
           scale: 1,
           color: '#ebf0fa',
-          duration: 0.6,
-          ease: 'power4.out',
+          duration: 0.75,
+          ease: 'power3.out',
         });
       }
     });
@@ -321,31 +341,77 @@ export default function Hero() {
             );
           })}
           
-          {/* Drop Zone (dashed game box with letter slot icon) */}
+          {/* Drop Zone (dashed game box with integrated wall fan) */}
           <div
             ref={dumpZoneRef}
             onMouseEnter={handleDumpZoneMouseEnter}
-            className={`inline-flex items-center gap-2 ml-4 md:ml-8 px-4 py-2 border-dashed border-2 rounded-xl text-xs font-bold transition-all duration-300 ${
+            className={`inline-flex items-center gap-3 ml-4 md:ml-8 pl-5 pr-2 py-2 border-dashed border-2 rounded-xl text-sm font-black tracking-widest transition-all duration-300 relative select-none ${
               collectedCount > 0
-                ? 'border-dasi-alice-400 text-dasi-alice-400 bg-dasi-alice-950/40 glow-border-cyan scale-105 animate-pulse'
+                ? 'border-dasi-alice-400 text-dasi-alice-400 bg-dasi-alice-950/40 glow-border-cyan scale-105'
                 : 'border-white/10 text-dasi-steel-500 bg-transparent hover:border-white/25'
             }`}
           >
-            <svg
-              className={`w-4 h-4 transition-all duration-300 ${
-                collectedCount > 0 ? 'text-dasi-alice-400 scale-110' : 'text-dasi-steel-500'
-              }`}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m5 15 4-8 4 8M6 13h6" />
-              <path d="M2 6V2h4M18 2h4v4M22 18v4h-4M6 22H2v-4" strokeDasharray="1.5 1.5" className="opacity-80" />
-            </svg>
             <span>RELEASE</span>
+
+            {/* Integrated Wall Fan mounted to the right border */}
+            <div className="relative flex items-center justify-center pl-1">
+              {/* Wind Particles (hidden unless blowing) */}
+              <div className="absolute right-full mr-2 w-28 h-8 pointer-events-none overflow-hidden flex flex-col justify-around">
+                <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-dasi-alice-400 to-transparent opacity-0 origin-right" />
+                <div className="wind-line w-full h-[2.5px] bg-gradient-to-l from-dasi-alice-400 to-transparent opacity-0 origin-right" />
+                <div className="wind-line w-full h-[1px] bg-gradient-to-l from-dasi-alice-400 to-transparent opacity-0 origin-right" />
+              </div>
+
+              {/* Fan SVG (Heavy Industrial Turbine) */}
+              <svg
+                className={`w-11 h-11 transition-all duration-300 ${
+                  collectedCount > 0 ? 'text-dasi-alice-400 scale-105' : 'text-dasi-steel-500'
+                }`}
+                viewBox="0 0 64 64"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {/* Heavy dual bracket */}
+                <path d="M54 16 c1.5 0 3 1.5 3 4 v24 c0 2.5 -1.5 4 -3 4" strokeWidth="3" />
+                <path d="M54 32 h-6" strokeWidth="3.5" />
+                
+                {/* Arm and motor housing */}
+                <path d="M48 32 c-4 0 -8 -4 -8 -10" strokeWidth="3" />
+                <path d="M40 22 h-6 v-6 h6 z" fill="currentColor" className="opacity-40" />
+                
+                {/* Industrial grid safety casing */}
+                <circle cx="24" cy="20" r="18" strokeWidth="2.5" />
+                <circle cx="24" cy="20" r="15" strokeWidth="1" strokeDasharray="3 2" className="opacity-40" />
+                
+                {/* Rotating blades (thick 3-blades) */}
+                <g
+                  className={`origin-[24px_20px] ${
+                    isBlowing
+                      ? 'animate-[spin_0.12s_linear_infinite]'
+                      : collectedCount > 0
+                      ? 'animate-[spin_1.2s_linear_infinite]'
+                      : 'hover:animate-[spin_0.5s_linear_infinite]'
+                  }`}
+                >
+                  <circle cx="24" cy="20" r="4.5" fill="currentColor" />
+                  {/* Thick trapezoidal blade 1 */}
+                  <g transform="rotate(0, 24, 20)">
+                    <path d="M24 20 c-4 -3 -6 -11 -4 -13 c3 1 6 6 4 13" fill="currentColor" strokeWidth="1.5" />
+                  </g>
+                  {/* Thick trapezoidal blade 2 */}
+                  <g transform="rotate(120, 24, 20)">
+                    <path d="M24 20 c-4 -3 -6 -11 -4 -13 c3 1 6 6 4 13" fill="currentColor" strokeWidth="1.5" />
+                  </g>
+                  {/* Thick trapezoidal blade 3 */}
+                  <g transform="rotate(240, 24, 20)">
+                    <path d="M24 20 c-4 -3 -6 -11 -4 -13 c3 1 6 6 4 13" fill="currentColor" strokeWidth="1.5" />
+                  </g>
+                </g>
+              </svg>
+            </div>
           </div>
         </h1>
 
