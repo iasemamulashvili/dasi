@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { upload } from '@vercel/blob/client';
 import {
   Gamepad2,
   Briefcase,
@@ -94,22 +95,36 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
     setIsUploading(true);
     setUploadError(null);
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      // 1. Check if Vercel Blob is enabled via GET diagnostics
+      const statusRes = await fetch('/api/upload');
+      const statusData = await statusRes.json();
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Upload failed');
+      let videoUrl = '';
+      if (statusData && statusData.vercelBlobEnabled) {
+        // Use client-side direct upload to Vercel Blob
+        const blob = await upload(file.name, file, {
+          access: 'public',
+          handleUploadUrl: '/api/upload',
+        });
+        videoUrl = blob.url;
+      } else {
+        // Local upload fallback (standard multipart POST request)
+        const formData = new FormData();
+        formData.append('file', file);
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        if (!uploadRes.ok) {
+          const errData = await uploadRes.json();
+          throw new Error(errData.error || 'Upload failed');
+        }
+        const uploadData = await uploadRes.json();
+        videoUrl = uploadData.url;
       }
 
-      const result = await response.json();
-      setGameFormData((prev) => ({ ...prev, videoSrc: result.url }));
+      setGameFormData((prev) => ({ ...prev, videoSrc: videoUrl }));
     } catch (error: any) {
       console.error('Video upload error:', error);
       setUploadError(error.message || 'Failed to upload video');
