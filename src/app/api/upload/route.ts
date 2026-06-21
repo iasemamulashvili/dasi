@@ -4,6 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import { getSession } from '@/utils/auth';
 
+export const dynamic = 'force-dynamic';
+
 // Server-side telemetry to capture the last signature generation error for debugging
 let lastSignatureError: string | null = null;
 
@@ -60,10 +62,13 @@ export async function POST(request: Request) {
           body,
           request,
           onBeforeGenerateToken: async (pathname, clientPayload) => {
-            return {
+            const config: any = {
               allowedContentTypes: ['video/mp4'],
-              token, // Omitted or undefined token defaults to OIDC in production
             };
+            if (token) {
+              config.token = token;
+            }
+            return config;
           },
           onUploadCompleted: async ({ blob, tokenPayload }) => {
             // Log completion on the server
