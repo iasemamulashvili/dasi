@@ -13,8 +13,11 @@ export async function POST(request: Request) {
 
     const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
-    // 1. Try Vercel Blob first (active in production once connected on Vercel)
-    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+    // 1. Try Vercel Blob first (scans for generic or custom store tokens like GAME_VIDEO_STORE_READ_WRITE_TOKEN)
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN || 
+                      Object.keys(process.env)
+                        .filter((k) => k.endsWith('_READ_WRITE_TOKEN'))
+                        .map((k) => process.env[k])[0];
     if (blobToken) {
       try {
         const blobResult = await put(filename, file, {
