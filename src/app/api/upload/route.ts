@@ -4,6 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import { getSession } from '@/utils/auth';
 
+// Server-side telemetry to capture the last signature generation error for debugging
+let lastSignatureError: string | null = null;
+
 // Helper to get the token (checks for default or custom names)
 function getBlobToken(): string | undefined {
   return process.env.BLOB_READ_WRITE_TOKEN || 
@@ -27,6 +30,7 @@ export async function GET() {
     detectedBlobKeys: blobOrTokenKeys,
     vercelEnv: process.env.VERCEL_ENV || null,
     nodeEnv: process.env.NODE_ENV || null,
+    lastSignatureError,
   });
 }
 
@@ -39,6 +43,7 @@ export async function POST(request: Request) {
     if (contentType.includes('application/json')) {
       const session = await getSession();
       if (!session) {
+        lastSignatureError = 'Unauthorized: Admin session required';
         return NextResponse.json({ error: 'Unauthorized: Admin session required' }, { status: 401 });
       }
 
@@ -46,6 +51,7 @@ export async function POST(request: Request) {
       const token = getBlobToken();
 
       if (!token && !process.env.BLOB_STORE_ID) {
+        lastSignatureError = 'Vercel Blob is not configured on the server (missing token and store ID)';
         return NextResponse.json({ error: 'Vercel Blob is not configured on the server (missing token and store ID).' }, { status: 500 });
       }
 
@@ -65,9 +71,12 @@ export async function POST(request: Request) {
           },
         });
 
+        // Reset error on success
+        lastSignatureError = null;
         return NextResponse.json(jsonResponse);
       } catch (error: any) {
         console.error('handleUpload signature generation error:', error);
+        lastSignatureError = error.message || String(error);
         return NextResponse.json({ error: error.message || 'Signature generation failed' }, { status: 400 });
       }
     }
