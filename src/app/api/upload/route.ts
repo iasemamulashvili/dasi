@@ -23,11 +23,32 @@ export async function POST(request: Request) {
         });
         return NextResponse.json({ url: blobResult.url });
       } catch (e: any) {
-        console.error('Vercel Blob upload failed, trying local fallback:', e);
+        console.error('Vercel Blob upload failed:', e);
+        return NextResponse.json({ error: `Vercel Blob upload failed: ${e.message || e}` }, { status: 500 });
       }
     }
 
-    // 2. Local fallback (saves to public/videos/ locally during dev)
+    // Check if we can write files locally (development mode fallback)
+    const isWritable = (() => {
+      try {
+        const temp = path.join(process.cwd(), 'public', '.writable-test');
+        const dir = path.join(process.cwd(), 'public');
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        fs.writeFileSync(temp, 'test');
+        fs.unlinkSync(temp);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    })();
+
+    if (!isWritable) {
+      return NextResponse.json({ 
+        error: 'Vercel Blob token (BLOB_READ_WRITE_TOKEN) is not loaded in production. Please make sure you have connected Blob Storage to your project and clicked "Redeploy" on Vercel.' 
+      }, { status: 500 });
+    }
     try {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
