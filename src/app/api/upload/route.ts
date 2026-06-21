@@ -97,6 +97,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    // Security check: only allow MP4 videos to be written
+    if (file.type !== 'video/mp4' && !file.name.toLowerCase().endsWith('.mp4')) {
+      return NextResponse.json({ error: 'Only MP4 videos are allowed.' }, { status: 400 });
+    }
+
     const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
     // Verify if we can write files locally
