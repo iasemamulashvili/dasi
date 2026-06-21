@@ -21,8 +21,9 @@ export async function GET() {
   );
 
   return NextResponse.json({
-    vercelBlobEnabled: !!token,
+    vercelBlobEnabled: !!token || !!process.env.BLOB_STORE_ID,
     hasDefaultBlobToken: !!process.env.BLOB_READ_WRITE_TOKEN,
+    hasStoreId: !!process.env.BLOB_STORE_ID,
     detectedBlobKeys: blobOrTokenKeys,
     vercelEnv: process.env.VERCEL_ENV || null,
     nodeEnv: process.env.NODE_ENV || null,
@@ -44,8 +45,8 @@ export async function POST(request: Request) {
       const body = (await request.json()) as HandleUploadBody;
       const token = getBlobToken();
 
-      if (!token) {
-        return NextResponse.json({ error: 'Vercel Blob token is not configured on the server.' }, { status: 500 });
+      if (!token && !process.env.BLOB_STORE_ID) {
+        return NextResponse.json({ error: 'Vercel Blob is not configured on the server (missing token and store ID).' }, { status: 500 });
       }
 
       try {
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
           onBeforeGenerateToken: async (pathname, clientPayload) => {
             return {
               allowedContentTypes: ['video/mp4'],
-              token,
+              token, // Omitted or undefined token defaults to OIDC in production
             };
           },
           onUploadCompleted: async ({ blob, tokenPayload }) => {
