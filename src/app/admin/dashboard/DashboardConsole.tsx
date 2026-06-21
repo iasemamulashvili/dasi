@@ -77,6 +77,47 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
 
   const router = useRouter();
 
+  // Video Upload states
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Limit to 50MB
+    if (file.size > 50 * 1024 * 1024) {
+      setUploadError('File size exceeds the 50MB limit.');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
+      }
+
+      const result = await response.json();
+      setGameFormData((prev) => ({ ...prev, videoSrc: result.url }));
+    } catch (error: any) {
+      console.error('Video upload error:', error);
+      setUploadError(error.message || 'Failed to upload video');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const showMessage = (text: string, type: 'success' | 'error') => {
     setMessage({ text, type });
     setTimeout(() => setMessage(null), 5000);
@@ -501,17 +542,35 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                     className="w-full px-4 py-2.5 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400"
                   />
                 </div>
-                <div className="flex flex-col gap-1.5">
+                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold tracking-widest text-dasi-steel-400 uppercase">
                     Hover Gameplay Video URL (Optional)
                   </label>
-                  <input
-                    type="text"
-                    value={gameFormData.videoSrc}
-                    onChange={(e) => setGameFormData({ ...gameFormData, videoSrc: e.target.value })}
-                    placeholder="https://...mp4"
-                    className="w-full px-4 py-2.5 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400"
-                  />
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      value={gameFormData.videoSrc}
+                      onChange={(e) => setGameFormData({ ...gameFormData, videoSrc: e.target.value })}
+                      placeholder="https://...mp4 or upload file"
+                      className="flex-1 min-w-0 px-4 py-2.5 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400"
+                    />
+                    <label className="relative cursor-pointer px-4 py-2.5 bg-dasi-black-500 hover:bg-dasi-black-600 border border-white/5 rounded-xl text-xs font-bold text-white transition-all duration-200 flex items-center justify-center shrink-0 min-w-[100px] h-[42px] select-none text-center">
+                      {isUploading ? 'Uploading...' : 'Upload Video'}
+                      <input
+                        type="file"
+                        accept="video/mp4"
+                        onChange={handleVideoUpload}
+                        disabled={isUploading}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  {uploadError && (
+                    <p className="text-[10px] text-rose-500 font-bold mt-1 flex items-center gap-1">
+                      <AlertCircle size={10} />
+                      <span>{uploadError}</span>
+                    </p>
+                  )}
                 </div>
               </div>
 
