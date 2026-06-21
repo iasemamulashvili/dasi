@@ -104,10 +104,16 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
       if (statusData && statusData.vercelBlobEnabled) {
         // Use client-side direct upload to Vercel Blob (pre-sanitized to avoid library hang on special chars)
         const cleanName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-        const blob = await upload(cleanName, file, {
+        
+        // Promise wrapper with a 30-second timeout to prevent UI hanging
+        const uploadPromise = upload(cleanName, file, {
           access: 'public',
           handleUploadUrl: '/api/upload',
         });
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Upload timed out. Please verify that your Vercel Blob store is set to Public access, has active bandwidth, and the token is correctly configured.')), 30000)
+        );
+        const blob = await Promise.race([uploadPromise, timeoutPromise]);
         videoUrl = blob.url;
       } else {
         // Local upload fallback (standard multipart POST request)
