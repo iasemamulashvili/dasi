@@ -102,8 +102,9 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
 
       let videoUrl = '';
       if (statusData && statusData.vercelBlobEnabled) {
-        // Use client-side direct upload to Vercel Blob
-        const blob = await upload(file.name, file, {
+        // Use client-side direct upload to Vercel Blob (pre-sanitized to avoid library hang on special chars)
+        const cleanName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        const blob = await upload(cleanName, file, {
           access: 'public',
           handleUploadUrl: '/api/upload',
         });
