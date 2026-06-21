@@ -91,6 +91,11 @@ export async function POST(request: Request) {
     }
 
     // Case B: Local development / Fallback file write (multipart/form-data)
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized: Admin session required' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     if (!file) {
