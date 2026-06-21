@@ -43,13 +43,17 @@ export async function POST(request: Request) {
 
     // Case A: Client-side direct upload signature request (JSON)
     if (contentType.includes('application/json')) {
-      const session = await getSession();
-      if (!session) {
-        lastSignatureError = 'Unauthorized: Admin session required';
-        return NextResponse.json({ error: 'Unauthorized: Admin session required' }, { status: 401 });
+      const body = (await request.json()) as HandleUploadBody;
+
+      // Only enforce admin session for token generation, NOT for Vercel's webhook callback!
+      if (body.type === 'blob.generate-client-token') {
+        const session = await getSession();
+        if (!session) {
+          lastSignatureError = 'Unauthorized: Admin session required';
+          return NextResponse.json({ error: 'Unauthorized: Admin session required' }, { status: 401 });
+        }
       }
 
-      const body = (await request.json()) as HandleUploadBody;
       const token = getBlobToken();
 
       if (!token && !process.env.BLOB_STORE_ID) {
