@@ -53,8 +53,30 @@ To avoid complex server and external database setup (keeping the project self-co
 
 ## 3. UI/UX Design Guidelines
 
-The Admin Panel should maintain a premium aesthetic similar to the main site, but focus on utility:
-- **Style**: Sleek dark console layout (`dasi-bg` backdrop, glassmorphic panel blocks).
-- **Interactive Tables/Cards**: Easy grid view of current games with visual indicators (e.g., green dot for "Live", grey for "Hidden").
-- **Asset Uploaders**: Fields to input image URLs, video URLs, or drag-and-drop file inputs (stored locally in `/public/uploads` or external storage).
-- **Responsive Controls**: Fully functional on desktop and tablet viewports to allow quick changes on-the-go.
+The Admin Panel must maintain a premium, utility-first dark console aesthetic matching the main site, built on the refined color palette:
+
+### Theme & Colors
+- **Backdrop Canvas**: Carbon Black (`#181818` / `oklch(0.209 0 3.2)`) as the global layout background.
+- **Section Headers & Tables**: Carbon Black 2 (`#1e1e1e` / `oklch(0.235 0 3.2)`) for sidebars and primary layout containers.
+- **Form Panels & Cards**: Graphite (`#2d2d2d` / `oklch(0.2972 0 3.2)`) as the primary surface for editor blocks, control panels, and modals.
+- **Active Editor Fields**: Graphite Light (`#3d3d3d` / `oklch(0.36 0 3.2)`) for nested editor groups, text area backgrounds, and hover highlights.
+- **Typography**: Primary titles in Bright Snow (`#f9fafc` / `oklch(0.9849 0.0029 264.6)`); labels and secondary copy in Alabaster Grey (`#d0d6dc` / `oklch(0.8732 0.0105 248.0)`).
+- **Accents & Indicators**: 
+  - *Active Buttons/Interactive Borders*: Electric Violet (`#a855f7` / `oklch(0.6268 0.2325 303.9)`) with Electric Violet Light (`#c084fc` / `oklch(0.7217 0.1767 305.5)`) for hover states.
+  - *Focus Rings / Selection*: Neon Teal (`#06b6d4` / `oklch(0.7148 0.1257 215.2)`) for high-contrast focus rings.
+  - *Status Badges*: Cyber Green (`#10b981` / `oklch(0.6959 0.1491 162.5)`) for "Live" toggles and success messages; Alabaster Grey for "Hidden/Draft" status.
+
+### Interaction & Accessibility Guidelines
+- **Responsive Layout**: Utilize CSS Grid for the dashboard and Flexbox for sidebars, adapting smoothly across viewports using fluid scaling (`clamp()`) and container queries (`@container`).
+- **Interactive Tables & Form Fields**:
+  - Focus outlines must use high-visibility outlines: `outline: 2px solid var(--color-accent-secondary)` (Neon Teal) with `outline-offset: 2px`.
+  - Sync programmatic accessibility states (`aria-invalid="true"`) with visual `:user-invalid` styling on form fields to ensure screen reader feedback is delayed until user interaction.
+- **Interactive Animations**: Accompany all interactive transitions (e.g., toggling a game's visibility or expanding a card) with subtle micro-animations (e.g., using `@starting-style` for modals, and scaling active clicks to `0.98`).
+- **Scrollbar Styling**: Style scrollbars natively:
+  ```css
+  .admin-panel {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+  }
+  ```
+

@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { createSession, deleteSession, getSession } from '@/utils/auth';
 import { getGames, saveGames, getJobs, saveJobs, Game, Job } from '@/utils/db';
 
@@ -54,6 +55,8 @@ export async function saveGameAction(gameData: Game) {
   }
 
   await saveGames(games);
+  revalidatePath('/');
+  revalidatePath('/admin/dashboard');
   return { success: true };
 }
 
@@ -62,6 +65,8 @@ export async function deleteGameAction(gameId: string) {
   let games = await getGames();
   games = games.filter((g) => g.id !== gameId);
   await saveGames(games);
+  revalidatePath('/');
+  revalidatePath('/admin/dashboard');
   return { success: true };
 }
 
@@ -80,6 +85,8 @@ export async function saveJobAction(jobData: Job) {
   }
 
   await saveJobs(jobs);
+  revalidatePath('/');
+  revalidatePath('/admin/dashboard');
   return { success: true };
 }
 
@@ -88,5 +95,7 @@ export async function deleteJobAction(jobId: string) {
   let jobs = await getJobs();
   jobs = jobs.filter((j) => j.id !== jobId);
   await saveJobs(jobs);
+  revalidatePath('/');
+  revalidatePath('/admin/dashboard');
   return { success: true };
 }

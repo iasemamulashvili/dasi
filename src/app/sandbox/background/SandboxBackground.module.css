@@ -1,0 +1,45 @@
+.sandboxWrapper {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  /* Carbon-black canvas backdrop from the oklch design token */
+  background-color: oklch(0.209 0 3.2) !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.contentWrapper {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+}
+
+/* Force all homepage sections, headers, and footers to be transparent inside the sandbox */
+.sandboxWrapper :global(header),
+.sandboxWrapper :global(footer),
+.sandboxWrapper :global(section),
+.sandboxWrapper :global(#games),
+.sandboxWrapper :global(#about),
+.sandboxWrapper :global(#careers),
+.sandboxWrapper :global(#contact) {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Hide the old grid in the hero section to only show the new beautiful grid */
+.sandboxWrapper :global(#home) > div:nth-child(2) {
+  display: none !important;
+}
+
+/* Add a subtle top border to sections to replace the solid backgrounds' separation, keeping it highly polished */
+.sandboxWrapper :global(section) {
+  border-top: 1px solid color-mix(in oklch, var(--color-dasi-steel-700, #3d4a5c) 10%, transparent);
+}
+
+.sandboxWrapper :global(#home) {
+  border-top: none;
+}

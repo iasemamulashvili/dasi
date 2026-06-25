@@ -1,0 +1,109 @@
+.container {
+  --grid-cell-size: 40px;
+  --grid-line-width: 1px;
+  /* oklch theme variables from tailwind theme if possible, with a fallback */
+  --grid-line-color: color-mix(in oklch, var(--color-dasi-steel-700, #3d4a5c) 7%, transparent);
+  --icon-color: color-mix(in oklch, var(--color-dasi-steel-700, #3d4a5c) 18%, transparent);
+  
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(to right, var(--grid-line-color) var(--grid-line-width), transparent var(--grid-line-width)),
+    linear-gradient(to bottom, var(--grid-line-color) var(--grid-line-width), transparent var(--grid-line-width));
+  background-size: var(--grid-cell-size) var(--grid-cell-size);
+  background-position: center top;
+  pointer-events: none;
+}
+
+/* Outer wrapper for GSAP Scroll-driven Parallax positioning */
+.parallaxWrapper {
+  position: absolute;
+  top: var(--top);
+  left: var(--left, auto);
+  right: var(--right, auto);
+  width: var(--scale, 120px);
+  height: var(--scale, 120px);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Inner wrapper for CSS Micro-floating and base rotation */
+.iconWrapper {
+  width: 100%;
+  height: 100%;
+  color: var(--icon-color);
+  transform: rotate(var(--rot));
+  will-change: transform;
+  pointer-events: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+
+/* Staggered micro-floating animations */
+.floatClockwise {
+  animation: floatClockwise 22s ease-in-out infinite;
+}
+
+.floatCounter {
+  animation: floatCounter 26s ease-in-out infinite;
+}
+
+@keyframes floatClockwise {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(var(--rot));
+  }
+  50% {
+    transform: translate3d(6px, -12px, 0) rotate(calc(var(--rot) + 2.5deg));
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--rot));
+  }
+}
+
+@keyframes floatCounter {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(var(--rot));
+  }
+  50% {
+    transform: translate3d(-6px, -10px, 0) rotate(calc(var(--rot) - 2.5deg));
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--rot));
+  }
+}
+
+/* Responsive Scaling: scale down icons on smaller screens to prevent clutter */
+@media (max-width: 1024px) {
+  .parallaxWrapper {
+    width: calc(var(--scale, 120px) * 0.85);
+    height: calc(var(--scale, 120px) * 0.85);
+  }
+}
+
+@media (max-width: 768px) {
+  .parallaxWrapper {
+    width: calc(var(--scale, 120px) * 0.65);
+    height: calc(var(--scale, 120px) * 0.65);
+  }
+}

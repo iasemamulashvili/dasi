@@ -1,6 +1,18 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
+if (
+  process.env.NODE_ENV === 'production' &&
+  process.env.NEXT_PHASE !== 'phase-production-build' &&
+  !process.env.ADMIN_JWT_SECRET
+) {
+  throw new Error(
+    'CRITICAL SECURITY CONFIGURATION ERROR: The ADMIN_JWT_SECRET environment variable is not defined! ' +
+    'To prevent session hijacking exploits, the application cannot run in production without a secure, ' +
+    'unique ADMIN_JWT_SECRET configured in the environment.'
+  );
+}
+
 const SECRET_KEY = process.env.ADMIN_JWT_SECRET || 'fallback-secret-dasi-games-redesign-2026';
 const encodedSecret = new TextEncoder().encode(SECRET_KEY);
 

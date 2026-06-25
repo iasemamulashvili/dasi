@@ -47,8 +47,8 @@ const isLocalFileSystemWritable = () => {
 
 // Vercel KV Helper
 const getKVConfig = () => {
-  const url = process.env.KV_REST_API_URL || process.env.KV_URL || process.env.STORAGE_URL;
-  const token = process.env.KV_REST_API_TOKEN || process.env.KV_TOKEN || process.env.STORAGE_TOKEN;
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.KV_URL || process.env.STORAGE_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_TOKEN || process.env.STORAGE_TOKEN;
   if (url && token) {
     return { url, token };
   }
@@ -75,6 +75,9 @@ async function fetchKV(cmd: string, body?: any): Promise<any> {
   }
 
   const data = await response.json();
+  if (data && data.error) {
+    throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error));
+  }
   return data.result;
 }
 
@@ -126,6 +129,11 @@ export async function saveGames(games: Game[]): Promise<void> {
       console.log('Saved games to Vercel KV');
     } catch (e) {
       console.error('Failed to save games to Vercel KV:', e);
+      throw e;
+    }
+  } else {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Database Error: Vercel KV / Upstash Redis is not configured in production. State cannot be saved.');
     }
   }
 
@@ -193,6 +201,11 @@ export async function saveJobs(jobs: Job[]): Promise<void> {
       console.log('Saved jobs to Vercel KV');
     } catch (e) {
       console.error('Failed to save jobs to Vercel KV:', e);
+      throw e;
+    }
+  } else {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Database Error: Vercel KV / Upstash Redis is not configured in production. State cannot be saved.');
     }
   }
 

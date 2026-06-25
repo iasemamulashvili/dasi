@@ -25,27 +25,36 @@ The project will use a modern, high-performance web development stack:
 ---
 
 ## Design System & Color Palette
-The colors are inspired by the original Dasi Games site and modified for a premium, cool slate-and-navy aesthetic:
 
-### Primary Gradients
-- **Midnight Void to Deep Slate**: Mapped from the dark blue/black values to slate blue.
-- **Teal / Alice Blue Accents**: Used for active borders, CTAs, and highlight text.
+The Dasi Games redesigned website uses a highly premium, cohesive, and accessible dark theme built in the perceptually uniform **`oklch()`** color space. This guarantees uniform brightness and contrast across all elements.
 
-### Color Swatches (Variables in Tailwind config)
-- **Deep Blue / Black**:
-  - `black-950`: `#070e1d` (Base background)
-  - `black-900`: `#0a1429` (Card/Section background)
-- **Ink Black**:
-  - `ink-950`: `#0b0f19` (Alternative dark background)
-  - `ink-900`: `#101623`
-- **Cool Steel / Slate Grays**:
-  - `steel-500`: `#667b99` (Secondary text)
-  - `steel-400`: `#8596ad` (Muted details)
-- **Charcoal Blue**:
-  - `charcoal-500`: `#607a9f`
-- **Alice Blue (Teal Accents)**:
-  - `alice-500`: `#62909d`
-  - `alice-400`: `#82a6b0`
+### Design Token Architecture & Color Palette
+All layout blocks map to a strict three-tiered token structure:
+
+1. **Canvas & Layout Backdrops (Primitive & Semantic Base)**
+   - **Carbon Black (`#181818` / `oklch(0.209 0 3.2)`)**: The deepest canvas layer. Minimizes eye fatigue and makes game artwork pop.
+   - **Carbon Black 2 (`#1e1e1e` / `oklch(0.235 0 3.2)`)**: Secondary background layer. Used for headers, footers, and structural offsets.
+
+2. **Hierarchical Surfaces & Containers**
+   - **Graphite (`#2d2d2d` / `oklch(0.2972 0 3.2)`)**: Prominent primary container and surface color (e.g., game cards, career accordion headers). Establishes structural weight and presence.
+   - **Graphite Light (`#3d3d3d` / `oklch(0.36 0 3.2)`)**: Secondary/elevated surface for hover states, nested editor blocks, and borders.
+
+3. **High-Contrast Typography**
+   - **Bright Snow (`#f9fafc` / `oklch(0.9849 0.0029 264.6)`)**: Primary text and main headings. Achieves an outstanding 16.7:1 contrast ratio against Carbon Black.
+   - **Alabaster Grey (`#d0d6dc` / `oklch(0.8732 0.0105 248.0)`)**: Muted copy, secondary paragraphs, metadata, and platform icon outlines.
+
+4. **Dynamic Gaming Accents**
+   - **Electric Violet (`#a855f7` / `oklch(0.6268 0.2325 303.9)`)**: The primary recommended brand accent, evoking high energy and console RPG themes. Mapped as `accent-primary` for CTAs and highlighted titles.
+   - **Electric Violet Light (`#c084fc` / `oklch(0.7217 0.1767 305.5)`)**: Primary hover accent and readable violet link text on dark.
+   - **Neon Teal (`#06b6d4` / `oklch(0.7148 0.1257 215.2)`)**: Secondary active accent, evoking cyber tech, precision, and focus states.
+   - **Cyber Green (`#10b981` / `oklch(0.6959 0.1491 162.5)`)**: Utility success accent, representing active hiring indicators, badges, and health-bar aesthetics.
+
+### Primary Gradients & Shadows
+- **Cinematic Void Gradient**: Linear transition from Carbon Black (`#181818`) to Carbon Black 2 (`#1e1e1e`) to guide scrolling depth.
+- **Accented Glow Shadows**: Drop-shadows generated dynamically using oklch color mixing for a premium neon-glow effect on active cards:
+  ```css
+  box-shadow: 0 16px 48px -12px color-mix(in oklch, var(--color-accent-primary) 20%, transparent);
+  ```
 
 ---
 

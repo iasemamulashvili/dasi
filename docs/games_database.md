@@ -26,11 +26,47 @@ The original site lists a main game (Crown Quest / Lumber Chopper) and loads oth
 
 ## 2. Interactive Card Layout Specifications
 
-Each game card in the horizontal showcase list should support the following visual state flow:
-1. **Default State**:
-   - Clean card showing the high-resolution game logo/artwork background, stylized game title, and a list of platforms supported (small vector icons: Apple logo, Google Play logo, Poki logo).
-   - Slightly darkened overlay to keep text highly legible.
-2. **Hover State (Interactive)**:
-   - **3D Tilt Effect**: The card tracks the mouse position. The agent must translate mouse coordinates (relative to card center) into small angles of rotation on the X and Y axes (`rotateX` and `rotateY` between -10deg and +10deg) and move the subtle reflection sheen layer to simulate material depth.
-   - **Video Preview Reveal**: The static card background fades out or scales down, revealing a looping 10-15s gameplay video (MP4 format). If the video URL is missing, it should fall back to an animated game banner or a high-quality GIF.
-   - **Download Badges Overlay**: Small badges for download slides up smoothly to encourage immediate installs.
+Each game card in the horizontal showcase list must be built as a self-contained component using container queries (`@container`) and styled with the refined dark theme tokens to establish clean spatial depth:
+
+### 1. Default State:
+- **Card Surface**: Styled in Graphite (`#2d2d2d` / `oklch(0.2972 0 3.2)`), featuring a high-resolution game artwork background.
+- **Card Border**: Subtle separator using dynamic color mixing:
+  ```css
+  border: 1px solid color-mix(in oklch, var(--color-surface-primary) 30%, transparent);
+  ```
+- **Overlays & Typography**:
+  - A darkened linear gradient overlay (mixing Carbon Black and transparent) covers the background to ensure high-visibility readability.
+  - Game titles are styled in Bright Snow (`#f9fafc` / `oklch(0.9849 0.0029 264.6)`) with balanced wrapping (`text-wrap: balance`) and trimmed headings:
+    ```css
+    text-box-trim: both;
+    text-box-edge: cap alphabetic;
+    ```
+  - Secondary metadata and supported platform badges (Apple, Google Play, Poki icons) are styled in Alabaster Grey (`#d0d6dc` / `oklch(0.8732 0.0105 248.0)`).
+- **Accessibility**: Complete keyboard accessibility via `:focus-visible` displaying a Neon Teal (`#06b6d4`) outline offset:
+  ```css
+  .game-card:focus-visible {
+    outline: 2px solid var(--color-accent-secondary);
+    outline-offset: 4px;
+  }
+  ```
+
+### 2. Hover State (Interactive):
+- **3D Tilt & Lighting**:
+  - The card tracks the mouse cursor, dynamically adjusting CSS 3D transforms (`rotateX` and `rotateY` between `-8deg` and `+8deg`).
+  - A radial reflection sheen layer (white mixed in `oklch` at 15% opacity) tracks relative mouse coordinates to simulate realistic, premium material depth.
+- **Visual Elevation**:
+  - Card background elevates to Graphite Light (`#3d3d3d` / `oklch(0.36 0 3.2)`).
+  - Card border transitions to an interactive mix:
+    ```css
+    border-color: color-mix(in oklch, var(--color-accent-primary) 60%, var(--color-surface-secondary));
+    ```
+  - A glowing shadows drop-shadow is applied:
+    ```css
+    box-shadow: 0 16px 48px -12px color-mix(in oklch, var(--color-accent-primary) 25%, transparent);
+    ```
+- **Video Preview Reveal**: The static artwork scales down and fades out, revealing a looping 10-15s gameplay MP4 preview.
+- **Download Badges Overlay**: A slide-up panel containing download buttons (styled in Electric Violet `#a855f7` for primary calls to action) animates smoothly using a custom bezier transition:
+  ```css
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  ```
+

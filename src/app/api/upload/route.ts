@@ -22,7 +22,18 @@ export async function GET() {
   const token = getBlobToken();
   const envKeys = Object.keys(process.env);
   const blobOrTokenKeys = envKeys.filter(
-    (k) => k.toLowerCase().includes('blob') || k.toLowerCase().includes('write_token')
+    (k) =>
+      k.toLowerCase().includes('blob') ||
+      k.toLowerCase().includes('write_token') ||
+      k.toLowerCase().includes('kv') ||
+      k.toLowerCase().includes('redis')
+  );
+
+  const hasUpstashRedis = !!(process.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_TOKEN);
+  const hasVercelKv = !!(process.env.KV_URL || process.env.KV_REST_API_URL || process.env.KV_REST_API_TOKEN);
+  const vercelKvEnabled = !!(
+    (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.KV_URL || process.env.STORAGE_URL) &&
+    (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_TOKEN || process.env.STORAGE_TOKEN)
   );
 
   return NextResponse.json({
@@ -33,6 +44,9 @@ export async function GET() {
     vercelEnv: process.env.VERCEL_ENV || null,
     nodeEnv: process.env.NODE_ENV || null,
     lastSignatureError,
+    vercelKvEnabled,
+    hasUpstashRedis,
+    hasVercelKv,
   });
 }
 
@@ -57,8 +71,10 @@ export async function POST(request: Request) {
       const token = getBlobToken();
 
       if (!token && !process.env.BLOB_STORE_ID) {
-        lastSignatureError = 'Vercel Blob is not configured on the server (missing token and store ID)';
-        return NextResponse.json({ error: 'Vercel Blob is not configured on the server (missing token and store ID).' }, { status: 500 });
+        lastSignatureError = 'Vercel Blob is not configured on the server. Please connect a Vercel Blob store in your Vercel dashboard and redeploy to enable video uploads.';
+        return NextResponse.json({
+          error: 'Vercel Blob is not configured. Please connect a Vercel Blob store in your Vercel dashboard and redeploy to enable video uploads.'
+        }, { status: 500 });
       }
 
       try {
@@ -96,10 +112,37 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized: Admin session required' }, { status: 401 });
     }
 
+    // Server-side Content-Length size check of 50MB
+    const contentLengthHeader = request.headers.get('content-length');
+    if (contentLengthHeader) {
+      const contentLength = parseInt(contentLengthHeader, 10);
+      if (!isNaN(contentLength) && contentLength > 50 * 1024 * 1024) {
+        return NextResponse.json({ error: 'File size exceeds the 50MB limit.' }, { status: 400 });
+      }
+    }
+
+    // Disable local filesystem writes in production
+    if (process.env.NODE_ENV === 'production') {
+      const token = getBlobToken();
+      if (!token && !process.env.BLOB_STORE_ID) {
+        return NextResponse.json({
+          error: 'Local filesystem uploads are disabled in production, and Vercel Blob is not configured. Please connect a Vercel Blob store in your Vercel dashboard and redeploy to enable video uploads.'
+        }, { status: 400 });
+      }
+      return NextResponse.json({
+        error: 'Local filesystem uploads are disabled in production. Please use Vercel Blob to upload videos.'
+      }, { status: 400 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
+
+    // Server-side file size check of 50MB
+    if (file.size > 50 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File size exceeds the 50MB limit.' }, { status: 400 });
     }
 
     // Security check: only allow MP4 videos to be written

@@ -49,9 +49,9 @@ dasi/
 
 | Component / Task | Status | Notes |
 |---|---|---|
-| **Documentation & Planning** | Completed | All doc files created in `docs/` |
+| **Documentation & Planning** | Completed | All doc files created in `docs/` and updated with refined palette specifications. |
 | **Next.js & Env Setup** | Planned | Need to run Vite/Next.js initialization |
-| **Design System & Tailwind Config** | Planned | Add custom colors and gradients |
+| **Design System & Tailwind Config** | Completed | Defined refined dark theme oklch() colors in color_palette.json and mapped in docs/guidelines.md. |
 | **Global Header & Navigation** | Planned | Core layouts and transitions |
 | **Hero Parallax & Gamified Text** | Planned | Collect/dump letters interaction |
 | **Games Showcase (Horizontal Scroll)** | Planned | GSAP horizontal lock & card tilt |
