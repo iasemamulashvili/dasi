@@ -120,8 +120,8 @@ export async function POST(request: Request) {
     const contentLengthHeader = request.headers.get('content-length');
     if (contentLengthHeader) {
       const contentLength = parseInt(contentLengthHeader, 10);
-      if (!isNaN(contentLength) && contentLength > 50 * 1024 * 1024) {
-        return NextResponse.json({ error: 'File size exceeds the 50MB limit.' }, { status: 400 });
+      if (!isNaN(contentLength) && contentLength > 5 * 1024 * 1024) {
+        return NextResponse.json({ error: 'File size exceeds the 5MB free tier limit. Please compress your video before uploading.' }, { status: 400 });
       }
     }
 
@@ -144,9 +144,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Server-side file size check of 50MB
-    if (file.size > 50 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size exceeds the 50MB limit.' }, { status: 400 });
+    // Server-side file size check of 5MB limit to prevent Vercel Blob exhaustion
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File size exceeds the 5MB free tier limit. Please compress your video before uploading.' }, { status: 400 });
     }
 
     // Security check: only allow MP4 videos to be written

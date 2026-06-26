@@ -43,19 +43,19 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
   };
 
   return (
-    <section id="careers" className="bg-dasi-black-950 border-t border-white/5 py-24 px-6 relative">
-      <div className="absolute bottom-1/2 right-0 w-80 h-80 bg-dasi-alice-950/10 rounded-full blur-[100px] pointer-events-none select-none" />
+    <section id="careers" className="bg-transparent border-t border-graphite-light py-24 px-6 relative">
+      <div className="absolute bottom-1/2 right-0 w-80 h-80 bg-slate-violet/10 rounded-full blur-[100px] pointer-events-none select-none" />
 
       <div className="max-w-4xl mx-auto">
         {/* Title */}
         <div className="text-center mb-16">
-          <span className="text-xs font-bold tracking-widest text-dasi-alice-400 uppercase flex items-center justify-center gap-2">
-            <span>•</span> CAREER OPPORTUNITIES
+          <span className="text-xs font-silkscreen tracking-widest text-slate-violet-light uppercase flex items-center justify-center gap-2">
+            <span>•</span> Career Opportunities
           </span>
-          <h2 className="text-3xl md:text-5xl font-black text-white tracking-wide mt-2 uppercase">
-            JOIN OUR TEAM
+          <h2 className="text-3xl md:text-5xl font-normal text-bright-snow tracking-wide mt-2 uppercase font-russo-one retro-heading-shadow">
+            Join Our Team
           </h2>
-          <p className="text-sm text-dasi-steel-400 mt-4 max-w-lg mx-auto">
+          <p className="text-sm text-alabaster-grey mt-4 max-w-lg mx-auto font-outfit font-light">
             Join us in our adventure, push your limits, and let's create something extraordinary together in our Tbilisi studio.
           </p>
         </div>
@@ -67,31 +67,37 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
             return (
               <div
                 key={job.id}
-                className={`border rounded-2xl glass-panel transition-all duration-300 ${
-                  isOpen ? 'border-dasi-alice-500/30' : 'border-white/5 hover:border-white/10'
+                className={`inset-pixel-card border transition-all duration-300 group ${
+                  isOpen ? 'border-platinum-silver' : 'border-graphite-light hover:border-platinum-silver-light'
                 }`}
               >
+                {/* 8-Bit Corner Pixel Blocks */}
+                <div className="absolute top-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
+                <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
+                <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
+                <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
+
                 {/* Accordion Header */}
                 <button
                   onClick={() => toggleJob(job.id)}
-                  className="w-full flex items-center justify-between p-6 text-left focus:outline-none"
+                  className="w-full flex items-center justify-between p-6 text-left focus:outline-none cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-xl border transition-colors ${
-                      isOpen ? 'bg-dasi-alice-950/40 border-dasi-alice-500/20 text-dasi-alice-400' : 'bg-dasi-ink-900 border-white/5 text-dasi-steel-400'
+                    <div className={`p-3 rounded-none border transition-colors ${
+                      isOpen ? 'bg-carbon-black border-slate-violet text-platinum-silver' : 'bg-carbon-black-2 border-graphite-light text-alabaster-grey'
                     }`}>
                       <Briefcase size={20} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-white tracking-wide">{job.title}</h3>
-                      <p className="text-xs text-dasi-steel-500 flex items-center gap-1 mt-1">
+                      <h3 className="text-lg font-silkscreen text-bright-snow tracking-wide uppercase">{job.title}</h3>
+                      <p className="text-xs text-alabaster-grey/70 flex items-center gap-1 mt-1.5 font-outfit font-light">
                         <MapPin size={12} />
                         {job.location}
                       </p>
                     </div>
                   </div>
 
-                  <div className={`text-dasi-steel-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-dasi-alice-400' : ''}`}>
+                  <div className={`text-alabaster-grey transition-transform duration-300 ${isOpen ? 'rotate-180 text-platinum-silver' : ''}`}>
                     <ChevronDown size={20} />
                   </div>
                 </button>
@@ -99,13 +105,13 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
                 {/* Accordion Content (Fluid Height using CSS grid rows) */}
                 <div
                   className={`grid transition-all duration-500 ease-in-out ${
-                    isOpen ? 'grid-rows-[1fr] opacity-100 border-t border-white/5' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+                    isOpen ? 'grid-rows-[1fr] opacity-100 border-t border-graphite-light' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <div className="p-6 flex flex-col gap-6 text-sm text-dasi-steel-300">
+                    <div className="p-6 flex flex-col gap-6 text-sm text-alabaster-grey">
                       {/* Description */}
-                      <p className="leading-relaxed text-dasi-steel-300 font-light">
+                      <p className="leading-relaxed text-alabaster-grey font-outfit font-light">
                         {job.description}
                       </p>
 
@@ -114,10 +120,10 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
                         {/* Responsibilities */}
                         {job.responsibilities && job.responsibilities.length > 0 && (
                           <div>
-                            <h4 className="text-xs font-bold tracking-widest text-white uppercase mb-3 border-b border-white/5 pb-1">
+                            <h4 className="text-xs font-silkscreen tracking-widest text-bright-snow uppercase mb-3 border-b border-graphite-light pb-2.5">
                               Key Responsibilities
                             </h4>
-                            <ul className="list-disc pl-4 flex flex-col gap-2 font-light">
+                            <ul className="list-disc pl-4 flex flex-col gap-2 font-outfit font-light text-alabaster-grey">
                               {job.responsibilities.map((resp, index) => (
                                 <li key={index}>{resp}</li>
                               ))}
@@ -128,10 +134,10 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
                         {/* Requirements */}
                         {job.requirements && job.requirements.length > 0 && (
                           <div>
-                            <h4 className="text-xs font-bold tracking-widest text-white uppercase mb-3 border-b border-white/5 pb-1">
+                            <h4 className="text-xs font-silkscreen tracking-widest text-bright-snow uppercase mb-3 border-b border-graphite-light pb-2.5">
                               Requirements
                             </h4>
-                            <ul className="list-disc pl-4 flex flex-col gap-2 font-light">
+                            <ul className="list-disc pl-4 flex flex-col gap-2 font-outfit font-light text-alabaster-grey">
                               {job.requirements.map((req, index) => (
                                 <li key={index}>{req}</li>
                               ))}
@@ -141,12 +147,12 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
                       </div>
 
                       {/* Action Button */}
-                      <div className="flex justify-start mt-4 border-t border-white/5 pt-6">
+                      <div className="flex justify-start mt-4 border-t border-graphite-light pt-6">
                         <button
                           onClick={() => handleApplyClick(job.title)}
-                          className="px-6 py-3 bg-dasi-alice-500 hover:bg-dasi-alice-600 text-white font-bold tracking-widest text-xs rounded-lg transition-colors shadow-lg shadow-dasi-alice-950/40"
+                          className="inset-pixel-btn-primary px-6 py-3 text-xs"
                         >
-                          APPLY NOW
+                          Apply Now
                         </button>
                       </div>
                     </div>

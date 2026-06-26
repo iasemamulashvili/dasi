@@ -1,14 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Russo_One, Silkscreen, Outfit } from "next/font/google";
+import BackgroundGrid from "@/components/BackgroundGrid";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const russoOne = Russo_One({
+  weight: "400",
+  variable: "--font-russo-one",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const silkscreen = Silkscreen({
+  weight: "400",
+  variable: "--font-silkscreen",
+  subsets: ["latin"],
+});
+
+const outfit = Outfit({
+  weight: ["300", "400", "700"],
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -34,9 +43,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${russoOne.variable} ${silkscreen.variable} ${outfit.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col relative bg-carbon-black text-bright-snow">
+        <BackgroundGrid />
+        <div className="relative z-10 flex flex-col min-h-full w-full">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

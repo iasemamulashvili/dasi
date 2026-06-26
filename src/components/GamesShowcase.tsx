@@ -8,7 +8,7 @@ import { Game } from '@/utils/db';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Canvas Fallback component drawing premium neon bezier fluid waves
+// Canvas Fallback component drawing premium wave lines
 function GameVideoFallback({ gameId }: { gameId: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -21,19 +21,16 @@ function GameVideoFallback({ gameId }: { gameId: string }) {
     let animationId: number;
     let time = 0;
 
-    // Theme-based colors for neon waves
-    let primaryColor = 'rgba(98, 144, 157, 0.6)'; // Alice blue (teal accent)
-    let secondaryColor = 'rgba(51, 102, 204, 0.4)'; // Dasi blue
+    // Theme-based colors in our new OKLCH brand system
+    let primaryColor = 'rgba(109, 109, 128, 0.6)'; // slate-violet
+    let secondaryColor = 'rgba(226, 232, 240, 0.4)'; // platinum-silver
     
     if (gameId === 'crown-quest') {
-      primaryColor = 'rgba(224, 90, 54, 0.7)'; // Warm orange
-      secondaryColor = 'rgba(241, 196, 15, 0.4)'; // Gold
+      primaryColor = 'rgba(226, 232, 240, 0.7)';
+      secondaryColor = 'rgba(109, 109, 128, 0.4)';
     } else if (gameId === 'lumber-chopper') {
-      primaryColor = 'rgba(39, 174, 96, 0.7)'; // Emerald green
-      secondaryColor = 'rgba(46, 204, 113, 0.4)'; // Light green
-    } else if (gameId === 'hotel-manager') {
-      primaryColor = 'rgba(52, 152, 219, 0.7)'; // Bright blue
-      secondaryColor = 'rgba(155, 89, 182, 0.4)'; // Amethyst purple
+      primaryColor = 'rgba(82, 122, 105, 0.7)'; // Sage green
+      secondaryColor = 'rgba(109, 109, 128, 0.4)';
     }
 
     const resizeCanvas = () => {
@@ -44,7 +41,7 @@ function GameVideoFallback({ gameId }: { gameId: string }) {
     window.addEventListener('resize', resizeCanvas);
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(7, 14, 29, 0.08)'; // Deep trailing fade
+      ctx.fillStyle = 'rgba(24, 24, 24, 0.08)'; // Deep carbon-black trailing fade
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw Wave 1
@@ -79,7 +76,7 @@ function GameVideoFallback({ gameId }: { gameId: string }) {
       if (nodeX > 0 && nodeX < canvas.width) {
         ctx.beginPath();
         ctx.arc(nodeX, nodeY, 4, 0, Math.PI * 2);
-        ctx.fillStyle = '#ebf0fa';
+        ctx.fillStyle = '#f9fafc';
         ctx.shadowBlur = 10;
         ctx.shadowColor = primaryColor;
         ctx.fill();
@@ -149,7 +146,6 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    // Calculate rotation angles (max 10 degrees)
     const rotateY = ((x - centerX) / centerX) * 8;
     const rotateX = -((y - centerY) / centerY) * 8;
 
@@ -193,16 +189,16 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
   };
 
   return (
-    <div id="games" ref={containerRef} className="bg-dasi-black-950">
+    <div id="portfolio" ref={containerRef} className="bg-transparent">
       {/* Scroll Trigger container */}
       <div ref={scrollSectionRef} className="h-screen flex flex-col justify-center overflow-hidden relative">
         {/* Section Title */}
         <div className="max-w-7xl mx-auto px-6 w-full mb-8 z-20">
-          <span className="text-xs font-bold tracking-widest text-dasi-alice-400 uppercase flex items-center gap-2">
-            <span>•</span> OUR PORTFOLIO SHOWCASE
+          <span className="text-xs font-silkscreen tracking-widest text-slate-violet-light uppercase flex items-center gap-2">
+            <span>•</span> Our Portfolio Showcase
           </span>
-          <h2 className="text-3xl md:text-5xl font-black text-white tracking-wide mt-2">
-            EXPLORE OUR CREATIONS
+          <h2 className="text-3xl md:text-5xl font-normal text-bright-snow tracking-wide mt-2 font-russo-one retro-heading-shadow">
+            Explore Our Creations
           </h2>
         </div>
 
@@ -220,21 +216,20 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                 setHoveredCardIndex(null);
               }}
               onMouseEnter={() => setHoveredCardIndex(index)}
-              className="relative w-[320px] md:w-[360px] h-[460px] md:h-[500px] bg-dasi-black-900 border border-white/5 rounded-2xl overflow-hidden glass-panel glass-panel-hover flex flex-col p-6 cursor-pointer select-none transition-all duration-300 transform-gpu group"
+              className="relative w-[320px] md:w-[360px] h-[460px] md:h-[500px] inset-pixel-card inset-pixel-card-interactive overflow-hidden flex flex-col p-6 cursor-pointer select-none transition-all duration-300 transform-gpu group"
               style={{ transformStyle: 'preserve-3d' }}
             >
-              {/* Card Glow Border */}
-              <div
-                className={`absolute inset-0 border-2 rounded-2xl pointer-events-none transition-opacity duration-500 z-30 ${
-                  hoveredCardIndex === index ? 'border-dasi-alice-400/30 opacity-100 glow-border-cyan' : 'border-transparent opacity-0'
-                }`}
-              />
+              {/* 8-Bit Corner Pixel Blocks */}
+              <div className="absolute top-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
+              <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
+              <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
+              <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
 
               {/* Shine Layer */}
-              <div className="card-shine absolute -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-white rounded-full blur-2xl opacity-0 pointer-events-none pointer-events-none mix-blend-overlay z-10" />
+              <div className="card-shine absolute -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-white rounded-full blur-2xl opacity-0 pointer-events-none mix-blend-overlay z-10" />
 
               {/* Game Visual Area */}
-              <div className="relative w-full h-[240px] md:h-[260px] bg-dasi-black-950 rounded-xl overflow-hidden mb-6 flex items-center justify-center border border-white/5">
+              <div className="relative w-full h-[240px] md:h-[260px] bg-carbon-black rounded-none overflow-hidden mb-6 flex items-center justify-center border border-graphite-light">
                 {/* Fallback Looping Particle Canvas or Looping Video */}
                 {hoveredCardIndex === index ? (
                   game.videoSrc ? (
@@ -260,15 +255,15 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                   <img
                     src={game.iconSrc}
                     alt={game.iconAlt}
-                    className="w-32 h-32 rounded-3xl object-cover shadow-2xl shadow-black/60 border border-white/10 group-hover:scale-105 group-hover:shadow-[0_0_35px_rgba(98,144,157,0.3)] transition-all duration-500"
+                    className="w-32 h-32 rounded-none object-cover border border-graphite-light group-hover:scale-105 transition-all duration-500"
                   />
                 </div>
 
                 {/* Play Button Indicator */}
                 {hoveredCardIndex !== index && (
                   <div className="absolute inset-0 bg-black/10 hover:bg-black/20 flex items-center justify-center transition-colors">
-                    <span className="p-3 bg-dasi-black-950/80 backdrop-blur-sm border border-white/10 rounded-full text-white scale-95 hover:scale-100 transition-all duration-300">
-                      <Play size={16} fill="white" />
+                    <span className="p-3 bg-carbon-black/90 border border-graphite-light rounded-none text-bright-snow scale-95 hover:scale-100 transition-all duration-300">
+                      <Play size={16} fill="currentColor" />
                     </span>
                   </div>
                 )}
@@ -277,16 +272,16 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
               {/* Game Metadata info */}
               <div className="flex-1 flex flex-col justify-between relative z-10" style={{ transform: 'translateZ(30px)' }}>
                 <div>
-                  <h3 className="text-xl font-bold text-white tracking-wide mb-2">
+                  <h3 className="text-xl font-normal text-bright-snow tracking-wide mb-2 font-russo-one">
                     {game.title}
                   </h3>
-                  <p className="text-xs text-dasi-steel-400 leading-relaxed line-clamp-3">
+                  <p className="text-xs text-alabaster-grey leading-relaxed line-clamp-3 font-outfit font-light">
                     {game.description}
                   </p>
                 </div>
 
                 {/* Platforms & Store badge redirection links */}
-                <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-4">
+                <div className="flex items-center justify-between border-t border-graphite-light pt-4 mt-4">
                   {/* Supported Stores badges */}
                   <div className="flex items-center gap-2">
                     {game.isIOS && game.appstoreLink && (
@@ -294,7 +289,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                         href={game.appstoreLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-dasi-ink-900 border border-white/5 rounded-lg text-dasi-steel-400 hover:text-white hover:border-dasi-alice-400 transition-all"
+                        className="p-2 bg-carbon-black border border-graphite-light rounded-none text-alabaster-grey hover:text-bright-snow hover:border-platinum-silver transition-all"
                         title="iOS App Store"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -306,7 +301,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                         href={game.playstoreLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-dasi-ink-900 border border-white/5 rounded-lg text-dasi-steel-400 hover:text-white hover:border-dasi-alice-400 transition-all"
+                        className="p-2 bg-carbon-black border border-graphite-light rounded-none text-alabaster-grey hover:text-bright-snow hover:border-platinum-silver transition-all"
                         title="Google Play Store"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -318,7 +313,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                         href={game.pokiLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-dasi-ink-900 border border-white/5 rounded-lg text-dasi-steel-400 hover:text-white hover:border-dasi-alice-400 transition-all"
+                        className="p-2 bg-carbon-black border border-graphite-light rounded-none text-alabaster-grey hover:text-bright-snow hover:border-platinum-silver transition-all"
                         title="Play on Poki"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -328,7 +323,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                   </div>
 
                   {/* Play/View Link */}
-                  <div className="flex items-center gap-1 text-xs font-bold tracking-wider text-dasi-alice-400 hover:text-white transition-colors group">
+                  <div className="flex items-center gap-1 text-xs font-silkscreen tracking-widest text-platinum-silver hover:text-bright-snow transition-colors group">
                     <span>PLAY NOW</span>
                     <ArrowRight size={12} className="transform group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -342,16 +337,22 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
             href="https://play.google.com/store/apps/dev?id=5818328852601157830&hl=en"
             target="_blank"
             rel="noopener noreferrer"
-            className="relative w-[280px] h-[460px] md:h-[500px] border border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center p-6 text-center hover:border-dasi-alice-400 group transition-all duration-300"
+            className="relative w-[280px] h-[460px] md:h-[500px] border-2 border-dashed border-graphite-light bg-carbon-black-2 rounded-none flex flex-col items-center justify-center p-6 text-center hover:border-platinum-silver group transition-all duration-300"
           >
-            <div className="p-4 bg-dasi-ink-900 rounded-full border border-white/5 text-dasi-steel-400 group-hover:border-dasi-alice-400 group-hover:text-dasi-alice-400 transition-all duration-300 mb-4">
+            {/* 8-Bit Corner Pixel Blocks */}
+            <div className="absolute top-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
+            <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
+            <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
+            <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
+
+            <div className="p-4 bg-carbon-black rounded-none border border-graphite-light text-alabaster-grey group-hover:border-platinum-silver group-hover:text-platinum-silver transition-all duration-300 mb-4">
               <ExternalLink size={24} />
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">View All Games</h3>
-            <p className="text-xs text-dasi-steel-400 leading-relaxed mb-6">
+            <h3 className="text-lg font-normal text-bright-snow mb-2 font-russo-one">View All Games</h3>
+            <p className="text-xs text-alabaster-grey leading-relaxed mb-6 font-outfit font-light">
               Check out our complete portfolio page on Google Play developer page.
             </p>
-            <div className="flex items-center gap-2 text-xs font-bold text-dasi-alice-400 group-hover:underline">
+            <div className="flex items-center gap-2 text-xs font-silkscreen tracking-widest text-platinum-silver group-hover:text-bright-snow">
               <span>SHOW MORE</span>
               <ArrowRight size={12} />
             </div>

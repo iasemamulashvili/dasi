@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import styles from './BackgroundGrid.module.css';
@@ -49,8 +50,10 @@ const backgroundIcons: ScatteredIcon[] = [
 
 export default function BackgroundGrid() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
+    if (pathname?.startsWith('/admin')) return;
     const ctx = gsap.context(() => {
       const items = gsap.utils.toArray<HTMLElement>('.parallax-item');
       
@@ -73,7 +76,9 @@ export default function BackgroundGrid() {
     }, containerRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [pathname]);
+
+  if (pathname?.startsWith('/admin')) return null;
 
   const renderIconSvg = (type: IconType) => {
     switch (type) {

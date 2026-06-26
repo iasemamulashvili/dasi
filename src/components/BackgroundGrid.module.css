@@ -2,8 +2,8 @@
   --grid-cell-size: 40px;
   --grid-line-width: 1px;
   /* oklch theme variables from tailwind theme if possible, with a fallback */
-  --grid-line-color: color-mix(in oklch, var(--color-dasi-steel-700, #3d4a5c) 7%, transparent);
-  --icon-color: color-mix(in oklch, var(--color-dasi-steel-700, #3d4a5c) 18%, transparent);
+  --grid-line-color: color-mix(in oklch, var(--color-slate-violet) 8%, transparent);
+  --icon-color: color-mix(in oklch, var(--color-slate-violet) 18%, transparent);
   
   position: absolute;
   top: 0;

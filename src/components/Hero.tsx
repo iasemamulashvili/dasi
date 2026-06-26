@@ -27,10 +27,8 @@ export default function Hero() {
   const titleText = "DASI GAMES";
 
   useEffect(() => {
-    // 1. GSAP Context for safety and cleanup
     const ctx = gsap.context(() => {
       // --- Kinetic Entrance Animations ---
-      // Split letters in description tagline
       gsap.fromTo(
         '.entrance-char',
         { opacity: 0, y: 50, rotateX: -60 },
@@ -103,7 +101,6 @@ export default function Hero() {
         const dist = Math.hypot(e.clientX - btnCenterX, e.clientY - btnCenterY);
 
         if (dist < 120) {
-          // Attract button toward cursor
           const x = (e.clientX - btnCenterX) * 0.35;
           const y = (e.clientY - btnCenterY) * 0.35;
 
@@ -115,7 +112,6 @@ export default function Hero() {
             ease: 'power2.out',
           });
         } else {
-          // Snap back
           gsap.to(btn, {
             x: 0,
             y: 0,
@@ -150,27 +146,23 @@ export default function Hero() {
             const currentX = gsap.getProperty(letter, 'x') as number || 0;
             const currentY = gsap.getProperty(letter, 'y') as number || 0;
 
-            // 1. Calculate static home coordinates in viewport space
             const homeViewportX = rect.left - currentX;
             const homeViewportY = rect.top - currentY;
 
-            // 2. Set target position in viewport space (bottom-right of cursor, aligned by top-left bounds to prevent overlap)
             const angle = (index / titleText.length) * Math.PI * 2 + (Date.now() * 0.003);
             const radius = 3; // Tight cluster radius
             const targetViewportX = mousePos.current.x + 30 + Math.cos(angle) * radius;
             const targetViewportY = mousePos.current.y + 30 + Math.sin(angle) * radius;
 
-            // 3. Compute relative offsets for GSAP
             const relTargetX = targetViewportX - homeViewportX;
             const relTargetY = targetViewportY - homeViewportY;
 
-            // 4. Interpolate toward target (0.12 factor for smoother trailing lag behind cursor)
             gsap.set(letter, {
               x: currentX + (relTargetX - currentX) * 0.12,
               y: currentY + (relTargetY - currentY) * 0.12,
               rotation: currentX * 0.1,
               scale: 0.9,
-              color: '#62909d',
+              color: 'var(--color-platinum-silver)',
               zIndex: 100,
             });
           }
@@ -186,23 +178,19 @@ export default function Hero() {
     };
   }, []);
 
-  // Track global mouse position for letters
   const handleContainerMouseMove = (e: React.MouseEvent) => {
     mousePos.current = { x: e.clientX, y: e.clientY };
 
-    // Check if we hover over a letter to "collect" it
     letterRefs.current.forEach((letter, index) => {
       if (!letter || collectedLetters.current.has(index)) return;
 
       const rect = letter.getBoundingClientRect();
       const dist = Math.hypot(e.clientX - (rect.left + rect.width / 2), e.clientY - (rect.top + rect.height / 2));
 
-      // Trigger collection if mouse gets very close (within 40px)
       if (dist < 40) {
         collectedLetters.current.add(index);
         setCollectedCount(collectedLetters.current.size);
 
-        // Soundless pop bounce
         gsap.to(letter, {
           scale: 1.3,
           duration: 0.1,
@@ -213,7 +201,6 @@ export default function Hero() {
     });
   };
 
-  // Dump letters back when cursor enters the anchor zone
   const handleDumpZoneMouseEnter = () => {
     if (collectedLetters.current.size === 0) return;
 
@@ -222,7 +209,6 @@ export default function Hero() {
       setIsBlowing(false);
     }, 1200);
 
-    // Animate wind lines shooting left
     gsap.fromTo('.wind-line',
       { scaleX: 0, x: 20, opacity: 0.8 },
       {
@@ -236,10 +222,8 @@ export default function Hero() {
       }
     );
 
-    // Return all letters to slots
     letterRefs.current.forEach((letter, index) => {
       if (letter && collectedLetters.current.has(index)) {
-        // Blow letters to the left (wind blast) then bring them smoothly back home
         const tl = gsap.timeline({ delay: index * 0.04 });
         tl.to(letter, {
           x: '-=150',
@@ -252,7 +236,7 @@ export default function Hero() {
           y: 0,
           rotation: 0,
           scale: 1,
-          color: '#ebf0fa',
+          color: 'var(--color-bright-snow)',
           duration: 0.75,
           ease: 'power3.out',
         });
@@ -284,16 +268,13 @@ export default function Hero() {
       id="home"
       ref={containerRef}
       onMouseMove={handleContainerMouseMove}
-      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-dasi-black-950 pt-20"
+      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent pt-20"
     >
       {/* Parallax Layer 1: Background environment */}
       <div
         ref={layerBgRef}
-        className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(20,41,82,0.4)_0%,rgba(7,14,29,1)_80%)] opacity-80"
+        className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(109,109,128,0.2)_0%,rgba(24,24,24,1)_80%)] opacity-80"
       />
-
-      {/* Background Graphic Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20 pointer-events-none" />
 
       {/* Parallax Layer 2: Midground Game Art */}
       <div
@@ -303,7 +284,7 @@ export default function Hero() {
         <img
           src="https://dasigames.com/Images/banner_image.webp"
           alt="Game Characters Banner"
-          className="h-[80%] max-h-[700px] w-auto object-contain object-bottom select-none pointer-events-none filter drop-shadow-[0_0_50px_rgba(51,102,204,0.15)]"
+          className="h-[80%] max-h-[700px] w-auto object-contain object-bottom select-none pointer-events-none filter drop-shadow-[0_0_50px_rgba(109,109,128,0.15)]"
         />
       </div>
 
@@ -314,7 +295,7 @@ export default function Hero() {
       >
         {/* Playful Interactive Header Alert */}
         {collectedCount > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1 bg-dasi-alice-950/40 border border-dasi-alice-500/20 rounded-full text-xs font-semibold text-dasi-alice-400 animate-pulse">
+          <div className="flex items-center gap-2 px-3 py-1 bg-carbon-black-2 border border-graphite-light text-xs font-silkscreen text-platinum-silver animate-pulse">
             <Sparkles size={12} />
             <span>Carrying {collectedCount} letters! Hover over RELEASE to snap them back!</span>
           </div>
@@ -323,7 +304,7 @@ export default function Hero() {
         {/* Gamified Collectable Title */}
         <h1
           ref={titleRef}
-          className="text-5xl md:text-8xl font-black tracking-wider text-dasi-black-50 select-none flex flex-wrap"
+          className="text-5xl md:text-8xl font-normal tracking-wider text-bright-snow select-none flex flex-wrap font-russo-one retro-heading-shadow"
         >
           {titleText.split('').map((char, index) => {
             if (char === ' ') return <span key={index} className="w-6 md:w-10">&nbsp;</span>;
@@ -333,7 +314,7 @@ export default function Hero() {
                 ref={(el) => {
                   letterRefs.current[index] = el;
                 }}
-                className="inline-block cursor-grab active:cursor-grabbing hover:text-dasi-alice-400 select-none duration-75 relative"
+                className="inline-block cursor-grab active:cursor-grabbing hover:text-platinum-silver select-none duration-75 relative"
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 {char}
@@ -345,10 +326,10 @@ export default function Hero() {
           <div
             ref={dumpZoneRef}
             onMouseEnter={handleDumpZoneMouseEnter}
-            className={`inline-flex items-center gap-3 ml-4 md:ml-8 pl-5 pr-2 py-2 border-dashed border-2 rounded-xl text-sm font-black tracking-widest transition-all duration-300 relative select-none ${
+            className={`inline-flex items-center gap-3 ml-4 md:ml-8 pl-5 pr-2 py-2 border-dashed border-2 rounded-none text-sm font-silkscreen tracking-widest transition-all duration-300 relative select-none ${
               collectedCount > 0
-                ? 'border-dasi-alice-400 text-dasi-alice-400 bg-dasi-alice-950/40 glow-border-cyan scale-105'
-                : 'border-white/10 text-dasi-steel-500 bg-transparent hover:border-white/25'
+                ? 'border-platinum-silver text-platinum-silver bg-carbon-black-2/90 scale-105'
+                : 'border-graphite-light text-alabaster-grey/70 bg-transparent hover:border-platinum-silver hover:text-bright-snow'
             }`}
           >
             <span>RELEASE</span>
@@ -357,15 +338,15 @@ export default function Hero() {
             <div className="relative flex items-center justify-center pl-1">
               {/* Wind Particles (hidden unless blowing) */}
               <div className="absolute right-full mr-2 w-28 h-8 pointer-events-none overflow-hidden flex flex-col justify-around">
-                <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-dasi-alice-400 to-transparent opacity-0 origin-right" />
-                <div className="wind-line w-full h-[2.5px] bg-gradient-to-l from-dasi-alice-400 to-transparent opacity-0 origin-right" />
-                <div className="wind-line w-full h-[1px] bg-gradient-to-l from-dasi-alice-400 to-transparent opacity-0 origin-right" />
+                <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+                <div className="wind-line w-full h-[2.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+                <div className="wind-line w-full h-[1px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
               </div>
 
-              {/* Fan SVG (Heavy Industrial Turbine) */}
+              {/* Fan SVG (Heavy Dual Bracket Industrial Fan) */}
               <svg
                 className={`w-11 h-11 transition-all duration-300 ${
-                  collectedCount > 0 ? 'text-dasi-alice-400 scale-105' : 'text-dasi-steel-500'
+                  collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
                 }`}
                 viewBox="0 0 64 64"
                 fill="none"
@@ -374,19 +355,12 @@ export default function Hero() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                {/* Heavy dual bracket */}
                 <path d="M54 16 c1.5 0 3 1.5 3 4 v24 c0 2.5 -1.5 4 -3 4" strokeWidth="3" />
                 <path d="M54 32 h-6" strokeWidth="3.5" />
-                
-                {/* Arm and motor housing */}
                 <path d="M48 32 c-4 0 -8 -4 -8 -10" strokeWidth="3" />
                 <path d="M40 22 h-6 v-6 h6 z" fill="currentColor" className="opacity-40" />
-                
-                {/* Industrial grid safety casing */}
                 <circle cx="24" cy="20" r="18" strokeWidth="2.5" />
                 <circle cx="24" cy="20" r="15" strokeWidth="1" strokeDasharray="3 2" className="opacity-40" />
-                
-                {/* Rotating blades (thick 3-blades) */}
                 <g
                   className={`origin-[24px_20px] ${
                     isBlowing
@@ -397,15 +371,12 @@ export default function Hero() {
                   }`}
                 >
                   <circle cx="24" cy="20" r="4.5" fill="currentColor" />
-                  {/* Thick trapezoidal blade 1 */}
                   <g transform="rotate(0, 24, 20)">
                     <path d="M24 20 c-4 -3 -6 -11 -4 -13 c3 1 6 6 4 13" fill="currentColor" strokeWidth="1.5" />
                   </g>
-                  {/* Thick trapezoidal blade 2 */}
                   <g transform="rotate(120, 24, 20)">
                     <path d="M24 20 c-4 -3 -6 -11 -4 -13 c3 1 6 6 4 13" fill="currentColor" strokeWidth="1.5" />
                   </g>
-                  {/* Thick trapezoidal blade 3 */}
                   <g transform="rotate(240, 24, 20)">
                     <path d="M24 20 c-4 -3 -6 -11 -4 -13 c3 1 6 6 4 13" fill="currentColor" strokeWidth="1.5" />
                   </g>
@@ -417,7 +388,7 @@ export default function Hero() {
 
         {/* Kinetic Entrance Tagline */}
         <div className="overflow-hidden">
-          <p className="text-xl md:text-3xl font-light tracking-wide text-dasi-black-100 flex flex-wrap gap-x-2">
+          <p className="text-xl md:text-3xl font-light tracking-wide text-bright-snow/90 flex flex-wrap gap-x-2">
             {"Crafting unique gaming experiences".split(' ').map((word, wIdx) => (
               <span key={wIdx} className="inline-block overflow-hidden">
                 {word.split('').map((char, cIdx) => (
@@ -433,7 +404,7 @@ export default function Hero() {
         {/* Subtitle */}
         <p
           ref={descriptionRef}
-          className="max-w-xl text-base text-dasi-steel-400 leading-relaxed font-normal"
+          className="max-w-xl text-base text-alabaster-grey leading-relaxed font-outfit font-light"
         >
           Dasi Games bridges art, logic, and high performance to build addictive mobile, hybrid arcade RPG, and tycoon titles. Partner with us for cutting-edge game development solutions.
         </p>
@@ -443,7 +414,7 @@ export default function Hero() {
           <button
             ref={ctaBtnRef}
             onClick={handleLetTalkClick}
-            className="flex items-center gap-3 px-8 py-4 bg-dasi-black-500 hover:bg-dasi-black-600 text-white font-bold tracking-widest text-sm rounded-lg shadow-xl shadow-dasi-black-800/50 hover:shadow-dasi-black-700/60 transition-all duration-300"
+            className="inset-pixel-btn-primary inline-flex items-center gap-3 px-8 py-4 text-sm"
           >
             LET'S TALK
             <ArrowRight size={18} />
@@ -453,8 +424,8 @@ export default function Hero() {
 
       {/* Scroll indicator */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none opacity-50">
-        <span className="text-[10px] tracking-widest text-dasi-steel-500 font-bold uppercase">Scroll to Explore</span>
-        <div className="w-[1.5px] h-10 bg-gradient-to-b from-dasi-alice-400 to-transparent animate-pulse" />
+        <span className="text-[9px] tracking-widest text-alabaster-grey/50 font-silkscreen uppercase">Scroll to Explore</span>
+        <div className="w-[1.5px] h-10 bg-gradient-to-b from-slate-violet-light to-transparent animate-pulse" />
       </div>
     </section>
   );

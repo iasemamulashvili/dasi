@@ -1,10 +1,106 @@
 .sandboxWrapper {
+  /* ==========================================
+     CORE DESIGN SYSTEM PRIMITIVES (oklch)
+     ========================================== */
+  --carbon-black: oklch(0.209 0 3.2);
+  --carbon-black-2: oklch(0.235 0 3.2);
+  --graphite: oklch(0.2972 0 3.2);
+  --graphite-light: oklch(0.36 0 3.2);
+  --alabaster-grey: oklch(0.8732 0.0105 248.0);
+  --bright-snow: oklch(0.9849 0.0029 264.6);
+  --slate-violet: oklch(0.48 0.025 285.0);
+  --slate-violet-light: oklch(0.61 0.025 285.0);
+  --platinum-silver: oklch(0.91 0.01 240.0);
+  --platinum-silver-light: oklch(0.98 0.005 240.0);
+  --muted-green: oklch(0.50 0.04 165.0);
+  --muted-green-light: oklch(0.63 0.04 165.0);
+
+  /* ==========================================
+     SEMANTIC GLOBAL VARIABLES OVERRIDES
+     ========================================== */
+  --background: var(--carbon-black) !important;
+  --foreground: var(--bright-snow) !important;
+
+  /* ==========================================
+     SCOPED TAILWIND THEME VARIABLE OVERRIDES
+     ========================================== */
+  /* Dasi Black -> Grayscale Carbon & Graphite foundations */
+  --color-dasi-black-50: var(--bright-snow);
+  --color-dasi-black-100: var(--bright-snow);
+  --color-dasi-black-200: var(--alabaster-grey);
+  --color-dasi-black-300: var(--alabaster-grey);
+  --color-dasi-black-400: var(--alabaster-grey);
+  --color-dasi-black-500: var(--platinum-silver);
+  --color-dasi-black-600: var(--platinum-silver-light);
+  --color-dasi-black-700: var(--graphite-light);
+  --color-dasi-black-800: var(--graphite);
+  --color-dasi-black-900: var(--carbon-black-2);
+  --color-dasi-black-950: var(--carbon-black);
+
+  /* Dasi Ink -> Carbon & Graphite container surfaces */
+  --color-dasi-ink-50: var(--bright-snow);
+  --color-dasi-ink-100: var(--alabaster-grey);
+  --color-dasi-ink-200: var(--alabaster-grey);
+  --color-dasi-ink-300: var(--graphite-light);
+  --color-dasi-ink-400: var(--graphite-light);
+  --color-dasi-ink-500: var(--graphite);
+  --color-dasi-ink-600: var(--graphite);
+  --color-dasi-ink-700: var(--carbon-black-2);
+  --color-dasi-ink-800: var(--carbon-black-2);
+  --color-dasi-ink-900: var(--carbon-black);
+  --color-dasi-ink-950: var(--carbon-black);
+
+  /* Dasi Steel -> Cool Alabaster-grey typography and elements */
+  --color-dasi-steel-50: var(--bright-snow);
+  --color-dasi-steel-100: var(--bright-snow);
+  --color-dasi-steel-200: var(--alabaster-grey);
+  --color-dasi-steel-300: var(--alabaster-grey);
+  --color-dasi-steel-400: var(--alabaster-grey);
+  --color-dasi-steel-500: var(--graphite-light);
+  --color-dasi-steel-600: var(--graphite-light);
+  --color-dasi-steel-700: var(--graphite);
+  --color-dasi-steel-800: var(--graphite);
+  --color-dasi-steel-900: var(--carbon-black-2);
+  --color-dasi-steel-950: var(--carbon-black-2);
+
+  /* Dasi Charcoal -> Mirror Dasi Steel definitions */
+  --color-dasi-charcoal-50: var(--bright-snow);
+  --color-dasi-charcoal-100: var(--bright-snow);
+  --color-dasi-charcoal-200: var(--alabaster-grey);
+  --color-dasi-charcoal-300: var(--alabaster-grey);
+  --color-dasi-charcoal-400: var(--alabaster-grey);
+  --color-dasi-charcoal-500: var(--graphite-light);
+  --color-dasi-charcoal-600: var(--graphite-light);
+  --color-dasi-charcoal-700: var(--graphite);
+  --color-dasi-charcoal-800: var(--graphite);
+  --color-dasi-charcoal-900: var(--carbon-black-2);
+  --color-dasi-charcoal-950: var(--carbon-black-2);
+
+  /* Dasi Alice -> High-tech Slate Violet secondary accents */
+  --color-dasi-alice-50: var(--bright-snow);
+  --color-dasi-alice-100: var(--bright-snow);
+  --color-dasi-alice-200: var(--slate-violet-light);
+  --color-dasi-alice-300: var(--slate-violet-light);
+  --color-dasi-alice-400: var(--slate-violet-light);
+  --color-dasi-alice-500: var(--slate-violet);
+  --color-dasi-alice-600: var(--slate-violet);
+  --color-dasi-alice-700: var(--graphite-light);
+  --color-dasi-alice-800: var(--graphite);
+  --color-dasi-alice-900: var(--carbon-black-2);
+  --color-dasi-alice-950: var(--carbon-black);
+
+  /* Scrollbar override */
+  --color-scroll-thumb: var(--graphite-light);
+  --color-scroll-track: var(--carbon-black);
+
+  /* ==========================================
+     LAYOUT & POSITIONING
+     ========================================== */
   position: relative;
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
-  /* Carbon-black canvas backdrop from the oklch design token */
-  background-color: oklch(0.209 0 3.2) !important;
+  background-color: var(--carbon-black) !important;
   display: flex;
   flex-direction: column;
 }
@@ -18,6 +114,9 @@
   flex: 1 1 0%;
 }
 
+/* ==========================================
+     SECTION TRANSPARENCY OVERRIDES
+     ========================================== */
 /* Force all homepage sections, headers, and footers to be transparent inside the sandbox */
 .sandboxWrapper :global(header),
 .sandboxWrapper :global(footer),
@@ -30,16 +129,85 @@
   background-image: none !important;
 }
 
-/* Hide the old grid in the hero section to only show the new beautiful grid */
+/* Hide the old static background grid in the hero section */
 .sandboxWrapper :global(#home) > div:nth-child(2) {
   display: none !important;
 }
 
-/* Add a subtle top border to sections to replace the solid backgrounds' separation, keeping it highly polished */
+/* Add a subtle top border to sections using our new graphite-light token */
 .sandboxWrapper :global(section) {
-  border-top: 1px solid color-mix(in oklch, var(--color-dasi-steel-700, #3d4a5c) 10%, transparent);
+  border-top: 1px solid color-mix(in oklch, var(--graphite-light) 12%, transparent) !important;
 }
 
 .sandboxWrapper :global(#home) {
-  border-top: none;
+  border-top: none !important;
+}
+
+/* ==========================================
+     HERO SECTION DEEP THEMING OVERRIDES
+     ========================================== */
+/* 1. Replace the hardcoded blue radial background gradient with slate-violet and carbon-black */
+.sandboxWrapper :global(#home) > div:first-child {
+  background: radial-gradient(
+    circle at center,
+    color-mix(in oklch, var(--slate-violet) 15%, transparent) 0%,
+    var(--carbon-black) 85%
+  ) !important;
+  opacity: 0.95 !important;
+}
+
+/* 2. Replace the characters banner's Dasi-blue drop-shadow filter with slate-violet */
+.sandboxWrapper :global(#home) img {
+  filter: drop-shadow(0 0 55px color-mix(in oklch, var(--slate-violet) 18%, transparent)) !important;
+}
+
+/* 3. Force interactive collected letters (carried in GSAP via inline styles) to render in slate-violet-light */
+.sandboxWrapper :global(#home) h1 span[style*="z-index: 100"],
+.sandboxWrapper :global(#home) h1 span[style*="z-index:100"] {
+  color: var(--slate-violet-light) !important;
+}
+
+/* ==========================================
+     COMPONENTS RE-STYLING FOR WCAG CONTRAST
+     ========================================== */
+/* 1. Primary Button text contrast override (Light platinum button needs dark carbon text) */
+.sandboxWrapper :global(.bg-dasi-black-500) {
+  color: var(--carbon-black) !important;
+}
+.sandboxWrapper :global(.bg-dasi-black-600) {
+  color: var(--carbon-black) !important;
+}
+
+/* 2. Glass Panels and Cards (Graphite instead of Deep Indigo Blue) */
+.sandboxWrapper :global(.glass-panel) {
+  background: color-mix(in oklch, var(--graphite) 75%, transparent) !important;
+  border-color: color-mix(in oklch, var(--bright-snow) 6%, transparent) !important;
+}
+.sandboxWrapper :global(.glass-panel-hover):hover {
+  background: color-mix(in oklch, var(--graphite) 90%, transparent) !important;
+  border-color: color-mix(in oklch, var(--slate-violet) 40%, transparent) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 3. Cyan Glow to Slate Violet Glow transition */
+.sandboxWrapper :global(.glow-border-cyan) {
+  box-shadow: 0 0 15px color-mix(in oklch, var(--slate-violet) 25%, transparent) !important;
+  border-color: var(--slate-violet-light) !important;
+}
+
+.sandboxWrapper :global(.glow-text-cyan) {
+  text-shadow: 
+    0 0 10px color-mix(in oklch, var(--slate-violet-light) 40%, transparent),
+    0 0 20px color-mix(in oklch, var(--slate-violet-light) 20%, transparent) !important;
+}
+
+/* 4. Scrollbar Theme Adaptation */
+.sandboxWrapper :global(::-webkit-scrollbar-track) {
+  background: var(--carbon-black) !important;
+}
+.sandboxWrapper :global(::-webkit-scrollbar-thumb) {
+  background: var(--graphite-light) !important;
+}
+.sandboxWrapper :global(::-webkit-scrollbar-thumb:hover) {
+  background: var(--slate-violet) !important;
 }

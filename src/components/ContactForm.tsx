@@ -64,29 +64,35 @@ export default function ContactForm() {
   };
 
   return (
-    <section id="contact" className="bg-dasi-black-950 border-t border-white/5 py-24 px-6 relative">
+    <section id="contact" className="bg-transparent border-t border-graphite-light py-24 px-6 relative">
       <div className="max-w-xl mx-auto">
         {/* Title */}
         <div className="text-center mb-16">
-          <span className="text-xs font-bold tracking-widest text-dasi-alice-400 uppercase flex items-center justify-center gap-2">
-            <span>•</span> GET IN TOUCH
+          <span className="text-xs font-silkscreen tracking-widest text-slate-violet-light uppercase flex items-center justify-center gap-2">
+            <span>•</span> Get in Touch
           </span>
-          <h2 className="text-3xl md:text-5xl font-black text-white tracking-wide mt-2 uppercase">
-            CONTACT US
+          <h2 className="text-3xl md:text-5xl font-normal text-bright-snow tracking-wide mt-2 uppercase font-russo-one retro-heading-shadow">
+            Contact Us
           </h2>
-          <p className="text-sm text-dasi-steel-400 mt-4">
+          <p className="text-sm text-alabaster-grey mt-4 font-outfit font-light">
             Have a game project, outsourcing request, or general question? Drop us a line!
           </p>
         </div>
 
         {/* Form panel */}
-        <div className="glass-panel p-8 rounded-2xl border border-white/5 relative z-10">
+        <div className="inset-pixel-card p-8 relative z-10">
+          {/* 8-Bit Corner Pixel Blocks */}
+          <div className="absolute top-0 left-0 w-2 h-2 bg-graphite-light z-30" />
+          <div className="absolute top-0 right-0 w-2 h-2 bg-graphite-light z-30" />
+          <div className="absolute bottom-0 left-0 w-2 h-2 bg-graphite-light z-30" />
+          <div className="absolute bottom-0 right-0 w-2 h-2 bg-graphite-light z-30" />
+
           {submitStatus === 'success' && (
-            <div className="mb-6 p-4 bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-start gap-3">
+            <div className="mb-6 p-4 bg-carbon-black border border-muted-green text-muted-green rounded-none flex items-start gap-3">
               <CheckCircle2 size={20} className="shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-sm">Message Sent Successfully!</p>
-                <p className="text-xs text-emerald-500/80 mt-1">
+                <p className="font-silkscreen text-xs uppercase">Message Sent Successfully!</p>
+                <p className="text-xs text-muted-green-light mt-1 font-outfit font-light">
                   Thank you for reaching out. We will get back to you shortly.
                 </p>
               </div>
@@ -94,11 +100,11 @@ export default function ContactForm() {
           )}
 
           {submitStatus === 'error' && (
-            <div className="mb-6 p-4 bg-rose-950/40 border border-rose-500/20 text-rose-400 rounded-xl flex items-start gap-3">
+            <div className="mb-6 p-4 bg-carbon-black border border-red-500/35 text-red-400 rounded-none flex items-start gap-3">
               <AlertCircle size={20} className="shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-sm">Submission Failed</p>
-                <p className="text-xs text-rose-500/80 mt-1">{errorMessage}</p>
+                <p className="font-silkscreen text-xs uppercase">Submission Failed</p>
+                <p className="text-xs text-red-400/80 mt-1 font-outfit font-light">{errorMessage}</p>
               </div>
             </div>
           )}
@@ -106,7 +112,7 @@ export default function ContactForm() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             {/* Name */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="name" className="text-xs font-bold tracking-wider text-dasi-steel-400 uppercase">
+              <label htmlFor="name" className="text-xs font-silkscreen tracking-wider text-alabaster-grey uppercase">
                 Name
               </label>
               <input
@@ -117,13 +123,13 @@ export default function ContactForm() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="John Doe"
-                className="w-full px-4 py-3 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400 transition-colors"
+                className="w-full px-4 py-3 bg-carbon-black border border-graphite-light rounded-none text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-platinum-silver transition-colors font-outfit"
               />
             </div>
 
             {/* Email */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="email" className="text-xs font-bold tracking-wider text-dasi-steel-400 uppercase">
+              <label htmlFor="email" className="text-xs font-silkscreen tracking-wider text-alabaster-grey uppercase">
                 Email Address
               </label>
               <input
@@ -134,13 +140,13 @@ export default function ContactForm() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="john@example.com"
-                className="w-full px-4 py-3 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400 transition-colors"
+                className="w-full px-4 py-3 bg-carbon-black border border-graphite-light rounded-none text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-platinum-silver transition-colors font-outfit"
               />
             </div>
 
             {/* Subject */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="subject" className="text-xs font-bold tracking-wider text-dasi-steel-400 uppercase">
+              <label htmlFor="subject" className="text-xs font-silkscreen tracking-wider text-alabaster-grey uppercase">
                 Subject
               </label>
               <input
@@ -151,18 +157,18 @@ export default function ContactForm() {
                 value={formData.subject}
                 onChange={handleChange}
                 placeholder="Game development partnership"
-                className="w-full px-4 py-3 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400 transition-colors"
+                className="w-full px-4 py-3 bg-carbon-black border border-graphite-light rounded-none text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-platinum-silver transition-colors font-outfit"
               />
             </div>
 
             {/* Resume / Attachment */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold tracking-wider text-dasi-steel-400 uppercase">
+              <label className="text-xs font-silkscreen tracking-wider text-alabaster-grey uppercase">
                 CV / Resume (Optional)
               </label>
-              <label className="w-full flex flex-col items-center justify-center border border-dashed border-white/10 rounded-xl px-4 py-6 cursor-pointer hover:border-dasi-alice-400 transition-colors bg-dasi-ink-950/30">
-                <Upload size={20} className="text-dasi-steel-500 mb-2" />
-                <span className="text-xs text-dasi-steel-400">
+              <label className="w-full flex flex-col items-center justify-center border-2 border-dashed border-graphite-light bg-carbon-black rounded-none px-4 py-6 cursor-pointer hover:border-platinum-silver transition-colors">
+                <Upload size={20} className="text-alabaster-grey/50 mb-2" />
+                <span className="text-xs text-alabaster-grey font-outfit">
                   {file ? file.name : 'Click to upload CV (PDF/Doc)'}
                 </span>
                 <input
@@ -177,7 +183,7 @@ export default function ContactForm() {
 
             {/* Message */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="message" className="text-xs font-bold tracking-wider text-dasi-steel-400 uppercase">
+              <label htmlFor="message" className="text-xs font-silkscreen tracking-wider text-alabaster-grey uppercase">
                 Message
               </label>
               <textarea
@@ -188,7 +194,7 @@ export default function ContactForm() {
                 value={formData.message}
                 onChange={handleChange}
                 placeholder="Tell us about your project or application..."
-                className="w-full px-4 py-3 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400 transition-colors resize-none"
+                className="w-full px-4 py-3 bg-carbon-black border border-graphite-light rounded-none text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-platinum-silver transition-colors resize-none font-outfit"
               />
             </div>
 
@@ -196,7 +202,7 @@ export default function ContactForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="mt-2 flex items-center justify-center gap-2 w-full py-4 bg-dasi-black-500 hover:bg-dasi-black-600 disabled:bg-dasi-black-800 text-white font-bold tracking-widest text-sm rounded-xl transition-all shadow-lg shadow-dasi-black-950/40"
+              className="inset-pixel-btn-primary mt-2 w-full py-4 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
             >
               {isSubmitting ? (
                 <span>SENDING...</span>

@@ -86,9 +86,9 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Limit to 50MB
-    if (file.size > 50 * 1024 * 1024) {
-      setUploadError('File size exceeds the 50MB limit.');
+    // Limit to 5MB to protect Vercel Blob free tier
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('File size exceeds the 5MB free tier limit. Please compress your video before uploading.');
       return;
     }
 

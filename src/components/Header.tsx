@@ -49,7 +49,7 @@ export default function Header() {
 
   const navLinks = [
     { label: 'HOME', href: '#home' },
-    { label: 'GAMES', href: '#games' },
+    { label: 'GAMES', href: '#portfolio' },
     { label: 'ABOUT', href: '#about' },
     { label: 'CAREERS', href: '#careers' },
     { label: 'CONTACT', href: '#contact' },
@@ -59,7 +59,7 @@ export default function Header() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-dasi-black-950/80 backdrop-blur-md border-b border-white/5 py-4 shadow-lg'
+          ? 'bg-carbon-black/90 backdrop-blur-md border-b border-graphite-light py-4 shadow-lg'
           : 'bg-transparent py-6'
       }`}
     >
@@ -80,7 +80,7 @@ export default function Header() {
               key={link.label}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className="text-sm font-semibold tracking-widest text-dasi-steel-300 hover:text-white transition-colors duration-300"
+              className="text-xs font-silkscreen tracking-widest text-alabaster-grey hover:text-bright-snow transition-colors duration-300"
             >
               {link.label}
             </a>
@@ -90,7 +90,7 @@ export default function Header() {
         <div className="flex md:hidden items-center gap-4">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-dasi-steel-200 hover:text-white focus:outline-none"
+            className="text-alabaster-grey hover:text-bright-snow focus:outline-none"
             aria-label="Toggle navigation menu"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -100,7 +100,7 @@ export default function Header() {
 
       {/* Mobile Drawer */}
       <div
-        className={`md:hidden fixed inset-x-0 top-[72px] bg-dasi-black-950/95 backdrop-blur-lg border-b border-white/5 transition-all duration-300 ease-in-out ${
+        className={`md:hidden fixed inset-x-0 top-[72px] bg-carbon-black-2/95 backdrop-blur-lg border-b border-graphite-light transition-all duration-300 ease-in-out ${
           isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-4 pointer-events-none'
         }`}
       >
@@ -110,7 +110,7 @@ export default function Header() {
               key={link.label}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className="text-base font-semibold tracking-widest text-dasi-steel-300 hover:text-white py-2 border-b border-white/5 transition-colors"
+              className="text-sm font-silkscreen tracking-widest text-alabaster-grey hover:text-bright-snow py-3 border-b border-graphite-light transition-colors"
             >
               {link.label}
             </a>

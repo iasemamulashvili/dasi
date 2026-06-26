@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import WebGLFeaturedSlider from "@/components/WebGLFeaturedSlider";
 import GamesShowcase from "@/components/GamesShowcase";
 import About from "@/components/About";
 import Careers from "@/components/Careers";
@@ -16,12 +17,16 @@ export default async function Home() {
     getJobs()
   ]);
 
+  const featuredIds = ['crown-quest', 'lumber-chopper', 'hotel-manager'];
+  const remainingGames = games.filter(g => !featuredIds.includes(g.id || ''));
+
   return (
     <>
       <Header />
       <main className="flex-1">
         <Hero />
-        <GamesShowcase initialGames={games} />
+        <WebGLFeaturedSlider />
+        <GamesShowcase initialGames={remainingGames} />
         <About />
         <Careers initialJobs={jobs} />
         <ContactForm />
