@@ -29,11 +29,15 @@ export async function GET() {
       k.toLowerCase().includes('redis')
   );
 
-  const hasUpstashRedis = !!(process.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_TOKEN);
+  const hasUpstashRedis = !!(
+    process.env.UPSTASH_REDIS_REST_URL || 
+    process.env.UPSTASH_REDIS_REST_TOKEN || 
+    process.env.STORAGE_KV_REST_API_URL
+  );
   const hasVercelKv = !!(process.env.KV_URL || process.env.KV_REST_API_URL || process.env.KV_REST_API_TOKEN);
   const vercelKvEnabled = !!(
-    (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.KV_URL || process.env.STORAGE_URL) &&
-    (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_TOKEN || process.env.STORAGE_TOKEN)
+    (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.KV_URL || process.env.STORAGE_URL || process.env.STORAGE_KV_REST_API_URL || process.env.STORAGE_KV_URL) &&
+    (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_TOKEN || process.env.STORAGE_TOKEN || process.env.STORAGE_KV_REST_API_TOKEN)
   );
 
   return NextResponse.json({
