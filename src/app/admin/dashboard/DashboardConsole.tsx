@@ -357,36 +357,36 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
 
         {/* Tab Header Selector */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-8">
-          <div className="flex bg-dasi-black-900/60 border border-white/5 p-1 rounded-xl w-max">
+          <div className="flex bg-carbon-black-2 border border-graphite-light p-1 rounded-none w-max">
             <button
               onClick={() => setActiveTab('games')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-none text-xs font-silkscreen font-bold tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === 'games'
-                  ? 'bg-dasi-black-500 text-white shadow-lg'
-                  : 'text-dasi-steel-400 hover:text-white'
+                  ? 'bg-platinum-silver text-carbon-black shadow-[inset_-3px_-3px_0px_rgba(109,109,128,0.75)] border border-platinum-silver'
+                  : 'text-alabaster-grey hover:text-bright-snow hover:bg-graphite/30 border border-transparent'
               }`}
             >
-              <Gamepad2 size={16} />
+              <Gamepad2 size={14} />
               GAMES LIST
             </button>
             <button
               onClick={() => setActiveTab('jobs')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-none text-xs font-silkscreen font-bold tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === 'jobs'
-                  ? 'bg-dasi-black-500 text-white shadow-lg'
-                  : 'text-dasi-steel-400 hover:text-white'
+                  ? 'bg-platinum-silver text-carbon-black shadow-[inset_-3px_-3px_0px_rgba(109,109,128,0.75)] border border-platinum-silver'
+                  : 'text-alabaster-grey hover:text-bright-snow hover:bg-graphite/30 border border-transparent'
               }`}
             >
-              <Briefcase size={16} />
+              <Briefcase size={14} />
               CAREERS LIST
             </button>
           </div>
 
           <button
             onClick={() => (activeTab === 'games' ? handleOpenGameForm(null) : handleOpenJobForm(null))}
-            className="flex items-center justify-center gap-2 px-5 py-3 bg-dasi-alice-500 hover:bg-dasi-alice-600 text-white font-bold tracking-wider text-xs rounded-xl shadow-lg shadow-dasi-alice-950/40 transition-all cursor-pointer"
+            className="inset-pixel-btn-primary flex items-center justify-center gap-2 px-5 py-3 text-xs uppercase cursor-pointer"
           >
-            <Plus size={16} />
+            <Plus size={14} />
             {activeTab === 'games' ? 'ADD NEW GAME' : 'ADD NEW JOB'}
           </button>
         </div>
@@ -415,7 +415,14 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                         />
                       </td>
                       <td className="p-6">
-                        <h4 className="font-bold text-white tracking-wide text-base">{game.title}</h4>
+                        <div className="font-sans font-semibold text-bright-snow tracking-wide text-base flex items-center gap-2">
+                          {game.title}
+                          {game.isFeatured && (
+                            <span className="px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/30 rounded-none text-[8px] font-silkscreen text-emerald-400 uppercase tracking-widest animate-pulse">
+                              ★ Featured
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-dasi-steel-500 mt-1 line-clamp-1 max-w-md">
                           {game.description}
                         </p>
@@ -471,7 +478,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                   {jobs.map((job) => (
                     <tr key={job.id} className="hover:bg-white/[0.01] transition-colors">
                       <td className="p-6">
-                        <h4 className="font-bold text-white tracking-wide text-base">{job.title}</h4>
+                        <div className="font-sans font-semibold text-bright-snow tracking-wide text-base">{job.title}</div>
                       </td>
                       <td className="p-6">
                         <span className="text-xs text-dasi-steel-400">{job.location}</span>
@@ -793,7 +800,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
               {/* Submit panel */}
               <button
                 type="submit"
-                className="w-full py-4 bg-dasi-alice-500 hover:bg-dasi-alice-600 text-white font-bold tracking-widest text-sm rounded-xl transition-all shadow-lg mt-4 cursor-pointer"
+                className="inset-pixel-btn-primary w-full py-4 text-sm mt-4 cursor-pointer uppercase"
               >
                 SAVE GAME ENTRY
               </button>
@@ -899,7 +906,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
               {/* Submit panel */}
               <button
                 type="submit"
-                className="w-full py-4 bg-dasi-alice-500 hover:bg-dasi-alice-600 text-white font-bold tracking-widest text-sm rounded-xl transition-all shadow-lg mt-4 cursor-pointer"
+                className="inset-pixel-btn-primary w-full py-4 text-sm mt-4 cursor-pointer uppercase"
               >
                 SAVE JOB LISTING
               </button>
