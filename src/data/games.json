@@ -11,7 +11,14 @@
     "isAndroid": true,
     "isIOS": true,
     "isPoki": false,
-    "videoSrc": ""
+    "videoSrc": "",
+    "isFeatured": true,
+    "featuredImage": "/crown-quest.png",
+    "featuredSubtitle": "Epic Action RPG Adventure",
+    "engine": "Unity 3D",
+    "downloads": "5M+",
+    "activePlayers": "1.2M+",
+    "rating": "4.8"
   },
   {
     "id": "lumber-chopper",
@@ -25,7 +32,14 @@
     "isAndroid": true,
     "isIOS": true,
     "isPoki": false,
-    "videoSrc": ""
+    "videoSrc": "",
+    "isFeatured": true,
+    "featuredImage": "/lumber-chopper.png",
+    "featuredSubtitle": "Idle Wood Empire Tycoon",
+    "engine": "Cocos Creator",
+    "downloads": "3M+",
+    "activePlayers": "850K+",
+    "rating": "4.6"
   },
   {
     "id": "hotel-manager",
@@ -39,7 +53,14 @@
     "isAndroid": true,
     "isIOS": true,
     "isPoki": false,
-    "videoSrc": ""
+    "videoSrc": "",
+    "isFeatured": true,
+    "featuredImage": "/hotel-manager.png",
+    "featuredSubtitle": "5-Star Luxury Resort Simulator",
+    "engine": "Unity 2D",
+    "downloads": "1.5M+",
+    "activePlayers": "500K+",
+    "rating": "4.5"
   },
   {
     "id": "coworking-manager",

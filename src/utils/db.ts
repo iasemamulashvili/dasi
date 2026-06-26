@@ -15,6 +15,15 @@ export interface Game {
   isIOS: boolean;
   isPoki: boolean;
   videoSrc: string;
+  
+  // Featured-specific fields for the WebGL displacement slider
+  isFeatured?: boolean;
+  featuredImage?: string;
+  featuredSubtitle?: string;
+  engine?: string;
+  downloads?: string;
+  activePlayers?: string;
+  rating?: string;
 }
 
 export interface Job {

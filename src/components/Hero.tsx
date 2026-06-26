@@ -56,6 +56,7 @@ export default function Hero() {
 
       // --- Multi-Layer Parallax ---
       const handleMouseMoveParallax = (e: MouseEvent) => {
+        if (window.innerWidth < 768) return;
         const { clientX, clientY } = e;
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
@@ -91,6 +92,7 @@ export default function Hero() {
 
       // --- Magnetic CTA Button ---
       const handleCtaMouseMove = (e: MouseEvent) => {
+        if (window.innerWidth < 768) return;
         const btn = ctaBtnRef.current;
         if (!btn) return;
 
@@ -232,12 +234,15 @@ export default function Hero() {
           duration: 0.28,
           ease: 'power1.out',
         }).to(letter, {
+          color: 'var(--color-slate-violet-light)', // Flash brand slate-violet on landing!
+          duration: 0.15,
+        }).to(letter, {
           x: 0,
           y: 0,
           rotation: 0,
           scale: 1,
-          color: 'var(--color-bright-snow)',
-          duration: 0.75,
+          color: 'var(--color-bright-snow)', // Settle to bright-snow
+          duration: 0.6,
           ease: 'power3.out',
         });
       }
@@ -301,32 +306,34 @@ export default function Hero() {
           </div>
         )}
 
-        {/* Gamified Collectable Title */}
-        <h1
-          ref={titleRef}
-          className="text-5xl md:text-8xl font-normal tracking-wider text-bright-snow select-none flex flex-wrap font-russo-one retro-heading-shadow"
-        >
-          {titleText.split('').map((char, index) => {
-            if (char === ' ') return <span key={index} className="w-6 md:w-10">&nbsp;</span>;
-            return (
-              <span
-                key={index}
-                ref={(el) => {
-                  letterRefs.current[index] = el;
-                }}
-                className="inline-block cursor-grab active:cursor-grabbing hover:text-platinum-silver select-none duration-75 relative"
-                style={{ transformStyle: 'preserve-3d' }}
-              >
-                {char}
-              </span>
-            );
-          })}
+        {/* Gamified Collectable Title & Drop Zone Container */}
+        <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-8 flex-wrap w-full">
+          <h1
+            ref={titleRef}
+            className="text-5xl md:text-8xl font-normal tracking-wider text-bright-snow select-none flex flex-wrap font-russo-one retro-heading-shadow"
+          >
+            {titleText.split('').map((char, index) => {
+              if (char === ' ') return <span key={index} className="w-6 md:w-10">&nbsp;</span>;
+              return (
+                <span
+                  key={index}
+                  ref={(el) => {
+                    letterRefs.current[index] = el;
+                  }}
+                  className="inline-block cursor-grab active:cursor-grabbing hover:text-platinum-silver select-none duration-75 relative"
+                  style={{ transformStyle: 'preserve-3d' }}
+                >
+                  {char}
+                </span>
+              );
+            })}
+          </h1>
           
           {/* Drop Zone (dashed game box with integrated wall fan) */}
           <div
             ref={dumpZoneRef}
             onMouseEnter={handleDumpZoneMouseEnter}
-            className={`inline-flex items-center gap-3 ml-4 md:ml-8 pl-5 pr-2 py-2 border-dashed border-2 rounded-none text-sm font-silkscreen tracking-widest transition-all duration-300 relative select-none ${
+            className={`inline-flex items-center gap-3 pl-5 pr-2 py-2 border-dashed border-2 rounded-none text-sm font-silkscreen tracking-widest transition-all duration-300 relative select-none [text-shadow:none] ${
               collectedCount > 0
                 ? 'border-platinum-silver text-platinum-silver bg-carbon-black-2/90 scale-105'
                 : 'border-graphite-light text-alabaster-grey/70 bg-transparent hover:border-platinum-silver hover:text-bright-snow'
@@ -384,7 +391,7 @@ export default function Hero() {
               </svg>
             </div>
           </div>
-        </h1>
+        </div>
 
         {/* Kinetic Entrance Tagline */}
         <div className="overflow-hidden">

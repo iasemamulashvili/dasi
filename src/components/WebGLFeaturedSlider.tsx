@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { Play, ArrowRight, Cpu } from 'lucide-react';
+import { Game } from '@/utils/db';
 
-const gamesData = [
+const defaultMockGames = [
   {
     id: 'crown-quest',
     title: 'Crown Quest',
@@ -65,15 +66,39 @@ const gamesData = [
   }
 ];
 
-export default function WebGLFeaturedSlider() {
+export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: Game[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const customCursorRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [cursorHovered, setCursorHovered] = useState(false);
   const [webglSupported, setWebglSupported] = useState(true);
   const transitionRef = useRef({ active: false });
+
+  // Filter for featured games from props, falling back to mock data if empty
+  const featuredGamesFromProps = initialGames?.filter(g => g.isFeatured) || [];
+  const gamesData = featuredGamesFromProps.length > 0 
+    ? featuredGamesFromProps.map(g => ({
+        id: g.id,
+        title: g.title,
+        subtitle: g.featuredSubtitle || g.title,
+        description: g.description,
+        accent: g.id === 'lumber-chopper' ? 'var(--color-muted-green)' : (g.id === 'hotel-manager' ? 'var(--color-slate-violet-light)' : 'var(--color-platinum-silver)'),
+        accentMuted: 'var(--color-slate-violet)',
+        themeColor: g.id === 'lumber-chopper' ? 'rgba(82, 122, 105, 0.7)' : (g.id === 'hotel-manager' ? 'rgba(146, 146, 166, 0.7)' : 'rgba(226, 232, 240, 0.7)'),
+        bgGradient: g.id === 'lumber-chopper' ? 'from-muted-green/20 via-carbon-black-2/40 to-[#181818]' : (g.id === 'hotel-manager' ? 'from-slate-violet/20 via-carbon-black-2/40 to-[#181818]' : 'from-graphite/30 via-carbon-black-2/40 to-[#181818]'),
+        image: g.featuredImage || g.iconSrc || '/crown-quest.png',
+        playstoreLink: g.playstoreLink,
+        appstoreLink: g.appstoreLink,
+        stats: {
+          activePlayers: g.activePlayers || '100K+',
+          rating: g.rating || '4.5',
+          downloads: g.downloads || '1M+',
+          engine: g.engine || 'Unity'
+        }
+      }))
+    : defaultMockGames;
 
   // WebGL Context References
   const glRef = useRef<WebGLRenderingContext | null>(null);
@@ -373,10 +398,12 @@ export default function WebGLFeaturedSlider() {
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    setCursorPos({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    if (customCursorRef.current) {
+      customCursorRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+    }
   };
 
   const activeGame = gamesData[activeIndex];
@@ -453,12 +480,15 @@ export default function WebGLFeaturedSlider() {
 
         {/* Custom Retro Magnetic Wireframe Crosshair Cursor Overlay */}
         <div 
-          className="absolute pointer-events-none z-40 transition-transform duration-75 ease-out hidden md:flex items-center justify-center -translate-x-1/2 -translate-y-1/2"
+          ref={customCursorRef}
+          className="absolute pointer-events-none z-40 hidden md:flex items-center justify-center"
           style={{ 
-            left: `${cursorPos.x}px`, 
-            top: `${cursorPos.y}px`,
+            top: 0,
+            left: 0,
             opacity: cursorHovered ? 1 : 0,
-            transform: `translate(-50%, -50%) scale(${cursorHovered ? 1 : 0.2})`
+            transform: `translate3d(0px, 0px, 0) translate(-50%, -50%)`,
+            scale: cursorHovered ? '1' : '0.2',
+            transition: 'opacity 0.2s ease, scale 0.2s ease'
           }}
         >
           <div className="relative w-16 h-16 flex items-center justify-center">
@@ -502,23 +532,27 @@ export default function WebGLFeaturedSlider() {
             {activeGame.description}
           </p>
           
-          {/* Retro Diagnostic HUD Panel */}
+          {/* Retro Diagnostic HUD Panel with Real Game Stats */}
           <div className="slider-hud-element font-mono text-[8px] text-alabaster-grey/80 border border-graphite-light bg-carbon-black-2/90 p-3.5 rounded-none space-y-1.5 mt-4 mb-6 max-w-[280px] relative">
             <div className="absolute top-0 left-0 w-1 h-1 bg-slate-violet" />
             <div className="absolute top-0 right-0 w-1 h-1 bg-slate-violet" />
             <div className="absolute bottom-0 left-0 w-1 h-1 bg-slate-violet" />
             <div className="absolute bottom-0 right-0 w-1 h-1 bg-slate-violet" />
             <div className="flex justify-between">
-              <span>&gt; TRANSITION:</span>
-              <span className="text-platinum-silver font-bold">COSINE_WAVE_GLSL</span>
+              <span>&gt; ENGINE:</span>
+              <span className="text-platinum-silver font-bold">{activeGame.stats.engine}</span>
             </div>
             <div className="flex justify-between">
-              <span>&gt; PIXEL_SAMPLING:</span>
-              <span className="text-platinum-silver font-bold">BILINEAR_MAPPED</span>
+              <span>&gt; DOWNLOADS:</span>
+              <span className="text-platinum-silver font-bold">{activeGame.stats.downloads}</span>
             </div>
             <div className="flex justify-between">
-              <span>&gt; RENDER_STATUS:</span>
-              <span className="text-muted-green font-bold animate-pulse">LOCK_OK_60FPS</span>
+              <span>&gt; ACTIVE_PLAYERS:</span>
+              <span className="text-platinum-silver font-bold">{activeGame.stats.activePlayers}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>&gt; APP_STORE_RATING:</span>
+              <span className="text-muted-green font-bold">{activeGame.stats.rating} ★</span>
             </div>
           </div>
 

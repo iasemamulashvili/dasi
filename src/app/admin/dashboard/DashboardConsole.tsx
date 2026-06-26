@@ -54,7 +54,14 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
     isAndroid: false,
     isIOS: false,
     isPoki: false,
-    videoSrc: ''
+    videoSrc: '',
+    isFeatured: false,
+    featuredImage: '',
+    featuredSubtitle: '',
+    engine: '',
+    downloads: '',
+    activePlayers: '',
+    rating: ''
   });
 
   // Modal / Form state for Jobs
@@ -151,7 +158,16 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
   const handleOpenGameForm = (game: Game | null) => {
     if (game) {
       setEditingGame(game);
-      setGameFormData({ ...game });
+      setGameFormData({
+        ...game,
+        isFeatured: game.isFeatured || false,
+        featuredImage: game.featuredImage || '',
+        featuredSubtitle: game.featuredSubtitle || '',
+        engine: game.engine || '',
+        downloads: game.downloads || '',
+        activePlayers: game.activePlayers || '',
+        rating: game.rating || ''
+      });
     } else {
       setEditingGame(null);
       setGameFormData({
@@ -166,7 +182,14 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
         isAndroid: false,
         isIOS: false,
         isPoki: false,
-        videoSrc: ''
+        videoSrc: '',
+        isFeatured: false,
+        featuredImage: '',
+        featuredSubtitle: '',
+        engine: '',
+        downloads: '',
+        activePlayers: '',
+        rating: ''
       });
     }
     setIsGameFormOpen(true);
@@ -625,7 +648,101 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                   />
                   <span className="text-xs font-bold text-white tracking-wide uppercase">Poki Web Arcade</span>
                 </label>
+                <label className="flex items-center gap-2 cursor-pointer select-none border-l border-white/10 pl-6">
+                  <input
+                    type="checkbox"
+                    checked={gameFormData.isFeatured || false}
+                    onChange={(e) => setGameFormData({ ...gameFormData, isFeatured: e.target.checked })}
+                    className="rounded bg-dasi-ink-950 border-white/10 text-emerald-500 focus:ring-0"
+                  />
+                  <span className="text-xs font-bold text-emerald-400 tracking-wide uppercase">★ Feature on Mainframe Slider</span>
+                </label>
               </div>
+
+              {/* Featured Slider Fields (Only shown if isFeatured is checked) */}
+              {gameFormData.isFeatured && (
+                <div className="flex flex-col gap-4 p-4 bg-dasi-ink-950/40 border border-emerald-500/20 rounded-xl my-2 animate-fadeIn">
+                  <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-white/5 pb-2">
+                    ★ Mainframe displacement featured details
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold tracking-widest text-dasi-steel-400 uppercase">
+                        Featured Showcase Image URL
+                      </label>
+                      <input
+                        type="text"
+                        value={gameFormData.featuredImage || ''}
+                        onChange={(e) => setGameFormData({ ...gameFormData, featuredImage: e.target.value })}
+                        placeholder="/crown-quest.png"
+                        className="w-full px-4 py-2.5 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold tracking-widest text-dasi-steel-400 uppercase">
+                        Featured Subtitle
+                      </label>
+                      <input
+                        type="text"
+                        value={gameFormData.featuredSubtitle || ''}
+                        onChange={(e) => setGameFormData({ ...gameFormData, featuredSubtitle: e.target.value })}
+                        placeholder="Epic Action RPG Adventure"
+                        className="w-full px-4 py-2.5 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold tracking-widest text-dasi-steel-400 uppercase">
+                        Engine
+                      </label>
+                      <input
+                        type="text"
+                        value={gameFormData.engine || ''}
+                        onChange={(e) => setGameFormData({ ...gameFormData, engine: e.target.value })}
+                        placeholder="Unity 3D"
+                        className="w-full px-4 py-2.5 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold tracking-widest text-dasi-steel-400 uppercase">
+                        Downloads
+                      </label>
+                      <input
+                        type="text"
+                        value={gameFormData.downloads || ''}
+                        onChange={(e) => setGameFormData({ ...gameFormData, downloads: e.target.value })}
+                        placeholder="5M+"
+                        className="w-full px-4 py-2.5 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold tracking-widest text-dasi-steel-400 uppercase">
+                        Active Players
+                      </label>
+                      <input
+                        type="text"
+                        value={gameFormData.activePlayers || ''}
+                        onChange={(e) => setGameFormData({ ...gameFormData, activePlayers: e.target.value })}
+                        placeholder="1.2M+"
+                        className="w-full px-4 py-2.5 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold tracking-widest text-dasi-steel-400 uppercase">
+                        Rating
+                      </label>
+                      <input
+                        type="text"
+                        value={gameFormData.rating || ''}
+                        onChange={(e) => setGameFormData({ ...gameFormData, rating: e.target.value })}
+                        placeholder="4.8"
+                        className="w-full px-4 py-2.5 bg-dasi-ink-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-dasi-steel-600 focus:outline-none focus:border-dasi-alice-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Store Links */}
               <div className="flex flex-col gap-4">

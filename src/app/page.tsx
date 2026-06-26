@@ -17,15 +17,15 @@ export default async function Home() {
     getJobs()
   ]);
 
-  const featuredIds = ['crown-quest', 'lumber-chopper', 'hotel-manager'];
-  const remainingGames = games.filter(g => !featuredIds.includes(g.id || ''));
+  const featuredGames = games.filter(g => g.isFeatured);
+  const remainingGames = games.filter(g => !g.isFeatured);
 
   return (
     <>
       <Header />
       <main className="flex-1">
         <Hero />
-        <WebGLFeaturedSlider />
+        <WebGLFeaturedSlider initialGames={featuredGames} />
         <GamesShowcase initialGames={remainingGames} />
         <About />
         <Careers initialJobs={jobs} />
