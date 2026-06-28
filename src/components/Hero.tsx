@@ -27,6 +27,8 @@ export default function Hero() {
 
   const titleText = "DASI GAMES";
 
+  const hasMeasured = useRef(false);
+
   // Cache layout positions of letters for high-performance proximity checks (O(1) reads)
   const measureLetterPositions = () => {
     letterCoords.current = letterRefs.current.map((letter) => {
@@ -34,24 +36,19 @@ export default function Hero() {
       const rect = letter.getBoundingClientRect();
       return {
         x: rect.left + (window.scrollX || window.pageXOffset || 0),
-        y: rect.top + (window.scrollY || window.pageYOffset || 0),
+        y: rect.top + (window.pageYOffset || window.scrollY || 0),
         width: rect.width,
         height: rect.height,
       };
     });
+    hasMeasured.current = true;
   };
 
   useEffect(() => {
-    // Measure after fonts and layout have fully settled
-    const timer = setTimeout(() => {
-      measureLetterPositions();
-    }, 600);
-
     window.addEventListener('resize', measureLetterPositions);
     window.addEventListener('scroll', measureLetterPositions);
 
     return () => {
-      clearTimeout(timer);
       window.removeEventListener('resize', measureLetterPositions);
       window.removeEventListener('scroll', measureLetterPositions);
     };
@@ -70,6 +67,9 @@ export default function Hero() {
           stagger: 0.03,
           duration: 1.2,
           ease: 'power4.out',
+          onComplete: () => {
+            measureLetterPositions();
+          }
         }
       );
 
@@ -180,8 +180,8 @@ export default function Hero() {
             const currentY = gsap.getProperty(letter, 'y') as number || 0;
 
             // Stacking: diagonal offset cascading backwards from the cursor, fanned out
-            const targetViewportX = mousePos.current.x + 20 + (i * 14);
-            const targetViewportY = mousePos.current.y - 15 - (i * 10);
+            const targetViewportX = mousePos.current.x + 20 + (i * 6);
+            const targetViewportY = mousePos.current.y - 15 - (i * 15);
             const targetRot = (i - (carriedLetters.current.length - 1) / 2) * 6;
 
             // Convert viewport target to coordinates relative to the letter's home position
@@ -222,6 +222,12 @@ export default function Hero() {
 
   const handleContainerMouseMove = (e: React.MouseEvent) => {
     if (window.innerWidth < 768 || ('ontouchstart' in window)) return;
+    
+    // Safety measure if the entrance animation hasn't finished or page layout shifted
+    if (!hasMeasured.current) {
+      measureLetterPositions();
+    }
+    
     mousePos.current = { x: e.clientX, y: e.clientY };
 
     letterRefs.current.forEach((letter, index) => {
@@ -386,11 +392,10 @@ export default function Hero() {
                 <span
                   key={index}
                   className="relative inline-block select-none"
-                  style={{ width: char === 'I' ? '0.25em' : (char === 'M' ? '0.85em' : '0.65em'), height: '1.1em' }}
                 >
-                  {/* Holographic Outline Placeholder (Ghost Layer) */}
+                  {/* Holographic Outline Placeholder (Ghost Layer) - Normal Document Flow */}
                   <span
-                    className={`absolute inset-0 select-none font-russo-one transition-all duration-500 ease-out ${
+                    className={`inline-block select-none transition-all duration-500 ease-out ${
                       isCarried ? 'opacity-30 scale-95' : 'opacity-0 scale-100 pointer-events-none'
                     }`}
                     style={{
@@ -403,7 +408,7 @@ export default function Hero() {
                     {char}
                   </span>
 
-                  {/* Interactive Carried Letter */}
+                  {/* Interactive Carried Letter - Absolute Overlay */}
                   <span
                     ref={(el) => {
                       letterRefs.current[index] = el;
