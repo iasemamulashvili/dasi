@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Syne, Plus_Jakarta_Sans } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import BackgroundGrid from "@/components/BackgroundGrid";
 import "./globals.css";
 
-const syne = Syne({
-  weight: ["700", "800"],
-  variable: "--font-syne",
+const outfitHeading = Outfit({
+  weight: ["600", "700", "800"],
+  variable: "--font-outfit-heading",
   subsets: ["latin"],
 });
 
@@ -37,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${plusJakartaSans.variable} h-full antialiased`}
+      className={`${outfitHeading.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col relative bg-carbon-black text-bright-snow">
         <BackgroundGrid />

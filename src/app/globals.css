@@ -24,11 +24,11 @@
   --color-muted-green-light: oklch(0.63 0.04 165.0);
 
   /* Fonts */
-  --font-syne: var(--font-syne);
+  --font-outfit-heading: var(--font-outfit-heading);
   --font-plus-jakarta-sans: var(--font-plus-jakarta-sans);
 
   /* Map old font variables to new ones for seamless compatibility */
-  --font-russo-one: var(--font-syne);
+  --font-russo-one: var(--font-outfit-heading);
   --font-silkscreen: var(--font-plus-jakarta-sans);
   --font-outfit: var(--font-plus-jakarta-sans);
 }
@@ -43,7 +43,7 @@ body {
 
 /* Heading Typography & Shadows */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-syne), sans-serif;
+  font-family: var(--font-outfit-heading), sans-serif;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--color-bright-snow);
