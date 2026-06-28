@@ -181,6 +181,7 @@ export default function Hero() {
   }, []);
 
   const handleContainerMouseMove = (e: React.MouseEvent) => {
+    if (window.innerWidth < 768 || ('ontouchstart' in window)) return;
     mousePos.current = { x: e.clientX, y: e.clientY };
 
     letterRefs.current.forEach((letter, index) => {
@@ -307,7 +308,7 @@ export default function Hero() {
         )}
 
         {/* Gamified Collectable Title & Drop Zone Container */}
-        <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-8 flex-wrap w-full">
+        <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-8 flex-wrap w-full">
           <h1
             ref={titleRef}
             className="text-5xl md:text-8xl font-normal tracking-wider text-bright-snow select-none flex flex-wrap font-russo-one retro-heading-shadow"
@@ -333,7 +334,7 @@ export default function Hero() {
           <div
             ref={dumpZoneRef}
             onMouseEnter={handleDumpZoneMouseEnter}
-            className={`inline-flex items-center gap-3 pl-5 pr-2 py-2 border-dashed border-2 rounded-none text-sm font-silkscreen tracking-widest transition-all duration-300 relative select-none [text-shadow:none] ${
+            className={`inline-flex items-center gap-3 pl-5 pr-2 py-2 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-300 relative select-none [text-shadow:none] mt-4 md:mt-0 ${
               collectedCount > 0
                 ? 'border-platinum-silver text-platinum-silver bg-carbon-black-2/90 scale-105'
                 : 'border-graphite-light text-alabaster-grey/70 bg-transparent hover:border-platinum-silver hover:text-bright-snow'

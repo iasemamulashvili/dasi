@@ -71,19 +71,13 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
                   isOpen ? 'border-platinum-silver' : 'border-graphite-light hover:border-platinum-silver-light'
                 }`}
               >
-                {/* 8-Bit Corner Pixel Blocks */}
-                <div className="absolute top-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-                <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-                <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-                <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-
                 {/* Accordion Header */}
                 <button
                   onClick={() => toggleJob(job.id)}
                   className="w-full flex items-center justify-between p-6 text-left focus:outline-none cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-none border transition-colors ${
+                    <div className={`p-3 rounded-lg border transition-colors ${
                       isOpen ? 'bg-carbon-black border-slate-violet text-platinum-silver' : 'bg-carbon-black-2 border-graphite-light text-alabaster-grey'
                     }`}>
                       <Briefcase size={20} />

@@ -1,23 +1,17 @@
 import type { Metadata } from "next";
-import { Russo_One, Silkscreen, Outfit } from "next/font/google";
+import { Syne, Plus_Jakarta_Sans } from "next/font/google";
 import BackgroundGrid from "@/components/BackgroundGrid";
 import "./globals.css";
 
-const russoOne = Russo_One({
-  weight: "400",
-  variable: "--font-russo-one",
+const syne = Syne({
+  weight: ["700", "800"],
+  variable: "--font-syne",
   subsets: ["latin"],
 });
 
-const silkscreen = Silkscreen({
-  weight: "400",
-  variable: "--font-silkscreen",
-  subsets: ["latin"],
-});
-
-const outfit = Outfit({
-  weight: ["300", "400", "700"],
-  variable: "--font-outfit",
+const plusJakartaSans = Plus_Jakarta_Sans({
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-plus-jakarta-sans",
   subsets: ["latin"],
 });
 
@@ -43,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${russoOne.variable} ${silkscreen.variable} ${outfit.variable} h-full antialiased`}
+      className={`${syne.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col relative bg-carbon-black text-bright-snow">
         <BackgroundGrid />

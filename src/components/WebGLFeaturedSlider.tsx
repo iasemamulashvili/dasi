@@ -433,19 +433,13 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setCursorHovered(true)}
         onMouseLeave={() => setCursorHovered(false)}
-        className="relative w-full h-[500px] md:h-[600px] bg-carbon-black border-2 border-graphite-light overflow-hidden flex flex-col justify-end p-8 md:p-12 cursor-none select-none crt-screen crt-flicker slider-glow"
+        className="relative w-full h-[500px] md:h-[600px] bg-carbon-black border border-graphite-light rounded-2xl overflow-hidden flex flex-col justify-end p-8 md:p-12 cursor-none select-none slider-glow"
       >
-        {/* 8-Bit Corner Pixel Blocks */}
-        <div className="absolute top-0 left-0 w-1.5 h-1.5 bg-graphite-light z-30" />
-        <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-graphite-light z-30" />
-        <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-graphite-light z-30" />
-        <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-graphite-light z-30" />
-
         {/* Loader */}
         {loading && (
           <div className="absolute inset-0 bg-[#181818] z-50 flex flex-col items-center justify-center gap-3">
-            <span className="w-8 h-8 rounded-none border-2 border-graphite-light border-t-platinum-silver animate-spin" />
-            <span className="text-[9px] font-silkscreen tracking-wider text-alabaster-grey">BUFFERING MEMORY MAP...</span>
+            <span className="w-8 h-8 rounded-full border-2 border-graphite-light border-t-platinum-silver animate-spin" />
+            <span className="text-[9px] font-sans tracking-wider text-alabaster-grey">BUFFERING MEMORY MAP...</span>
           </div>
         )}
 
@@ -510,7 +504,7 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
             <div className="absolute h-5 w-[1px] bg-slate-violet-light" />
             {/* HUD Target readout text */}
             <span 
-              className="absolute top-10 font-silkscreen text-[7px] bg-carbon-black/90 px-1.5 py-0.5 border border-graphite-light text-bright-snow tracking-widest whitespace-nowrap"
+              className="absolute top-10 font-sans text-[7px] bg-carbon-black/90 px-1.5 py-0.5 border border-graphite-light rounded text-bright-snow tracking-widest whitespace-nowrap"
             >
               LOCK: {activeGame.title.toUpperCase()}
             </span>
@@ -519,7 +513,7 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
 
         {/* Foreground Content HUD */}
         <div className="relative z-20 max-w-lg pointer-events-none">
-          <span className="slider-hud-element text-[9px] font-silkscreen text-platinum-silver tracking-widest uppercase inline-flex items-center gap-1.5 mb-3.5 px-2 py-0.5 bg-graphite/50 border border-graphite-light">
+          <span className="slider-hud-element text-[9px] font-sans text-platinum-silver tracking-widest uppercase inline-flex items-center gap-1.5 mb-3.5 px-2 py-0.5 bg-graphite/50 border border-graphite-light/40 rounded-md">
             <span className="w-1 h-1 bg-platinum-silver rounded-full animate-ping" />
             MAINFRAME DISPLACEMENT NODE
           </span>
@@ -532,12 +526,8 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
             {activeGame.description}
           </p>
           
-          {/* Retro Diagnostic HUD Panel with Real Game Stats */}
-          <div className="slider-hud-element font-mono text-[8px] text-alabaster-grey/80 border border-graphite-light bg-carbon-black-2/90 p-3.5 rounded-none space-y-1.5 mt-4 mb-6 max-w-[280px] relative">
-            <div className="absolute top-0 left-0 w-1 h-1 bg-slate-violet" />
-            <div className="absolute top-0 right-0 w-1 h-1 bg-slate-violet" />
-            <div className="absolute bottom-0 left-0 w-1 h-1 bg-slate-violet" />
-            <div className="absolute bottom-0 right-0 w-1 h-1 bg-slate-violet" />
+          {/* Modern Specs HUD Panel with Real Game Stats */}
+          <div className="slider-hud-element font-mono text-[9px] text-alabaster-grey/85 border border-graphite-light/60 bg-carbon-black-2/95 p-4 rounded-xl space-y-1.5 mt-4 mb-6 max-w-[280px] relative backdrop-blur-md shadow-lg">
             <div className="flex justify-between">
               <span>&gt; ENGINE:</span>
               <span className="text-platinum-silver font-bold">{activeGame.stats.engine}</span>
@@ -572,19 +562,19 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
             <button
               key={game.id}
               onClick={() => transitionTo(idx)}
-              className="group relative flex items-center justify-end w-12 h-12 rounded-none focus:outline-none cursor-pointer"
+              className="group relative flex items-center justify-end w-12 h-12 rounded-full focus:outline-none cursor-pointer"
             >
-              <span className="absolute right-full mr-4 bg-carbon-black border border-graphite-light px-3 py-1.5 rounded-none text-[8px] font-silkscreen text-alabaster-grey uppercase tracking-widest opacity-0 scale-75 origin-right transition-all group-hover:opacity-100 group-hover:scale-100 shadow-lg pointer-events-none">
+              <span className="absolute right-full mr-4 bg-carbon-black border border-graphite-light px-3 py-1.5 rounded-lg text-[8px] font-sans text-alabaster-grey uppercase tracking-widest opacity-0 scale-75 origin-right transition-all group-hover:opacity-100 group-hover:scale-100 shadow-lg pointer-events-none">
                 {game.title}
               </span>
               
-              <span className={`text-[10px] font-silkscreen ${
+              <span className={`text-[10px] font-sans ${
                 activeIndex === idx ? 'text-bright-snow scale-125' : 'text-alabaster-grey group-hover:text-bright-snow transition-colors'
               }`}>
                 0{idx + 1}
               </span>
 
-              <span className={`absolute bottom-0 right-0 w-full h-full rounded-none border transition-all ${
+              <span className={`absolute bottom-0 right-0 w-full h-full rounded-full border transition-all ${
                 activeIndex === idx 
                   ? 'border-platinum-silver scale-110' 
                   : 'scale-90 opacity-0 group-hover:opacity-100 group-hover:scale-95 border-graphite-light'

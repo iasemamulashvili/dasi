@@ -219,17 +219,11 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
               className="relative w-[320px] md:w-[360px] h-[460px] md:h-[500px] inset-pixel-card inset-pixel-card-interactive overflow-hidden flex flex-col p-6 cursor-pointer select-none transition-all duration-300 transform-gpu group"
               style={{ transformStyle: 'preserve-3d' }}
             >
-              {/* 8-Bit Corner Pixel Blocks */}
-              <div className="absolute top-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-              <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-              <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-              <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-
               {/* Shine Layer */}
               <div className="card-shine absolute -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-white rounded-full blur-2xl opacity-0 pointer-events-none mix-blend-overlay z-10" />
 
               {/* Game Visual Area */}
-              <div className="relative w-full h-[240px] md:h-[260px] bg-carbon-black rounded-none overflow-hidden mb-6 flex items-center justify-center border border-graphite-light">
+              <div className="relative w-full h-[240px] md:h-[260px] bg-carbon-black rounded-lg overflow-hidden mb-6 flex items-center justify-center border border-graphite-light">
                 {/* Fallback Looping Particle Canvas or Looping Video */}
                 {hoveredCardIndex === index ? (
                   game.videoSrc ? (

@@ -93,13 +93,7 @@ export default function About() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mb-16 z-10">
           {/* Card 1: 100+ Games */}
           <div className="flex flex-col items-center justify-center p-8 inset-pixel-card inset-pixel-card-interactive text-center about-fade-in transition-all group">
-            {/* 8-Bit Corner Pixel Blocks */}
-            <div className="absolute top-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-            <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-            <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-            <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-
-            <div className="p-4 bg-carbon-black rounded-none border border-graphite-light text-platinum-silver mb-4">
+            <div className="p-4 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver mb-4">
               <Rocket size={28} />
             </div>
             <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one">
@@ -112,13 +106,7 @@ export default function About() {
 
           {/* Card 2: Based in Tbilisi */}
           <div className="flex flex-col items-center justify-center p-8 inset-pixel-card inset-pixel-card-interactive text-center about-fade-in transition-all group">
-            {/* 8-Bit Corner Pixel Blocks */}
-            <div className="absolute top-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-            <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-            <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-            <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-
-            <div className="p-4 bg-carbon-black rounded-none border border-graphite-light text-platinum-silver mb-4">
+            <div className="p-4 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver mb-4">
               <MapPin size={28} />
             </div>
             <p className="text-3xl md:text-4xl font-normal text-bright-snow tracking-tight uppercase font-russo-one">
@@ -131,13 +119,7 @@ export default function About() {
 
           {/* Card 3: Founded 2021 */}
           <div className="flex flex-col items-center justify-center p-8 inset-pixel-card inset-pixel-card-interactive text-center about-fade-in transition-all group">
-            {/* 8-Bit Corner Pixel Blocks */}
-            <div className="absolute top-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-            <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-            <div className="absolute bottom-0 left-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-            <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-graphite-light group-hover:bg-platinum-silver transition-colors z-30" />
-
-            <div className="p-4 bg-carbon-black rounded-none border border-graphite-light text-platinum-silver mb-4">
+            <div className="p-4 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver mb-4">
               <Sparkles size={28} />
             </div>
             <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one">
