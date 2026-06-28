@@ -192,3 +192,14 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--color-slate-violet);
 }
 
+/* Premium Interactive Letters */
+.interactive-letter {
+  --letter-l: 0.95;
+  --letter-c: 0.01;
+  --letter-h: 0;
+  
+  color: oklch(var(--letter-l) var(--letter-c) var(--letter-h)) !important;
+  text-shadow: 0 0 12px oklch(var(--letter-l) var(--letter-c) var(--letter-h) / 0.35);
+  transition: color 0.1s ease, text-shadow 0.1s ease;
+}
+

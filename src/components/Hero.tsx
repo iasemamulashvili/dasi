@@ -21,10 +21,41 @@ export default function Hero() {
   const [collectedCount, setCollectedCount] = useState(0);
   const [isBlowing, setIsBlowing] = useState(false);
   const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const collectedLetters = useRef<Set<number>>(new Set());
+  const carriedLetters = useRef<number[]>([]);
+  const letterCoords = useRef<{ x: number; y: number; width: number; height: number }[]>([]);
   const mousePos = useRef({ x: 0, y: 0 });
 
   const titleText = "DASI GAMES";
+
+  // Cache layout positions of letters for high-performance proximity checks (O(1) reads)
+  const measureLetterPositions = () => {
+    letterCoords.current = letterRefs.current.map((letter) => {
+      if (!letter) return { x: 0, y: 0, width: 0, height: 0 };
+      const rect = letter.getBoundingClientRect();
+      return {
+        x: rect.left + (window.scrollX || window.pageXOffset || 0),
+        y: rect.top + (window.scrollY || window.pageYOffset || 0),
+        width: rect.width,
+        height: rect.height,
+      };
+    });
+  };
+
+  useEffect(() => {
+    // Measure after fonts and layout have fully settled
+    const timer = setTimeout(() => {
+      measureLetterPositions();
+    }, 600);
+
+    window.addEventListener('resize', measureLetterPositions);
+    window.addEventListener('scroll', measureLetterPositions);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', measureLetterPositions);
+      window.removeEventListener('scroll', measureLetterPositions);
+    };
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -140,32 +171,41 @@ export default function Hero() {
     let animationId: number;
 
     const updateLetterPositions = () => {
-      if (collectedLetters.current.size > 0) {
-        collectedLetters.current.forEach((index) => {
+      if (carriedLetters.current.length > 0) {
+        carriedLetters.current.forEach((index, i) => {
           const letter = letterRefs.current[index];
-          if (letter) {
-            const rect = letter.getBoundingClientRect();
+          const coords = letterCoords.current[index];
+          if (letter && coords) {
             const currentX = gsap.getProperty(letter, 'x') as number || 0;
             const currentY = gsap.getProperty(letter, 'y') as number || 0;
 
-            const homeViewportX = rect.left - currentX;
-            const homeViewportY = rect.top - currentY;
+            // Stacking: diagonal offset cascading backwards from the cursor, fanned out
+            const targetViewportX = mousePos.current.x + 20 + (i * 14);
+            const targetViewportY = mousePos.current.y - 15 - (i * 10);
+            const targetRot = (i - (carriedLetters.current.length - 1) / 2) * 6;
 
-            const angle = (index / titleText.length) * Math.PI * 2 + (Date.now() * 0.003);
-            const radius = 3; // Tight cluster radius
-            const targetViewportX = mousePos.current.x + 30 + Math.cos(angle) * radius;
-            const targetViewportY = mousePos.current.y + 30 + Math.sin(angle) * radius;
+            // Convert viewport target to coordinates relative to the letter's home position
+            const relTargetX = targetViewportX - (coords.x - (window.scrollX || window.pageXOffset || 0));
+            const relTargetY = targetViewportY - (coords.y - (window.scrollY || window.pageYOffset || 0));
 
-            const relTargetX = targetViewportX - homeViewportX;
-            const relTargetY = targetViewportY - homeViewportY;
+            // Decaying lerp factor (tail letters lag more)
+            const ease = 0.18 - (i * 0.012);
+
+            // Interpolate color properties along the stack (Magenta to Electric Blue chromatic trail)
+            const targetHue = 320 - (i * 10);
+            const targetChroma = 0.25 - (i * 0.01);
+            const targetLightness = 0.70 - (i * 0.02);
 
             gsap.set(letter, {
-              x: currentX + (relTargetX - currentX) * 0.12,
-              y: currentY + (relTargetY - currentY) * 0.12,
-              rotation: currentX * 0.1,
-              scale: 0.9,
-              color: 'var(--color-platinum-silver)',
-              zIndex: 100,
+              x: currentX + (relTargetX - currentX) * ease,
+              y: currentY + (relTargetY - currentY) * ease,
+              rotation: targetRot,
+              scale: 0.95 - (i * 0.015),
+              zIndex: 100 - i,
+              filter: `drop-shadow(0 ${4 + i * 2}px ${8 + i * 3}px rgba(0, 0, 0, 0.45))`,
+              '--letter-l': targetLightness,
+              '--letter-c': targetChroma,
+              '--letter-h': targetHue,
             });
           }
         });
@@ -185,14 +225,22 @@ export default function Hero() {
     mousePos.current = { x: e.clientX, y: e.clientY };
 
     letterRefs.current.forEach((letter, index) => {
-      if (!letter || collectedLetters.current.has(index)) return;
+      if (!letter || carriedLetters.current.includes(index)) return;
 
-      const rect = letter.getBoundingClientRect();
-      const dist = Math.hypot(e.clientX - (rect.left + rect.width / 2), e.clientY - (rect.top + rect.height / 2));
+      const coords = letterCoords.current[index];
+      if (!coords) return;
+
+      // Adjust cached coords for current scroll positions
+      const scrollX = window.scrollX || window.pageXOffset || 0;
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      const centerX = coords.x - scrollX + coords.width / 2;
+      const centerY = coords.y - scrollY + coords.height / 2;
+      
+      const dist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
 
       if (dist < 40) {
-        collectedLetters.current.add(index);
-        setCollectedCount(collectedLetters.current.size);
+        carriedLetters.current.push(index);
+        setCollectedCount(carriedLetters.current.length);
 
         gsap.to(letter, {
           scale: 1.3,
@@ -205,7 +253,7 @@ export default function Hero() {
   };
 
   const handleDumpZoneMouseEnter = () => {
-    if (collectedLetters.current.size === 0) return;
+    if (carriedLetters.current.length === 0) return;
 
     setIsBlowing(true);
     setTimeout(() => {
@@ -226,30 +274,48 @@ export default function Hero() {
     );
 
     letterRefs.current.forEach((letter, index) => {
-      if (letter && collectedLetters.current.has(index)) {
-        const tl = gsap.timeline({ delay: index * 0.04 });
+      if (letter && carriedLetters.current.includes(index)) {
+        const stackIdx = carriedLetters.current.indexOf(index);
+        const tl = gsap.timeline({ delay: stackIdx * 0.04 });
+        
         tl.to(letter, {
           x: '-=150',
           y: '+=random(-25, 25)',
           rotation: 'random(-60, 60)',
           duration: 0.28,
           ease: 'power1.out',
-        }).to(letter, {
-          color: 'var(--color-slate-violet-light)', // Flash brand slate-violet on landing!
+        })
+        .to(letter, {
+          // Wind Release Flash (Electric Cyan)
+          '--letter-l': 0.82,
+          '--letter-c': 0.20,
+          '--letter-h': 200,
           duration: 0.15,
-        }).to(letter, {
+          overwrite: 'auto',
+        })
+        .to(letter, {
+          // Decelerate & return to home (Brand Violet)
           x: 0,
           y: 0,
           rotation: 0,
           scale: 1,
-          color: 'var(--color-bright-snow)', // Settle to bright-snow
+          '--letter-l': 0.68,
+          '--letter-c': 0.18,
+          '--letter-h': 264,
           duration: 0.6,
           ease: 'power3.out',
+        })
+        .to(letter, {
+          // Settle to Bright Snow
+          '--letter-l': 0.95,
+          '--letter-c': 0.01,
+          '--letter-h': 0,
+          duration: 0.3,
         });
       }
     });
 
-    collectedLetters.current.clear();
+    carriedLetters.current = [];
     setCollectedCount(0);
   };
 
@@ -311,20 +377,62 @@ export default function Hero() {
         <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-8 flex-wrap w-full">
           <h1
             ref={titleRef}
-            className="text-5xl md:text-8xl font-normal tracking-wider text-bright-snow select-none flex flex-wrap font-russo-one retro-heading-shadow"
+            className="text-5xl md:text-8xl font-normal tracking-wider select-none flex flex-wrap font-russo-one"
           >
             {titleText.split('').map((char, index) => {
               if (char === ' ') return <span key={index} className="w-6 md:w-10">&nbsp;</span>;
+              const isCarried = collectedCount > 0 && carriedLetters.current.includes(index);
               return (
                 <span
                   key={index}
-                  ref={(el) => {
-                    letterRefs.current[index] = el;
-                  }}
-                  className="inline-block cursor-grab active:cursor-grabbing hover:text-platinum-silver select-none duration-75 relative"
-                  style={{ transformStyle: 'preserve-3d' }}
+                  className="relative inline-block select-none"
+                  style={{ width: char === 'I' ? '0.25em' : (char === 'M' ? '0.85em' : '0.65em'), height: '1.1em' }}
                 >
-                  {char}
+                  {/* Holographic Outline Placeholder (Ghost Layer) */}
+                  <span
+                    className={`absolute inset-0 select-none font-russo-one transition-all duration-500 ease-out ${
+                      isCarried ? 'opacity-30 scale-95' : 'opacity-0 scale-100 pointer-events-none'
+                    }`}
+                    style={{
+                      color: 'transparent',
+                      WebkitTextStroke: '1.5px oklch(0.65 0.15 264)', // Glowing violet outline
+                      textShadow: '0 0 12px oklch(0.65 0.15 264 / 0.4)',
+                      filter: 'blur(0.5px)',
+                    }}
+                  >
+                    {char}
+                  </span>
+
+                  {/* Interactive Carried Letter */}
+                  <span
+                    ref={(el) => {
+                      letterRefs.current[index] = el;
+                    }}
+                    onMouseEnter={(e) => {
+                      if (collectedCount === 0 || !carriedLetters.current.includes(index)) {
+                        gsap.to(e.currentTarget, {
+                          '--letter-l': 0.85,
+                          '--letter-c': 0.08,
+                          '--letter-h': 264,
+                          duration: 0.2,
+                        });
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (collectedCount === 0 || !carriedLetters.current.includes(index)) {
+                        gsap.to(e.currentTarget, {
+                          '--letter-l': 0.95,
+                          '--letter-c': 0.01,
+                          '--letter-h': 0,
+                          duration: 0.25,
+                        });
+                      }
+                    }}
+                    className="absolute inset-0 cursor-grab active:cursor-grabbing interactive-letter select-none"
+                    style={{ transformStyle: 'preserve-3d' }}
+                  >
+                    {char}
+                  </span>
                 </span>
               );
             })}
