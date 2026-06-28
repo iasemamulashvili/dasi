@@ -34,9 +34,11 @@ export default function Hero() {
     letterCoords.current = letterRefs.current.map((letter) => {
       if (!letter) return { x: 0, y: 0, width: 0, height: 0 };
       const rect = letter.getBoundingClientRect();
+      const currentX = gsap.getProperty(letter, 'x') as number || 0;
+      const currentY = gsap.getProperty(letter, 'y') as number || 0;
       return {
-        x: rect.left + (window.scrollX || window.pageXOffset || 0),
-        y: rect.top + (window.pageYOffset || window.scrollY || 0),
+        x: rect.left + (window.scrollX || window.pageXOffset || 0) - currentX,
+        y: rect.top + (window.pageYOffset || window.scrollY || 0) - currentY,
         width: rect.width,
         height: rect.height,
       };
@@ -433,7 +435,9 @@ export default function Hero() {
                         });
                       }
                     }}
-                    className="absolute inset-0 cursor-grab active:cursor-grabbing interactive-letter select-none"
+                    className={`absolute inset-0 cursor-grab active:cursor-grabbing interactive-letter select-none entrance-char ${
+                      isCarried ? 'pointer-events-none' : ''
+                    }`}
                     style={{ transformStyle: 'preserve-3d' }}
                   >
                     {char}
