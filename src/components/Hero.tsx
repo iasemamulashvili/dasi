@@ -21,6 +21,7 @@ export default function Hero() {
   const [collectedCount, setCollectedCount] = useState(0);
   const [isBlowing, setIsBlowing] = useState(false);
   const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const parentRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const carriedLetters = useRef<number[]>([]);
   const letterCoords = useRef<{ x: number; y: number; width: number; height: number }[]>([]);
   const mousePos = useRef({ x: 0, y: 0 });
@@ -31,14 +32,12 @@ export default function Hero() {
 
   // Cache layout positions of letters for high-performance proximity checks (O(1) reads)
   const measureLetterPositions = () => {
-    letterCoords.current = letterRefs.current.map((letter) => {
-      if (!letter) return { x: 0, y: 0, width: 0, height: 0 };
-      const rect = letter.getBoundingClientRect();
-      const currentX = gsap.getProperty(letter, 'x') as number || 0;
-      const currentY = gsap.getProperty(letter, 'y') as number || 0;
+    letterCoords.current = parentRefs.current.map((parent) => {
+      if (!parent) return { x: 0, y: 0, width: 0, height: 0 };
+      const rect = parent.getBoundingClientRect();
       return {
-        x: rect.left + (window.scrollX || window.pageXOffset || 0) - currentX,
-        y: rect.top + (window.pageYOffset || window.scrollY || 0) - currentY,
+        x: rect.left + (window.scrollX || window.pageXOffset || 0),
+        y: rect.top + (window.pageYOffset || window.scrollY || 0),
         width: rect.width,
         height: rect.height,
       };
@@ -230,10 +229,24 @@ export default function Hero() {
       measureLetterPositions();
     }
     
+    // Bulletproof Release: Check if the mouse is inside the RELEASE box bounding box
+    if (carriedLetters.current.length > 0 && dumpZoneRef.current) {
+      const dumpRect = dumpZoneRef.current.getBoundingClientRect();
+      if (
+        e.clientX >= dumpRect.left &&
+        e.clientX <= dumpRect.right &&
+        e.clientY >= dumpRect.top &&
+        e.clientY <= dumpRect.bottom
+      ) {
+        handleDumpZoneMouseEnter();
+        return;
+      }
+    }
+    
     mousePos.current = { x: e.clientX, y: e.clientY };
 
-    letterRefs.current.forEach((letter, index) => {
-      if (!letter || carriedLetters.current.includes(index)) return;
+    parentRefs.current.forEach((parent, index) => {
+      if (!parent || carriedLetters.current.includes(index)) return;
 
       const coords = letterCoords.current[index];
       if (!coords) return;
@@ -250,12 +263,15 @@ export default function Hero() {
         carriedLetters.current.push(index);
         setCollectedCount(carriedLetters.current.length);
 
-        gsap.to(letter, {
-          scale: 1.3,
-          duration: 0.1,
-          yoyo: true,
-          repeat: 1,
-        });
+        const letter = letterRefs.current[index];
+        if (letter) {
+          gsap.to(letter, {
+            scale: 1.3,
+            duration: 0.1,
+            yoyo: true,
+            repeat: 1,
+          });
+        }
       }
     });
   };
@@ -393,6 +409,9 @@ export default function Hero() {
               return (
                 <span
                   key={index}
+                  ref={(el) => {
+                    parentRefs.current[index] = el;
+                  }}
                   className="relative inline-block select-none"
                 >
                   {/* Holographic Outline Placeholder (Ghost Layer) - Normal Document Flow */}
@@ -436,7 +455,10 @@ export default function Hero() {
                     className={`absolute inset-0 cursor-grab active:cursor-grabbing interactive-letter select-none entrance-char ${
                       isCarried ? 'pointer-events-none' : ''
                     }`}
-                    style={{ transformStyle: 'preserve-3d' }}
+                    style={{ 
+                      transformStyle: 'preserve-3d',
+                      pointerEvents: isCarried ? 'none' : 'auto'
+                    }}
                   >
                     {char}
                   </span>
