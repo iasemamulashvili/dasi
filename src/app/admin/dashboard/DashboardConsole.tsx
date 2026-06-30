@@ -11,14 +11,14 @@ import {
   Trash2,
   Plus,
   ArrowRight,
-  Smartphone,
-  Laptop,
   Globe,
   Video,
   X,
   Check,
   AlertCircle,
-  Cog
+  Cog,
+  Tv,
+  Upload
 } from 'lucide-react';
 import { Game, Job, Settings } from '@/utils/db';
 import {
@@ -29,6 +29,19 @@ import {
   logoutAction,
   saveSettingsAction
 } from '../actions';
+
+// Official App Store & Google Play Store SVG Icons
+const AppStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 384 512" fill="currentColor" className={className}>
+    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-48.7-22.9-76.9-22.4-36.6.6-70.3 21.6-89.2 54.2-38 65.9-9.8 162.8 27.3 216.3 18.2 26.2 39.8 55.3 68.2 54.2 27.2-1.1 37.5-17.6 68.5-17.6 31.1 0 40.4 17.6 68.8 17.1 29-1 48.2-26.4 66.2-52.7 21-30.7 29.7-60.4 30.2-62-1-1-65.2-25.1-65.7-100zM281.2 81.7c15.2-18.3 25.4-43.9 22.6-69.5-22 1-48.8 14.8-64.6 33.2-13.8 15.9-25.9 41.7-22.7 67 24.5 2 49.7-12.4 64.7-30.7z" />
+  </svg>
+);
+
+const PlayStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 512 512" fill="currentColor" className={className}>
+    <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58 33.3 60.1 60.1L512 288c0-22-13.7-47.8-40-62.4zM325.3 277.7l60.1 60.1L104.6 499l220.7-221.3z" />
+  </svg>
+);
 
 interface ConsoleProps {
   games: Game[];
@@ -41,7 +54,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [settingsForm, setSettingsForm] = useState<Settings>(initialSettings);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
-  const [activeTab, setActiveTab] = useState<'games' | 'jobs' | 'settings'>('games');
+  const [activeTab, setActiveTab] = useState<'games' | 'showcase' | 'jobs' | 'settings'>('games');
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   // Modal / Form state for Games
@@ -90,65 +103,111 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
 
   const router = useRouter();
 
-  // Video Upload states
-  const [isUploading, setIsUploading] = useState(false);
+  // File Upload states
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [isUploadingIcon, setIsUploadingIcon] = useState(false);
+  const [isUploadingSlot, setIsUploadingSlot] = useState<number | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleFileUpload = async (file: File): Promise<string> => {
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error('File size exceeds the 5MB free tier limit. Please compress your file before uploading.');
+    }
+
+    const statusRes = await fetch('/api/upload');
+    const statusData = await statusRes.json();
+
+    if (statusData && statusData.vercelBlobEnabled) {
+      const cleanName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const uploadPromise = upload(cleanName, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+      });
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Upload timed out.')), 30000)
+      );
+      const blob = await Promise.race([uploadPromise, timeoutPromise]);
+      return blob.url;
+    } else {
+      const formData = new FormData();
+      formData.append('file', file);
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!uploadRes.ok) {
+        const errData = await uploadRes.json();
+        throw new Error(errData.error || 'Upload failed');
+      }
+      const uploadData = await uploadRes.json();
+      return uploadData.url;
+    }
+  };
 
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Limit to 5MB to protect Vercel Blob free tier
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError('File size exceeds the 5MB free tier limit. Please compress your video before uploading.');
-      return;
-    }
-
-    setIsUploading(true);
+    setIsUploadingVideo(true);
     setUploadError(null);
 
     try {
-      // 1. Check if Vercel Blob is enabled via GET diagnostics
-      const statusRes = await fetch('/api/upload');
-      const statusData = await statusRes.json();
-
-      let videoUrl = '';
-      if (statusData && statusData.vercelBlobEnabled) {
-        // Use client-side direct upload to Vercel Blob (pre-sanitized to avoid library hang on special chars)
-        const cleanName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-        
-        // Promise wrapper with a 30-second timeout to prevent UI hanging
-        const uploadPromise = upload(cleanName, file, {
-          access: 'public',
-          handleUploadUrl: '/api/upload',
-        });
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Upload timed out. Please verify that your Vercel Blob store is set to Public access, has active bandwidth, and the token is correctly configured.')), 30000)
-        );
-        const blob = await Promise.race([uploadPromise, timeoutPromise]);
-        videoUrl = blob.url;
-      } else {
-        // Local upload fallback (standard multipart POST request)
-        const formData = new FormData();
-        formData.append('file', file);
-        const uploadRes = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        if (!uploadRes.ok) {
-          const errData = await uploadRes.json();
-          throw new Error(errData.error || 'Upload failed');
-        }
-        const uploadData = await uploadRes.json();
-        videoUrl = uploadData.url;
-      }
-
-      setGameFormData((prev) => ({ ...prev, videoSrc: videoUrl }));
+      const url = await handleFileUpload(file);
+      setGameFormData((prev) => ({ ...prev, videoSrc: url }));
+      showMessage('Video uploaded successfully.', 'success');
     } catch (error: any) {
       console.error('Video upload error:', error);
       setUploadError(error.message || 'Failed to upload video');
     } finally {
-      setIsUploading(false);
+      setIsUploadingVideo(false);
+    }
+  };
+
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingIcon(true);
+    setUploadError(null);
+
+    try {
+      const url = await handleFileUpload(file);
+      setGameFormData((prev) => ({ ...prev, iconSrc: url }));
+      showMessage('Thumbnail uploaded successfully.', 'success');
+    } catch (error: any) {
+      console.error('Thumbnail upload error:', error);
+      setUploadError(error.message || 'Failed to upload icon');
+    } finally {
+      setIsUploadingIcon(false);
+    }
+  };
+
+  const handleSlotImageUpload = async (slotIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingSlot(slotIdx);
+    setUploadError(null);
+
+    try {
+      const url = await handleFileUpload(file);
+      setSettingsForm((prev) => {
+        const featuredGames = [...(prev.featuredGames || [])];
+        while (featuredGames.length <= slotIdx) {
+          featuredGames.push({ gameId: '' });
+        }
+        featuredGames[slotIdx] = {
+          ...featuredGames[slotIdx],
+          featuredImage: url
+        };
+        return { ...prev, featuredGames };
+      });
+      showMessage(`Featured image for Slot ${slotIdx + 1} uploaded successfully.`, 'success');
+    } catch (error: any) {
+      console.error('Slot upload error:', error);
+      setUploadError(error.message || 'Failed to upload featured image');
+    } finally {
+      setIsUploadingSlot(null);
     }
   };
 
@@ -376,9 +435,11 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
           </div>
         )}
 
+
+
         {/* Tab Header Selector */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-8">
-          <div className="flex bg-carbon-black border border-graphite-light p-1 rounded-xl w-max">
+          <div className="flex bg-carbon-black border border-graphite-light p-1 rounded-xl w-max flex-wrap gap-1">
             <button
               onClick={() => setActiveTab('games')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
@@ -389,6 +450,17 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             >
               <Gamepad2 size={14} />
               GAMES LIST
+            </button>
+            <button
+              onClick={() => setActiveTab('showcase')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
+                activeTab === 'showcase'
+                  ? 'bg-graphite text-bright-snow'
+                  : 'text-alabaster-grey/60 hover:text-bright-snow'
+              }`}
+            >
+              <Tv size={14} />
+              FEATURED SHOWCASE
             </button>
             <button
               onClick={() => setActiveTab('jobs')}
@@ -414,7 +486,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             </button>
           </div>
 
-          {activeTab !== 'settings' && (
+          {(activeTab === 'games' || activeTab === 'jobs') && (
             <button
               onClick={() => (activeTab === 'games' ? handleOpenGameForm(null) : handleOpenJobForm(null))}
               className="bg-slate-violet hover:bg-slate-violet-light text-bright-snow font-semibold px-5 py-2.5 rounded-xl transition-all text-xs flex items-center justify-center gap-2 cursor-pointer uppercase"
@@ -453,8 +525,8 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                         <td className="p-6">
                           <div className="font-semibold text-bright-snow tracking-wide text-base flex items-center gap-2">
                             {game.title}
-                            {game.isFeatured && (
-                              <span className="px-2 py-0.5 bg-muted-green/10 border border-muted-green/20 rounded-md text-[10px] font-sans font-medium text-muted-green-light uppercase tracking-wide">
+                            {settingsForm.featuredGames?.some((f) => f.gameId === game.id) && (
+                              <span className="px-1.5 py-0.5 bg-muted-green/10 border border-muted-green/20 rounded-md text-[8px] text-muted-green-light uppercase tracking-wider font-semibold">
                                 ★ Featured
                               </span>
                             )}
@@ -464,9 +536,9 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                           </p>
                         </td>
                         <td className="p-6">
-                          <div className="flex gap-2 text-alabaster-grey/60">
-                            {game.isIOS && <span title="iOS Supported"><Smartphone size={16} className="text-slate-violet-light" /></span>}
-                            {game.isAndroid && <span title="Android Supported"><Laptop size={16} className="text-slate-violet-light" /></span>}
+                          <div className="flex gap-2 text-alabaster-grey/60 items-center">
+                            {game.isIOS && <span title="iOS Supported"><AppStoreIcon className="w-4 h-4 text-slate-violet-light" /></span>}
+                            {game.isAndroid && <span title="Android Supported"><PlayStoreIcon className="w-4 h-4 text-slate-violet-light" /></span>}
                             {game.isPoki && <span title="Poki Supported"><Globe size={16} className="text-slate-violet-light" /></span>}
                             {game.videoSrc && <span title="Video Loaded"><Video size={16} className="text-muted-green-light" /></span>}
                           </div>
@@ -509,7 +581,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                     <div className="min-w-0 flex-1">
                       <div className="font-semibold text-bright-snow truncate flex flex-wrap items-center gap-2">
                         {game.title}
-                        {game.isFeatured && (
+                        {settingsForm.featuredGames?.some((f) => f.gameId === game.id) && (
                           <span className="px-1.5 py-0.5 bg-muted-green/10 border border-muted-green/20 rounded-md text-[8px] text-muted-green-light uppercase tracking-wider font-semibold">
                             ★ Featured
                           </span>
@@ -522,10 +594,10 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                   </div>
                   
                   <div className="flex items-center justify-between border-t border-graphite-light/40 pt-3">
-                    <div className="flex gap-2 text-alabaster-grey/60">
-                      {game.isIOS && <Smartphone size={14} />}
-                      {game.isAndroid && <Laptop size={14} />}
-                      {game.isPoki && <Globe size={14} />}
+                    <div className="flex gap-2 text-alabaster-grey/60 items-center">
+                      {game.isIOS && <span title="iOS Supported"><AppStoreIcon className="w-3.5 h-3.5 text-slate-violet-light" /></span>}
+                      {game.isAndroid && <span title="Android Supported"><PlayStoreIcon className="w-3.5 h-3.5 text-slate-violet-light" /></span>}
+                      {game.isPoki && <Globe size={14} className="text-slate-violet-light" />}
                     </div>
                     <div className="flex gap-2">
                       <button 
@@ -544,6 +616,144 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tab Content: Featured Showcase */}
+        {activeTab === 'showcase' && (
+          <div className="flex flex-col gap-8">
+            <div className="bg-carbon-black-2 border border-graphite-light p-6 rounded-2xl">
+              <h3 className="text-base font-bold text-bright-snow font-russo-one uppercase tracking-wider mb-2">
+                WebGL Displacement Slider Configuration
+              </h3>
+              <p className="text-xs text-alabaster-grey/70 mb-6 leading-relaxed font-outfit max-w-2xl">
+                Configure the three games featured in the WebGL liquid-morphing slider on the homepage. 
+                Select a game for each slot, enter a featured subtitle, and upload the background morphing image. 
+                Save your settings at the bottom to apply changes.
+              </p>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {[0, 1, 2].map((slotIdx) => {
+                  const slot = settingsForm.featuredGames?.[slotIdx] || { gameId: '', featuredSubtitle: '', featuredImage: '' };
+                  return (
+                    <div key={slotIdx} className="bg-carbon-black border border-graphite-light p-5 rounded-xl flex flex-col gap-4 relative">
+                      <div className="absolute top-4 right-4 text-[10px] font-silkscreen font-bold text-slate-violet-light bg-slate-violet/10 border border-slate-violet/20 px-2 py-0.5 rounded">
+                        SLOT {slotIdx + 1}
+                      </div>
+
+                      {/* Select Game */}
+                      <div className="flex flex-col gap-1.5 mt-2">
+                        <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                          Select Featured Game
+                        </label>
+                        <select
+                          value={slot.gameId}
+                          onChange={(e) => {
+                            setSettingsForm((prev) => {
+                              const featuredGames = [...(prev.featuredGames || [])];
+                              while (featuredGames.length <= slotIdx) featuredGames.push({ gameId: '' });
+                              featuredGames[slotIdx] = { ...featuredGames[slotIdx], gameId: e.target.value };
+                              return { ...prev, featuredGames };
+                            });
+                          }}
+                          className="px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow focus:outline-none focus:border-slate-violet-light cursor-pointer"
+                        >
+                          <option value="">-- Choose a Game --</option>
+                          {games.map((g) => (
+                            <option key={g.id} value={g.id}>
+                              {g.title}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Featured Subtitle */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                          Featured Subtitle
+                        </label>
+                        <input
+                          type="text"
+                          value={slot.featuredSubtitle || ''}
+                          onChange={(e) => {
+                            setSettingsForm((prev) => {
+                              const featuredGames = [...(prev.featuredGames || [])];
+                              while (featuredGames.length <= slotIdx) featuredGames.push({ gameId: '' });
+                              featuredGames[slotIdx] = { ...featuredGames[slotIdx], featuredSubtitle: e.target.value };
+                              return { ...prev, featuredGames };
+                            });
+                          }}
+                          placeholder="e.g. Epic Action RPG Adventure"
+                          className="px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                        />
+                      </div>
+
+                      {/* Featured Image (Morph Texture) */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                          Morphing Background Image URL
+                        </label>
+                        <input
+                          type="text"
+                          value={slot.featuredImage || ''}
+                          onChange={(e) => {
+                            setSettingsForm((prev) => {
+                              const featuredGames = [...(prev.featuredGames || [])];
+                              while (featuredGames.length <= slotIdx) featuredGames.push({ gameId: '' });
+                              featuredGames[slotIdx] = { ...featuredGames[slotIdx], featuredImage: e.target.value };
+                              return { ...prev, featuredGames };
+                            });
+                          }}
+                          placeholder="/crown-quest.png or upload"
+                          className="px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                        />
+                      </div>
+
+                      {/* Image Uploader */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                          Upload Morphing Texture
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleSlotImageUpload(slotIdx, e)}
+                            disabled={isUploadingSlot === slotIdx}
+                            className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-10 disabled:cursor-not-allowed"
+                          />
+                          <div className="w-full px-3 py-2 bg-graphite hover:bg-graphite-light border border-graphite-light rounded-xl text-xs text-bright-snow font-semibold text-center transition-all flex items-center justify-center gap-2">
+                            <Upload size={14} />
+                            {isUploadingSlot === slotIdx ? 'UPLOADING...' : 'CHOOSE IMAGE FILE'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Image Preview */}
+                      {slot.featuredImage && (
+                        <div className="mt-2 border border-graphite-light rounded-lg overflow-hidden h-28 bg-carbon-black-2 flex items-center justify-center relative group">
+                          <img
+                            src={slot.featuredImage}
+                            alt="Preview"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-8 pt-4 border-t border-graphite-light flex justify-end">
+                <button
+                  onClick={handleSaveSettings}
+                  disabled={isSavingSettings}
+                  className="bg-slate-violet hover:bg-slate-violet-light text-bright-snow font-semibold px-6 py-3 rounded-xl transition-all text-xs cursor-pointer disabled:opacity-50 font-silkscreen uppercase tracking-wider"
+                >
+                  {isSavingSettings ? 'SAVING SHOWCASE...' : 'SAVE SHOWCASE CONFIG'}
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -729,52 +939,78 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
 
               {/* Assets Link: Icon & Video */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                    Icon URL
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={gameFormData.iconSrc}
-                    onChange={(e) => setGameFormData({ ...gameFormData, iconSrc: e.target.value })}
-                    placeholder="https://..."
-                    className="w-full px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
-                  />
+                {/* Icon URL and Uploader */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                      Icon URL
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={gameFormData.iconSrc}
+                      onChange={(e) => setGameFormData({ ...gameFormData, iconSrc: e.target.value })}
+                      placeholder="https://..."
+                      className="w-full px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                      Upload Icon / Thumbnail
+                    </label>
+                    <label className="relative cursor-pointer px-4 py-2.5 bg-graphite hover:bg-graphite-light border border-graphite-light rounded-xl text-xs font-bold text-bright-snow transition-all duration-200 flex items-center justify-center h-[42px] select-none text-center">
+                      {isUploadingIcon ? 'Uploading Icon...' : 'Choose Icon File'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleThumbnailUpload}
+                        disabled={isUploadingIcon}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
                 </div>
-                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                    Hover Gameplay Video URL (Optional)
-                  </label>
-                  <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+
+                {/* Video URL and Uploader */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                      Hover Gameplay Video URL (Optional)
+                    </label>
                     <input
                       type="text"
                       value={gameFormData.videoSrc}
                       onChange={(e) => setGameFormData({ ...gameFormData, videoSrc: e.target.value })}
                       placeholder="https://...mp4 or upload file"
-                      className="flex-1 min-w-0 px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
+                      className="w-full px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
                     />
-                    <label className="relative cursor-pointer px-4 py-2.5 bg-graphite hover:bg-graphite-light border border-graphite-light rounded-xl text-xs font-bold text-bright-snow transition-all duration-200 flex items-center justify-center shrink-0 h-[42px] select-none text-center">
-                      {isUploading ? 'Uploading...' : 'Upload Video'}
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                      Upload Gameplay Video
+                    </label>
+                    <label className="relative cursor-pointer px-4 py-2.5 bg-graphite hover:bg-graphite-light border border-graphite-light rounded-xl text-xs font-bold text-bright-snow transition-all duration-200 flex items-center justify-center h-[42px] select-none text-center">
+                      {isUploadingVideo ? 'Uploading Video...' : 'Choose Video File'}
                       <input
                         type="file"
                         accept="video/mp4"
                         onChange={handleVideoUpload}
-                        disabled={isUploading}
+                        disabled={isUploadingVideo}
                         className="hidden"
                       />
                     </label>
                   </div>
-                  {uploadError && (
-                    <p className="text-[10px] text-rose-500 font-bold mt-1 flex items-center gap-1">
-                      <AlertCircle size={10} />
-                      <span>{uploadError}</span>
-                    </p>
-                  )}
                 </div>
               </div>
 
-              {/* Supported Checkboxes */}
+              {uploadError && (
+                <p className="text-[10px] text-rose-500 font-bold flex items-center gap-1">
+                  <AlertCircle size={10} />
+                  <span>{uploadError}</span>
+                </p>
+              )}
+
+              {/* Supported Platforms Checkboxes */}
               <div className="flex flex-wrap gap-6 border-y border-graphite-light py-4 my-2">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
@@ -803,101 +1039,64 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                   />
                   <span className="text-xs font-bold text-bright-snow tracking-wide uppercase">Poki Web Arcade</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer select-none sm:border-l sm:border-graphite-light sm:pl-6">
-                  <input
-                    type="checkbox"
-                    checked={gameFormData.isFeatured || false}
-                    onChange={(e) => setGameFormData({ ...gameFormData, isFeatured: e.target.checked })}
-                    className="rounded bg-carbon-black border-graphite-light text-muted-green focus:ring-0"
-                  />
-                  <span className="text-xs font-bold text-muted-green-light tracking-wide uppercase">★ Feature on Mainframe Slider</span>
-                </label>
               </div>
 
-              {/* Featured Slider Fields (Only shown if isFeatured is checked) */}
-              {gameFormData.isFeatured && (
-                <div className="flex flex-col gap-4 p-4 bg-carbon-black border border-muted-green/20 rounded-xl my-2 animate-fadeIn">
-                  <h4 className="text-xs font-semibold text-muted-green-light uppercase tracking-wider flex items-center gap-1.5 border-b border-graphite-light pb-2">
-                    ★ Mainframe Slider Featured Details
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                        Featured Showcase Image URL
-                      </label>
-                      <input
-                        type="text"
-                        value={gameFormData.featuredImage || ''}
-                        onChange={(e) => setGameFormData({ ...gameFormData, featuredImage: e.target.value })}
-                        placeholder="/Images/crown-quest.png"
-                        className="w-full px-4 py-2.5 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                        Featured Subtitle
-                      </label>
-                      <input
-                        type="text"
-                        value={gameFormData.featuredSubtitle || ''}
-                        onChange={(e) => setGameFormData({ ...gameFormData, featuredSubtitle: e.target.value })}
-                        placeholder="Epic Action RPG Adventure"
-                        className="w-full px-4 py-2.5 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
-                      />
-                    </div>
+              {/* Game Analytics & Stats (Always Editable) */}
+              <div className="bg-carbon-black border border-graphite-light p-4 rounded-xl flex flex-col gap-4">
+                <h4 className="text-xs font-bold text-bright-snow tracking-wider uppercase border-b border-graphite-light/40 pb-2">
+                  Game Analytics & Stats (For Showcase)
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                      Game Engine
+                    </label>
+                    <input
+                      type="text"
+                      value={gameFormData.engine || ''}
+                      onChange={(e) => setGameFormData({ ...gameFormData, engine: e.target.value })}
+                      placeholder="Unity 3D"
+                      className="w-full px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                    />
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                        Engine
-                      </label>
-                      <input
-                        type="text"
-                        value={gameFormData.engine || ''}
-                        onChange={(e) => setGameFormData({ ...gameFormData, engine: e.target.value })}
-                        placeholder="Unity 3D"
-                        className="w-full px-4 py-2.5 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                        Downloads
-                      </label>
-                      <input
-                        type="text"
-                        value={gameFormData.downloads || ''}
-                        onChange={(e) => setGameFormData({ ...gameFormData, downloads: e.target.value })}
-                        placeholder="5M+"
-                        className="w-full px-4 py-2.5 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                        Active Players (Monthly Users)
-                      </label>
-                      <input
-                        type="text"
-                        value={gameFormData.activePlayers || ''}
-                        onChange={(e) => setGameFormData({ ...gameFormData, activePlayers: e.target.value })}
-                        placeholder="1.2M+"
-                        className="w-full px-4 py-2.5 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                        Rating
-                      </label>
-                      <input
-                        type="text"
-                        value={gameFormData.rating || ''}
-                        onChange={(e) => setGameFormData({ ...gameFormData, rating: e.target.value })}
-                        placeholder="4.8"
-                        className="w-full px-4 py-2.5 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
-                      />
-                    </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                      Downloads
+                    </label>
+                    <input
+                      type="text"
+                      value={gameFormData.downloads || ''}
+                      onChange={(e) => setGameFormData({ ...gameFormData, downloads: e.target.value })}
+                      placeholder="5M+"
+                      className="w-full px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                      Active Players
+                    </label>
+                    <input
+                      type="text"
+                      value={gameFormData.activePlayers || ''}
+                      onChange={(e) => setGameFormData({ ...gameFormData, activePlayers: e.target.value })}
+                      placeholder="1.2M+"
+                      className="w-full px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                      Rating
+                    </label>
+                    <input
+                      type="text"
+                      value={gameFormData.rating || ''}
+                      onChange={(e) => setGameFormData({ ...gameFormData, rating: e.target.value })}
+                      placeholder="4.8"
+                      className="w-full px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-xl text-sm text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                    />
                   </div>
                 </div>
-              )}
+              </div>
 
               {/* Store Links */}
               <div className="flex flex-col gap-4">
@@ -948,7 +1147,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
               {/* Submit panel */}
               <button
                 type="submit"
-                className="w-full py-3 bg-slate-violet hover:bg-slate-violet-light text-bright-snow font-semibold rounded-xl transition-all text-sm mt-4 cursor-pointer uppercase"
+                className="w-full py-3 bg-slate-violet hover:bg-slate-violet-light text-bright-snow font-semibold rounded-xl transition-all text-sm mt-4 cursor-pointer uppercase font-silkscreen tracking-wider"
               >
                 SAVE GAME ENTRY
               </button>

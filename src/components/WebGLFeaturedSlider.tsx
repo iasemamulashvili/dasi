@@ -79,7 +79,14 @@ const defaultMockGames = [
   }
 ];
 
-export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: Game[] }) {
+interface WebGLFeaturedSliderProps {
+  featuredGames: (Game & {
+    featuredSubtitle?: string;
+    featuredImage?: string;
+  })[];
+}
+
+export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSliderProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const customCursorRef = useRef<HTMLDivElement>(null);
@@ -89,10 +96,8 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
   const [webglSupported, setWebglSupported] = useState(true);
   const transitionRef = useRef({ active: false });
 
-  // Filter for featured games from props, falling back to mock data if empty
-  const featuredGamesFromProps = initialGames?.filter(g => g.isFeatured) || [];
-  const gamesData = featuredGamesFromProps.length > 0 
-    ? featuredGamesFromProps.map(g => ({
+  const gamesData = featuredGames.length > 0 
+    ? featuredGames.map(g => ({
         id: g.id,
         title: g.title,
         subtitle: g.featuredSubtitle || g.title,
@@ -111,7 +116,19 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
           engine: g.engine || 'Unity'
         }
       }))
-    : defaultMockGames;
+    : defaultMockGames.map(g => ({
+        ...g,
+        playstoreLink: g.playstoreLink || '',
+        appstoreLink: g.appstoreLink || '',
+        pokiLink: '',
+        iconSrc: g.image,
+        iconAlt: g.title,
+        isAndroid: true,
+        isIOS: true,
+        isPoki: false,
+        videoSrc: '',
+        isFeatured: true
+      }));
 
   // WebGL Context References
   const glRef = useRef<WebGLRenderingContext | null>(null);
@@ -434,9 +451,9 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
             Featured Releases
           </h2>
         </div>
-        <div className="hidden md:flex items-center gap-2 font-silkscreen text-[9px] text-alabaster-grey/60 border border-graphite-light bg-carbon-black-2 px-3 py-1.5">
+        <div className="hidden md:flex items-center gap-2 font-silkscreen text-[9px] text-slate-violet-light border border-slate-violet/20 bg-carbon-black-2 px-3 py-1.5 rounded-lg select-none">
           <span className="w-1.5 h-1.5 bg-muted-green rounded-full animate-ping" />
-          SERVER STATUS: ONLINE
+          DASI GAMES // SERVERS ONLINE
         </div>
       </div>
 

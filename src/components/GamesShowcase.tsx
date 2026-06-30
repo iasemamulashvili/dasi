@@ -250,7 +250,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
               {/* Game Visual Area */}
               <div className="relative w-full h-[240px] md:h-[260px] bg-carbon-black rounded-lg overflow-hidden mb-6 flex items-center justify-center border border-graphite-light">
                 {/* Fallback Looping Particle Canvas or Looping Video */}
-                {hoveredCardIndex === index ? (
+                {hoveredCardIndex === index && (
                   game.videoSrc ? (
                     <video
                       src={game.videoSrc}
@@ -258,34 +258,32 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                       loop
                       muted
                       playsInline
-                      className="absolute inset-0 w-full h-full object-cover z-0"
+                      className="absolute inset-0 w-full h-full object-cover z-0 video-entrance"
                     />
                   ) : (
-                    <GameVideoFallback gameId={game.id} />
+                    <div className="absolute inset-0 w-full h-full z-0 video-entrance">
+                      <GameVideoFallback gameId={game.id} />
+                    </div>
                   )
-                ) : null}
-
-                {/* Big Game Artwork / Icon */}
-                <div
-                  className={`flex flex-col items-center justify-center transition-all duration-500 ${
-                    hoveredCardIndex === index ? 'scale-75 opacity-0 pointer-events-none' : 'scale-100 opacity-100'
-                  } z-10`}
-                >
-                  <img
-                    src={game.iconSrc}
-                    alt={game.iconAlt}
-                    className="w-32 h-32 rounded-none object-cover border border-graphite-light group-hover:scale-105 transition-all duration-500"
-                  />
-                </div>
-
-                {/* Play Button Indicator */}
-                {hoveredCardIndex !== index && (
-                  <div className="absolute inset-0 bg-black/10 hover:bg-black/20 flex items-center justify-center transition-colors">
-                    <span className="p-3 bg-carbon-black/90 border border-graphite-light rounded-none text-bright-snow scale-95 hover:scale-100 transition-all duration-300">
-                      <Play size={16} fill="currentColor" />
-                    </span>
-                  </div>
                 )}
+
+                {/* Big Game Artwork / Icon - Full-Bleed with Shrink-to-Video Transition */}
+                <img
+                  src={game.iconSrc}
+                  alt={game.iconAlt}
+                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out z-10 ${
+                    hoveredCardIndex === index ? 'scale-90 opacity-0 pointer-events-none' : 'scale-100 opacity-100'
+                  }`}
+                />
+
+                {/* Play Button Indicator - Smooth Fade Out */}
+                <div className={`absolute inset-0 bg-black/20 flex items-center justify-center transition-all duration-500 z-20 ${
+                  hoveredCardIndex === index ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                }`}>
+                  <span className="p-3 bg-carbon-black/90 border border-graphite-light rounded-xl text-bright-snow shadow-lg transition-transform duration-300 group-hover:scale-110">
+                    <Play size={16} fill="currentColor" />
+                  </span>
+                </div>
               </div>
 
               {/* Game Metadata info */}

@@ -435,14 +435,16 @@ export default function Hero() {
         ref={layerForeRef}
         className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col items-start justify-center gap-6"
       >
-        {/* Playful Interactive Header Alert */}
+        {/* Cyberpunk HUD Game-style Alert Pill */}
         {collectedCount > 0 && (
-          <div className="flex items-center gap-2.5 px-4 py-1.5 bg-bright-snow/5 backdrop-blur-md border border-bright-snow/10 rounded-full text-xs font-silkscreen text-platinum-silver shadow-[0_8px_32px_rgba(0,0,0,0.37)] transition-all duration-300">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-muted-green opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-muted-green"></span>
+          <div className="flex items-center gap-3 px-4 py-2 bg-carbon-black-2/80 backdrop-blur-md border border-slate-violet/30 rounded-xl text-xs font-silkscreen text-bright-snow shadow-[0_8px_32px_rgba(0,0,0,0.6)] transition-all duration-300 animate-fadeIn select-none border-l-4 border-l-slate-violet-light">
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="8" className="w-4 h-4 text-slate-violet-light animate-pulse filter drop-shadow-[0_0_4px_rgba(168,85,247,0.5)]">
+              <path d="M 20 20 L 80 20 L 80 50 C 80 72 65 88 50 95 C 35 88 20 72 20 50 Z" />
+              <polygon points="44,30 56,30 50,42" fill="currentColor" stroke="none" />
+            </svg>
+            <span className="tracking-wider text-slate-violet-light">
+              [ SYSTEM SHARDS: <span className="text-bright-snow font-bold">{collectedCount}</span>/8 ENGAGED ] // DISCHARGE CHAMBER ONLINE
             </span>
-            <span>Carrying {collectedCount} {collectedCount === 1 ? 'letter' : 'letters'} • Hover RELEASE to launch</span>
           </div>
         )}
 
@@ -518,67 +520,72 @@ export default function Hero() {
             })}
           </h1>
           
-          {/* Drop Zone (dashed game box with integrated wall fan) */}
-          <div
-            ref={dumpZoneRef}
-            onMouseEnter={handleDumpZoneMouseEnter}
-            onClick={handleDumpZoneMouseEnter}
-            className={`flex w-full md:w-auto items-center justify-between md:justify-start gap-3 pl-5 pr-2 py-2 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-500 relative select-none overflow-hidden [text-shadow:none] mt-6 md:mt-0 ${
-              collectedCount > 0
-                ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto border-platinum-silver text-platinum-silver bg-carbon-black-2/90'
-                : 'opacity-0 scale-90 -translate-y-2 pointer-events-none border-graphite-light text-alabaster-grey/70 bg-transparent'
-            } ${
-              isBlowing
-                ? 'border-muted-green bg-muted-green/10 text-muted-green'
-                : 'hover:border-platinum-silver hover:text-bright-snow'
-            }`}
-          >
-            <span>RELEASE</span>
+          {/* Release Box Container with collapsing spacing on mobile */}
+          <div className={`w-full md:w-auto transition-all duration-500 ease-out overflow-hidden ${
+            collectedCount > 0
+              ? 'max-h-28 mt-6 md:mt-0 opacity-100'
+              : 'max-h-0 mt-0 opacity-0 pointer-events-none'
+          }`}>
+            <div
+              ref={dumpZoneRef}
+              onMouseEnter={handleDumpZoneMouseEnter}
+              onClick={handleDumpZoneMouseEnter}
+              className={`flex w-full md:w-auto items-center justify-between md:justify-start gap-3 pl-5 pr-2 py-2 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-500 relative select-none overflow-hidden [text-shadow:none] ${
+                collectedCount > 0
+                  ? 'border-platinum-silver text-platinum-silver bg-carbon-black-2/90'
+                  : 'border-graphite-light text-alabaster-grey/70 bg-transparent'
+              } ${
+                isBlowing
+                  ? 'border-muted-green bg-muted-green/10 text-muted-green'
+                  : 'hover:border-platinum-silver hover:text-bright-snow'
+              }`}
+            >
+              <span>RELEASE</span>
 
-            {/* Wind Particles (hidden unless blowing) - contained inside the release box */}
-            <div className="absolute inset-y-0 left-4 right-16 pointer-events-none overflow-hidden flex flex-col justify-around">
-              <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
-              <div className="wind-line w-full h-[2.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
-              <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
-              <div className="wind-line w-full h-[2px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
-            </div>
+              {/* Wind Particles (hidden unless blowing) - contained inside the release box */}
+              <div className="absolute inset-y-0 left-4 right-16 pointer-events-none overflow-hidden flex flex-col justify-around">
+                <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+                <div className="wind-line w-full h-[2.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+                <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+                <div className="wind-line w-full h-[2px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+              </div>
 
-            {/* Integrated Wall Fan mounted to the right border */}
-            <div className="relative flex items-center justify-center pl-1">
-              {/* Fan SVG (Sleek Jet Turbine - Flush Casing, No Stand) */}
-              <svg
-                className={`w-11 h-11 transition-all duration-300 ${
-                  collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
-                }`}
-                viewBox="0 0 64 64"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                {/* Outer flush casing ring */}
-                <circle cx="32" cy="32" r="26" strokeWidth="3" />
-                <circle cx="32" cy="32" r="22" strokeWidth="1" strokeDasharray="3 2" className="opacity-40" />
-                {/* Rotating dense blades */}
-                <g
-                  className={`origin-[32px_32px] ${
-                    isBlowing
-                      ? 'animate-[spin_0.12s_linear_infinite]'
-                      : collectedCount > 0
-                      ? 'animate-[spin_1.2s_linear_infinite]'
-                      : 'hover:animate-[spin_0.5s_linear_infinite]'
+              {/* Integrated Wall Fan mounted to the right border */}
+              <div className="relative flex items-center justify-center pl-1">
+                {/* Fan SVG (Option F: Vortex Singularity - Flush Centrifugal Spiral) */}
+                <svg
+                  className={`w-11 h-11 transition-all duration-300 ${
+                    collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
                   }`}
+                  viewBox="0 0 64 64"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <circle cx="32" cy="32" r="6" fill="currentColor" />
-                  {/* 8 curved turbine blades */}
-                  {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
-                    <g key={angle} transform={`rotate(${angle}, 32, 32)`}>
-                      <path d="M32 32 c-3 -6 -4 -16 0 -20 c2.5 2 3 10 0 20" fill="currentColor" />
-                    </g>
-                  ))}
-                </g>
-              </svg>
+                  {/* Outer casing */}
+                  <circle cx="32" cy="32" r="27" strokeWidth="1.5" />
+                  <circle cx="32" cy="32" r="24" strokeWidth="0.75" strokeDasharray="2 2" className="opacity-40" />
+                  {/* Vortex Blades Group */}
+                  <g
+                    className={`origin-[32px_32px] ${
+                      isBlowing
+                        ? 'animate-[spin_0.15s_linear_infinite]'
+                        : collectedCount > 0
+                        ? 'animate-[spin_2s_linear_infinite]'
+                        : 'hover:animate-[spin_0.8s_linear_infinite]'
+                    }`}
+                  >
+                    <circle cx="32" cy="32" r="4" fill="currentColor" />
+                    {[0, 60, 120, 180, 240, 300].map((angle) => (
+                      <g key={angle} transform={`rotate(${angle}, 32, 32)`}>
+                        <path d="M 32 32 C 32 18, 22 10, 16 13 C 12 15, 18 25, 32 32" fill="currentColor" stroke="none" />
+                      </g>
+                    ))}
+                  </g>
+                </svg>
+              </div>
             </div>
           </div>
         </div>

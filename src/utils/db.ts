@@ -39,8 +39,15 @@ const GAMES_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'games.json');
 const JOBS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'jobs.json');
 const SETTINGS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'settings.json');
 
+export interface FeaturedGameSelection {
+  gameId: string;
+  featuredSubtitle?: string;
+  featuredImage?: string;
+}
+
 export interface Settings {
   contactEmail: string;
+  featuredGames?: FeaturedGameSelection[];
 }
 
 // Memory cache for serverless environments when DB env is not fully configured yet
@@ -253,12 +260,22 @@ export async function saveJobs(jobs: Job[]): Promise<void> {
 // Settings Data Methods
 // -------------------------------------------------------------
 export async function getSettings(): Promise<Settings> {
+  const defaultFeaturedGames = [
+    { gameId: 'crown-quest', featuredSubtitle: 'Epic Action RPG Adventure', featuredImage: '/crown-quest.png' },
+    { gameId: 'lumber-chopper', featuredSubtitle: 'Idle Wood Empire Tycoon', featuredImage: '/lumber-chopper.png' },
+    { gameId: 'hotel-manager', featuredSubtitle: '5-Star Luxury Resort Simulator', featuredImage: '/hotel-manager.png' }
+  ];
+
   const kv = getKVConfig();
   if (kv) {
     try {
       const kvSettingsStr = await fetchKV('get/dasi_settings');
       if (kvSettingsStr) {
-        return typeof kvSettingsStr === 'string' ? JSON.parse(kvSettingsStr) : kvSettingsStr;
+        const settings = typeof kvSettingsStr === 'string' ? JSON.parse(kvSettingsStr) : kvSettingsStr;
+        if (!settings.featuredGames) {
+          settings.featuredGames = defaultFeaturedGames;
+        }
+        return settings;
       }
     } catch (e) {
       console.error('Error fetching settings from Vercel KV, falling back to local files:', e);
@@ -266,6 +283,9 @@ export async function getSettings(): Promise<Settings> {
   }
 
   if (!isLocalFileSystemWritable() && inMemorySettings) {
+    if (!inMemorySettings.featuredGames) {
+      inMemorySettings.featuredGames = defaultFeaturedGames;
+    }
     return inMemorySettings;
   }
 
@@ -273,6 +293,9 @@ export async function getSettings(): Promise<Settings> {
     if (fs.existsSync(SETTINGS_FILE_PATH)) {
       const content = fs.readFileSync(SETTINGS_FILE_PATH, 'utf-8');
       const settings = JSON.parse(content);
+      if (!settings.featuredGames) {
+        settings.featuredGames = defaultFeaturedGames;
+      }
       if (!isLocalFileSystemWritable()) {
         inMemorySettings = settings;
       }
@@ -283,7 +306,10 @@ export async function getSettings(): Promise<Settings> {
   }
 
   // Fallback to environment variable or default
-  return { contactEmail: process.env.CONTACT_DESTINATION_EMAIL || 'info@dasigames.com' };
+  return { 
+    contactEmail: process.env.CONTACT_DESTINATION_EMAIL || 'info@dasigames.com',
+    featuredGames: defaultFeaturedGames
+  };
 }
 
 export async function saveSettings(settings: Settings): Promise<void> {
