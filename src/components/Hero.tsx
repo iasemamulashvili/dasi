@@ -173,12 +173,12 @@ export default function Hero() {
             const targetRot = (i - (carriedLetters.current.length - 1) / 2) * 6;
             const ease = 0.18 - (i * 0.012);
 
-            // Subtle brand gradient trail in OKLCH: Slate-Violet at cursor -> Deep Graphite at tail
+            // Monochromatic gradient trail: Silver at cursor -> Deep Graphite at tail
             const totalCarried = carriedLetters.current.length;
             const ratio = totalCarried > 1 ? i / (totalCarried - 1) : 0;
-            const targetLightness = 0.68 - ratio * 0.13; // 0.68 down to 0.55
-            const targetChroma = 0.10 - ratio * 0.04;    // 0.10 down to 0.06
-            const targetHue = 264;                        // Consistent slate-violet/graphite hue
+            const targetLightness = 0.82 - ratio * 0.47; // 0.82 down to 0.35
+            const targetChroma = 0.01;
+            const targetHue = 0;
 
             gsap.set(letter, {
               x: currentX + (target.x - currentX) * ease,
@@ -303,10 +303,10 @@ export default function Hero() {
           ease: 'power1.out',
         })
         .to(letter, {
-          // Wind Release Flash (Soft Sage Green/Slate)
-          '--letter-l': 0.75,
-          '--letter-c': 0.08,
-          '--letter-h': 165,
+          // Wind Release Flash (Soft Silver-White)
+          '--letter-l': 0.92,
+          '--letter-c': 0.01,
+          '--letter-h': 0,
           duration: 0.15,
           overwrite: 'auto',
         })
@@ -422,8 +422,8 @@ export default function Hero() {
                       if (collectedCount === 0 || !carriedLetters.current.includes(index)) {
                         gsap.to(e.currentTarget, {
                           '--letter-l': 0.88,
-                          '--letter-c': 0.02,
-                          '--letter-h': 240,
+                          '--letter-c': 0.01,
+                          '--letter-h': 0,
                           duration: 0.2,
                         });
                       }
