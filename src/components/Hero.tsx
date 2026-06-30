@@ -204,6 +204,51 @@ export default function Hero() {
     };
   }, []);
 
+  const handleLetterClick = (index: number) => {
+    const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
+    if (!isMobile) return;
+
+    if (carriedLetters.current.includes(index)) return;
+
+    carriedLetters.current.push(index);
+    setCollectedCount(carriedLetters.current.length);
+
+    const letter = letterRefs.current[index];
+    const parent = parentRefs.current[index];
+    if (letter && parent) {
+      const rect = parent.getBoundingClientRect();
+      const stackIdx = carriedLetters.current.length - 1;
+
+      // Update mousePos to the tapped letter's center if it hasn't been set yet
+      if (mousePos.current.x === 0 && mousePos.current.y === 0) {
+        mousePos.current = { x: rect.left + rect.width / 2, y: rect.top - 120 };
+      }
+
+      const targetViewportX = mousePos.current.x + 20 + (stackIdx * 6);
+      const targetViewportY = mousePos.current.y - 15 - (stackIdx * 15);
+
+      targets.current[index] = {
+        x: targetViewportX - rect.left,
+        y: targetViewportY - rect.top,
+      };
+
+      // Animate placeholder opacity
+      gsap.to(`.letter-placeholder-${index}`, {
+        opacity: 1,
+        scale: 0.95,
+        duration: 0.3,
+        overwrite: 'auto'
+      });
+
+      gsap.to(letter, {
+        scale: 1.3,
+        duration: 0.1,
+        yoyo: true,
+        repeat: 1,
+      });
+    }
+  };
+
   const handleContainerMouseMove = (e: React.MouseEvent) => {
     if (window.innerWidth < 768 || ('ontouchstart' in window)) return;
     
@@ -258,6 +303,14 @@ export default function Hero() {
             y: targetViewportY - rect.top,
           };
 
+          // Animate placeholder opacity
+          gsap.to(`.letter-placeholder-${index}`, {
+            opacity: 1,
+            scale: 0.95,
+            duration: 0.3,
+            overwrite: 'auto'
+          });
+
           gsap.to(letter, {
             scale: 1.3,
             duration: 0.1,
@@ -278,13 +331,13 @@ export default function Hero() {
     }, 1200);
 
     gsap.fromTo('.wind-line',
-      { scaleX: 0, x: 20, opacity: 0.8 },
+      { scaleX: 0, x: 50, opacity: 0.8 },
       {
-        scaleX: 2.2,
-        x: -240,
+        scaleX: 3.5,
+        x: -1200, // Sweep across the entire screen
         opacity: 0,
-        stagger: 0.08,
-        duration: 0.9,
+        stagger: 0.06,
+        duration: 1.1,
         ease: 'power2.out',
         overwrite: 'auto',
       }
@@ -322,6 +375,13 @@ export default function Hero() {
           duration: 0.8,
           ease: 'power3.out',
         });
+
+        // Fade out the placeholder at the end of the return-home animation!
+        tl.to(`.letter-placeholder-${index}`, {
+          opacity: 0,
+          scale: 1,
+          duration: 0.3,
+        }, "-=0.3");
       }
     });
 
@@ -391,6 +451,7 @@ export default function Hero() {
           <h1
             ref={titleRef}
             className="text-5xl md:text-8xl font-normal tracking-wider select-none flex flex-wrap font-russo-one"
+            style={{ transformStyle: 'preserve-3d' }}
           >
             {titleText.split('').map((char, index) => {
               if (char === ' ') return <span key={index} className="w-6 md:w-10">&nbsp;</span>;
@@ -401,15 +462,15 @@ export default function Hero() {
                   ref={(el) => {
                     parentRefs.current[index] = el;
                   }}
-                  className="relative inline-block select-none"
+                  className="relative inline-block"
+                  style={{ transformStyle: 'preserve-3d' }}
                 >
                   {/* Holographic Outline Placeholder (Ghost Layer) - Normal Document Flow */}
                   <span
-                    className={`inline-block select-none transition-all duration-500 ease-out ${
-                      isCarried ? 'opacity-100 scale-95' : 'opacity-0 scale-100 pointer-events-none'
-                    }`}
+                    className={`letter-placeholder-${index} inline-block select-none transition-all duration-500 ease-out pointer-events-none`}
                     style={{
-                      color: 'oklch(0.08 0.01 0)', // Deep pitch-black recess
+                      opacity: 0,
+                      color: 'oklch(0.12 0.01 0)', // Slightly less black recess
                       textShadow: '0 1px 1px oklch(0.95 0.01 0 / 0.15), 0 -1px 1.5px oklch(0 0 0 / 0.8)', // 3D engraved bevel
                     }}
                   >
@@ -421,6 +482,7 @@ export default function Hero() {
                     ref={(el) => {
                       letterRefs.current[index] = el;
                     }}
+                    onClick={() => handleLetterClick(index)}
                     onMouseEnter={(e) => {
                       if (collectedCount === 0 || !carriedLetters.current.includes(index)) {
                         gsap.to(e.currentTarget, {
@@ -460,10 +522,15 @@ export default function Hero() {
           <div
             ref={dumpZoneRef}
             onMouseEnter={handleDumpZoneMouseEnter}
-            className={`inline-flex items-center gap-3 pl-5 pr-2 py-2 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-300 relative select-none [text-shadow:none] mt-4 md:mt-0 ${
+            onClick={handleDumpZoneMouseEnter}
+            className={`flex w-full md:w-auto items-center justify-between md:justify-start gap-3 pl-5 pr-2 py-2 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-500 relative select-none [text-shadow:none] mt-6 md:mt-0 ${
               collectedCount > 0
-                ? 'border-platinum-silver text-platinum-silver bg-carbon-black-2/90 scale-105'
-                : 'border-graphite-light text-alabaster-grey/70 bg-transparent hover:border-platinum-silver hover:text-bright-snow'
+                ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto border-platinum-silver text-platinum-silver bg-carbon-black-2/90'
+                : 'opacity-0 scale-90 -translate-y-2 pointer-events-none border-graphite-light text-alabaster-grey/70 bg-transparent'
+            } ${
+              isBlowing
+                ? 'border-muted-green bg-muted-green/10 text-muted-green'
+                : 'hover:border-platinum-silver hover:text-bright-snow'
             }`}
           >
             <span>RELEASE</span>
@@ -471,10 +538,11 @@ export default function Hero() {
             {/* Integrated Wall Fan mounted to the right border */}
             <div className="relative flex items-center justify-center pl-1">
               {/* Wind Particles (hidden unless blowing) */}
-              <div className="absolute right-full mr-2 w-28 h-8 pointer-events-none overflow-hidden flex flex-col justify-around">
+              <div className="absolute right-full mr-4 w-[80vw] h-16 pointer-events-none overflow-hidden flex flex-col justify-around">
                 <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
                 <div className="wind-line w-full h-[2.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
-                <div className="wind-line w-full h-[1px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+                <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+                <div className="wind-line w-full h-[2px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
               </div>
 
               {/* Fan SVG (Heavy Dual Bracket Industrial Fan) */}
