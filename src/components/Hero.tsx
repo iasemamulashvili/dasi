@@ -403,11 +403,10 @@ export default function Hero() {
                   {/* Holographic Outline Placeholder (Ghost Layer) - Normal Document Flow */}
                   <span
                     className={`inline-block select-none transition-all duration-500 ease-out ${
-                      isCarried ? 'opacity-45 scale-95' : 'opacity-0 scale-100 pointer-events-none'
+                      isCarried ? 'opacity-100 scale-95' : 'opacity-0 scale-100 pointer-events-none'
                     }`}
                     style={{
-                      color: 'transparent',
-                      WebkitTextStroke: '1px oklch(0.65 0.15 264 / 0.7)', // Razor-sharp 1px wireframe
+                      color: 'oklch(0.65 0.15 264 / 0.12)', // 12% opacity solid brand violet (ghost silhouette)
                     }}
                   >
                     {char}
