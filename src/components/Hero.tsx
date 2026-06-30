@@ -406,7 +406,8 @@ export default function Hero() {
                       isCarried ? 'opacity-100 scale-95' : 'opacity-0 scale-100 pointer-events-none'
                     }`}
                     style={{
-                      color: 'oklch(0.65 0.15 264 / 0.12)', // 12% opacity solid brand violet (ghost silhouette)
+                      color: 'oklch(0.08 0.01 0)', // Deep pitch-black recess
+                      textShadow: '0 1px 1px oklch(0.95 0.01 0 / 0.15), 0 -1px 1.5px oklch(0 0 0 / 0.8)', // 3D engraved bevel
                     }}
                   >
                     {char}
