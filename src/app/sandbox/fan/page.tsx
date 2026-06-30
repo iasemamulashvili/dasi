@@ -11,7 +11,7 @@ function FanSandboxItem({
 }: {
   title: string;
   description: string;
-  fanType: 'exhaust' | 'coaxial' | 'propeller';
+  fanType: 'turbine' | 'portal' | 'propeller';
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const dumpZoneRef = useRef<HTMLDivElement>(null);
@@ -40,7 +40,7 @@ function FanSandboxItem({
             const homeViewportX = rect.left - currentX;
             const homeViewportY = rect.top - currentY;
 
-            // Offset completely to bottom-right of cursor (top-left of letter aligns at +30px offset)
+            // Offset completely to bottom-right of cursor
             const angle = (index / testWord.length) * Math.PI * 2 + (Date.now() * 0.003);
             const radius = 4;
             const targetViewportX = mousePos.current.x + 30 + Math.cos(angle) * radius;
@@ -54,7 +54,7 @@ function FanSandboxItem({
               y: currentY + (relTargetY - currentY) * 0.12,
               rotation: currentX * 0.15,
               scale: 0.85,
-              color: '#62909d',
+              color: 'oklch(0.65 0.15 264)', // Soft violet
               zIndex: 100,
             });
           }
@@ -98,16 +98,16 @@ function FanSandboxItem({
 
     const el = containerRef.current;
 
-    // Linear Speed Lines Breeze (Approved Option 1 style)
+    // Contained Speed Lines Breeze
     gsap.fromTo(
       el.querySelectorAll('.wind-line-item'),
-      { scaleX: 0, x: 20, opacity: 0.8 },
+      { scaleX: 0, x: 10, opacity: 0.8 },
       {
-        scaleX: 2.2,
-        x: -240,
+        scaleX: 1.5,
+        x: -180,
         opacity: 0,
-        stagger: 0.08,
-        duration: 0.9,
+        stagger: 0.05,
+        duration: 0.8,
         ease: 'power2.out',
         overwrite: 'auto',
       }
@@ -118,7 +118,6 @@ function FanSandboxItem({
       if (letter && collectedLetters.current.has(index)) {
         const tl = gsap.timeline({ delay: index * 0.04 });
         
-        // Push leftward by wind blast, then float back
         tl.to(letter, {
           x: '-=150',
           y: '+=random(-25, 25)',
@@ -130,7 +129,7 @@ function FanSandboxItem({
           y: 0,
           rotation: 0,
           scale: 1,
-          color: '#ebf0fa',
+          color: 'oklch(0.95 0.01 0)', // Settle to Bright Snow
           duration: 0.75,
           ease: 'power3.out',
         });
@@ -145,9 +144,9 @@ function FanSandboxItem({
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className="p-8 bg-dasi-alice-950/20 border border-white/5 rounded-2xl flex flex-col gap-6 relative overflow-hidden group min-h-[360px] justify-between"
+      className="p-8 bg-carbon-black-2 border border-graphite-light rounded-2xl flex flex-col gap-6 relative overflow-hidden group min-h-[360px] justify-between shadow-lg"
     >
-      {/* Dynamic inline styles for Option B counter-rotation */}
+      {/* Custom keyframes for Option B counter-rotation */}
       <style>{`
         @keyframes spin-reverse {
           from { transform: rotate(0deg); }
@@ -165,12 +164,12 @@ function FanSandboxItem({
       `}</style>
 
       <div>
-        <h3 className="text-lg font-bold text-dasi-alice-300">{title}</h3>
-        <p className="text-xs text-dasi-steel-400 mt-1">{description}</p>
+        <h3 className="text-base font-bold text-bright-snow">{title}</h3>
+        <p className="text-xs text-alabaster-grey/70 mt-1">{description}</p>
       </div>
 
       {/* Interactive letter collector pool */}
-      <div className="flex gap-1.5 select-none text-3xl font-black justify-center items-center h-20 border border-white/5 bg-dasi-black-950/50 rounded-xl relative">
+      <div className="flex gap-1.5 select-none text-3xl font-black justify-center items-center h-20 border border-graphite-light bg-carbon-black rounded-xl relative">
         {testWord.split('').map((char, index) => {
           if (char === ' ') return <span key={index} className="w-4">&nbsp;</span>;
           return (
@@ -179,7 +178,7 @@ function FanSandboxItem({
               ref={(el) => {
                 letterRefs.current[index] = el;
               }}
-              className="inline-block cursor-grab active:cursor-grabbing hover:text-dasi-alice-400 duration-75 relative text-dasi-black-50"
+              className="inline-block cursor-grab active:cursor-grabbing hover:text-slate-violet-light duration-75 relative text-bright-snow"
             >
               {char}
             </span>
@@ -187,7 +186,7 @@ function FanSandboxItem({
         })}
 
         {collectedCount > 0 && (
-          <div className="absolute top-2 left-3 text-[10px] uppercase tracking-widest text-dasi-alice-400 font-bold animate-pulse">
+          <div className="absolute top-2 left-3 text-[9px] uppercase tracking-widest text-slate-violet-light font-bold animate-pulse">
             Carrying {collectedCount}
           </div>
         )}
@@ -198,30 +197,32 @@ function FanSandboxItem({
         <div
           ref={dumpZoneRef}
           onMouseEnter={handleRelease}
-          className={`inline-flex items-center gap-4 pl-6 pr-2 py-3 border-dashed border-2 rounded-2xl text-sm font-black tracking-widest transition-all duration-300 relative select-none cursor-pointer ${
+          onClick={handleRelease}
+          className={`flex w-full items-center justify-between gap-3 pl-6 pr-2 py-3 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-300 relative select-none cursor-pointer overflow-hidden ${
             collectedCount > 0
-              ? 'border-dasi-alice-400 text-dasi-alice-400 bg-dasi-alice-950/40 glow-border-cyan scale-105'
-              : 'border-white/10 text-dasi-steel-500 bg-transparent hover:border-white/20'
+              ? 'border-platinum-silver text-platinum-silver bg-carbon-black/60 scale-105 shadow-md'
+              : 'border-graphite-light text-alabaster-grey/60 bg-transparent hover:border-platinum-silver/40'
           }`}
         >
           <span>RELEASE</span>
 
+          {/* Speed Lines Breeze (Contained inside the box) */}
+          <div className="absolute inset-y-0 left-4 right-16 pointer-events-none overflow-hidden flex flex-col justify-around">
+            <div className="wind-line-item w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+            <div className="wind-line-item w-full h-[2.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+            <div className="wind-line-item w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+            <div className="wind-line-item w-full h-[2px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+          </div>
+
           {/* Integrated fan wrapper */}
           <div className="relative flex items-center justify-center pl-1">
-            {/* Speed Lines Breeze (Option 1 style) */}
-            <div className="absolute right-full mr-2 w-28 h-8 pointer-events-none overflow-hidden flex flex-col justify-around">
-              <div className="wind-line-item w-full h-[1.5px] bg-gradient-to-l from-dasi-alice-400 to-transparent opacity-0 origin-right" />
-              <div className="wind-line-item w-full h-[2.5px] bg-gradient-to-l from-dasi-alice-400 to-transparent opacity-0 origin-right" />
-              <div className="wind-line-item w-full h-[1px] bg-gradient-to-l from-dasi-alice-400 to-transparent opacity-0 origin-right" />
-            </div>
+            {/* --- SVG Fans (Stand-less) --- */}
 
-            {/* --- SVG Fans --- */}
-
-            {/* FAN OPTION A: Cyberpunk Vented Exhaust */}
-            {fanType === 'exhaust' && (
+            {/* FAN OPTION A: Sleek Jet Turbine */}
+            {fanType === 'turbine' && (
               <svg
                 className={`w-11 h-11 transition-all duration-300 ${
-                  collectedCount > 0 ? 'text-dasi-alice-400 scale-105' : 'text-dasi-steel-500'
+                  collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
                 }`}
                 viewBox="0 0 64 64"
                 fill="none"
@@ -230,48 +231,35 @@ function FanSandboxItem({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                {/* Heavy mount bracket */}
-                <path d="M54 20 v24 M54 32 h-6" strokeWidth="3" />
-                {/* Heavy neck */}
-                <path d="M48 32 h-8" strokeWidth="3" />
-                {/* Octagonal Exhaust Casing */}
-                <polygon points="24,2 37,7 42,20 37,33 24,38 11,33 6,20 11,7" strokeWidth="2.5" />
-                {/* Inner horizontal safety mesh slats (static) */}
-                <line x1="8" y1="12" x2="40" y2="12" strokeWidth="1" className="opacity-35" />
-                <line x1="6" y1="20" x2="42" y2="20" strokeWidth="1" className="opacity-35" />
-                <line x1="8" y1="28" x2="40" y2="28" strokeWidth="1" className="opacity-35" />
-                {/* Rotating blades behind slats (4 blades) */}
+                {/* Outer flush casing ring */}
+                <circle cx="32" cy="32" r="26" strokeWidth="3" />
+                <circle cx="32" cy="32" r="22" strokeWidth="1" strokeDasharray="3 2" className="opacity-40" />
+                {/* Rotating dense blades */}
                 <g
-                  className={`origin-[24px_20px] ${
+                  className={`origin-[32px_32px] ${
                     isBlowing
-                      ? 'animate-[spin_0.1s_linear_infinite]'
+                      ? 'animate-[spin_0.12s_linear_infinite]'
                       : collectedCount > 0
-                      ? 'animate-[spin_1.0s_linear_infinite]'
-                      : 'hover:animate-[spin_0.4s_linear_infinite]'
+                      ? 'animate-[spin_1.2s_linear_infinite]'
+                      : 'hover:animate-[spin_0.5s_linear_infinite]'
                   }`}
                 >
-                  <circle cx="24" cy="20" r="4.5" fill="currentColor" />
-                  <g transform="rotate(0, 24, 20)">
-                    <path d="M24 20 c-2 -4 -3 -12 0 -14 c3 1 3 8 0 14" fill="currentColor" />
-                  </g>
-                  <g transform="rotate(90, 24, 20)">
-                    <path d="M24 20 c-2 -4 -3 -12 0 -14 c3 1 3 8 0 14" fill="currentColor" />
-                  </g>
-                  <g transform="rotate(180, 24, 20)">
-                    <path d="M24 20 c-2 -4 -3 -12 0 -14 c3 1 3 8 0 14" fill="currentColor" />
-                  </g>
-                  <g transform="rotate(270, 24, 20)">
-                    <path d="M24 20 c-2 -4 -3 -12 0 -14 c3 1 3 8 0 14" fill="currentColor" />
-                  </g>
+                  <circle cx="32" cy="32" r="6" fill="currentColor" />
+                  {/* 8 curved turbine blades */}
+                  {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+                    <g key={angle} transform={`rotate(${angle}, 32, 32)`}>
+                      <path d="M32 32 c-3 -6 -4 -16 0 -20 c2.5 2 3 10 0 20" fill="currentColor" />
+                    </g>
+                  ))}
                 </g>
               </svg>
             )}
 
-            {/* FAN OPTION B: Coaxial Dual-Rotor Fan */}
-            {fanType === 'coaxial' && (
+            {/* FAN OPTION B: Sci-Fi Portal Vent */}
+            {fanType === 'portal' && (
               <svg
                 className={`w-11 h-11 transition-all duration-300 ${
-                  collectedCount > 0 ? 'text-dasi-alice-400 scale-105' : 'text-dasi-steel-500'
+                  collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
                 }`}
                 viewBox="0 0 64 64"
                 fill="none"
@@ -280,85 +268,13 @@ function FanSandboxItem({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                {/* Modern mount brackets */}
-                <path d="M52 18 c1.5 0 3 1.5 3 3.5 v21 c0 2 -1.5 3.5 -3 3.5" />
-                <path d="M52 32 h-6" />
-                {/* Slanted head */}
-                <g transform="translate(6, 2) rotate(-20, 24, 20)">
-                  {/* Casing outer ring */}
-                  <circle cx="20" cy="20" r="17.5" strokeWidth="2.5" />
-                  <circle cx="20" cy="20" r="14.5" strokeWidth="0.8" className="opacity-30" />
-
-                  {/* ROTOR 1 (Back Rotor - Clockwise) */}
-                  <g
-                    className={`origin-[20px_20px] opacity-40 ${
-                      isBlowing
-                        ? 'animate-[spin_0.14s_linear_infinite]'
-                        : collectedCount > 0
-                        ? 'animate-[spin_1.4s_linear_infinite]'
-                        : 'hover:animate-[spin_0.5s_linear_infinite]'
-                    }`}
-                  >
-                    <g transform="rotate(0, 20, 20)">
-                      <path d="M20 20 c-2.5 -4 -3.5 -10 -0.5 -12 c2.5 1 3.5 7 0.5 12" fill="currentColor" />
-                    </g>
-                    <g transform="rotate(120, 20, 20)">
-                      <path d="M20 20 c-2.5 -4 -3.5 -10 -0.5 -12 c2.5 1 3.5 7 0.5 12" fill="currentColor" />
-                    </g>
-                    <g transform="rotate(240, 20, 20)">
-                      <path d="M20 20 c-2.5 -4 -3.5 -10 -0.5 -12 c2.5 1 3.5 7 0.5 12" fill="currentColor" />
-                    </g>
-                  </g>
-
-                  {/* ROTOR 2 (Front Rotor - Counter-Clockwise) */}
-                  <g
-                    className={`origin-[20px_20px] ${
-                      isBlowing
-                        ? 'animate-spin-reverse-fast'
-                        : collectedCount > 0
-                        ? 'animate-spin-reverse-slow'
-                        : 'hover:animate-spin-reverse-medium'
-                    }`}
-                  >
-                    <circle cx="20" cy="20" r="3.5" fill="currentColor" />
-                    <g transform="rotate(60, 20, 20)">
-                      <path d="M20 20 c-2 -3.5 -3 -9 0 -11 c2 1.5 2.5 6.5 0 11" fill="currentColor" />
-                    </g>
-                    <g transform="rotate(180, 20, 20)">
-                      <path d="M20 20 c-2 -3.5 -3 -9 0 -11 c2 1.5 2.5 6.5 0 11" fill="currentColor" />
-                    </g>
-                    <g transform="rotate(300, 20, 20)">
-                      <path d="M20 20 c-2 -3.5 -3 -9 0 -11 c2 1.5 2.5 6.5 0 11" fill="currentColor" />
-                    </g>
-                  </g>
-                </g>
-              </svg>
-            )}
-
-            {/* FAN OPTION C: Sleek Aircraft Propeller */}
-            {fanType === 'propeller' && (
-              <svg
-                className={`w-11 h-11 transition-all duration-300 ${
-                  collectedCount > 0 ? 'text-dasi-alice-400 scale-105' : 'text-dasi-steel-500'
-                }`}
-                viewBox="0 0 64 64"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                {/* Sleek bracket support */}
-                <path d="M52 24 c2 0 3 2 3 5 v6 c0 3 -1 5 -3 5" strokeWidth="2" />
-                <path d="M52 32 c-4 0 -8 -1 -12 -5" strokeWidth="2" />
+                {/* Segmented outer ring */}
+                <circle cx="32" cy="32" r="26" strokeWidth="2.5" strokeDasharray="16 6" />
+                <circle cx="32" cy="32" r="20" strokeWidth="1" className="opacity-35" />
                 
-                {/* Minimalist open casing (safety outline ring with support struts) */}
-                <circle cx="24" cy="20" r="18" strokeWidth="1" strokeDasharray="4 4" className="opacity-25" />
-                <path d="M24 2 v4 M24 38 v-4 M6 20 h4 M42 20 h-4" strokeWidth="1" className="opacity-30" />
-
-                {/* Rotating Propeller blades */}
+                {/* ROTOR 1 (Back Blades - Clockwise) */}
                 <g
-                  className={`origin-[24px_20px] ${
+                  className={`origin-[32px_32px] opacity-40 ${
                     isBlowing
                       ? 'animate-[spin_0.14s_linear_infinite]'
                       : collectedCount > 0
@@ -366,19 +282,66 @@ function FanSandboxItem({
                       : 'hover:animate-[spin_0.5s_linear_infinite]'
                   }`}
                 >
-                  {/* Pointed nosecone hub */}
-                  <circle cx="24" cy="20" r="5.5" fill="currentColor" />
-                  
-                  {/* 3 long aerodynamic blades */}
-                  <g transform="rotate(0, 24, 20)">
-                    <path d="M24 20 c-2.2 -5 -4 -13 0 -17 c3 2 3.2 9.5 0 17" fill="currentColor" />
-                  </g>
-                  <g transform="rotate(120, 24, 20)">
-                    <path d="M24 20 c-2.2 -5 -4 -13 0 -17 c3 2 3.2 9.5 0 17" fill="currentColor" />
-                  </g>
-                  <g transform="rotate(240, 24, 20)">
-                    <path d="M24 20 c-2.2 -5 -4 -13 0 -17 c3 2 3.2 9.5 0 17" fill="currentColor" />
-                  </g>
+                  {[0, 120, 240].map((angle) => (
+                    <g key={angle} transform={`rotate(${angle}, 32, 32)`}>
+                      <path d="M32 32 c-2.5 -4 -3.5 -10 -0.5 -12 c2.5 1 3.5 7 0.5 12" fill="currentColor" />
+                    </g>
+                  ))}
+                </g>
+
+                {/* ROTOR 2 (Front Blades - Counter-Clockwise) */}
+                <g
+                  className={`origin-[32px_32px] ${
+                    isBlowing
+                      ? 'animate-spin-reverse-fast'
+                      : collectedCount > 0
+                      ? 'animate-spin-reverse-slow'
+                      : 'hover:animate-spin-reverse-medium'
+                  }`}
+                >
+                  <circle cx="32" cy="32" r="4.5" fill="currentColor" />
+                  {[60, 180, 300].map((angle) => (
+                    <g key={angle} transform={`rotate(${angle}, 32, 32)`}>
+                      <path d="M32 32 c-2 -3.5 -3 -9 0 -11 c2 1.5 2.5 6.5 0 11" fill="currentColor" />
+                    </g>
+                  ))}
+                </g>
+              </svg>
+            )}
+
+            {/* FAN OPTION C: Minimalist Propeller Vent */}
+            {fanType === 'propeller' && (
+              <svg
+                className={`w-11 h-11 transition-all duration-300 ${
+                  collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
+                }`}
+                viewBox="0 0 64 64"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {/* Thin outer ring */}
+                <circle cx="32" cy="32" r="26" strokeWidth="1.5" />
+                <circle cx="32" cy="32" r="24" strokeWidth="0.5" className="opacity-25" />
+                
+                {/* Rotating Propeller */}
+                <g
+                  className={`origin-[32px_32px] ${
+                    isBlowing
+                      ? 'animate-[spin_0.14s_linear_infinite]'
+                      : collectedCount > 0
+                      ? 'animate-[spin_1.4s_linear_infinite]'
+                      : 'hover:animate-[spin_0.5s_linear_infinite]'
+                  }`}
+                >
+                  <circle cx="32" cy="32" r="5" fill="currentColor" />
+                  {[0, 120, 240].map((angle) => (
+                    <g key={angle} transform={`rotate(${angle}, 32, 32)`}>
+                      <path d="M32 32 c-1.5 -5 -2.5 -18 0 -22 c1.8 2 1.8 12 0 22" fill="currentColor" />
+                    </g>
+                  ))}
                 </g>
               </svg>
             )}
@@ -391,46 +354,46 @@ function FanSandboxItem({
 
 export default function FanSandboxPage() {
   return (
-    <main className="min-h-screen w-full bg-dasi-black-950 text-white flex flex-col items-center py-20 px-6 font-sans">
+    <main className="min-h-screen w-full bg-carbon-black text-bright-snow flex flex-col items-center py-20 px-6 font-sans">
       <div className="max-w-6xl w-full flex flex-col gap-4">
         {/* Header */}
-        <div className="border-b border-white/10 pb-6 mb-4">
-          <h1 className="text-4xl font-black tracking-wider text-dasi-alice-400">
-            FAN MODEL TESTING GROUND
+        <div className="border-b border-graphite-light pb-6 mb-4">
+          <h1 className="text-4xl font-bold tracking-wider text-bright-snow font-russo-one uppercase">
+            Fan Model Testing Ground
           </h1>
-          <p className="text-sm text-dasi-steel-400 mt-2 max-w-3xl leading-relaxed">
-            Compare three new fan visual styles below. All options are configured with the approved 
-            <strong> Speed Lines breeze effect</strong> and wind return physics.
+          <p className="text-sm text-alabaster-grey mt-2 max-w-3xl leading-relaxed font-outfit">
+            Compare three new completely **stand-less** fan designs below. All options are designed to sit flush 
+            within the release box and feature the contained **Speed Lines breeze effect**.
           </p>
         </div>
 
         {/* 3 Sandbox columns */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FanSandboxItem
-            title="Option A: Cyberpunk Vented Exhaust"
-            description="An industrial octagonal turbine design rotating behind horizontal security safety mesh bars."
-            fanType="exhaust"
+            title="Option A: Sleek Jet Turbine"
+            description="A high-density circular turbine vent with 8 curved blades and a centered hub. Sitting flush on the right."
+            fanType="turbine"
           />
 
           <FanSandboxItem
-            title="Option B: Dual-Rotor Coaxial"
-            description="Features overlapping coaxial rotors counter-rotating in opposite directions for an advanced visual."
-            fanType="coaxial"
+            title="Option B: Sci-Fi Portal Vent"
+            description="A futuristic segmented casing with overlapping coaxial blades rotating in opposite directions."
+            fanType="portal"
           />
 
           <FanSandboxItem
-            title="Option C: Sleek Aircraft Propeller"
-            description="A minimalist open-air casing design focused on long aerodynamic blades spinning around a nosecone."
+            title="Option C: Minimalist Propeller"
+            description="A clean, thin-ring casing with 3 long aerodynamic propeller blades spinning around a hub."
             fanType="propeller"
           />
         </div>
 
         {/* Sandbox details */}
-        <div className="mt-8 p-6 bg-dasi-alice-950/10 border border-white/5 rounded-2xl">
-          <h4 className="text-sm font-bold uppercase tracking-widest text-dasi-alice-400 mb-2">Testing Notes:</h4>
-          <ul className="list-disc list-inside text-xs text-dasi-steel-400 space-y-2 leading-relaxed">
-            <li><strong>Option B Counter-Rotation:</strong> Front rotor and back rotor spin in opposite vectors. The front rotor uses custom counter-clockwise keyframes.</li>
-            <li><strong>Symmetry Calibration:</strong> Blade shapes are centered precisely to ensure rotations are perfectly smooth at high speeds.</li>
+        <div className="mt-8 p-6 bg-carbon-black-2 border border-graphite-light rounded-2xl font-outfit">
+          <h4 className="text-sm font-bold uppercase tracking-widest text-slate-violet-light mb-2 font-silkscreen">Testing Notes:</h4>
+          <ul className="list-disc list-inside text-xs text-alabaster-grey space-y-2 leading-relaxed">
+            <li><strong>Contained Airflow:</strong> Notice how the speed lines animate entirely inside the boundaries of the release box, clipping at the left border.</li>
+            <li><strong>Stand-less Integration:</strong> The fans have no stands, necks, or brackets, looking like a built-in exhaust port.</li>
           </ul>
         </div>
       </div>

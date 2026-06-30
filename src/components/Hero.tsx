@@ -331,13 +331,13 @@ export default function Hero() {
     }, 1200);
 
     gsap.fromTo('.wind-line',
-      { scaleX: 0, x: 50, opacity: 0.8 },
+      { scaleX: 0, x: 10, opacity: 0.8 },
       {
-        scaleX: 3.5,
-        x: -1200, // Sweep across the entire screen
+        scaleX: 1.5,
+        x: -180, // Blow to the left edge of the release box
         opacity: 0,
-        stagger: 0.06,
-        duration: 1.1,
+        stagger: 0.05,
+        duration: 0.8,
         ease: 'power2.out',
         overwrite: 'auto',
       }
@@ -523,7 +523,7 @@ export default function Hero() {
             ref={dumpZoneRef}
             onMouseEnter={handleDumpZoneMouseEnter}
             onClick={handleDumpZoneMouseEnter}
-            className={`flex w-full md:w-auto items-center justify-between md:justify-start gap-3 pl-5 pr-2 py-2 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-500 relative select-none [text-shadow:none] mt-6 md:mt-0 ${
+            className={`flex w-full md:w-auto items-center justify-between md:justify-start gap-3 pl-5 pr-2 py-2 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-500 relative select-none overflow-hidden [text-shadow:none] mt-6 md:mt-0 ${
               collectedCount > 0
                 ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto border-platinum-silver text-platinum-silver bg-carbon-black-2/90'
                 : 'opacity-0 scale-90 -translate-y-2 pointer-events-none border-graphite-light text-alabaster-grey/70 bg-transparent'
@@ -535,17 +535,17 @@ export default function Hero() {
           >
             <span>RELEASE</span>
 
+            {/* Wind Particles (hidden unless blowing) - contained inside the release box */}
+            <div className="absolute inset-y-0 left-4 right-16 pointer-events-none overflow-hidden flex flex-col justify-around">
+              <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+              <div className="wind-line w-full h-[2.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+              <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+              <div className="wind-line w-full h-[2px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
+            </div>
+
             {/* Integrated Wall Fan mounted to the right border */}
             <div className="relative flex items-center justify-center pl-1">
-              {/* Wind Particles (hidden unless blowing) */}
-              <div className="absolute right-full mr-4 w-[80vw] h-16 pointer-events-none overflow-hidden flex flex-col justify-around">
-                <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
-                <div className="wind-line w-full h-[2.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
-                <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
-                <div className="wind-line w-full h-[2px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
-              </div>
-
-              {/* Fan SVG (Heavy Dual Bracket Industrial Fan) */}
+              {/* Fan SVG (Sleek Jet Turbine - Flush Casing, No Stand) */}
               <svg
                 className={`w-11 h-11 transition-all duration-300 ${
                   collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
@@ -557,14 +557,12 @@ export default function Hero() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="M54 16 c1.5 0 3 1.5 3 4 v24 c0 2.5 -1.5 4 -3 4" strokeWidth="3" />
-                <path d="M54 32 h-6" strokeWidth="3.5" />
-                <path d="M48 32 c-4 0 -8 -4 -8 -10" strokeWidth="3" />
-                <path d="M40 22 h-6 v-6 h6 z" fill="currentColor" className="opacity-40" />
-                <circle cx="24" cy="20" r="18" strokeWidth="2.5" />
-                <circle cx="24" cy="20" r="15" strokeWidth="1" strokeDasharray="3 2" className="opacity-40" />
+                {/* Outer flush casing ring */}
+                <circle cx="32" cy="32" r="26" strokeWidth="3" />
+                <circle cx="32" cy="32" r="22" strokeWidth="1" strokeDasharray="3 2" className="opacity-40" />
+                {/* Rotating dense blades */}
                 <g
-                  className={`origin-[24px_20px] ${
+                  className={`origin-[32px_32px] ${
                     isBlowing
                       ? 'animate-[spin_0.12s_linear_infinite]'
                       : collectedCount > 0
@@ -572,16 +570,13 @@ export default function Hero() {
                       : 'hover:animate-[spin_0.5s_linear_infinite]'
                   }`}
                 >
-                  <circle cx="24" cy="20" r="4.5" fill="currentColor" />
-                  <g transform="rotate(0, 24, 20)">
-                    <path d="M24 20 c-4 -3 -6 -11 -4 -13 c3 1 6 6 4 13" fill="currentColor" strokeWidth="1.5" />
-                  </g>
-                  <g transform="rotate(120, 24, 20)">
-                    <path d="M24 20 c-4 -3 -6 -11 -4 -13 c3 1 6 6 4 13" fill="currentColor" strokeWidth="1.5" />
-                  </g>
-                  <g transform="rotate(240, 24, 20)">
-                    <path d="M24 20 c-4 -3 -6 -11 -4 -13 c3 1 6 6 4 13" fill="currentColor" strokeWidth="1.5" />
-                  </g>
+                  <circle cx="32" cy="32" r="6" fill="currentColor" />
+                  {/* 8 curved turbine blades */}
+                  {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+                    <g key={angle} transform={`rotate(${angle}, 32, 32)`}>
+                      <path d="M32 32 c-3 -6 -4 -16 0 -20 c2.5 2 3 10 0 20" fill="currentColor" />
+                    </g>
+                  ))}
                 </g>
               </svg>
             </div>
