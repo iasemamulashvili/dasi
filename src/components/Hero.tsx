@@ -23,36 +23,29 @@ export default function Hero() {
   const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const parentRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const carriedLetters = useRef<number[]>([]);
-  const letterCoords = useRef<{ x: number; y: number; width: number; height: number }[]>([]);
+  const targets = useRef<{ x: number; y: number }[]>([]);
   const mousePos = useRef({ x: 0, y: 0 });
 
   const titleText = "DASI GAMES";
 
-  const hasMeasured = useRef(false);
-
-  // Cache layout positions of letters for high-performance proximity checks (O(1) reads)
-  const measureLetterPositions = () => {
-    letterCoords.current = parentRefs.current.map((parent) => {
-      if (!parent) return { x: 0, y: 0, width: 0, height: 0 };
-      const rect = parent.getBoundingClientRect();
-      return {
-        x: rect.left + (window.scrollX || window.pageXOffset || 0),
-        y: rect.top + (window.pageYOffset || window.scrollY || 0),
-        width: rect.width,
-        height: rect.height,
-      };
-    });
-    hasMeasured.current = true;
-  };
-
   useEffect(() => {
-    window.addEventListener('resize', measureLetterPositions);
-    window.addEventListener('scroll', measureLetterPositions);
-
-    return () => {
-      window.removeEventListener('resize', measureLetterPositions);
-      window.removeEventListener('scroll', measureLetterPositions);
+    const handleScroll = () => {
+      if (carriedLetters.current.length === 0) return;
+      carriedLetters.current.forEach((index, i) => {
+        const parent = parentRefs.current[index];
+        if (!parent) return;
+        const rect = parent.getBoundingClientRect();
+        const targetViewportX = mousePos.current.x + 20 + (i * 6);
+        const targetViewportY = mousePos.current.y - 15 - (i * 15);
+        targets.current[index] = {
+          x: targetViewportX - rect.left,
+          y: targetViewportY - rect.top,
+        };
+      });
     };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -68,9 +61,6 @@ export default function Hero() {
           stagger: 0.03,
           duration: 1.2,
           ease: 'power4.out',
-          onComplete: () => {
-            measureLetterPositions();
-          }
         }
       );
 
@@ -175,31 +165,24 @@ export default function Hero() {
       if (carriedLetters.current.length > 0) {
         carriedLetters.current.forEach((index, i) => {
           const letter = letterRefs.current[index];
-          const coords = letterCoords.current[index];
-          if (letter && coords) {
+          const target = targets.current[index];
+          if (letter && target) {
             const currentX = gsap.getProperty(letter, 'x') as number || 0;
             const currentY = gsap.getProperty(letter, 'y') as number || 0;
 
-            // Stacking: diagonal offset cascading backwards from the cursor, fanned out
-            const targetViewportX = mousePos.current.x + 20 + (i * 6);
-            const targetViewportY = mousePos.current.y - 15 - (i * 15);
             const targetRot = (i - (carriedLetters.current.length - 1) / 2) * 6;
-
-            // Convert viewport target to coordinates relative to the letter's home position
-            const relTargetX = targetViewportX - (coords.x - (window.scrollX || window.pageXOffset || 0));
-            const relTargetY = targetViewportY - (coords.y - (window.scrollY || window.pageYOffset || 0));
-
-            // Decaying lerp factor (tail letters lag more)
             const ease = 0.18 - (i * 0.012);
 
-            // Interpolate color properties along the stack (Magenta to Electric Blue chromatic trail)
-            const targetHue = 320 - (i * 10);
-            const targetChroma = 0.25 - (i * 0.01);
-            const targetLightness = 0.70 - (i * 0.02);
+            // Subtle brand gradient trail in OKLCH: Slate-Violet at cursor -> Deep Graphite at tail
+            const totalCarried = carriedLetters.current.length;
+            const ratio = totalCarried > 1 ? i / (totalCarried - 1) : 0;
+            const targetLightness = 0.68 - ratio * 0.13; // 0.68 down to 0.55
+            const targetChroma = 0.10 - ratio * 0.04;    // 0.10 down to 0.06
+            const targetHue = 264;                        // Consistent slate-violet/graphite hue
 
             gsap.set(letter, {
-              x: currentX + (relTargetX - currentX) * ease,
-              y: currentY + (relTargetY - currentY) * ease,
+              x: currentX + (target.x - currentX) * ease,
+              y: currentY + (target.y - currentY) * ease,
               rotation: targetRot,
               scale: 0.95 - (i * 0.015),
               zIndex: 100 - i,
@@ -224,11 +207,6 @@ export default function Hero() {
   const handleContainerMouseMove = (e: React.MouseEvent) => {
     if (window.innerWidth < 768 || ('ontouchstart' in window)) return;
     
-    // Safety measure if the entrance animation hasn't finished or page layout shifted
-    if (!hasMeasured.current) {
-      measureLetterPositions();
-    }
-    
     // Bulletproof Release: Check if the mouse is inside the RELEASE box bounding box
     if (carriedLetters.current.length > 0 && dumpZoneRef.current) {
       const dumpRect = dumpZoneRef.current.getBoundingClientRect();
@@ -246,25 +224,40 @@ export default function Hero() {
     mousePos.current = { x: e.clientX, y: e.clientY };
 
     parentRefs.current.forEach((parent, index) => {
-      if (!parent || carriedLetters.current.includes(index)) return;
+      const letter = letterRefs.current[index];
+      if (!parent || !letter) return;
 
-      const coords = letterCoords.current[index];
-      if (!coords) return;
+      const rect = parent.getBoundingClientRect();
 
-      // Adjust cached coords for current scroll positions
-      const scrollX = window.scrollX || window.pageXOffset || 0;
-      const scrollY = window.scrollY || window.pageYOffset || 0;
-      const centerX = coords.x - scrollX + coords.width / 2;
-      const centerY = coords.y - scrollY + coords.height / 2;
-      
-      const dist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
+      if (carriedLetters.current.includes(index)) {
+        // Calculate target relative to its parent container
+        const stackIdx = carriedLetters.current.indexOf(index);
+        const targetViewportX = e.clientX + 20 + (stackIdx * 6);
+        const targetViewportY = e.clientY - 15 - (stackIdx * 15);
 
-      if (dist < 40) {
-        carriedLetters.current.push(index);
-        setCollectedCount(carriedLetters.current.length);
+        targets.current[index] = {
+          x: targetViewportX - rect.left,
+          y: targetViewportY - rect.top,
+        };
+      } else {
+        // Proximity check using exact viewport coordinates
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const dist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
 
-        const letter = letterRefs.current[index];
-        if (letter) {
+        if (dist < 45) {
+          carriedLetters.current.push(index);
+          setCollectedCount(carriedLetters.current.length);
+
+          // Update target immediately on collection
+          const stackIdx = carriedLetters.current.length - 1;
+          const targetViewportX = e.clientX + 20 + (stackIdx * 6);
+          const targetViewportY = e.clientY - 15 - (stackIdx * 15);
+          targets.current[index] = {
+            x: targetViewportX - rect.left,
+            y: targetViewportY - rect.top,
+          };
+
           gsap.to(letter, {
             scale: 1.3,
             duration: 0.1,
@@ -310,31 +303,24 @@ export default function Hero() {
           ease: 'power1.out',
         })
         .to(letter, {
-          // Wind Release Flash (Electric Cyan)
-          '--letter-l': 0.82,
-          '--letter-c': 0.20,
-          '--letter-h': 200,
+          // Wind Release Flash (Soft Sage Green/Slate)
+          '--letter-l': 0.75,
+          '--letter-c': 0.08,
+          '--letter-h': 165,
           duration: 0.15,
           overwrite: 'auto',
         })
         .to(letter, {
-          // Decelerate & return to home (Brand Violet)
+          // Decelerate, return to home, and smoothly fade back to Bright Snow
           x: 0,
           y: 0,
           rotation: 0,
           scale: 1,
-          '--letter-l': 0.68,
-          '--letter-c': 0.18,
-          '--letter-h': 264,
-          duration: 0.6,
-          ease: 'power3.out',
-        })
-        .to(letter, {
-          // Settle to Bright Snow
           '--letter-l': 0.95,
           '--letter-c': 0.01,
           '--letter-h': 0,
-          duration: 0.3,
+          duration: 0.8,
+          ease: 'power3.out',
         });
       }
     });
@@ -435,9 +421,9 @@ export default function Hero() {
                     onMouseEnter={(e) => {
                       if (collectedCount === 0 || !carriedLetters.current.includes(index)) {
                         gsap.to(e.currentTarget, {
-                          '--letter-l': 0.85,
-                          '--letter-c': 0.08,
-                          '--letter-h': 264,
+                          '--letter-l': 0.88,
+                          '--letter-c': 0.02,
+                          '--letter-h': 240,
                           duration: 0.2,
                         });
                       }
