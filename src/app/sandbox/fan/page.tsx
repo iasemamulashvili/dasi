@@ -11,7 +11,7 @@ function FanSandboxItem({
 }: {
   title: string;
   description: string;
-  fanType: 'turbine' | 'portal' | 'propeller';
+  fanType: 'turbine' | 'portal' | 'propeller' | 'shield-frame' | 'shield-blade' | 'vortex';
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const dumpZoneRef = useRef<HTMLDivElement>(null);
@@ -164,12 +164,12 @@ function FanSandboxItem({
       `}</style>
 
       <div>
-        <h3 className="text-base font-bold text-bright-snow">{title}</h3>
-        <p className="text-xs text-alabaster-grey/70 mt-1">{description}</p>
+        <h3 className="text-base font-bold text-bright-snow font-russo-one tracking-wide">{title}</h3>
+        <p className="text-xs text-alabaster-grey/70 mt-1 font-outfit leading-relaxed">{description}</p>
       </div>
 
       {/* Interactive letter collector pool */}
-      <div className="flex gap-1.5 select-none text-3xl font-black justify-center items-center h-20 border border-graphite-light bg-carbon-black rounded-xl relative">
+      <div className="flex gap-1.5 select-none text-3xl font-black justify-center items-center h-20 border border-graphite-light bg-carbon-black rounded-xl relative font-russo-one">
         {testWord.split('').map((char, index) => {
           if (char === ' ') return <span key={index} className="w-4">&nbsp;</span>;
           return (
@@ -186,7 +186,7 @@ function FanSandboxItem({
         })}
 
         {collectedCount > 0 && (
-          <div className="absolute top-2 left-3 text-[9px] uppercase tracking-widest text-slate-violet-light font-bold animate-pulse">
+          <div className="absolute top-2 left-3 text-[9px] uppercase tracking-widest text-slate-violet-light font-bold animate-pulse font-silkscreen">
             Carrying {collectedCount}
           </div>
         )}
@@ -345,6 +345,120 @@ function FanSandboxItem({
                 </g>
               </svg>
             )}
+
+            {/* FAN OPTION D: Shield Frame Turbine (Logo Frame) */}
+            {fanType === 'shield-frame' && (
+              <svg
+                className={`w-11 h-11 transition-all duration-300 ${
+                  collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
+                }`}
+                viewBox="0 0 100 100"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {/* Shield Outline Casing */}
+                <path d="M 20 20 L 80 20 L 80 50 C 80 72 65 88 50 95 C 35 88 20 72 20 50 Z" />
+                <circle cx="50" cy="48" r="22" strokeWidth="1.5" strokeDasharray="4 3" className="opacity-30" />
+                
+                {/* Spinning turbine inside shield */}
+                <g
+                  className={`origin-[50px_48px] ${
+                    isBlowing
+                      ? 'animate-[spin_0.12s_linear_infinite]'
+                      : collectedCount > 0
+                      ? 'animate-[spin_1.2s_linear_infinite]'
+                      : 'hover:animate-[spin_0.5s_linear_infinite]'
+                  }`}
+                >
+                  <circle cx="50" cy="48" r="6.5" fill="currentColor" />
+                  {[0, 60, 120, 180, 240, 300].map((angle) => (
+                    <g key={angle} transform={`rotate(${angle}, 50, 48)`}>
+                      <path d="M50 48 c-3.5 -5 -5.5 -16 0 -20 c2.5 2 3.5 10 0 20" fill="currentColor" />
+                    </g>
+                  ))}
+                </g>
+              </svg>
+            )}
+
+            {/* FAN OPTION E: Shield Blade Propeller (Logo Blades) */}
+            {fanType === 'shield-blade' && (
+              <svg
+                className={`w-11 h-11 transition-all duration-300 ${
+                  collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
+                }`}
+                viewBox="0 0 64 64"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {/* Thin outer circular casing */}
+                <circle cx="32" cy="32" r="26" strokeWidth="1.5" />
+                
+                {/* Spinning blades shaped like the Dasi shield */}
+                <g
+                  className={`origin-[32px_32px] ${
+                    isBlowing
+                      ? 'animate-[spin_0.14s_linear_infinite]'
+                      : collectedCount > 0
+                      ? 'animate-[spin_1.4s_linear_infinite]'
+                      : 'hover:animate-[spin_0.5s_linear_infinite]'
+                  }`}
+                >
+                  <circle cx="32" cy="32" r="5.5" fill="currentColor" />
+                  {[0, 120, 240].map((angle) => (
+                    <g key={angle} transform={`rotate(${angle}, 32, 32)`}>
+                      {/* Shield shape blade */}
+                      <path d="M 26 6 L 38 6 L 38 16 C 38 21 35 24 32 26 C 29 24 26 21 26 16 Z" fill="currentColor" stroke="none" />
+                      {/* Connector shank */}
+                      <line x1="32" y1="26" x2="32" y2="32" stroke="currentColor" strokeWidth="2.5" />
+                    </g>
+                  ))}
+                </g>
+              </svg>
+            )}
+
+            {/* FAN OPTION F: Vortex Singularity (Hypnotic Spiral) */}
+            {fanType === 'vortex' && (
+              <svg
+                className={`w-11 h-11 transition-all duration-300 ${
+                  collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
+                }`}
+                viewBox="0 0 64 64"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {/* Double outer ring */}
+                <circle cx="32" cy="32" r="27" strokeWidth="1.5" />
+                <circle cx="32" cy="32" r="24" strokeWidth="0.5" className="opacity-25" />
+                
+                {/* Concentric spiral vortex */}
+                <g
+                  className={`origin-[32px_32px] ${
+                    isBlowing
+                      ? 'animate-[spin_0.15s_linear_infinite]'
+                      : collectedCount > 0
+                      ? 'animate-[spin_1.5s_linear_infinite]'
+                      : 'hover:animate-[spin_0.6s_linear_infinite]'
+                  }`}
+                >
+                  <circle cx="32" cy="32" r="4.5" fill="currentColor" />
+                  {[0, 60, 120, 180, 240, 300].map((angle) => (
+                    <g key={angle} transform={`rotate(${angle}, 32, 32)`}>
+                      {/* Sweeping logarithmic curved blade */}
+                      <path d="M 32 32 C 32 20, 23 13, 17 15 C 13 17, 19 26, 32 32" fill="currentColor" stroke="none" className="opacity-90" />
+                    </g>
+                  ))}
+                </g>
+              </svg>
+            )}
           </div>
         </div>
       </div>
@@ -362,12 +476,12 @@ export default function FanSandboxPage() {
             Fan Model Testing Ground
           </h1>
           <p className="text-sm text-alabaster-grey mt-2 max-w-3xl leading-relaxed font-outfit">
-            Compare three new completely **stand-less** fan designs below. All options are designed to sit flush 
+            Compare six completely **stand-less** fan designs below. All options are designed to sit flush 
             within the release box and feature the contained **Speed Lines breeze effect**.
           </p>
         </div>
 
-        {/* 3 Sandbox columns */}
+        {/* 6 Sandbox cards in a responsive grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FanSandboxItem
             title="Option A: Sleek Jet Turbine"
@@ -386,6 +500,24 @@ export default function FanSandboxPage() {
             description="A clean, thin-ring casing with 3 long aerodynamic propeller blades spinning around a hub."
             fanType="propeller"
           />
+
+          <FanSandboxItem
+            title="Option D: Shield Frame Turbine"
+            description="A custom casing shaped like the Dasi Games shield logo, with 6 curved turbine blades spinning inside the crest."
+            fanType="shield-frame"
+          />
+
+          <FanSandboxItem
+            title="Option E: Shield Blade Propeller"
+            description="A circular casing containing a 3-blade propeller where each individual blade is modeled after the Dasi Games shield logo."
+            fanType="shield-blade"
+          />
+
+          <FanSandboxItem
+            title="Option F: Vortex Singularity"
+            description="A sci-fi centrifugal vent featuring 6 sweeping logarithmic spiral blades that create a hypnotic 3D depth illusion."
+            fanType="vortex"
+          />
         </div>
 
         {/* Sandbox details */}
@@ -394,6 +526,7 @@ export default function FanSandboxPage() {
           <ul className="list-disc list-inside text-xs text-alabaster-grey space-y-2 leading-relaxed">
             <li><strong>Contained Airflow:</strong> Notice how the speed lines animate entirely inside the boundaries of the release box, clipping at the left border.</li>
             <li><strong>Stand-less Integration:</strong> The fans have no stands, necks, or brackets, looking like a built-in exhaust port.</li>
+            <li><strong>Logo Branding (Options D & E):</strong> The shield geometry is mathematically scaled to match the exact proportions of the Dasi Games shield icon.</li>
           </ul>
         </div>
       </div>
