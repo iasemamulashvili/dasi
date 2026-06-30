@@ -3,8 +3,21 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
-import { Play, ArrowRight, Cpu } from 'lucide-react';
+import { Play, ArrowRight, Trophy } from 'lucide-react';
 import { Game } from '@/utils/db';
+
+// Official App Store & Google Play Store SVG Icons
+const AppStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 384 512" fill="currentColor" className={className}>
+    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-48.7-22.9-76.9-22.4-36.6.6-70.3 21.6-89.2 54.2-38 65.9-9.8 162.8 27.3 216.3 18.2 26.2 39.8 55.3 68.2 54.2 27.2-1.1 37.5-17.6 68.5-17.6 31.1 0 40.4 17.6 68.8 17.1 29-1 48.2-26.4 66.2-52.7 21-30.7 29.7-60.4 30.2-62-1-1-65.2-25.1-65.7-100zM281.2 81.7c15.2-18.3 25.4-43.9 22.6-69.5-22 1-48.8 14.8-64.6 33.2-13.8 15.9-25.9 41.7-22.7 67 24.5 2 49.7-12.4 64.7-30.7z" />
+  </svg>
+);
+
+const PlayStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 512 512" fill="currentColor" className={className}>
+    <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58 33.3 60.1 60.1L512 288c0-22-13.7-47.8-40-62.4zM325.3 277.7l60.1 60.1L104.6 499l220.7-221.3z" />
+  </svg>
+);
 
 const defaultMockGames = [
   {
@@ -414,16 +427,16 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <span className="text-[10px] font-silkscreen text-slate-violet-light tracking-widest uppercase flex items-center gap-1.5">
-            <Cpu size={12} className="text-platinum-silver animate-pulse" />
-            Featured Showcases // WebGL Node
+            <Trophy size={12} className="text-platinum-silver animate-pulse" />
+            Spotlight Showcase
           </span>
           <h2 className="text-2xl md:text-4xl font-normal tracking-wide text-bright-snow uppercase mt-2 font-russo-one retro-heading-shadow">
-            Liquid Morphing Mainframe
+            Featured Releases
           </h2>
         </div>
         <div className="hidden md:flex items-center gap-2 font-silkscreen text-[9px] text-alabaster-grey/60 border border-graphite-light bg-carbon-black-2 px-3 py-1.5">
           <span className="w-1.5 h-1.5 bg-muted-green rounded-full animate-ping" />
-          SYSTEM_STABLE: 60FPS
+          SERVER STATUS: ONLINE
         </div>
       </div>
 
@@ -515,7 +528,7 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
         <div className="relative z-20 max-w-lg pointer-events-none">
           <span className="slider-hud-element text-[9px] font-sans text-platinum-silver tracking-widest uppercase inline-flex items-center gap-1.5 mb-3.5 px-2 py-0.5 bg-graphite/50 border border-graphite-light/40 rounded-md">
             <span className="w-1 h-1 bg-platinum-silver rounded-full animate-ping" />
-            MAINFRAME DISPLACEMENT NODE
+            FEATURED TITLE
           </span>
           <h3 
             className="slider-hud-element text-4xl md:text-6xl font-normal text-bright-snow uppercase tracking-wider mb-4 leading-none font-russo-one retro-heading-shadow"
@@ -529,30 +542,56 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
           {/* Modern Specs HUD Panel with Real Game Stats */}
           <div className="slider-hud-element font-mono text-[9px] text-alabaster-grey/85 border border-graphite-light/60 bg-carbon-black-2/95 p-4 rounded-xl space-y-1.5 mt-4 mb-6 max-w-[280px] relative backdrop-blur-md shadow-lg">
             <div className="flex justify-between">
-              <span>&gt; ENGINE:</span>
+              <span>Engine:</span>
               <span className="text-platinum-silver font-bold">{activeGame.stats.engine}</span>
             </div>
             <div className="flex justify-between">
-              <span>&gt; DOWNLOADS:</span>
+              <span>Total Downloads:</span>
               <span className="text-platinum-silver font-bold">{activeGame.stats.downloads}</span>
             </div>
             <div className="flex justify-between">
-              <span>&gt; ACTIVE_PLAYERS:</span>
+              <span>Active Players:</span>
               <span className="text-platinum-silver font-bold">{activeGame.stats.activePlayers}</span>
             </div>
             <div className="flex justify-between">
-              <span>&gt; APP_STORE_RATING:</span>
+              <span>Rating:</span>
               <span className="text-muted-green font-bold">{activeGame.stats.rating} ★</span>
             </div>
           </div>
 
-          <div className="slider-hud-element pointer-events-auto">
+          <div className="slider-hud-element pointer-events-auto flex flex-wrap items-center gap-4">
             <Link 
               href="#portfolio"
-              className="inset-pixel-btn-primary group/btn inline-flex items-center"
+              className="inset-pixel-btn-primary group/btn inline-flex items-center py-2 px-4"
             >
-              <Play size={10} className="mr-2 fill-current" /> BOOT_GAME_SYS <ArrowRight size={10} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
+              <Play size={10} className="mr-2 fill-current" /> EXPLORE GAME <ArrowRight size={10} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
             </Link>
+            
+            {/* App Store and Google Play Download Links */}
+            <div className="flex items-center gap-2">
+              {activeGame.appstoreLink && (
+                <a 
+                  href={activeGame.appstoreLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-2.5 bg-carbon-black/80 border border-graphite-light/60 hover:border-platinum-silver/80 rounded-md text-alabaster-grey hover:text-bright-snow transition-all hover:scale-105"
+                  title="Download on the App Store"
+                >
+                  <AppStoreIcon className="w-3.5 h-3.5" />
+                </a>
+              )}
+              {activeGame.playstoreLink && (
+                <a 
+                  href={activeGame.playstoreLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-2.5 bg-carbon-black/80 border border-graphite-light/60 hover:border-platinum-silver/80 rounded-md text-alabaster-grey hover:text-bright-snow transition-all hover:scale-105"
+                  title="Get it on Google Play"
+                >
+                  <PlayStoreIcon className="w-3.5 h-3.5" />
+                </a>
+              )}
+            </div>
           </div>
         </div>
 
@@ -562,7 +601,7 @@ export default function WebGLFeaturedSlider({ initialGames }: { initialGames?: G
             <button
               key={game.id}
               onClick={() => transitionTo(idx)}
-              className="group relative flex items-center justify-end w-12 h-12 rounded-full focus:outline-none cursor-pointer"
+              className="group relative flex items-center justify-center w-12 h-12 rounded-full focus:outline-none cursor-pointer"
             >
               <span className="absolute right-full mr-4 bg-carbon-black border border-graphite-light px-3 py-1.5 rounded-lg text-[8px] font-sans text-alabaster-grey uppercase tracking-widest opacity-0 scale-75 origin-right transition-all group-hover:opacity-100 group-hover:scale-100 shadow-lg pointer-events-none">
                 {game.title}

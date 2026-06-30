@@ -3,10 +3,23 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Smartphone, Laptop, Globe, ArrowRight, Play, ExternalLink } from 'lucide-react';
+import { Globe, ArrowRight, Play, ExternalLink } from 'lucide-react';
 import { Game } from '@/utils/db';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Official App Store & Google Play Store SVG Icons
+const AppStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 384 512" fill="currentColor" className={className}>
+    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-48.7-22.9-76.9-22.4-36.6.6-70.3 21.6-89.2 54.2-38 65.9-9.8 162.8 27.3 216.3 18.2 26.2 39.8 55.3 68.2 54.2 27.2-1.1 37.5-17.6 68.5-17.6 31.1 0 40.4 17.6 68.8 17.1 29-1 48.2-26.4 66.2-52.7 21-30.7 29.7-60.4 30.2-62-1-1-65.2-25.1-65.7-100zM281.2 81.7c15.2-18.3 25.4-43.9 22.6-69.5-22 1-48.8 14.8-64.6 33.2-13.8 15.9-25.9 41.7-22.7 67 24.5 2 49.7-12.4 64.7-30.7z" />
+  </svg>
+);
+
+const PlayStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 512 512" fill="currentColor" className={className}>
+    <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58 33.3 60.1 60.1L512 288c0-22-13.7-47.8-40-62.4zM325.3 277.7l60.1 60.1L104.6 499l220.7-221.3z" />
+  </svg>
+);
 
 // Canvas Fallback component drawing premium wave lines
 function GameVideoFallback({ gameId }: { gameId: string }) {
@@ -102,6 +115,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollSectionRef = useRef<HTMLDivElement>(null);
   const cardsContainerRef = useRef<HTMLDivElement>(null);
+  const nudgeRef = useRef<HTMLDivElement>(null);
   const [hoveredCardIndex, setHoveredCardIndex] = useState<number | null>(null);
 
   useEffect(() => {
@@ -118,9 +132,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
       const scrollDistance = totalWidth - viewWidth;
 
       if (scrollDistance > 0) {
-        gsap.to(container, {
-          x: -scrollDistance,
-          ease: 'none',
+        const tl = gsap.timeline({
           scrollTrigger: {
             trigger: scrollSectionRef.current,
             pin: true,
@@ -129,8 +141,21 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
             end: () => `+=${scrollDistance}`,
             anticipatePin: 1,
             invalidateOnRefresh: true,
-          },
+          }
         });
+
+        tl.to(container, {
+          x: -scrollDistance,
+          ease: 'none',
+        });
+
+        if (nudgeRef.current) {
+          tl.to(nudgeRef.current, {
+            opacity: 0,
+            y: 15,
+            ease: 'power1.out',
+          }, 0);
+        }
       }
     }, containerRef);
 
@@ -243,7 +268,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                 {/* Big Game Artwork / Icon */}
                 <div
                   className={`flex flex-col items-center justify-center transition-all duration-500 ${
-                    hoveredCardIndex === index ? 'scale-75 opacity-20 pointer-events-none' : 'scale-100 opacity-100'
+                    hoveredCardIndex === index ? 'scale-75 opacity-0 pointer-events-none' : 'scale-100 opacity-100'
                   } z-10`}
                 >
                   <img
@@ -283,11 +308,11 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                         href={game.appstoreLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-carbon-black border border-graphite-light rounded-none text-alabaster-grey hover:text-bright-snow hover:border-platinum-silver transition-all"
+                        className="p-2 bg-carbon-black border border-graphite-light rounded-none text-alabaster-grey hover:text-bright-snow hover:border-platinum-silver transition-all flex items-center justify-center"
                         title="iOS App Store"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Smartphone size={14} />
+                        <AppStoreIcon className="w-3.5 h-3.5" />
                       </a>
                     )}
                     {game.isAndroid && game.playstoreLink && (
@@ -295,11 +320,11 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                         href={game.playstoreLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-carbon-black border border-graphite-light rounded-none text-alabaster-grey hover:text-bright-snow hover:border-platinum-silver transition-all"
+                        className="p-2 bg-carbon-black border border-graphite-light rounded-none text-alabaster-grey hover:text-bright-snow hover:border-platinum-silver transition-all flex items-center justify-center"
                         title="Google Play Store"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Laptop size={14} />
+                        <PlayStoreIcon className="w-3.5 h-3.5" />
                       </a>
                     )}
                     {game.isPoki && game.pokiLink && (
@@ -351,6 +376,19 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
               <ArrowRight size={12} />
             </div>
           </a>
+        </div>
+
+        {/* Scroll Nudge Indicator */}
+        <div 
+          ref={nudgeRef}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 pointer-events-none transition-opacity duration-300"
+        >
+          <span className="text-[9px] font-silkscreen tracking-widest text-slate-violet-light/80 uppercase">
+            Scroll Down to Explore
+          </span>
+          <div className="w-5 h-8 border border-slate-violet-light/40 rounded-full flex justify-center p-1">
+            <div className="w-1 h-2 bg-platinum-silver rounded-full animate-[bounce_1.6s_ease-in-out_infinite]" />
+          </div>
         </div>
       </div>
     </div>

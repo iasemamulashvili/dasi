@@ -97,7 +97,10 @@ export default function About() {
               <Rocket size={28} />
             </div>
             <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one">
-              <span ref={count1Ref}>0</span>+
+              <span className="sr-only">100+</span>
+              <span aria-hidden="true">
+                <span ref={count1Ref}>100</span>+
+              </span>
             </p>
             <p className="text-xs font-silkscreen tracking-wider text-alabaster-grey mt-2.5 uppercase">
               Released Games
@@ -123,7 +126,10 @@ export default function About() {
               <Sparkles size={28} />
             </div>
             <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one">
-              <span ref={count2Ref}>0</span>
+              <span className="sr-only">2021</span>
+              <span aria-hidden="true">
+                <span ref={count2Ref}>2021</span>
+              </span>
             </p>
             <p className="text-xs font-silkscreen tracking-wider text-alabaster-grey mt-2.5 uppercase">
               Founded Year

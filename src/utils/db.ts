@@ -37,10 +37,16 @@ export interface Job {
 
 const GAMES_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'games.json');
 const JOBS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'jobs.json');
+const SETTINGS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'settings.json');
+
+export interface Settings {
+  contactEmail: string;
+}
 
 // Memory cache for serverless environments when DB env is not fully configured yet
 let inMemoryGames: Game[] | null = null;
 let inMemoryJobs: Job[] | null = null;
+let inMemorySettings: Settings | null = null;
 
 // Helper to determine if we are in server-side node environment and can write files
 const isLocalFileSystemWritable = () => {
@@ -237,6 +243,73 @@ export async function saveJobs(jobs: Job[]): Promise<void> {
       console.log('Saved jobs to local file');
     } catch (e) {
       console.error('Failed to write jobs to local file:', e);
+    }
+  } else {
+    console.warn('Filesystem is read-only. Data saved in memory only.');
+  }
+}
+
+// -------------------------------------------------------------
+// Settings Data Methods
+// -------------------------------------------------------------
+export async function getSettings(): Promise<Settings> {
+  const kv = getKVConfig();
+  if (kv) {
+    try {
+      const kvSettingsStr = await fetchKV('get/dasi_settings');
+      if (kvSettingsStr) {
+        return typeof kvSettingsStr === 'string' ? JSON.parse(kvSettingsStr) : kvSettingsStr;
+      }
+    } catch (e) {
+      console.error('Error fetching settings from Vercel KV, falling back to local files:', e);
+    }
+  }
+
+  if (!isLocalFileSystemWritable() && inMemorySettings) {
+    return inMemorySettings;
+  }
+
+  try {
+    if (fs.existsSync(SETTINGS_FILE_PATH)) {
+      const content = fs.readFileSync(SETTINGS_FILE_PATH, 'utf-8');
+      const settings = JSON.parse(content);
+      if (!isLocalFileSystemWritable()) {
+        inMemorySettings = settings;
+      }
+      return settings;
+    }
+  } catch (e) {
+    console.error('Error reading settings file:', e);
+  }
+
+  // Fallback to environment variable or default
+  return { contactEmail: process.env.CONTACT_DESTINATION_EMAIL || 'info@dasigames.com' };
+}
+
+export async function saveSettings(settings: Settings): Promise<void> {
+  const kv = getKVConfig();
+  if (kv) {
+    try {
+      await fetchKV('set/dasi_settings', settings);
+      console.log('Saved settings to Vercel KV');
+    } catch (e) {
+      console.error('Failed to save settings to Vercel KV:', e);
+      throw e;
+    }
+  } else {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Database Error: Vercel KV / Upstash Redis is not configured in production. State cannot be saved.');
+    }
+  }
+
+  inMemorySettings = settings;
+
+  if (isLocalFileSystemWritable()) {
+    try {
+      fs.writeFileSync(SETTINGS_FILE_PATH, JSON.stringify(settings, null, 2), 'utf-8');
+      console.log('Saved settings to local file');
+    } catch (e) {
+      console.error('Failed to write settings to local file:', e);
     }
   } else {
     console.warn('Filesystem is read-only. Data saved in memory only.');

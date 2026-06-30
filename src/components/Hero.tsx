@@ -377,9 +377,12 @@ export default function Hero() {
       >
         {/* Playful Interactive Header Alert */}
         {collectedCount > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1 bg-carbon-black-2 border border-graphite-light text-xs font-silkscreen text-platinum-silver animate-pulse">
-            <Sparkles size={12} />
-            <span>Carrying {collectedCount} letters! Hover over RELEASE to snap them back!</span>
+          <div className="flex items-center gap-2.5 px-4 py-1.5 bg-bright-snow/5 backdrop-blur-md border border-bright-snow/10 rounded-full text-xs font-silkscreen text-platinum-silver shadow-[0_8px_32px_rgba(0,0,0,0.37)] transition-all duration-300">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-muted-green opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-muted-green"></span>
+            </span>
+            <span>Carrying {collectedCount} {collectedCount === 1 ? 'letter' : 'letters'} • Hover RELEASE to launch</span>
           </div>
         )}
 

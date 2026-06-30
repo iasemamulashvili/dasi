@@ -161,22 +161,25 @@ export default function ContactForm() {
               />
             </div>
 
-            {/* Resume / Attachment */}
+            {/* Collaboration Documents / Attachment */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-silkscreen tracking-wider text-alabaster-grey uppercase">
-                CV / Resume (Optional)
-              </label>
-              <label className="w-full flex flex-col items-center justify-center border-2 border-dashed border-graphite-light bg-carbon-black rounded-none px-4 py-6 cursor-pointer hover:border-platinum-silver transition-colors">
+              <span className="text-xs font-silkscreen tracking-wider text-alabaster-grey uppercase">
+                Collaboration Documents (Optional)
+              </span>
+              <label className="w-full flex flex-col items-center justify-center border-2 border-dashed border-graphite-light bg-carbon-black rounded-none px-4 py-6 cursor-pointer hover:border-platinum-silver transition-colors focus-within:border-platinum-silver focus-within:ring-1 focus-within:ring-platinum-silver">
                 <Upload size={20} className="text-alabaster-grey/50 mb-2" />
-                <span className="text-xs text-alabaster-grey font-outfit">
-                  {file ? file.name : 'Click to upload CV (PDF/Doc)'}
+                <span className="text-xs text-alabaster-grey font-outfit text-center">
+                  {file ? file.name : 'Upload your portfolio, pitch deck, GDD, or CV'}
+                </span>
+                <span className="text-[10px] text-alabaster-grey/50 font-outfit mt-1">
+                  Accepted formats: PDF, DOC, DOCX
                 </span>
                 <input
                   type="file"
                   id="file"
                   accept=".pdf,.doc,.docx"
                   onChange={handleFileChange}
-                  className="hidden"
+                  className="sr-only"
                 />
               </label>
             </div>

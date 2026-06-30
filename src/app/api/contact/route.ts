@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { getSettings } from '@/utils/db';
 
 export async function POST(request: Request) {
   try {
@@ -20,7 +21,8 @@ export async function POST(request: Request) {
     });
 
     const resendApiKey = process.env.RESEND_API_KEY;
-    const destEmail = process.env.CONTACT_DESTINATION_EMAIL || 'info@dasigames.com';
+    const settings = await getSettings();
+    const destEmail = settings.contactEmail;
 
     if (resendApiKey) {
       const resend = new Resend(resendApiKey);
