@@ -173,12 +173,12 @@ export default function Hero() {
             const targetRot = (i - (carriedLetters.current.length - 1) / 2) * 6;
             const ease = 0.18 - (i * 0.012);
 
-            // Monochromatic gradient trail: Silver at cursor -> Deep Graphite at tail
+            // Subtle chromatic tint trail: Rose-White at cursor -> Ice-Blue-White at tail
             const totalCarried = carriedLetters.current.length;
             const ratio = totalCarried > 1 ? i / (totalCarried - 1) : 0;
-            const targetLightness = 0.82 - ratio * 0.47; // 0.82 down to 0.35
-            const targetChroma = 0.01;
-            const targetHue = 0;
+            const targetLightness = 0.90 - ratio * 0.15; // Bright, near-white (0.90 down to 0.75)
+            const targetChroma = 0.04;                   // Very delicate, high-end tint
+            const targetHue = 380 - ratio * 130;         // Rose (20) -> Lavender -> Ice-Blue (250)
 
             gsap.set(letter, {
               x: currentX + (target.x - currentX) * ease,
