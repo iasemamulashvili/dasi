@@ -442,8 +442,8 @@ export default function Hero() {
               <path d="M 20 20 L 80 20 L 80 50 C 80 72 65 88 50 95 C 35 88 20 72 20 50 Z" />
               <polygon points="44,30 56,30 50,42" fill="currentColor" stroke="none" />
             </svg>
-            <span className="tracking-wider text-slate-violet-light">
-              [ SYSTEM SHARDS: <span className="text-bright-snow font-bold">{collectedCount}</span>/8 ENGAGED ] // DISCHARGE CHAMBER ONLINE
+            <span className="tracking-wider text-slate-violet-light font-bold">
+              Carrying {collectedCount} {collectedCount === 1 ? 'letter' : 'letters'} • Hover RELEASE to launch!
             </span>
           </div>
         )}

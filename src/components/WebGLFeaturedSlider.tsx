@@ -469,7 +469,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
         {loading && (
           <div className="absolute inset-0 bg-[#181818] z-50 flex flex-col items-center justify-center gap-3">
             <span className="w-8 h-8 rounded-full border-2 border-graphite-light border-t-platinum-silver animate-spin" />
-            <span className="text-[9px] font-sans tracking-wider text-alabaster-grey">BUFFERING MEMORY MAP...</span>
+            <span className="text-[10px] font-silkscreen tracking-widest text-slate-violet-light animate-pulse">GETTING OUR FEATURED GAMES READY FOR YOU...</span>
           </div>
         )}
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { Play, Volume2, VolumeX, X, Trophy, Monitor, Cpu, Sparkles, ArrowRight } from 'lucide-react';
 
 // Helper component for each sandbox option to keep states isolated
 function FanSandboxItem({
@@ -466,69 +467,383 @@ function FanSandboxItem({
   );
 }
 
+// --- Featured Showcase Video Variations Sandbox Component ---
+interface SandboxGame {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  accent: string;
+  accentMuted: string;
+  bgGradient: string;
+  videoSrc: string;
+  image: string;
+  stats: {
+    activePlayers: string;
+    rating: string;
+    downloads: string;
+    engine: string;
+  };
+}
+
+const sandboxGames: SandboxGame[] = [
+  {
+    id: 'crown-quest',
+    title: 'Crown Quest',
+    subtitle: 'Epic Action RPG Adventure',
+    description: 'Embark on an epic fantasy RPG quest. Command legendary heroes, conquer tactical grid battles, and construct your royal stronghold in a war-torn kingdom.',
+    accent: 'var(--color-platinum-silver)',
+    accentMuted: 'var(--color-slate-violet)',
+    bgGradient: 'from-graphite/30 via-carbon-black-2/40 to-[#181818]',
+    videoSrc: 'https://assets.mixkit.co/videos/preview/mixkit-hand-holding-a-smartphone-playing-a-video-game-41584-large.mp4',
+    image: '/crown-quest.png',
+    stats: {
+      activePlayers: '1.2M+',
+      rating: '4.8',
+      downloads: '5M+',
+      engine: 'Unity 3D'
+    }
+  },
+  {
+    id: 'lumber-chopper',
+    title: 'Lumber Chopper',
+    subtitle: 'Idle Wood Empire Tycoon',
+    description: 'Harvest resources, optimize lumber mills, and build a massive wood-chopping dynasty. Automate operations and manage supply chains in this highly addictive idle tycoon.',
+    accent: 'var(--color-muted-green)',
+    accentMuted: 'var(--color-slate-violet)',
+    bgGradient: 'from-muted-green/20 via-carbon-black-2/40 to-[#181818]',
+    videoSrc: 'https://assets.mixkit.co/videos/preview/mixkit-cutting-log-with-chainsaw-in-forest-41618-large.mp4',
+    image: '/lumber-chopper.png',
+    stats: {
+      activePlayers: '850K+',
+      rating: '4.6',
+      downloads: '3M+',
+      engine: 'Cocos Creator'
+    }
+  },
+  {
+    id: 'hotel-manager',
+    title: 'Hotel Manager',
+    subtitle: '5-Star Luxury Resort Simulator',
+    description: 'Design, build, and run a 5-star luxury resort empire. Hire world-class chefs, staff, and design stunning suites to keep VIP clients happy and maximize profits.',
+    accent: 'var(--color-slate-violet-light)',
+    accentMuted: 'var(--color-slate-violet)',
+    bgGradient: 'from-slate-violet/20 via-carbon-black-2/40 to-[#181818]',
+    videoSrc: 'https://assets.mixkit.co/videos/preview/mixkit-luxury-resort-hotel-swimming-pool-and-palm-trees-48744-large.mp4',
+    image: '/hotel-manager.png',
+    stats: {
+      activePlayers: '500K+',
+      rating: '4.5',
+      downloads: '1.5M+',
+      engine: 'Unity 2D'
+    }
+  }
+];
+
+function ShowcaseSandbox() {
+  const [activeGameIndex, setActiveGameIndex] = useState(0);
+  const activeGame = sandboxGames[activeGameIndex];
+
+  // Sound state for Variation A
+  const [isMutedA, setIsMutedA] = useState(true);
+
+  // Portal State for Variation B
+  const [isPortalOpen, setIsPortalOpen] = useState(false);
+  const portalVideoRef = useRef<HTMLVideoElement>(null);
+
+  // Trigger sound logic on Variation B portal
+  useEffect(() => {
+    if (isPortalOpen && portalVideoRef.current) {
+      portalVideoRef.current.play().catch(e => console.log("Autoplay blocked", e));
+    }
+  }, [isPortalOpen]);
+
+  return (
+    <div className="flex flex-col gap-12 max-w-6xl w-full">
+      {/* Selector of Active Game */}
+      <div className="flex bg-carbon-black-2 border border-graphite-light p-1.5 rounded-2xl w-max gap-2 self-center shadow-lg">
+        {sandboxGames.map((g, idx) => (
+          <button
+            key={g.id}
+            onClick={() => {
+              setActiveGameIndex(idx);
+              setIsPortalOpen(false);
+            }}
+            className={`px-5 py-2.5 rounded-xl text-xs font-silkscreen tracking-wider font-semibold transition-all cursor-pointer ${
+              activeGameIndex === idx
+                ? 'bg-slate-violet text-bright-snow shadow-lg shadow-slate-violet/10'
+                : 'text-alabaster-grey/60 hover:text-bright-snow'
+            }`}
+          >
+            {g.title.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* ================= VARIATION A: CINEMATIC SPLIT-PANE ================= */}
+        <div className="bg-carbon-black-2 border border-graphite-light rounded-2xl p-6 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-slate-violet/10 border border-slate-violet/20 px-2 py-0.5 rounded text-[8px] font-silkscreen text-slate-violet-light uppercase tracking-wider font-bold">
+            <Sparkles size={8} /> Variation A
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold font-russo-one tracking-wide text-bright-snow uppercase">
+              Cinematic Split-Pane
+            </h3>
+            <p className="text-xs text-alabaster-grey/70 mt-1 leading-relaxed font-outfit">
+              Floating glassmorphic loop preview card sits next to the description panel. Ideal for passive engagement.
+            </p>
+          </div>
+
+          {/* Slider Mockup Layout */}
+          <div className="bg-carbon-black border border-graphite-light rounded-xl p-5 flex flex-col gap-5 min-h-[380px] justify-between relative overflow-hidden">
+            {/* Title / Description */}
+            <div className="flex flex-col gap-2 z-10 max-w-[55%]">
+              <span className="text-[9px] font-silkscreen text-slate-violet-light uppercase tracking-widest">
+                {activeGame.subtitle}
+              </span>
+              <h4 className="text-2xl font-bold font-russo-one tracking-wider text-bright-snow uppercase">
+                {activeGame.title}
+              </h4>
+              <p className="text-xs text-alabaster-grey/60 leading-relaxed font-outfit">
+                {activeGame.description}
+              </p>
+            </div>
+
+            {/* Floating Glassmorphic Loop Video Card */}
+            <div className="absolute right-5 top-1/2 -translate-y-1/2 w-[40%] h-[80%] bg-carbon-black-2/80 backdrop-blur-md border border-graphite-light/60 rounded-xl overflow-hidden shadow-xl z-20 transition-all duration-300 hover:scale-105 flex flex-col justify-end">
+              {/* Gameplay Video Player */}
+              <video
+                key={activeGame.id}
+                src={activeGame.videoSrc}
+                autoPlay
+                loop
+                muted={isMutedA}
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+
+              {/* Speaker / Mute Toggle Button */}
+              <button
+                onClick={() => setIsMutedA(!isMutedA)}
+                className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black/80 rounded-lg text-bright-snow backdrop-blur-md border border-white/10 transition-all z-30 cursor-pointer"
+                title={isMutedA ? "Unmute Gameplay Audio" : "Mute Gameplay Audio"}
+              >
+                {isMutedA ? <VolumeX size={12} /> : <Volume2 size={12} className="text-slate-violet-light" />}
+              </button>
+
+              {/* Overlay HUD Tag */}
+              <div className="bg-gradient-to-t from-black/80 to-transparent p-3 pt-6 z-10 text-[8px] font-silkscreen text-platinum-silver tracking-widest flex items-center gap-1.5 uppercase select-none">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-violet animate-ping" />
+                LIVE PREVIEW
+              </div>
+            </div>
+
+            {/* Specs Footer */}
+            <div className="border-t border-graphite-light/40 pt-4 flex gap-4 text-[9px] font-silkscreen text-alabaster-grey/50 z-10">
+              <div>ENGINE: <span className="text-bright-snow">{activeGame.stats.engine}</span></div>
+              <div>DOWNLOADS: <span className="text-bright-snow">{activeGame.stats.downloads}</span></div>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= VARIATION B: ARCADE PORTAL VENT ================= */}
+        <div className="bg-carbon-black-2 border border-graphite-light rounded-2xl p-6 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-muted-green/10 border border-muted-green/20 px-2 py-0.5 rounded text-[8px] font-silkscreen text-muted-green-light uppercase tracking-wider font-bold">
+            <Monitor size={8} /> Variation B
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold font-russo-one tracking-wide text-bright-snow uppercase">
+              Arcade Terminal Portal
+            </h3>
+            <p className="text-xs text-alabaster-grey/70 mt-1 leading-relaxed font-outfit">
+              Displays a prominent "Boot Gameplay" console prompt on slide. Hovering/clicking launches an immersive CRT terminal.
+            </p>
+          </div>
+
+          {/* Slider Mockup Layout */}
+          <div className="bg-carbon-black border border-graphite-light rounded-xl p-5 flex flex-col gap-5 min-h-[380px] justify-between relative overflow-hidden">
+            {/* Description Info */}
+            <div className="flex flex-col gap-2 z-10">
+              <span className="text-[9px] font-silkscreen text-slate-violet-light uppercase tracking-widest">
+                {activeGame.subtitle}
+              </span>
+              <h4 className="text-2xl font-bold font-russo-one tracking-wider text-bright-snow uppercase">
+                {activeGame.title}
+              </h4>
+              <p className="text-xs text-alabaster-grey/60 leading-relaxed font-outfit max-w-[80%]">
+                {activeGame.description}
+              </p>
+            </div>
+
+            {/* Interactive Boot Prompt Trigger */}
+            <div className="my-auto self-center z-10 flex flex-col items-center gap-3">
+              <button
+                onClick={() => setIsPortalOpen(true)}
+                className="group flex items-center gap-3 px-6 py-3.5 bg-slate-violet hover:bg-slate-violet-light border border-slate-violet-light/30 rounded-xl text-xs font-silkscreen tracking-widest text-bright-snow font-semibold transition-all shadow-xl hover:scale-105 cursor-pointer uppercase select-none"
+              >
+                <Monitor size={14} className="animate-pulse" />
+                BOOT GAMEPLAY PREVIEW
+                <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+              </button>
+              <span className="text-[8px] font-silkscreen text-alabaster-grey/40 uppercase tracking-widest">
+                Requires direct operator signal
+              </span>
+            </div>
+
+            {/* Portal Overlay Frame (Variation B Overlay Screen) */}
+            {isPortalOpen && (
+              <div className="absolute inset-0 bg-[#0d0d11] z-30 p-4 flex flex-col justify-between border-2 border-slate-violet animate-fadeIn">
+                {/* CRT Glass Scanline overlay effect */}
+                <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,6px_100%] opacity-40 z-20" />
+                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)] opacity-85 z-20" />
+
+                <div className="flex items-center justify-between border-b border-slate-violet/20 pb-2 z-10">
+                  <span className="text-[8px] font-silkscreen text-slate-violet-light tracking-widest uppercase flex items-center gap-1.5">
+                    <Cpu size={10} className="text-slate-violet-light animate-spin" />
+                    STREAMING LINK PORTAL: {activeGame.title}
+                  </span>
+                  <button
+                    onClick={() => setIsPortalOpen(false)}
+                    className="p-1 bg-graphite hover:bg-rose-950/30 border border-graphite-light hover:border-rose-500/30 rounded text-alabaster-grey hover:text-rose-400 transition-all cursor-pointer"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+
+                <div className="flex-1 my-4 rounded border border-graphite-light overflow-hidden bg-black relative flex items-center justify-center">
+                  <video
+                    ref={portalVideoRef}
+                    src={activeGame.videoSrc}
+                    loop
+                    className="w-full h-full object-cover filter brightness-[1.1] contrast-[1.05]"
+                  />
+                  <div className="absolute bottom-3 left-3 bg-black/60 px-2 py-1 border border-white/10 rounded text-[7px] font-silkscreen text-bright-snow">
+                    SYSTEM STATUS: ACTIVE [AUDIO ON]
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-[7px] font-silkscreen text-alabaster-grey/40 z-10 border-t border-slate-violet/20 pt-2 uppercase">
+                  <span>DASI PORTAL DECODER v1.0</span>
+                  <span>TAP X IN CORNER TO EXIT CHANNEL</span>
+                </div>
+              </div>
+            )}
+
+            {/* Specs Footer */}
+            <div className="border-t border-graphite-light/40 pt-4 flex gap-4 text-[9px] font-silkscreen text-alabaster-grey/50 z-10">
+              <div>ENGINE: <span className="text-bright-snow">{activeGame.stats.engine}</span></div>
+              <div>DOWNLOADS: <span className="text-bright-snow">{activeGame.stats.downloads}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function FanSandboxPage() {
+  const [activeTab, setActiveTab] = useState<'fans' | 'showcase'>('fans');
+
   return (
     <main className="min-h-screen w-full bg-carbon-black text-bright-snow flex flex-col items-center py-20 px-6 font-sans">
-      <div className="max-w-6xl w-full flex flex-col gap-4">
-        {/* Header */}
+      <div className="max-w-6xl w-full flex flex-col gap-6">
+        {/* Toggle Mode Selector */}
+        <div className="flex bg-carbon-black-2 border border-graphite-light p-1 rounded-2xl w-max self-start shadow-xl">
+          <button
+            onClick={() => setActiveTab('fans')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-silkscreen tracking-wider font-semibold transition-all cursor-pointer ${
+              activeTab === 'fans'
+                ? 'bg-graphite text-bright-snow'
+                : 'text-alabaster-grey/60 hover:text-bright-snow'
+            }`}
+          >
+            <Cpu size={14} />
+            FAN MODELS SANDBOX
+          </button>
+          <button
+            onClick={() => setActiveTab('showcase')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-silkscreen tracking-wider font-semibold transition-all cursor-pointer ${
+              activeTab === 'showcase'
+                ? 'bg-graphite text-bright-snow'
+                : 'text-alabaster-grey/60 hover:text-bright-snow'
+            }`}
+          >
+            <Monitor size={14} />
+            SHOWCASE VIDEO VARIATIONS
+          </button>
+        </div>
+
+        {/* Tab Header */}
         <div className="border-b border-graphite-light pb-6 mb-4">
           <h1 className="text-4xl font-bold tracking-wider text-bright-snow font-russo-one uppercase">
-            Fan Model Testing Ground
+            {activeTab === 'fans' ? 'Fan Model Testing Ground' : 'Spotlight Showcase Video Variations'}
           </h1>
           <p className="text-sm text-alabaster-grey mt-2 max-w-3xl leading-relaxed font-outfit">
-            Compare six completely **stand-less** fan designs below. All options are designed to sit flush 
-            within the release box and feature the contained **Speed Lines breeze effect**.
+            {activeTab === 'fans'
+              ? 'Compare six completely stand-less fan designs below. All options are designed to sit flush within the release box and feature the contained Speed Lines breeze effect.'
+              : 'Interact with two different user experience models designed to resolve the gameplay video playback issue on the Spotlight displacement slider.'}
           </p>
         </div>
 
-        {/* 6 Sandbox cards in a responsive grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FanSandboxItem
-            title="Option A: Sleek Jet Turbine"
-            description="A high-density circular turbine vent with 8 curved blades and a centered hub. Sitting flush on the right."
-            fanType="turbine"
-          />
+        {/* Tab 1: Fans */}
+        {activeTab === 'fans' && (
+          <>
+            {/* 6 Sandbox cards in a responsive grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <FanSandboxItem
+                title="Option A: Sleek Jet Turbine"
+                description="A high-density circular turbine vent with 8 curved blades and a centered hub. Sitting flush on the right."
+                fanType="turbine"
+              />
 
-          <FanSandboxItem
-            title="Option B: Sci-Fi Portal Vent"
-            description="A futuristic segmented casing with overlapping coaxial blades rotating in opposite directions."
-            fanType="portal"
-          />
+              <FanSandboxItem
+                title="Option B: Sci-Fi Portal Vent"
+                description="A futuristic segmented casing with overlapping coaxial blades rotating in opposite directions."
+                fanType="portal"
+              />
 
-          <FanSandboxItem
-            title="Option C: Minimalist Propeller"
-            description="A clean, thin-ring casing with 3 long aerodynamic propeller blades spinning around a hub."
-            fanType="propeller"
-          />
+              <FanSandboxItem
+                title="Option C: Minimalist Propeller"
+                description="A clean, thin-ring casing with 3 long aerodynamic propeller blades spinning around a hub."
+                fanType="propeller"
+              />
 
-          <FanSandboxItem
-            title="Option D: Shield Frame Turbine"
-            description="A custom casing shaped like the Dasi Games shield logo, with 6 curved turbine blades spinning inside the crest."
-            fanType="shield-frame"
-          />
+              <FanSandboxItem
+                title="Option D: Shield Frame Turbine"
+                description="A custom casing shaped like the Dasi Games shield logo, with 6 curved turbine blades spinning inside the crest."
+                fanType="shield-frame"
+              />
 
-          <FanSandboxItem
-            title="Option E: Shield Blade Propeller"
-            description="A circular casing containing a 3-blade propeller where each individual blade is modeled after the Dasi Games shield logo."
-            fanType="shield-blade"
-          />
+              <FanSandboxItem
+                title="Option E: Shield Blade Propeller"
+                description="A circular casing containing a 3-blade propeller where each individual blade is modeled after the Dasi Games shield logo."
+                fanType="shield-blade"
+              />
 
-          <FanSandboxItem
-            title="Option F: Vortex Singularity"
-            description="A sci-fi centrifugal vent featuring 6 sweeping logarithmic spiral blades that create a hypnotic 3D depth illusion."
-            fanType="vortex"
-          />
-        </div>
+              <FanSandboxItem
+                title="Option F: Vortex Singularity"
+                description="A sci-fi centrifugal vent featuring 6 sweeping logarithmic spiral blades that create a hypnotic 3D depth illusion."
+                fanType="vortex"
+              />
+            </div>
 
-        {/* Sandbox details */}
-        <div className="mt-8 p-6 bg-carbon-black-2 border border-graphite-light rounded-2xl font-outfit">
-          <h4 className="text-sm font-bold uppercase tracking-widest text-slate-violet-light mb-2 font-silkscreen">Testing Notes:</h4>
-          <ul className="list-disc list-inside text-xs text-alabaster-grey space-y-2 leading-relaxed">
-            <li><strong>Contained Airflow:</strong> Notice how the speed lines animate entirely inside the boundaries of the release box, clipping at the left border.</li>
-            <li><strong>Stand-less Integration:</strong> The fans have no stands, necks, or brackets, looking like a built-in exhaust port.</li>
-            <li><strong>Logo Branding (Options D & E):</strong> The shield geometry is mathematically scaled to match the exact proportions of the Dasi Games shield icon.</li>
-          </ul>
-        </div>
+            {/* Sandbox details */}
+            <div className="mt-8 p-6 bg-carbon-black-2 border border-graphite-light rounded-2xl font-outfit">
+              <h4 className="text-sm font-bold uppercase tracking-widest text-slate-violet-light mb-2 font-silkscreen">Testing Notes:</h4>
+              <ul className="list-disc list-inside text-xs text-alabaster-grey space-y-2 leading-relaxed">
+                <li><strong>Contained Airflow:</strong> Notice how the speed lines animate entirely inside the boundaries of the release box, clipping at the left border.</li>
+                <li><strong>Stand-less Integration:</strong> The fans have no stands, necks, or brackets, looking like a built-in exhaust port.</li>
+                <li><strong>Logo Branding (Options D & E):</strong> The shield geometry is mathematically scaled to match the exact proportions of the Dasi Games shield icon.</li>
+              </ul>
+            </div>
+          </>
+        )}
+
+        {/* Tab 2: Showcase Variations */}
+        {activeTab === 'showcase' && <ShowcaseSandbox />}
       </div>
     </main>
   );
