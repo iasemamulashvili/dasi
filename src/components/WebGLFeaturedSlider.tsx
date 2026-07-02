@@ -577,12 +577,14 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
           </div>
 
           <div className="slider-hud-element pointer-events-auto flex flex-wrap items-center gap-4">
-            <Link 
-              href="#portfolio"
-              className="inset-pixel-btn-primary group/btn inline-flex items-center py-2 px-4"
+            <button 
+              onClick={() => {
+                document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="inset-pixel-btn-primary group/btn inline-flex items-center py-2 px-4 cursor-pointer"
             >
               <Play size={10} className="mr-2 fill-current" /> EXPLORE GAME <ArrowRight size={10} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
-            </Link>
+            </button>
             
             {/* App Store and Google Play Download Links */}
             <div className="flex items-center gap-2">

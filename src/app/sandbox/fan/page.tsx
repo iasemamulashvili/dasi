@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
-import { Play, Volume2, VolumeX, X, Trophy, Monitor, Cpu, Sparkles, ArrowRight } from 'lucide-react';
+import { Play, Volume2, VolumeX, X, Monitor, Cpu, Sparkles } from 'lucide-react';
 
 // Helper component for each sandbox option to keep states isolated
 function FanSandboxItem({
@@ -540,7 +540,7 @@ const sandboxGames: SandboxGame[] = [
   }
 ];
 
-function WebGLFeaturedSliderSandbox({ variant }: { variant: 'A' | 'B' }) {
+function WebGLFeaturedSliderSandbox({ variant }: { variant: 'C' | 'D' }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const customCursorRef = useRef<HTMLDivElement>(null);
@@ -566,14 +566,16 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'A' | 'B' }) {
   const uTexture1LocRef = useRef<WebGLUniformLocation | null>(null);
   const uTexture2LocRef = useRef<WebGLUniformLocation | null>(null);
 
-  // Variation A - Sound state
-  const [isMutedA, setIsMutedA] = useState(true);
-
-  // Variation B - Portal state
-  const [isPortalOpen, setIsPortalOpen] = useState(false);
-  const [isPortalMuted, setIsPortalMuted] = useState(false);
-  const portalVideoRef = useRef<HTMLVideoElement>(null);
+  // Variation C - Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalMuted, setIsModalMuted] = useState(false);
+  const modalVideoRef = useRef<HTMLVideoElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Variation D - Inline morphing video player state
+  const [showVideoInline, setShowVideoInline] = useState(false);
+  const [isInlineMuted, setIsInlineMuted] = useState(true);
+  const inlineVideoRef = useRef<HTMLVideoElement>(null);
 
   // Update activeIndexRef on change
   useEffect(() => {
@@ -830,9 +832,11 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'A' | 'B' }) {
     setPrevIndex(currentIdx);
     setActiveIndex(targetIdx);
     
-    // Auto-close portal on slide transition for Variation B
-    if (variant === 'B') {
-      setIsPortalOpen(false);
+    // Auto-close portal/video inline on slide transition
+    if (variant === 'C') {
+      setIsModalOpen(false);
+    } else if (variant === 'D') {
+      setShowVideoInline(false);
     }
 
     const animationObj = { progress: 0 };
@@ -877,27 +881,36 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'A' | 'B' }) {
     }
   };
 
-  // Keyboard and Focus Management for Variation B Portal
+  // Keyboard and Focus Management for Variation C Modal
   useEffect(() => {
-    if (isPortalOpen) {
+    if (isModalOpen && variant === 'C') {
       closeBtnRef.current?.focus();
       
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
-          setIsPortalOpen(false);
+          setIsModalOpen(false);
         }
       };
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isPortalOpen]);
+  }, [isModalOpen, variant]);
 
-  // Video Autoplay Trigger for Variation B
+  // Video Autoplay Trigger for Variation C
   useEffect(() => {
-    if (isPortalOpen && portalVideoRef.current) {
-      portalVideoRef.current.play().catch(e => console.log("Autoplay blocked", e));
+    if (isModalOpen && modalVideoRef.current && variant === 'C') {
+      modalVideoRef.current.play().catch(e => console.log("Autoplay blocked", e));
     }
-  }, [isPortalOpen, activeIndex]);
+  }, [isModalOpen, activeIndex, variant]);
+
+  // Video Autoplay Trigger for Variation D
+  useEffect(() => {
+    if (showVideoInline && inlineVideoRef.current && variant === 'D') {
+      inlineVideoRef.current.play().catch(e => console.log("Autoplay blocked", e));
+    } else if (!showVideoInline && inlineVideoRef.current && variant === 'D') {
+      inlineVideoRef.current.pause();
+    }
+  }, [showVideoInline, activeIndex, variant]);
 
   const activeGame = sandboxGames[activeIndex];
 
@@ -924,6 +937,10 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'A' | 'B' }) {
           50% { box-shadow: 0 0 15px rgba(120, 119, 198, 0.8); }
           100% { box-shadow: 0 0 5px rgba(120, 119, 198, 0.4); }
         }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
         .animate-crt-flicker {
           animation: crt-flicker 0.15s infinite;
         }
@@ -932,6 +949,9 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'A' | 'B' }) {
         }
         .animate-pulse-glow {
           animation: pulse-glow 2s infinite ease-in-out;
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.25s ease-out forwards;
         }
       `}</style>
 
@@ -1009,124 +1029,108 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'A' | 'B' }) {
 
       {/* Main Slide Layout Content */}
       <div className="relative w-full h-full flex flex-col justify-between z-10 pt-4 pb-12">
-        {/* Title HUD Info (Left-aligned) */}
-        <div className="flex flex-col gap-1.5 max-w-[55%] pointer-events-none slider-hud-element">
-          <span className="text-[8px] font-silkscreen text-slate-violet-light uppercase tracking-widest leading-none">
-            {activeGame.subtitle}
-          </span>
-          <h4 className="text-xl font-bold font-russo-one tracking-wider text-bright-snow uppercase leading-tight">
-            {activeGame.title}
-          </h4>
-          <p className="text-[10px] text-alabaster-grey/70 leading-relaxed font-outfit max-h-[80px] overflow-hidden text-ellipsis">
-            {activeGame.description}
-          </p>
-        </div>
-
-        {/* VARIATION A: Floating Glassmorphic Loop Video Card */}
-        {variant === 'A' && (
-          <div className="absolute right-0 top-1/2 -translate-y-[60%] w-[38%] h-[68%] bg-carbon-black-2/80 backdrop-blur-md border border-graphite-light/60 rounded-xl overflow-hidden shadow-xl z-20 transition-all duration-300 hover:scale-[1.03] flex flex-col justify-end">
-            <video
-              key={activeGame.id}
-              src={activeGame.videoSrc}
-              autoPlay
-              loop
-              muted={isMutedA}
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-
-            {/* Mute/Unmute Audio Button */}
-            <button
-              onClick={() => setIsMutedA(!isMutedA)}
-              className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-black/80 rounded-md text-bright-snow backdrop-blur-md border border-white/10 transition-all z-30 cursor-pointer pointer-events-auto hover:scale-105 focus-visible:ring-1 focus-visible:ring-slate-violet-light focus-visible:outline-none"
-              title={isMutedA ? "Unmute Gameplay Audio" : "Mute Gameplay Audio"}
-            >
-              {isMutedA ? <VolumeX size={10} /> : <Volume2 size={10} className="text-slate-violet-light" />}
-            </button>
-
-            {/* Overlay HUD Tag */}
-            <div className="bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 pt-4 z-10 text-[7px] font-silkscreen text-platinum-silver tracking-widest flex items-center gap-1.5 uppercase select-none">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-violet animate-ping" />
-              LIVE PREVIEW
-            </div>
-          </div>
-        )}
-
-        {/* VARIATION B: Boot Gameplay Prompt overlay trigger */}
-        {variant === 'B' && (
-          <div className="absolute right-0 top-1/2 -translate-y-[60%] w-[38%] h-[68%] flex flex-col items-center justify-center gap-2 bg-carbon-black-2/30 backdrop-blur-[2px] border border-graphite-light/20 rounded-xl p-3">
-            <button
-              onClick={() => {
-                setIsPortalMuted(false);
-                setIsPortalOpen(true);
-              }}
-              className="group flex flex-col items-center justify-center gap-2 p-4 w-full h-full border border-dashed border-slate-violet/40 hover:border-slate-violet-light/80 rounded-lg text-center cursor-pointer pointer-events-auto bg-black/40 hover:bg-black/60 transition-all focus-visible:ring-1 focus-visible:ring-slate-violet-light focus-visible:outline-none animate-pulse-glow"
-            >
-              <Monitor size={20} className="text-slate-violet-light animate-pulse" />
-              <span className="text-[8px] font-silkscreen tracking-widest text-bright-snow font-bold">BOOT PREVIEW</span>
-              <ArrowRight size={10} className="text-slate-violet-light group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          </div>
-        )}
-
-        {/* VARIATION B: CRT Scanline Portal Screen Overlay */}
-        {variant === 'B' && isPortalOpen && (
+        {/* Title HUD Info (Left-aligned) or Inline Morphing Player */}
+        <div className={`flex flex-col gap-1.5 pointer-events-none slider-hud-element z-20 transition-all duration-300 ${
+          showVideoInline ? 'max-w-[85%] sm:max-w-[65%] md:max-w-[55%]' : 'max-w-[55%]'
+        }`}>
+          
+          {/* STATE 1: Text details block */}
           <div 
-            className="absolute inset-0 bg-[#070709] z-30 p-4 flex flex-col justify-between border-2 border-slate-violet animate-fadeIn"
-            role="dialog"
-            aria-modal="true"
-            aria-label={`Arcade Portal - ${activeGame.title}`}
+            className={`flex flex-col gap-1.5 transition-all duration-500 ease-in-out ${
+              showVideoInline 
+                ? 'opacity-0 -translate-y-2 scale-95 pointer-events-none select-none h-0 overflow-hidden' 
+                : 'opacity-100 translate-y-0 scale-100'
+            }`}
           >
-            {/* CRT Effects */}
-            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,6px_100%] opacity-40 z-20 animate-crt-flicker" />
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)] opacity-85 z-20" />
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-slate-violet/5 to-transparent h-[10%] w-full z-20 animate-crt-scanlines" />
+            <span className="text-[8px] font-silkscreen text-slate-violet-light uppercase tracking-widest leading-none">
+              {activeGame.subtitle}
+            </span>
+            <h4 className="text-xl font-bold font-russo-one tracking-wider text-bright-snow uppercase leading-tight">
+              {activeGame.title}
+            </h4>
+            <p className="text-[10px] text-alabaster-grey/70 leading-relaxed font-outfit max-h-[80px] overflow-hidden text-ellipsis">
+              {activeGame.description}
+            </p>
+            
+            {variant === 'C' && (
+              <button
+                onClick={() => {
+                  setIsModalMuted(false);
+                  setIsModalOpen(true);
+                }}
+                className="mt-2.5 group flex items-center justify-center gap-2 px-3 py-1.5 w-fit border border-slate-violet/40 hover:border-slate-violet-light bg-black/60 hover:bg-slate-violet/20 rounded-md text-center cursor-pointer pointer-events-auto transition-all focus-visible:ring-2 focus-visible:ring-slate-violet-light focus-visible:outline-none text-[9px] font-silkscreen tracking-widest text-bright-snow font-bold"
+              >
+                <Play size={10} className="fill-current text-slate-violet-light group-hover:scale-110 transition-transform" />
+                WATCH GAMEPLAY
+              </button>
+            )}
 
-            <div className="flex items-center justify-between border-b border-slate-violet/20 pb-2 z-10">
-              <span className="text-[8px] font-silkscreen text-slate-violet-light tracking-widest uppercase flex items-center gap-1.5">
-                <Cpu size={10} className="text-slate-violet-light animate-spin" />
-                STREAMING LINK PORTAL: {activeGame.title}
-              </span>
-              
-              <div className="flex items-center gap-2 pointer-events-auto">
-                <button
-                  onClick={() => setIsPortalMuted(!isPortalMuted)}
-                  className="p-1 bg-graphite hover:bg-slate-800 border border-graphite-light rounded text-alabaster-grey hover:text-bright-snow transition-all cursor-pointer focus-visible:ring-1 focus-visible:ring-slate-violet-light focus-visible:outline-none"
-                  title={isPortalMuted ? "Unmute Audio" : "Mute Audio"}
-                >
-                  {isPortalMuted ? <VolumeX size={10} /> : <Volume2 size={10} className="text-slate-violet-light" />}
-                </button>
-                <button
-                  ref={closeBtnRef}
-                  onClick={() => setIsPortalOpen(false)}
-                  className="p-1 bg-graphite hover:bg-rose-950/30 border border-graphite-light hover:border-rose-500/30 rounded text-alabaster-grey hover:text-rose-400 transition-all cursor-pointer focus-visible:ring-1 focus-visible:ring-rose-500 focus-visible:outline-none"
-                  title="Close Terminal"
-                >
-                  <X size={10} />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex-1 my-3 rounded border border-graphite-light overflow-hidden bg-black relative flex items-center justify-center">
-              <video
-                ref={portalVideoRef}
-                src={activeGame.videoSrc}
-                loop
-                muted={isPortalMuted}
-                playsInline
-                className="w-full h-full object-cover filter brightness-[1.15] contrast-[1.1] saturate-[1.2]"
-              />
-              <div className="absolute bottom-3 left-3 bg-black/60 px-2 py-1 border border-white/10 rounded text-[7px] font-silkscreen text-bright-snow">
-                SYSTEM STATUS: ACTIVE [{isPortalMuted ? 'AUDIO MUTED' : 'AUDIO ON'}]
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-[7px] font-silkscreen text-alabaster-grey/40 z-10 border-t border-slate-violet/20 pt-2 uppercase">
-              <span>DASI PORTAL DECODER v1.0</span>
-              <span>TAP ESC OR X IN CORNER TO EXIT CHANNEL</span>
-            </div>
+            {variant === 'D' && (
+              <button
+                onClick={() => {
+                  setIsInlineMuted(false);
+                  setShowVideoInline(true);
+                }}
+                className="mt-2.5 group flex items-center justify-center gap-2 px-3 py-1.5 w-fit border border-slate-violet/40 hover:border-slate-violet-light bg-black/60 hover:bg-slate-violet/20 rounded-md text-center cursor-pointer pointer-events-auto transition-all focus-visible:ring-2 focus-visible:ring-slate-violet-light focus-visible:outline-none text-[9px] font-silkscreen tracking-widest text-bright-snow font-bold"
+              >
+                <Play size={10} className="fill-current text-slate-violet-light group-hover:scale-110 transition-transform" />
+                PLAY GAMEPLAY
+              </button>
+            )}
           </div>
-        )}
+
+          {/* STATE 2: Inline morphing video player card */}
+          {variant === 'D' && (
+            <div 
+              className={`transition-all duration-500 ease-in-out origin-bottom-left ${
+                showVideoInline 
+                  ? 'opacity-100 scale-100 pointer-events-auto' 
+                  : 'opacity-0 scale-90 translate-y-4 pointer-events-none select-none h-0 overflow-hidden'
+              }`}
+            >
+              <div className="relative w-full max-w-[360px] aspect-video bg-carbon-black-2/95 border border-slate-violet/50 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(120,119,198,0.3)] p-2.5 flex flex-col gap-2">
+                {/* Mini Header */}
+                <div className="flex items-center justify-between border-b border-slate-violet/20 pb-1.5">
+                  <span className="text-[7px] font-silkscreen text-slate-violet-light tracking-widest uppercase flex items-center gap-1 select-none">
+                    <span className="w-1 h-1 rounded-full bg-slate-violet-light animate-ping" />
+                    INLINE PREVIEW: {activeGame.title}
+                  </span>
+                  
+                  <div className="flex items-center gap-1.5">
+                    {/* Mute/Unmute */}
+                    <button
+                      onClick={() => setIsInlineMuted(!isInlineMuted)}
+                      className="p-1 bg-graphite hover:bg-slate-800 border border-graphite-light rounded text-alabaster-grey hover:text-bright-snow transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-violet-light focus-visible:outline-none"
+                      title={isInlineMuted ? "Unmute Audio" : "Mute Audio"}
+                    >
+                      {isInlineMuted ? <VolumeX size={8} /> : <Volume2 size={8} className="text-slate-violet-light animate-pulse" />}
+                    </button>
+                    {/* Back to details */}
+                    <button
+                      onClick={() => setShowVideoInline(false)}
+                      className="px-1.5 py-0.5 bg-graphite hover:bg-slate-800 border border-graphite-light rounded text-[7px] font-silkscreen text-alabaster-grey hover:text-bright-snow transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-violet-light focus-visible:outline-none uppercase font-bold"
+                    >
+                      Show Details
+                    </button>
+                  </div>
+                </div>
+
+                {/* Inline video display */}
+                <div className="flex-1 rounded border border-graphite-light overflow-hidden bg-black relative">
+                  <video
+                    ref={inlineVideoRef}
+                    src={activeGame.videoSrc}
+                    loop
+                    muted={isInlineMuted}
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
 
       {/* Specs Footer & Dot Navigation */}
@@ -1150,6 +1154,72 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'A' | 'B' }) {
           ))}
         </div>
       </div>
+
+      {/* Cinematic Modal Overlay for Variation C */}
+      {variant === 'C' && isModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Gameplay Preview - ${activeGame.title}`}
+        >
+          {/* CRT Scanline & Screen Effects */}
+          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,6px_100%] opacity-40 z-20 animate-crt-flicker" />
+          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)] opacity-85 z-20" />
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-slate-violet/5 to-transparent h-[10%] w-full z-20 animate-crt-scanlines" />
+
+          {/* Modal Container with Glowing Frame */}
+          <div className="relative w-full max-w-2xl aspect-video bg-carbon-black border border-slate-violet/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(120,119,198,0.4)] z-30 flex flex-col justify-between p-4 pointer-events-auto">
+            
+            {/* Top Bar inside Modal */}
+            <div className="flex items-center justify-between border-b border-slate-violet/20 pb-2 mb-2">
+              <span className="text-[9px] font-silkscreen text-slate-violet-light tracking-widest uppercase flex items-center gap-1.5 select-none">
+                <Cpu size={12} className="text-slate-violet-light animate-spin" />
+                CINEMATIC PREVIEW: {activeGame.title}
+              </span>
+              
+              <div className="flex items-center gap-2">
+                {/* Mute/Unmute */}
+                <button
+                  onClick={() => setIsModalMuted(!isModalMuted)}
+                  className="p-1.5 bg-graphite hover:bg-slate-800 border border-graphite-light rounded text-alabaster-grey hover:text-bright-snow transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-violet-light focus-visible:outline-none"
+                  title={isModalMuted ? "Unmute Audio" : "Mute Audio"}
+                >
+                  {isModalMuted ? <VolumeX size={12} /> : <Volume2 size={12} className="text-slate-violet-light" />}
+                </button>
+                {/* Close */}
+                <button
+                  ref={closeBtnRef}
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-1.5 bg-graphite hover:bg-rose-950/30 border border-graphite-light hover:border-rose-500/30 rounded text-alabaster-grey hover:text-rose-400 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                  title="Close Preview"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            </div>
+
+            {/* Video Content */}
+            <div className="flex-1 rounded border border-graphite-light overflow-hidden bg-black relative">
+              <video
+                ref={modalVideoRef}
+                src={activeGame.videoSrc}
+                loop
+                muted={isModalMuted}
+                playsInline
+                className="w-full h-full object-cover filter brightness-[1.05] contrast-[1.05]"
+              />
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between text-[8px] font-silkscreen text-alabaster-grey/40 mt-2 uppercase select-none">
+              <span>{activeGame.subtitle}</span>
+              <span>PRESS ESC OR CLICK X TO CLOSE</span>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1158,42 +1228,42 @@ function ShowcaseSandbox() {
   return (
     <div className="flex flex-col gap-12 max-w-6xl w-full">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* ================= VARIATION A: CINEMATIC SPLIT-PANE ================= */}
+        {/* ================= VARIATION C: CINEMATIC OVERLAY MODAL ================= */}
         <div className="bg-carbon-black-2 border border-graphite-light rounded-2xl p-6 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
           <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-slate-violet/10 border border-slate-violet/20 px-2 py-0.5 rounded text-[8px] font-silkscreen text-slate-violet-light uppercase tracking-wider font-bold">
-            <Sparkles size={8} /> Variation A
+            <Sparkles size={8} /> Variation C
           </div>
 
           <div>
             <h3 className="text-lg font-bold font-russo-one tracking-wide text-bright-snow uppercase">
-              Cinematic Split-Pane
+              Cinematic Overlay Modal
             </h3>
             <p className="text-xs text-alabaster-grey/70 mt-1 leading-relaxed font-outfit">
-              Floating glassmorphic loop preview card sits next to the description panel. Ideal for passive engagement.
+              Renders a play button next to details. Clicking triggers a centered modal overlay with scanlines, unmuted gameplay, and keyboard close.
             </p>
           </div>
 
           {/* Slider Layout */}
-          <WebGLFeaturedSliderSandbox variant="A" />
+          <WebGLFeaturedSliderSandbox variant="C" />
         </div>
 
-        {/* ================= VARIATION B: ARCADE PORTAL VENT ================= */}
+        {/* ================= VARIATION D: INLINE MORPHING VIDEO PLAYER ================= */}
         <div className="bg-carbon-black-2 border border-graphite-light rounded-2xl p-6 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
           <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-muted-green/10 border border-muted-green/20 px-2 py-0.5 rounded text-[8px] font-silkscreen text-muted-green-light uppercase tracking-wider font-bold">
-            <Monitor size={8} /> Variation B
+            <Monitor size={8} /> Variation D
           </div>
 
           <div>
             <h3 className="text-lg font-bold font-russo-one tracking-wide text-bright-snow uppercase">
-              Arcade Terminal Portal
+              Inline Morphing Player
             </h3>
             <p className="text-xs text-alabaster-grey/70 mt-1 leading-relaxed font-outfit">
-              Displays a prominent "Boot Gameplay" console prompt on slide. Hovering/clicking launches an immersive CRT terminal.
+              Displays a play button. Clicking fades description details and smoothly morphs/scales an inline video player in its place.
             </p>
           </div>
 
           {/* Slider Layout */}
-          <WebGLFeaturedSliderSandbox variant="B" />
+          <WebGLFeaturedSliderSandbox variant="D" />
         </div>
       </div>
     </div>

@@ -394,7 +394,10 @@ export default function Hero() {
     });
 
     carriedLetters.current = [];
-    setCollectedCount(0);
+    // Delay closing the release box and stopping the fan by 900ms to let the wind finish blowing
+    setTimeout(() => {
+      setCollectedCount(0);
+    }, 900);
   };
 
   const handleLetTalkClick = () => {
