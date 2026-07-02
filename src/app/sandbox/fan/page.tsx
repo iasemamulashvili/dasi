@@ -1224,6 +1224,249 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'C' | 'D' }) {
   );
 }
 
+// --- Sword Navigation Cursor Sandbox Component ---
+interface Spark {
+  id: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  color: string;
+  size: number;
+  opacity: number;
+}
+
+interface NavSlash {
+  id: number;
+  linkIdx: number;
+  clientX: number;
+  clientY: number;
+}
+
+function SwordCursorSandbox() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isHoveringNav, setIsHoveringNav] = useState(false);
+  const [isSlashing, setIsSlashing] = useState(false);
+  const [activeLink, setActiveLink] = useState('GAMES');
+  const [slashedIdx, setSlashedIdx] = useState<number | null>(null);
+  const [slashes, setSlashes] = useState<NavSlash[]>([]);
+  const [sparks, setSparks] = useState<Spark[]>([]);
+
+  const navItems = ['HOME', 'GAMES', 'ABOUT', 'CAREERS', 'CONTACT'];
+
+  // Handle cursor movement inside container
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  };
+
+  // Spark physics particle loop
+  useEffect(() => {
+    if (sparks.length === 0) return;
+
+    let animationId: number;
+
+    const updateSparks = () => {
+      setSparks((prevSparks) =>
+        prevSparks
+          .map((spark) => ({
+            ...spark,
+            x: spark.x + spark.vx,
+            y: spark.y + spark.vy,
+            vy: spark.vy + 0.15, // gravity
+            opacity: spark.opacity - 0.03,
+          }))
+          .filter((spark) => spark.opacity > 0)
+      );
+      animationId = requestAnimationFrame(updateSparks);
+    };
+
+    updateSparks();
+    return () => cancelAnimationFrame(animationId);
+  }, [sparks.length]);
+
+  // Click handler to trigger the slice effect
+  const handleNavLinkClick = (idx: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsSlashing(true);
+    setSlashedIdx(idx);
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    // Trigger sword swing recoil reset
+    setTimeout(() => setIsSlashing(false), 150);
+    setTimeout(() => setSlashedIdx(null), 400);
+
+    // Spawn slice line
+    const newSlash: NavSlash = {
+      id: Date.now(),
+      linkIdx: idx,
+      clientX: e.clientX,
+      clientY: e.clientY
+    };
+    setSlashes((prev) => [...prev, newSlash]);
+    setTimeout(() => {
+      setSlashes((prev) => prev.filter((s) => s.id !== newSlash.id));
+    }, 450);
+
+    // Spawn sparks explosion at click coordinate
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    if (containerRect) {
+      const localX = e.clientX - containerRect.left;
+      const localY = e.clientY - containerRect.top;
+
+      const newSparks: Spark[] = Array.from({ length: 12 }).map((_, i) => {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 2 + Math.random() * 4;
+        return {
+          id: Date.now() + i,
+          x: localX,
+          y: localY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 1, // slight upward launch bias
+          color: Math.random() > 0.5 ? 'oklch(0.61 0.025 285.0)' : 'oklch(0.91 0.01 240.0)', // violet or platinum
+          size: 2 + Math.random() * 3,
+          opacity: 1
+        };
+      });
+      setSparks((prev) => [...prev, ...newSparks]);
+    }
+
+    setActiveLink(navItems[idx]);
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHoveringNav(true)}
+      onMouseLeave={() => setIsHoveringNav(false)}
+      className="relative w-full h-[360px] bg-carbon-black border border-graphite-light rounded-2xl flex flex-col items-center justify-center overflow-hidden shadow-2xl group select-none cursor-default"
+    >
+      {/* Custom cursor none only on links hover to feel premium */}
+      <style>{`
+        .sword-target-link {
+          cursor: none !important;
+        }
+        @keyframes slashImpact {
+          0% { transform: skewX(0deg) scale(1); }
+          15% { transform: skewX(-12deg) scale(0.96) translateY(2px); filter: brightness(1.2); }
+          30% { transform: skewX(8deg) scale(1.02) translateY(-1px); }
+          50% { transform: skewX(-4deg) scale(0.99); }
+          100% { transform: skewX(0deg) scale(1); }
+        }
+        .animate-slash-impact {
+          animation: slashImpact 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.15) forwards;
+        }
+      `}</style>
+
+      {/* Floating Sparks Canvas/Layer */}
+      {sparks.map((spark) => (
+        <div
+          key={spark.id}
+          className="absolute rounded-full pointer-events-none z-30"
+          style={{
+            left: `${spark.x}px`,
+            top: `${spark.y}px`,
+            width: `${spark.size}px`,
+            height: `${spark.size}px`,
+            backgroundColor: spark.color,
+            opacity: spark.opacity,
+            boxShadow: `0 0 6px ${spark.color}`,
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+      ))}
+
+      {/* Mock Navigation Header Frame */}
+      <div className="flex flex-col items-center gap-6 z-10">
+        <span className="text-[8px] font-silkscreen text-slate-violet-light tracking-widest uppercase">
+          [ STRIKE TO NAVIGATE SYSTEM CHANNELS ]
+        </span>
+
+        <nav className="flex items-center gap-8 bg-carbon-black-2/80 backdrop-blur border border-graphite-light/60 px-8 py-4 rounded-xl shadow-xl relative">
+          {navItems.map((item, idx) => {
+            const isSlashed = slashedIdx === idx;
+            return (
+              <a
+                key={item}
+                href="#"
+                onClick={(e) => handleNavLinkClick(idx, e)}
+                className={`sword-target-link relative text-xs font-silkscreen tracking-widest text-alabaster-grey/70 hover:text-bright-snow transition-colors select-none py-1 px-2 ${
+                  isSlashed ? 'animate-slash-impact' : ''
+                }`}
+              >
+                {/* Text representation */}
+                <span className={activeLink === item ? 'text-slate-violet-light font-bold' : ''}>
+                  {item}
+                </span>
+
+                {/* Slash strike neon line overlay */}
+                {slashes.map((s) => {
+                  if (s.linkIdx !== idx) return null;
+                  return (
+                    <div
+                      key={s.id}
+                      className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] bg-bright-snow border-t border-slate-violet-light shadow-[0_0_12px_rgba(168,85,247,0.8)] pointer-events-none z-20 origin-left"
+                      style={{
+                        transform: 'rotate(-12deg) scaleX(1.15)',
+                        animation: 'fadeIn 0.4s ease-out forwards',
+                      }}
+                    />
+                  );
+                })}
+              </a>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Custom Sword Cursor (Tracks Mouse) */}
+      {isHoveringNav && (
+        <div
+          className="pointer-events-none fixed z-50 select-none filter drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]"
+          style={{
+            left: `${mousePos.x}px`,
+            top: `${mousePos.y}px`,
+            transform: `translate(-12px, -36px) rotate(${isSlashing ? '45deg' : '-35deg'})`,
+            transformOrigin: '12px 36px',
+            transition: 'transform 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
+          }}
+        >
+          {/* Detailed glowing sword SVG */}
+          <svg width="48" height="48" viewBox="0 0 64 64" fill="none">
+            {/* Glowing Edge/Aura */}
+            <path
+              d="M12 12 L44 44"
+              stroke="oklch(0.61 0.025 285.0)"
+              strokeWidth="6"
+              strokeLinecap="round"
+              className="opacity-50"
+            />
+            {/* Blade body */}
+            <path d="M12 12 L44 44" stroke="#f8fafc" strokeWidth="3" strokeLinecap="round" />
+            {/* Inner blade steel core */}
+            <path d="M14 14 L42 42" stroke="#a78bfa" strokeWidth="1" strokeLinecap="round" />
+            {/* Hilt Crossguard */}
+            <path d="M40 48 L48 40" stroke="#fbbf24" strokeWidth="3.5" strokeLinecap="round" />
+            {/* Handle wrap */}
+            <path d="M44 44 L53 53" stroke="#78350f" strokeWidth="4" strokeLinecap="round" />
+            {/* Gold pommel gemstone */}
+            <circle cx="54" cy="54" r="2.5" fill="#f59e0b" />
+          </svg>
+        </div>
+      )}
+
+      {/* Floating Instructions */}
+      <div className="absolute bottom-4 text-[7px] font-silkscreen text-alabaster-grey/40 uppercase tracking-widest">
+        ACTIVE CHANNEL: [ {activeLink} ] // SLICING IS ENGAGED OVER NAVIGATION LINKS
+      </div>
+    </div>
+  );
+}
+
 function ShowcaseSandbox() {
   return (
     <div className="flex flex-col gap-12 max-w-6xl w-full">
@@ -1271,13 +1514,13 @@ function ShowcaseSandbox() {
 }
 
 export default function FanSandboxPage() {
-  const [activeTab, setActiveTab] = useState<'fans' | 'showcase'>('fans');
+  const [activeTab, setActiveTab] = useState<'fans' | 'showcase' | 'cursor'>('fans');
 
   return (
     <main className="min-h-screen w-full bg-carbon-black text-bright-snow flex flex-col items-center py-20 px-6 font-sans">
       <div className="max-w-6xl w-full flex flex-col gap-6">
         {/* Toggle Mode Selector */}
-        <div className="flex bg-carbon-black-2 border border-graphite-light p-1 rounded-2xl w-max self-start shadow-xl">
+        <div className="flex flex-wrap bg-carbon-black-2 border border-graphite-light p-1 rounded-2xl w-max gap-1 self-start shadow-xl">
           <button
             onClick={() => setActiveTab('fans')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-silkscreen tracking-wider font-semibold transition-all cursor-pointer ${
@@ -1287,7 +1530,7 @@ export default function FanSandboxPage() {
             }`}
           >
             <Cpu size={14} />
-            FAN MODELS SANDBOX
+            FAN MODELS
           </button>
           <button
             onClick={() => setActiveTab('showcase')}
@@ -1298,19 +1541,37 @@ export default function FanSandboxPage() {
             }`}
           >
             <Monitor size={14} />
-            SHOWCASE VIDEO VARIATIONS
+            SHOWCASE VIDEOS
+          </button>
+          <button
+            onClick={() => setActiveTab('cursor')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-silkscreen tracking-wider font-semibold transition-all cursor-pointer ${
+              activeTab === 'cursor'
+                ? 'bg-graphite text-bright-snow'
+                : 'text-alabaster-grey/60 hover:text-bright-snow'
+            }`}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-0.5">
+              <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" />
+              <line x1="13" y1="19" x2="19" y2="13" />
+              <line x1="16" y1="16" x2="20" y2="20" />
+              <line x1="19" y1="21" x2="21" y2="19" />
+            </svg>
+            SWORD CURSOR NAV
           </button>
         </div>
 
         {/* Tab Header */}
         <div className="border-b border-graphite-light pb-6 mb-4">
           <h1 className="text-4xl font-bold tracking-wider text-bright-snow font-russo-one uppercase">
-            {activeTab === 'fans' ? 'Fan Model Testing Ground' : 'Spotlight Showcase Video Variations'}
+            {activeTab === 'fans' && 'Fan Model Testing Ground'}
+            {activeTab === 'showcase' && 'Spotlight Showcase Video Variations'}
+            {activeTab === 'cursor' && 'Gamified Sword Nav Cursor'}
           </h1>
           <p className="text-sm text-alabaster-grey mt-2 max-w-3xl leading-relaxed font-outfit">
-            {activeTab === 'fans'
-              ? 'Compare six completely stand-less fan designs below. All options are designed to sit flush within the release box and feature the contained Speed Lines breeze effect.'
-              : 'Interact with two different user experience models designed to resolve the gameplay video playback issue on the Spotlight displacement slider.'}
+            {activeTab === 'fans' && 'Compare six completely stand-less fan designs below. All options are designed to sit flush within the release box and feature the contained Speed Lines breeze effect.'}
+            {activeTab === 'showcase' && 'Interact with two different user experience models designed to resolve the gameplay video playback issue on the Spotlight displacement slider.'}
+            {activeTab === 'cursor' && 'Hover over the navigation links below to transform your cursor into a glowing blade. Click a link to slash it, creating an impact distortion and a particle spark burst.'}
           </p>
         </div>
 
@@ -1370,6 +1631,9 @@ export default function FanSandboxPage() {
 
         {/* Tab 2: Showcase Variations */}
         {activeTab === 'showcase' && <ShowcaseSandbox />}
+
+        {/* Tab 3: Custom Sword Cursor */}
+        {activeTab === 'cursor' && <SwordCursorSandbox />}
       </div>
     </main>
   );
