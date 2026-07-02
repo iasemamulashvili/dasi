@@ -219,6 +219,10 @@ export default function Hero() {
       const rect = parent.getBoundingClientRect();
       const stackIdx = carriedLetters.current.length - 1;
 
+      // Kill any active returning/release animations on the letter and its placeholder
+      gsap.killTweensOf(letter);
+      gsap.killTweensOf(`.letter-placeholder-${index}`);
+
       // Update mousePos to the tapped letter's center if it hasn't been set yet
       if (mousePos.current.x === 0 && mousePos.current.y === 0) {
         mousePos.current = { x: rect.left + rect.width / 2, y: rect.top - 120 };
@@ -293,6 +297,10 @@ export default function Hero() {
         if (dist < 45) {
           carriedLetters.current.push(index);
           setCollectedCount(carriedLetters.current.length);
+
+          // Kill any active returning/release animations on the letter and its placeholder
+          gsap.killTweensOf(letter);
+          gsap.killTweensOf(`.letter-placeholder-${index}`);
 
           // Update target immediately on collection
           const stackIdx = carriedLetters.current.length - 1;

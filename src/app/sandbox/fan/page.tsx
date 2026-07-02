@@ -540,46 +540,623 @@ const sandboxGames: SandboxGame[] = [
   }
 ];
 
-function ShowcaseSandbox() {
-  const [activeGameIndex, setActiveGameIndex] = useState(0);
-  const activeGame = sandboxGames[activeGameIndex];
+function WebGLFeaturedSliderSandbox({ variant }: { variant: 'A' | 'B' }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const customCursorRef = useRef<HTMLDivElement>(null);
+  
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [cursorHovered, setCursorHovered] = useState(false);
+  const [webglSupported, setWebglSupported] = useState(true);
+  
+  const transitionRef = useRef({ active: false });
+  const activeIndexRef = useRef(0);
+  
+  // Fallback CSS fade system state
+  const [prevIndex, setPrevIndex] = useState(0);
+  const [fadeProgress, setFadeProgress] = useState(0);
 
-  // Sound state for Variation A
+  // WebGL Context References
+  const glRef = useRef<WebGLRenderingContext | null>(null);
+  const programRef = useRef<WebGLProgram | null>(null);
+  const texturesRef = useRef<WebGLTexture[]>([]);
+  const uProgressLocRef = useRef<WebGLUniformLocation | null>(null);
+  const uCanvasSizeLocRef = useRef<WebGLUniformLocation | null>(null);
+  const uTexture1LocRef = useRef<WebGLUniformLocation | null>(null);
+  const uTexture2LocRef = useRef<WebGLUniformLocation | null>(null);
+
+  // Variation A - Sound state
   const [isMutedA, setIsMutedA] = useState(true);
 
-  // Portal State for Variation B
+  // Variation B - Portal state
   const [isPortalOpen, setIsPortalOpen] = useState(false);
+  const [isPortalMuted, setIsPortalMuted] = useState(false);
   const portalVideoRef = useRef<HTMLVideoElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
 
-  // Trigger sound logic on Variation B portal
+  // Update activeIndexRef on change
+  useEffect(() => {
+    activeIndexRef.current = activeIndex;
+  }, [activeIndex]);
+
+  // Setup WebGL engine once on mount
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl') as WebGLRenderingContext;
+    if (!gl) {
+      console.warn("WebGL not supported in this browser, using CSS displacement fallback.");
+      setWebglSupported(false);
+      setLoading(false);
+      return;
+    }
+    glRef.current = gl;
+
+    // Shader Source Code
+    const vsSource = `
+      attribute vec2 position;
+      varying vec2 v_texCoord;
+      void main() {
+        v_texCoord = position * 0.5 + 0.5;
+        v_texCoord.y = 1.0 - v_texCoord.y; // Flip coordinates
+        gl_Position = vec4(position, 0.0, 1.0);
+      }
+    `;
+
+    const fsSource = `
+      precision mediump float;
+      varying vec2 v_texCoord;
+      uniform sampler2D u_texture1;
+      uniform sampler2D u_texture2;
+      uniform float u_progress;
+      uniform vec2 u_canvasSize;
+
+      // Cover scaling helper
+      vec2 getCoverUV(vec2 uv, vec2 canvasSize, vec2 imgSize) {
+        float cRatio = canvasSize.x / canvasSize.y;
+        float iRatio = imgSize.x / imgSize.y;
+        vec2 scale = vec2(1.0);
+        if (cRatio > iRatio) {
+          scale.y = iRatio / cRatio;
+        } else {
+          scale.x = cRatio / iRatio;
+        }
+        return (uv - 0.5) * scale + 0.5;
+      }
+
+      // Procedural noise for displacement map
+      float rand(vec2 co) {
+        return fract(sin(dot(co, vec2(12.71, 31.17))) * 43758.5453);
+      }
+
+      float noise(vec2 p) {
+        vec2 ip = floor(p);
+        vec2 fp = fract(p);
+        vec2 u = fp * fp * (3.0 - 2.0 * fp);
+        return mix(
+          mix(rand(ip), rand(ip + vec2(1.0, 0.0)), u.x),
+          mix(rand(ip + vec2(0.0, 1.0)), rand(ip + vec2(1.0, 1.0)), u.x),
+          u.y
+        );
+      }
+
+      void main() {
+        vec2 uv = v_texCoord;
+        vec2 canvasRatio = u_canvasSize;
+        vec2 imageRatio = vec2(1920.0, 1080.0); // Widescreen baseline
+        
+        vec2 uv1 = getCoverUV(uv, canvasRatio, imageRatio);
+        vec2 uv2 = getCoverUV(uv, canvasRatio, imageRatio);
+
+        // Dynamic wave liquid morph factor
+        float waveNoise = noise(uv * 12.0 + vec2(u_progress * 2.0, u_progress * 1.5)) * 0.1;
+        
+        // Displace lookups in opposite vectors based on transition step
+        vec2 dist1 = uv1 + vec2(waveNoise * u_progress, waveNoise * u_progress);
+        vec2 dist2 = uv2 - vec2(waveNoise * (1.0 - u_progress), waveNoise * (1.0 - u_progress));
+
+        vec4 col1 = texture2D(u_texture1, dist1);
+        vec4 col2 = texture2D(u_texture2, dist2);
+
+        gl_FragColor = mix(col1, col2, u_progress);
+      }
+    `;
+
+    // Compile Vertex Shader
+    const vs = gl.createShader(gl.VERTEX_SHADER);
+    if (!vs) return;
+    gl.shaderSource(vs, vsSource);
+    gl.compileShader(vs);
+    if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+      console.error(gl.getShaderInfoLog(vs));
+      setWebglSupported(false);
+      setLoading(false);
+      return;
+    }
+
+    // Compile Fragment Shader
+    const fs = gl.createShader(gl.FRAGMENT_SHADER);
+    if (!fs) return;
+    gl.shaderSource(fs, fsSource);
+    gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+      console.error(gl.getShaderInfoLog(fs));
+      setWebglSupported(false);
+      setLoading(false);
+      return;
+    }
+
+    // Create & link Program
+    const program = gl.createProgram();
+    if (!program) return;
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error(gl.getProgramInfoLog(program));
+      setWebglSupported(false);
+      setLoading(false);
+      return;
+    }
+    gl.useProgram(program);
+    programRef.current = program;
+
+    // Geometry vertices (Quad covering screen)
+    const vertices = new Float32Array([
+      -1, -1,
+       1, -1,
+      -1,  1,
+      -1,  1,
+       1, -1,
+       1,  1,
+    ]);
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+    const positionAttr = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(positionAttr);
+    gl.vertexAttribPointer(positionAttr, 2, gl.FLOAT, false, 0, 0);
+
+    // Cache Uniform locations
+    uProgressLocRef.current = gl.getUniformLocation(program, 'u_progress');
+    uCanvasSizeLocRef.current = gl.getUniformLocation(program, 'u_canvasSize');
+    uTexture1LocRef.current = gl.getUniformLocation(program, 'u_texture1');
+    uTexture2LocRef.current = gl.getUniformLocation(program, 'u_texture2');
+
+    // Load textures
+    const imageUrls = sandboxGames.map(g => g.image);
+    let loadedCount = 0;
+    const loadedImages: HTMLImageElement[] = [];
+
+    const handleLoadedImages = (imgs: HTMLImageElement[]) => {
+      texturesRef.current = imgs.map((img) => {
+        const tex = gl.createTexture();
+        if (!tex) throw new Error("Failed texture allocation");
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        return tex;
+      });
+
+      setLoading(false);
+      drawWebGL(0, 0, 0);
+    };
+
+    imageUrls.forEach((url, i) => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => {
+        loadedImages[i] = img;
+        loadedCount++;
+        if (loadedCount === imageUrls.length) {
+          handleLoadedImages(loadedImages);
+        }
+      };
+      img.onerror = () => {
+        const canvasFallback = document.createElement('canvas');
+        canvasFallback.width = 512;
+        canvasFallback.height = 512;
+        const fallbackCtx = canvasFallback.getContext('2d');
+        if (fallbackCtx) {
+          const g = fallbackCtx.createLinearGradient(0, 0, 512, 512);
+          if (i === 0) { g.addColorStop(0, '#f1c40f'); g.addColorStop(1, '#e05a36'); }
+          else if (i === 1) { g.addColorStop(0, '#2ecc71'); g.addColorStop(1, '#27ae60'); }
+          else { g.addColorStop(0, '#3498db'); g.addColorStop(1, '#9b59b6'); }
+          fallbackCtx.fillStyle = g;
+          fallbackCtx.fillRect(0, 0, 512, 512);
+        }
+        const fallbackImg = new Image();
+        fallbackImg.src = canvasFallback.toDataURL();
+        fallbackImg.onload = () => {
+          loadedImages[i] = fallbackImg;
+          loadedCount++;
+          if (loadedCount === imageUrls.length) {
+            handleLoadedImages(loadedImages);
+          }
+        };
+      };
+    });
+
+    const resizeCanvas = () => {
+      if (!canvas.parentElement) return;
+      canvas.width = canvas.parentElement.offsetWidth;
+      canvas.height = canvas.parentElement.offsetHeight;
+      drawWebGL(activeIndexRef.current, activeIndexRef.current, 0);
+    };
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+    };
+  }, []);
+
+  const drawWebGL = (currIdx: number, targetIdx: number, progress: number) => {
+    const gl = glRef.current;
+    const program = programRef.current;
+    const textures = texturesRef.current;
+    const canvas = canvasRef.current;
+
+    if (!gl || !program || textures.length === 0 || !canvas) return;
+
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.useProgram(program);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, textures[currIdx]);
+    if (uTexture1LocRef.current) gl.uniform1i(uTexture1LocRef.current, 0);
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, textures[targetIdx]);
+    if (uTexture2LocRef.current) gl.uniform1i(uTexture2LocRef.current, 1);
+
+    if (uProgressLocRef.current) gl.uniform1f(uProgressLocRef.current, progress);
+    if (uCanvasSizeLocRef.current) gl.uniform2f(uCanvasSizeLocRef.current, canvas.width, canvas.height);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  };
+
+  const transitionTo = (targetIdx: number) => {
+    if (targetIdx === activeIndexRef.current || transitionRef.current.active) return;
+    transitionRef.current.active = true;
+
+    const currentIdx = activeIndexRef.current;
+    setPrevIndex(currentIdx);
+    setActiveIndex(targetIdx);
+    
+    // Auto-close portal on slide transition for Variation B
+    if (variant === 'B') {
+      setIsPortalOpen(false);
+    }
+
+    const animationObj = { progress: 0 };
+
+    gsap.to(animationObj, {
+      progress: 1,
+      duration: 1.3,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        setFadeProgress(animationObj.progress);
+        if (webglSupported) {
+          drawWebGL(currentIdx, targetIdx, animationObj.progress);
+        }
+      },
+      onComplete: () => {
+        transitionRef.current.active = false;
+        setPrevIndex(targetIdx);
+        setFadeProgress(0);
+        if (webglSupported) {
+          drawWebGL(targetIdx, targetIdx, 0);
+        }
+      }
+    });
+
+    const container = sliderRef.current;
+    if (container) {
+      gsap.fromTo(
+        container.querySelectorAll('.slider-hud-element'),
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.08, delay: 0.1 }
+      );
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    if (customCursorRef.current) {
+      customCursorRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+    }
+  };
+
+  // Keyboard and Focus Management for Variation B Portal
+  useEffect(() => {
+    if (isPortalOpen) {
+      closeBtnRef.current?.focus();
+      
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          setIsPortalOpen(false);
+        }
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isPortalOpen]);
+
+  // Video Autoplay Trigger for Variation B
   useEffect(() => {
     if (isPortalOpen && portalVideoRef.current) {
       portalVideoRef.current.play().catch(e => console.log("Autoplay blocked", e));
     }
-  }, [isPortalOpen]);
+  }, [isPortalOpen, activeIndex]);
+
+  const activeGame = sandboxGames[activeIndex];
 
   return (
-    <div className="flex flex-col gap-12 max-w-6xl w-full">
-      {/* Selector of Active Game */}
-      <div className="flex bg-carbon-black-2 border border-graphite-light p-1.5 rounded-2xl w-max gap-2 self-center shadow-lg">
-        {sandboxGames.map((g, idx) => (
-          <button
-            key={g.id}
-            onClick={() => {
-              setActiveGameIndex(idx);
-              setIsPortalOpen(false);
+    <div 
+      ref={sliderRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setCursorHovered(true)}
+      onMouseLeave={() => setCursorHovered(false)}
+      className="relative w-full h-[450px] bg-carbon-black border border-graphite-light rounded-xl overflow-hidden flex flex-col justify-end p-5 md:p-6 cursor-none select-none slider-glow"
+    >
+      <style>{`
+        @keyframes crt-flicker {
+          0% { opacity: 0.98; }
+          50% { opacity: 1; }
+          100% { opacity: 0.99; }
+        }
+        @keyframes crt-scanlines {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100%); }
+        }
+        @keyframes pulse-glow {
+          0% { box-shadow: 0 0 5px rgba(120, 119, 198, 0.4); }
+          50% { box-shadow: 0 0 15px rgba(120, 119, 198, 0.8); }
+          100% { box-shadow: 0 0 5px rgba(120, 119, 198, 0.4); }
+        }
+        .animate-crt-flicker {
+          animation: crt-flicker 0.15s infinite;
+        }
+        .animate-crt-scanlines {
+          animation: crt-scanlines 6s linear infinite;
+        }
+        .animate-pulse-glow {
+          animation: pulse-glow 2s infinite ease-in-out;
+        }
+      `}</style>
+
+      {/* Loading Spinner */}
+      {loading && (
+        <div className="absolute inset-0 bg-[#181818] z-50 flex flex-col items-center justify-center gap-2">
+          <span className="w-6 h-6 rounded-full border-2 border-graphite-light border-t-slate-violet-light animate-spin" />
+          <span className="text-[9px] font-silkscreen tracking-widest text-slate-violet-light animate-pulse">PRELOADING SHADERS & TEXTURES...</span>
+        </div>
+      )}
+
+      {/* WebGL Canvas or Image Fallback */}
+      {webglSupported ? (
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover" />
+      ) : (
+        <div className="absolute inset-0 w-full h-full">
+          <img 
+            src={sandboxGames[prevIndex].image} 
+            alt={sandboxGames[prevIndex].title}
+            className="absolute inset-0 w-full h-full object-cover" 
+            style={{ 
+              opacity: 1 - fadeProgress, 
+              filter: `blur(${fadeProgress * 10}px)`
+            }} 
+          />
+          <img 
+            src={sandboxGames[activeIndex].image} 
+            alt={sandboxGames[activeIndex].title}
+            className="absolute inset-0 w-full h-full object-cover" 
+            style={{ 
+              opacity: fadeProgress, 
+              filter: `blur(${(1 - fadeProgress) * 10}px)`
+            }} 
+          />
+        </div>
+      )}
+
+      {/* Dark Overlay Vignette */}
+      <div className="absolute inset-0 bg-gradient-to-t from-carbon-black via-carbon-black/40 to-carbon-black/45 z-10 pointer-events-none" />
+
+      {/* Custom Retro Magnetic Cursor Overlay */}
+      <div 
+        ref={customCursorRef}
+        className="absolute pointer-events-none z-40 hidden md:flex items-center justify-center"
+        style={{ 
+          top: 0,
+          left: 0,
+          opacity: cursorHovered ? 1 : 0,
+          transform: `translate3d(0px, 0px, 0) translate(-50%, -50%)`,
+          scale: cursorHovered ? '1' : '0.2',
+          transition: 'opacity 0.2s ease, scale 0.2s ease'
+        }}
+      >
+        <div className="relative w-12 h-12 flex items-center justify-center">
+          <div 
+            className="absolute inset-0 rounded-full border border-dashed animate-[spin_10s_linear_infinite]"
+            style={{ 
+              borderColor: 'var(--color-slate-violet-light)', 
+              boxShadow: `0 0 8px var(--color-slate-violet)44` 
             }}
-            className={`px-5 py-2.5 rounded-xl text-xs font-silkscreen tracking-wider font-semibold transition-all cursor-pointer ${
-              activeGameIndex === idx
-                ? 'bg-slate-violet text-bright-snow shadow-lg shadow-slate-violet/10'
-                : 'text-alabaster-grey/60 hover:text-bright-snow'
-            }`}
+          />
+          <div 
+            className="absolute w-6 h-6 rounded-full border border-double"
+            style={{ borderColor: 'var(--color-platinum-silver)' }}
+          />
+          <div className="absolute w-4 h-[1px] bg-slate-violet-light" />
+          <div className="absolute h-4 w-[1px] bg-slate-violet-light" />
+          <span 
+            className="absolute top-8 font-sans text-[6px] bg-carbon-black/90 px-1 border border-graphite-light rounded text-bright-snow tracking-widest whitespace-nowrap"
           >
-            {g.title.toUpperCase()}
-          </button>
-        ))}
+            LOCK: {activeGame.title.toUpperCase()}
+          </span>
+        </div>
       </div>
 
+      {/* Main Slide Layout Content */}
+      <div className="relative w-full h-full flex flex-col justify-between z-10 pt-4 pb-12">
+        {/* Title HUD Info (Left-aligned) */}
+        <div className="flex flex-col gap-1.5 max-w-[55%] pointer-events-none slider-hud-element">
+          <span className="text-[8px] font-silkscreen text-slate-violet-light uppercase tracking-widest leading-none">
+            {activeGame.subtitle}
+          </span>
+          <h4 className="text-xl font-bold font-russo-one tracking-wider text-bright-snow uppercase leading-tight">
+            {activeGame.title}
+          </h4>
+          <p className="text-[10px] text-alabaster-grey/70 leading-relaxed font-outfit max-h-[80px] overflow-hidden text-ellipsis">
+            {activeGame.description}
+          </p>
+        </div>
+
+        {/* VARIATION A: Floating Glassmorphic Loop Video Card */}
+        {variant === 'A' && (
+          <div className="absolute right-0 top-1/2 -translate-y-[60%] w-[38%] h-[68%] bg-carbon-black-2/80 backdrop-blur-md border border-graphite-light/60 rounded-xl overflow-hidden shadow-xl z-20 transition-all duration-300 hover:scale-[1.03] flex flex-col justify-end">
+            <video
+              key={activeGame.id}
+              src={activeGame.videoSrc}
+              autoPlay
+              loop
+              muted={isMutedA}
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+
+            {/* Mute/Unmute Audio Button */}
+            <button
+              onClick={() => setIsMutedA(!isMutedA)}
+              className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-black/80 rounded-md text-bright-snow backdrop-blur-md border border-white/10 transition-all z-30 cursor-pointer pointer-events-auto hover:scale-105 focus-visible:ring-1 focus-visible:ring-slate-violet-light focus-visible:outline-none"
+              title={isMutedA ? "Unmute Gameplay Audio" : "Mute Gameplay Audio"}
+            >
+              {isMutedA ? <VolumeX size={10} /> : <Volume2 size={10} className="text-slate-violet-light" />}
+            </button>
+
+            {/* Overlay HUD Tag */}
+            <div className="bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 pt-4 z-10 text-[7px] font-silkscreen text-platinum-silver tracking-widest flex items-center gap-1.5 uppercase select-none">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-violet animate-ping" />
+              LIVE PREVIEW
+            </div>
+          </div>
+        )}
+
+        {/* VARIATION B: Boot Gameplay Prompt overlay trigger */}
+        {variant === 'B' && (
+          <div className="absolute right-0 top-1/2 -translate-y-[60%] w-[38%] h-[68%] flex flex-col items-center justify-center gap-2 bg-carbon-black-2/30 backdrop-blur-[2px] border border-graphite-light/20 rounded-xl p-3">
+            <button
+              onClick={() => {
+                setIsPortalMuted(false);
+                setIsPortalOpen(true);
+              }}
+              className="group flex flex-col items-center justify-center gap-2 p-4 w-full h-full border border-dashed border-slate-violet/40 hover:border-slate-violet-light/80 rounded-lg text-center cursor-pointer pointer-events-auto bg-black/40 hover:bg-black/60 transition-all focus-visible:ring-1 focus-visible:ring-slate-violet-light focus-visible:outline-none animate-pulse-glow"
+            >
+              <Monitor size={20} className="text-slate-violet-light animate-pulse" />
+              <span className="text-[8px] font-silkscreen tracking-widest text-bright-snow font-bold">BOOT PREVIEW</span>
+              <ArrowRight size={10} className="text-slate-violet-light group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
+        )}
+
+        {/* VARIATION B: CRT Scanline Portal Screen Overlay */}
+        {variant === 'B' && isPortalOpen && (
+          <div 
+            className="absolute inset-0 bg-[#070709] z-30 p-4 flex flex-col justify-between border-2 border-slate-violet animate-fadeIn"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Arcade Portal - ${activeGame.title}`}
+          >
+            {/* CRT Effects */}
+            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,6px_100%] opacity-40 z-20 animate-crt-flicker" />
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)] opacity-85 z-20" />
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-slate-violet/5 to-transparent h-[10%] w-full z-20 animate-crt-scanlines" />
+
+            <div className="flex items-center justify-between border-b border-slate-violet/20 pb-2 z-10">
+              <span className="text-[8px] font-silkscreen text-slate-violet-light tracking-widest uppercase flex items-center gap-1.5">
+                <Cpu size={10} className="text-slate-violet-light animate-spin" />
+                STREAMING LINK PORTAL: {activeGame.title}
+              </span>
+              
+              <div className="flex items-center gap-2 pointer-events-auto">
+                <button
+                  onClick={() => setIsPortalMuted(!isPortalMuted)}
+                  className="p-1 bg-graphite hover:bg-slate-800 border border-graphite-light rounded text-alabaster-grey hover:text-bright-snow transition-all cursor-pointer focus-visible:ring-1 focus-visible:ring-slate-violet-light focus-visible:outline-none"
+                  title={isPortalMuted ? "Unmute Audio" : "Mute Audio"}
+                >
+                  {isPortalMuted ? <VolumeX size={10} /> : <Volume2 size={10} className="text-slate-violet-light" />}
+                </button>
+                <button
+                  ref={closeBtnRef}
+                  onClick={() => setIsPortalOpen(false)}
+                  className="p-1 bg-graphite hover:bg-rose-950/30 border border-graphite-light hover:border-rose-500/30 rounded text-alabaster-grey hover:text-rose-400 transition-all cursor-pointer focus-visible:ring-1 focus-visible:ring-rose-500 focus-visible:outline-none"
+                  title="Close Terminal"
+                >
+                  <X size={10} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 my-3 rounded border border-graphite-light overflow-hidden bg-black relative flex items-center justify-center">
+              <video
+                ref={portalVideoRef}
+                src={activeGame.videoSrc}
+                loop
+                muted={isPortalMuted}
+                playsInline
+                className="w-full h-full object-cover filter brightness-[1.15] contrast-[1.1] saturate-[1.2]"
+              />
+              <div className="absolute bottom-3 left-3 bg-black/60 px-2 py-1 border border-white/10 rounded text-[7px] font-silkscreen text-bright-snow">
+                SYSTEM STATUS: ACTIVE [{isPortalMuted ? 'AUDIO MUTED' : 'AUDIO ON'}]
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-[7px] font-silkscreen text-alabaster-grey/40 z-10 border-t border-slate-violet/20 pt-2 uppercase">
+              <span>DASI PORTAL DECODER v1.0</span>
+              <span>TAP ESC OR X IN CORNER TO EXIT CHANNEL</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Specs Footer & Dot Navigation */}
+      <div className="absolute bottom-4 left-5 right-5 border-t border-graphite-light/40 pt-3 flex justify-between items-center gap-3 text-[8px] font-silkscreen text-alabaster-grey/50 z-10">
+        <div className="flex gap-4">
+          <div>ENGINE: <span className="text-bright-snow">{activeGame.stats.engine}</span></div>
+          <div>DOWNLOADS: <span className="text-bright-snow">{activeGame.stats.downloads}</span></div>
+        </div>
+
+        {/* Dot Indicators */}
+        <div className="flex gap-1.5 pointer-events-auto">
+          {sandboxGames.map((game, idx) => (
+            <button
+              key={game.id}
+              onClick={() => transitionTo(idx)}
+              className={`w-2 h-2 rounded-full transition-all focus-visible:ring-1 focus-visible:ring-slate-violet-light focus-visible:outline-none cursor-pointer ${
+                activeIndex === idx ? 'bg-bright-snow scale-125' : 'bg-alabaster-grey/30 hover:bg-alabaster-grey/60'
+              }`}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ShowcaseSandbox() {
+  return (
+    <div className="flex flex-col gap-12 max-w-6xl w-full">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* ================= VARIATION A: CINEMATIC SPLIT-PANE ================= */}
         <div className="bg-carbon-black-2 border border-graphite-light rounded-2xl p-6 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
@@ -596,56 +1173,8 @@ function ShowcaseSandbox() {
             </p>
           </div>
 
-          {/* Slider Mockup Layout */}
-          <div className="bg-carbon-black border border-graphite-light rounded-xl p-5 flex flex-col gap-5 min-h-[380px] justify-between relative overflow-hidden">
-            {/* Title / Description */}
-            <div className="flex flex-col gap-2 z-10 max-w-[55%]">
-              <span className="text-[9px] font-silkscreen text-slate-violet-light uppercase tracking-widest">
-                {activeGame.subtitle}
-              </span>
-              <h4 className="text-2xl font-bold font-russo-one tracking-wider text-bright-snow uppercase">
-                {activeGame.title}
-              </h4>
-              <p className="text-xs text-alabaster-grey/60 leading-relaxed font-outfit">
-                {activeGame.description}
-              </p>
-            </div>
-
-            {/* Floating Glassmorphic Loop Video Card */}
-            <div className="absolute right-5 top-1/2 -translate-y-1/2 w-[40%] h-[80%] bg-carbon-black-2/80 backdrop-blur-md border border-graphite-light/60 rounded-xl overflow-hidden shadow-xl z-20 transition-all duration-300 hover:scale-105 flex flex-col justify-end">
-              {/* Gameplay Video Player */}
-              <video
-                key={activeGame.id}
-                src={activeGame.videoSrc}
-                autoPlay
-                loop
-                muted={isMutedA}
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-
-              {/* Speaker / Mute Toggle Button */}
-              <button
-                onClick={() => setIsMutedA(!isMutedA)}
-                className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black/80 rounded-lg text-bright-snow backdrop-blur-md border border-white/10 transition-all z-30 cursor-pointer"
-                title={isMutedA ? "Unmute Gameplay Audio" : "Mute Gameplay Audio"}
-              >
-                {isMutedA ? <VolumeX size={12} /> : <Volume2 size={12} className="text-slate-violet-light" />}
-              </button>
-
-              {/* Overlay HUD Tag */}
-              <div className="bg-gradient-to-t from-black/80 to-transparent p-3 pt-6 z-10 text-[8px] font-silkscreen text-platinum-silver tracking-widest flex items-center gap-1.5 uppercase select-none">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-violet animate-ping" />
-                LIVE PREVIEW
-              </div>
-            </div>
-
-            {/* Specs Footer */}
-            <div className="border-t border-graphite-light/40 pt-4 flex gap-4 text-[9px] font-silkscreen text-alabaster-grey/50 z-10">
-              <div>ENGINE: <span className="text-bright-snow">{activeGame.stats.engine}</span></div>
-              <div>DOWNLOADS: <span className="text-bright-snow">{activeGame.stats.downloads}</span></div>
-            </div>
-          </div>
+          {/* Slider Layout */}
+          <WebGLFeaturedSliderSandbox variant="A" />
         </div>
 
         {/* ================= VARIATION B: ARCADE PORTAL VENT ================= */}
@@ -663,81 +1192,8 @@ function ShowcaseSandbox() {
             </p>
           </div>
 
-          {/* Slider Mockup Layout */}
-          <div className="bg-carbon-black border border-graphite-light rounded-xl p-5 flex flex-col gap-5 min-h-[380px] justify-between relative overflow-hidden">
-            {/* Description Info */}
-            <div className="flex flex-col gap-2 z-10">
-              <span className="text-[9px] font-silkscreen text-slate-violet-light uppercase tracking-widest">
-                {activeGame.subtitle}
-              </span>
-              <h4 className="text-2xl font-bold font-russo-one tracking-wider text-bright-snow uppercase">
-                {activeGame.title}
-              </h4>
-              <p className="text-xs text-alabaster-grey/60 leading-relaxed font-outfit max-w-[80%]">
-                {activeGame.description}
-              </p>
-            </div>
-
-            {/* Interactive Boot Prompt Trigger */}
-            <div className="my-auto self-center z-10 flex flex-col items-center gap-3">
-              <button
-                onClick={() => setIsPortalOpen(true)}
-                className="group flex items-center gap-3 px-6 py-3.5 bg-slate-violet hover:bg-slate-violet-light border border-slate-violet-light/30 rounded-xl text-xs font-silkscreen tracking-widest text-bright-snow font-semibold transition-all shadow-xl hover:scale-105 cursor-pointer uppercase select-none"
-              >
-                <Monitor size={14} className="animate-pulse" />
-                BOOT GAMEPLAY PREVIEW
-                <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
-              </button>
-              <span className="text-[8px] font-silkscreen text-alabaster-grey/40 uppercase tracking-widest">
-                Requires direct operator signal
-              </span>
-            </div>
-
-            {/* Portal Overlay Frame (Variation B Overlay Screen) */}
-            {isPortalOpen && (
-              <div className="absolute inset-0 bg-[#0d0d11] z-30 p-4 flex flex-col justify-between border-2 border-slate-violet animate-fadeIn">
-                {/* CRT Glass Scanline overlay effect */}
-                <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,6px_100%] opacity-40 z-20" />
-                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)] opacity-85 z-20" />
-
-                <div className="flex items-center justify-between border-b border-slate-violet/20 pb-2 z-10">
-                  <span className="text-[8px] font-silkscreen text-slate-violet-light tracking-widest uppercase flex items-center gap-1.5">
-                    <Cpu size={10} className="text-slate-violet-light animate-spin" />
-                    STREAMING LINK PORTAL: {activeGame.title}
-                  </span>
-                  <button
-                    onClick={() => setIsPortalOpen(false)}
-                    className="p-1 bg-graphite hover:bg-rose-950/30 border border-graphite-light hover:border-rose-500/30 rounded text-alabaster-grey hover:text-rose-400 transition-all cursor-pointer"
-                  >
-                    <X size={10} />
-                  </button>
-                </div>
-
-                <div className="flex-1 my-4 rounded border border-graphite-light overflow-hidden bg-black relative flex items-center justify-center">
-                  <video
-                    ref={portalVideoRef}
-                    src={activeGame.videoSrc}
-                    loop
-                    className="w-full h-full object-cover filter brightness-[1.1] contrast-[1.05]"
-                  />
-                  <div className="absolute bottom-3 left-3 bg-black/60 px-2 py-1 border border-white/10 rounded text-[7px] font-silkscreen text-bright-snow">
-                    SYSTEM STATUS: ACTIVE [AUDIO ON]
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-[7px] font-silkscreen text-alabaster-grey/40 z-10 border-t border-slate-violet/20 pt-2 uppercase">
-                  <span>DASI PORTAL DECODER v1.0</span>
-                  <span>TAP X IN CORNER TO EXIT CHANNEL</span>
-                </div>
-              </div>
-            )}
-
-            {/* Specs Footer */}
-            <div className="border-t border-graphite-light/40 pt-4 flex gap-4 text-[9px] font-silkscreen text-alabaster-grey/50 z-10">
-              <div>ENGINE: <span className="text-bright-snow">{activeGame.stats.engine}</span></div>
-              <div>DOWNLOADS: <span className="text-bright-snow">{activeGame.stats.downloads}</span></div>
-            </div>
-          </div>
+          {/* Slider Layout */}
+          <WebGLFeaturedSliderSandbox variant="B" />
         </div>
       </div>
     </div>
