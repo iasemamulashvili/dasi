@@ -510,6 +510,50 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
         { opacity: 0, y: 20 },
         { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.1, delay: 0.2 }
       );
+
+      // Trigger Option C SVG Refractive Warp on active title/description text elements during transition
+      const disp = document.getElementById('emp-displacement-map-slider');
+      const turb = document.getElementById('emp-turbulence-slider');
+      const textContainers = container.querySelectorAll('.emp-text-container');
+
+      if (disp && turb && textContainers.length > 0) {
+        gsap.killTweensOf(disp);
+        gsap.killTweensOf(turb);
+
+        textContainers.forEach(el => {
+          el.classList.add('emp-warp-active');
+        });
+
+        gsap.fromTo(disp,
+          { attr: { scale: 0 } },
+          {
+            attr: { scale: 75 },
+            duration: 0.35,
+            ease: 'power2.out',
+            onComplete: () => {
+              gsap.to(disp, {
+                attr: { scale: 0 },
+                duration: 0.8,
+                ease: 'power2.inOut',
+                onComplete: () => {
+                  textContainers.forEach(el => {
+                    el.classList.remove('emp-warp-active');
+                  });
+                }
+              });
+            }
+          }
+        );
+
+        gsap.fromTo(turb,
+          { attr: { baseFrequency: "0.01 0.08" } },
+          {
+            attr: { baseFrequency: "0.08 0.25" },
+            duration: 1.15,
+            ease: 'sine.inOut'
+          }
+        );
+      }
     }
   };
 
@@ -563,7 +607,65 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
       );
     }
 
+    // Trigger kinetic characters push offset, synchronized with ripple speed
+    triggerTextEMP(clickX, clickY, rect);
+
     setRippleTrigger(prev => prev + 1);
+  };
+
+  const triggerTextEMP = (clickX: number, clickY: number, containerRect: DOMRect) => {
+    const container = sliderRef.current;
+    if (!container) return;
+
+    const charEls = container.querySelectorAll('.emp-char') as NodeListOf<HTMLElement>;
+    const rippleSpeed = 0.38 * containerRect.height; // Ripple speed matching shader (0.38 heights/sec)
+
+    charEls.forEach((charEl) => {
+      const rect = charEl.getBoundingClientRect();
+      const charX = rect.left + rect.width / 2 - containerRect.left;
+      const charY = rect.top + rect.height / 2 - containerRect.top;
+
+      const dx = charX - clickX;
+      const dy = charY - clickY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      // Delay matches when the WebGL ripple wavefront reaches the letter
+      const delay = dist / rippleSpeed;
+
+      const len = dist || 1;
+      const nx = dx / len;
+      const ny = dy / len;
+
+      const maxPush = 28;
+      const force = Math.max(0, 1 - dist / 550);
+      const tx = nx * maxPush * force;
+      const ty = ny * maxPush * force;
+      const skewVal = nx * 15 * force;
+
+      gsap.killTweensOf(charEl);
+      gsap.fromTo(charEl,
+        { x: 0, y: 0, skewX: 0, scale: 1 },
+        {
+          x: tx,
+          y: ty,
+          skewX: skewVal,
+          scale: 1.1,
+          duration: 0.15,
+          delay: delay,
+          ease: 'power1.out',
+          onComplete: () => {
+            gsap.to(charEl, {
+              x: 0,
+              y: 0,
+              skewX: 0,
+              scale: 1,
+              duration: 0.45,
+              ease: 'back.out(1.5)'
+            });
+          }
+        }
+      );
+    });
   };
 
   // Ripples Animation Ticking Effect
@@ -704,6 +806,9 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
           .animate-fadeIn {
             animation: fadeIn 0.25s ease-out forwards;
           }
+          .emp-warp-active {
+            filter: url(#emp-refract-slider);
+          }
         `}</style>
         {/* Loader */}
         {loading && (
@@ -794,14 +899,16 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
             <span className="w-1 h-1 bg-platinum-silver rounded-full animate-ping" />
             FEATURED TITLE
           </span>
-          <h3 
-            className="slider-hud-element text-4xl md:text-6xl font-normal text-bright-snow uppercase tracking-wider mb-4 leading-none font-russo-one retro-heading-shadow"
-          >
-            {activeGame.title}
-          </h3>
-          <p className="slider-hud-element text-xs md:text-sm text-alabaster-grey leading-relaxed mb-6 font-outfit font-light">
-            {activeGame.description}
-          </p>
+          <div className="emp-text-container">
+            <h3 
+              className="slider-hud-element text-4xl md:text-6xl font-normal text-bright-snow uppercase tracking-wider mb-4 leading-none font-russo-one retro-heading-shadow"
+            >
+              <EmpText text={activeGame.title} />
+            </h3>
+            <p className="slider-hud-element text-xs md:text-sm text-alabaster-grey leading-relaxed mb-6 font-outfit font-light">
+              <EmpText text={activeGame.description} />
+            </p>
+          </div>
           
           {/* Modern Specs HUD Panel with Real Game Stats */}
           <div className="slider-hud-element font-mono text-[9px] text-alabaster-grey/85 border border-graphite-light/60 bg-carbon-black-2/95 p-4 rounded-xl space-y-1.5 mt-4 mb-6 max-w-[280px] relative backdrop-blur-md shadow-lg">
@@ -982,6 +1089,47 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
           </div>
         )}
       </div>
+
+      {/* SVG filter definition for Option C Transition Warp */}
+      <svg className="absolute w-0 h-0 pointer-events-none" style={{ visibility: 'hidden' }}>
+        <defs>
+          <filter id="emp-refract-slider" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence 
+              id="emp-turbulence-slider"
+              type="fractalNoise" 
+              baseFrequency="0.01 0.08" 
+              numOctaves="2" 
+              result="noise" 
+            />
+            <feDisplacementMap 
+              id="emp-displacement-map-slider"
+              in="SourceGraphic" 
+              in2="noise" 
+              scale="0" 
+              xChannelSelector="R" 
+              yChannelSelector="G" 
+            />
+          </filter>
+        </defs>
+      </svg>
     </section>
+  );
+}
+
+// Helper component to split text into characters for EMP wave propagation
+function EmpText({ text }: { text: string }) {
+  const words = text.split(' ');
+  return (
+    <>
+      {words.map((word, wIdx) => (
+        <span key={wIdx} className="inline-block whitespace-nowrap mr-[0.25em]">
+          {word.split('').map((char, cIdx) => (
+            <span key={cIdx} className="emp-char inline-block origin-center">
+              {char}
+            </span>
+          ))}
+        </span>
+      ))}
+    </>
   );
 }

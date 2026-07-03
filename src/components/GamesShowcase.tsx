@@ -21,9 +21,20 @@ const PlayStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) =>
   </svg>
 );
 
-// Canvas Fallback component drawing premium wave lines
-function GameVideoFallback({ gameId }: { gameId: string }) {
+interface CyberScanningMatrixProps {
+  isHovered: boolean;
+  gameId: string;
+}
+
+function CyberScanningMatrix({ isHovered, gameId }: CyberScanningMatrixProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isHoveredRef = useRef(isHovered);
+  const speedRef = useRef(1.0);
+
+  // Sync hover state ref without recreating the animation loop
+  useEffect(() => {
+    isHoveredRef.current = isHovered;
+  }, [isHovered]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -34,71 +45,276 @@ function GameVideoFallback({ gameId }: { gameId: string }) {
     let animationId: number;
     let time = 0;
 
-    // Theme-based colors in our new OKLCH brand system
-    let primaryColor = 'rgba(109, 109, 128, 0.6)'; // slate-violet
-    let secondaryColor = 'rgba(226, 232, 240, 0.4)'; // platinum-silver
-    
-    if (gameId === 'crown-quest') {
-      primaryColor = 'rgba(226, 232, 240, 0.7)';
-      secondaryColor = 'rgba(109, 109, 128, 0.4)';
-    } else if (gameId === 'lumber-chopper') {
-      primaryColor = 'rgba(82, 122, 105, 0.7)'; // Sage green
-      secondaryColor = 'rgba(109, 109, 128, 0.4)';
-    }
-
+    // Handle canvas dimensions matching parent container
     const resizeCanvas = () => {
       canvas.width = canvas.parentElement?.offsetWidth || 300;
-      canvas.height = canvas.parentElement?.offsetHeight || 400;
+      canvas.height = canvas.parentElement?.offsetHeight || 260;
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
+    // Matrix Rain setup
+    const fontSize = 11;
+    const columnsCount = Math.ceil(canvas.width / fontSize) + 2;
+    
+    interface Drop {
+      x: number;
+      y: number;
+      speed: number;
+      chars: string[];
+      length: number;
+      opacity: number;
+    }
+    
+    const drops: Drop[] = [];
+    const charPool = "010101010101ABCDEF0123456789X-[]<>_";
+    
+    const initDrop = (colIndex: number, isInitial = false): Drop => {
+      const length = Math.floor(Math.random() * 10) + 6;
+      // Stagger start heights
+      const y = isInitial 
+        ? Math.random() * -canvas.height - (length * fontSize)
+        : -length * fontSize;
+      
+      const speed = Math.random() * 1.2 + 0.6;
+      const opacity = Math.random() * 0.4 + 0.4;
+      
+      const chars: string[] = [];
+      for (let i = 0; i < length; i++) {
+        chars.push(charPool[Math.floor(Math.random() * charPool.length)]);
+      }
+      
+      return {
+        x: colIndex * fontSize - 4,
+        y,
+        speed,
+        chars,
+        length,
+        opacity,
+      };
+    };
+
+    for (let i = 0; i < columnsCount; i++) {
+      drops.push(initDrop(i, true));
+    }
+
+    // Vertical scanline sweep variables
+    let sweepY1 = 0;
+    let sweepY2 = canvas.height * 0.5;
+    const sweepSpeed1 = 0.5;
+    const sweepSpeed2 = 0.9;
+
+    // Diagnostic equalizer segments config
+    const eqBars = [
+      { segments: 8, currentVal: 4, targetVal: 4, speed: 0.15 },
+      { segments: 8, currentVal: 2, targetVal: 2, speed: 0.12 },
+      { segments: 8, currentVal: 6, targetVal: 6, speed: 0.18 },
+      { segments: 8, currentVal: 3, targetVal: 3, speed: 0.20 },
+    ];
+
     const animate = () => {
-      ctx.fillStyle = 'rgba(24, 24, 24, 0.08)'; // Deep carbon-black trailing fade
+      // Smoothly interpolate current speed multiplier
+      const targetSpeed = isHoveredRef.current ? 2.5 : 1.0;
+      speedRef.current += (targetSpeed - speedRef.current) * 0.08;
+      const currentSpeed = speedRef.current;
+
+      // Deep graphite-black clear with tail trailing fade
+      ctx.fillStyle = 'rgba(24, 24, 24, 0.22)'; 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw Wave 1
-      ctx.beginPath();
-      ctx.strokeStyle = primaryColor;
-      ctx.lineWidth = 2.5;
-      for (let x = 0; x <= canvas.width; x += 5) {
-        const y = canvas.height / 2 + 
-          Math.sin(x * 0.008 + time * 0.04) * 25 * Math.cos(x * 0.003 + time * 0.02);
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-
-      // Draw Wave 2
-      ctx.beginPath();
-      ctx.strokeStyle = secondaryColor;
-      ctx.lineWidth = 1.5;
-      for (let x = 0; x <= canvas.width; x += 5) {
-        const y = canvas.height / 2 + 
-          Math.cos(x * 0.012 - time * 0.03) * 20 * Math.sin(x * 0.005 + time * 0.01);
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-
-      // Draw moving light node across the wave path
-      const nodeX = (time * 1.5) % (canvas.width + 100) - 50;
-      const nodeY = canvas.height / 2 + 
-        Math.sin(nodeX * 0.008 + time * 0.04) * 25 * Math.cos(nodeX * 0.003 + time * 0.02);
-
-      if (nodeX > 0 && nodeX < canvas.width) {
+      // Subtle background grid
+      ctx.strokeStyle = 'rgba(109, 109, 128, 0.015)';
+      ctx.lineWidth = 1;
+      const gridSpacing = 16;
+      for (let x = 0; x < canvas.width; x += gridSpacing) {
         ctx.beginPath();
-        ctx.arc(nodeX, nodeY, 4, 0, Math.PI * 2);
-        ctx.fillStyle = '#f9fafc';
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = primaryColor;
-        ctx.fill();
-        ctx.shadowBlur = 0; // reset
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += gridSpacing) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
       }
 
-      time += 0.5;
+      // Draw Matrix rain drops
+      ctx.font = `${fontSize}px monospace`;
+      for (let i = 0; i < drops.length; i++) {
+        const drop = drops[i];
+        drop.y += drop.speed * currentSpeed;
+
+        if (drop.y - drop.length * fontSize > canvas.height) {
+          drops[i] = initDrop(i, false);
+          continue;
+        }
+
+        // Randomly mutate characters
+        if (Math.random() < 0.02 * currentSpeed) {
+          const idx = Math.floor(Math.random() * drop.length);
+          drop.chars[idx] = charPool[Math.floor(Math.random() * charPool.length)];
+        }
+
+        for (let j = 0; j < drop.length; j++) {
+          const charY = drop.y - (j * fontSize);
+          if (charY < 0 || charY > canvas.height + fontSize) continue;
+
+          const distFromHead = j / drop.length;
+          const baseAlpha = (1 - distFromHead) * drop.opacity;
+          
+          let colorString = '';
+          if (j === 0) {
+            colorString = `rgba(255, 255, 255, ${baseAlpha * 1.3})`; // White highlight head
+          } else if (distFromHead < 0.3) {
+            colorString = `rgba(226, 232, 240, ${baseAlpha})`; // Platinum silver
+          } else {
+            colorString = `rgba(109, 109, 128, ${baseAlpha})`; // Slate violet
+          }
+
+          ctx.fillStyle = colorString;
+          
+          if (j === 0) {
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
+            ctx.shadowBlur = 4;
+          } else {
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.fillText(drop.chars[j], drop.x, charY);
+        }
+      }
+      ctx.shadowBlur = 0;
+
+      // Update and draw scanline sweeps
+      sweepY1 += sweepSpeed1 * currentSpeed;
+      if (sweepY1 > canvas.height + 40) sweepY1 = -40;
+      
+      sweepY2 += sweepSpeed2 * currentSpeed;
+      if (sweepY2 > canvas.height + 40) sweepY2 = -40;
+
+      const drawSweep = (y: number, opacityMultiplier: number) => {
+        if (y < 0 || y > canvas.height) return;
+
+        // Glow sweep gradient
+        const sweepGrad = ctx.createLinearGradient(0, y - 12, 0, y + 12);
+        sweepGrad.addColorStop(0, 'rgba(109, 109, 128, 0)');
+        sweepGrad.addColorStop(0.5, `rgba(226, 232, 240, ${0.08 * opacityMultiplier})`);
+        sweepGrad.addColorStop(1, 'rgba(109, 109, 128, 0)');
+        
+        ctx.fillStyle = sweepGrad;
+        ctx.fillRect(0, y - 12, canvas.width, 24);
+
+        // Thin sweep line
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 * opacityMultiplier})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      };
+
+      drawSweep(sweepY1, 1.0);
+      drawSweep(sweepY2, 0.6);
+
+      // Render diagnostic equalizer bars
+      const eqX = canvas.width - 34;
+      const eqY = canvas.height - 30;
+      const barWidth = 3;
+      const barGap = 3;
+      const segmentHeight = 2.5;
+      const segmentGap = 1.5;
+
+      eqBars.forEach((bar, barIdx) => {
+        if (Math.abs(bar.currentVal - bar.targetVal) < 0.1) {
+          bar.targetVal = Math.floor(Math.random() * bar.segments);
+        } else {
+          bar.currentVal += (bar.targetVal - bar.currentVal) * bar.speed * currentSpeed;
+        }
+
+        const activeCount = Math.round(bar.currentVal);
+        const xPos = eqX + barIdx * (barWidth + barGap);
+
+        for (let s = 0; s < bar.segments; s++) {
+          const yPos = eqY - s * (segmentHeight + segmentGap);
+          if (s < activeCount) {
+            if (s > bar.segments - 3) {
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+            } else if (s > bar.segments - 5) {
+              ctx.fillStyle = 'rgba(226, 232, 240, 0.7)';
+            } else {
+              ctx.fillStyle = 'rgba(109, 109, 128, 0.8)';
+            }
+          } else {
+            ctx.fillStyle = 'rgba(109, 109, 128, 0.12)';
+          }
+          ctx.fillRect(xPos, yPos, barWidth, segmentHeight);
+        }
+      });
+
+      // Render readout telemetry texts
+      ctx.fillStyle = 'rgba(226, 232, 240, 0.55)';
+      ctx.font = '8px monospace';
+      ctx.textAlign = 'left';
+
+      // Top-left
+      ctx.fillText('SYS_STATUS: ACTIVE', 12, 16);
+      ctx.fillStyle = 'rgba(109, 109, 128, 0.65)';
+      ctx.fillText(`SCAN_MODE: CYBER`, 12, 25);
+
+      // Top-right
+      ctx.textAlign = 'right';
+      ctx.fillStyle = 'rgba(226, 232, 240, 0.55)';
+      ctx.fillText('CYBER_SCAN: ON', canvas.width - 12, 16);
+      const freq = (84.1 + Math.sin(time * 0.04) * 1.8).toFixed(1);
+      ctx.fillStyle = 'rgba(109, 109, 128, 0.65)';
+      ctx.fillText(`FREQ: ${freq}GHz`, canvas.width - 12, 25);
+
+      // Bottom-left
+      ctx.textAlign = 'left';
+      ctx.fillStyle = 'rgba(226, 232, 240, 0.55)';
+      ctx.fillText(`RATE: x${currentSpeed.toFixed(1)}`, 12, canvas.height - 20);
+      ctx.fillStyle = 'rgba(109, 109, 128, 0.65)';
+      ctx.fillText('FLOW_BUFF: OK', 12, canvas.height - 11);
+
+      // Corner viewport L-brackets
+      const bracketSize = 5;
+      const offset = 8;
+      ctx.strokeStyle = 'rgba(109, 109, 128, 0.35)';
+      ctx.lineWidth = 1;
+
+      // Top-Left
+      ctx.beginPath();
+      ctx.moveTo(offset, offset + bracketSize);
+      ctx.lineTo(offset, offset);
+      ctx.lineTo(offset + bracketSize, offset);
+      ctx.stroke();
+
+      // Top-Right
+      ctx.beginPath();
+      ctx.moveTo(canvas.width - offset, offset + bracketSize);
+      ctx.lineTo(canvas.width - offset, offset);
+      ctx.lineTo(canvas.width - offset - bracketSize, offset);
+      ctx.stroke();
+
+      // Bottom-Left
+      ctx.beginPath();
+      ctx.moveTo(offset, canvas.height - offset - bracketSize);
+      ctx.lineTo(offset, canvas.height - offset);
+      ctx.lineTo(offset + bracketSize, canvas.height - offset);
+      ctx.stroke();
+
+      // Bottom-Right
+      ctx.beginPath();
+      ctx.moveTo(canvas.width - offset, canvas.height - offset - bracketSize);
+      ctx.lineTo(canvas.width - offset, canvas.height - offset);
+      ctx.lineTo(canvas.width - offset - bracketSize, canvas.height - offset);
+      ctx.stroke();
+
+      time += 1.0;
       animationId = requestAnimationFrame(animate);
     };
+
     animate();
 
     return () => {
@@ -250,8 +466,8 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
               {/* Game Visual Area */}
               <div className="relative w-full h-[240px] md:h-[260px] bg-carbon-black rounded-lg overflow-hidden mb-6 flex items-center justify-center border border-graphite-light">
                 {/* Fallback Looping Particle Canvas or Looping Video */}
-                {hoveredCardIndex === index && (
-                  game.videoSrc ? (
+                {game.videoSrc ? (
+                  hoveredCardIndex === index && (
                     <video
                       src={game.videoSrc}
                       autoPlay
@@ -260,11 +476,11 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
                       playsInline
                       className="absolute inset-0 w-full h-full object-cover z-0 video-entrance"
                     />
-                  ) : (
-                    <div className="absolute inset-0 w-full h-full z-0 video-entrance">
-                      <GameVideoFallback gameId={game.id} />
-                    </div>
                   )
+                ) : (
+                  <div className="absolute inset-0 w-full h-full z-0 video-entrance">
+                    <CyberScanningMatrix isHovered={hoveredCardIndex === index} gameId={game.id} />
+                  </div>
                 )}
 
                 {/* Big Game Artwork / Icon - Full-Bleed with Shrink-to-Video Transition */}
