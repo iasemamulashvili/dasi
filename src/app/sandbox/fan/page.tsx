@@ -1234,6 +1234,9 @@ interface Spark {
   color: string;
   size: number;
   opacity: number;
+  shape: 'circle' | 'square' | 'shield';
+  rotation: number;
+  vrot: number;
 }
 
 interface NavSlash {
@@ -1241,10 +1244,15 @@ interface NavSlash {
   linkIdx: number;
   clientX: number;
   clientY: number;
+  angle: number;
+  color: string;
 }
+
+type SwordStyle = 'katana' | 'broadsword' | 'shard';
 
 function SwordCursorSandbox() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [swordStyle, setSwordStyle] = useState<SwordStyle>('katana');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHoveringNav, setIsHoveringNav] = useState(false);
   const [isSlashing, setIsSlashing] = useState(false);
@@ -1255,15 +1263,14 @@ function SwordCursorSandbox() {
 
   const navItems = ['HOME', 'GAMES', 'ABOUT', 'CAREERS', 'CONTACT'];
 
-  // Handle cursor movement inside container
+  // Handle cursor coordinates relative to viewport
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePos({ x: e.clientX, y: e.clientY });
   };
 
-  // Spark physics particle loop
+  // Sparks physics calculation animation loop
   useEffect(() => {
     if (sparks.length === 0) return;
-
     let animationId: number;
 
     const updateSparks = () => {
@@ -1273,8 +1280,9 @@ function SwordCursorSandbox() {
             ...spark,
             x: spark.x + spark.vx,
             y: spark.y + spark.vy,
-            vy: spark.vy + 0.15, // gravity
-            opacity: spark.opacity - 0.03,
+            vy: spark.shape === 'square' ? spark.vy + 0.18 : spark.vy + 0.1, // broadsword particles are heavier
+            rotation: spark.rotation + spark.vrot,
+            opacity: spark.opacity - (spark.shape === 'shield' ? 0.02 : 0.03), // shield particles float longer
           }))
           .filter((spark) => spark.opacity > 0)
       );
@@ -1285,183 +1293,392 @@ function SwordCursorSandbox() {
     return () => cancelAnimationFrame(animationId);
   }, [sparks.length]);
 
-  // Click handler to trigger the slice effect
+  // Click strike handler
   const handleNavLinkClick = (idx: number, e: React.MouseEvent) => {
     e.preventDefault();
     setIsSlashing(true);
     setSlashedIdx(idx);
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    // Trigger sword swipe swing duration
+    setTimeout(() => setIsSlashing(false), 140);
+    setTimeout(() => setSlashedIdx(null), 500);
 
-    // Trigger sword swing recoil reset
-    setTimeout(() => setIsSlashing(false), 150);
-    setTimeout(() => setSlashedIdx(null), 400);
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    if (!containerRect) return;
 
-    // Spawn slice line
+    const localX = e.clientX - containerRect.left;
+    const localY = e.clientY - containerRect.top;
+
+    // Define variation-specific properties
+    let slashColor = 'rgba(168, 85, 247, 0.8)';
+    let particleColor = 'oklch(0.61 0.025 285.0)';
+    let particleShape: 'circle' | 'square' | 'shield' = 'circle';
+    let angle = -12;
+
+    if (swordStyle === 'broadsword') {
+      slashColor = 'rgba(56, 189, 248, 0.8)';
+      particleColor = 'oklch(0.79 0.13 222.0)'; // blue
+      particleShape = 'square';
+      angle = -25; // steeper chop angle
+    } else if (swordStyle === 'shard') {
+      slashColor = 'rgba(34, 197, 94, 0.8)';
+      particleColor = 'oklch(0.79 0.13 145.0)'; // neon sage green
+      particleShape = 'shield';
+      angle = 0; // horizontal shockwave slice
+    }
+
+    // Spawn neon slice trail overlay
     const newSlash: NavSlash = {
       id: Date.now(),
       linkIdx: idx,
       clientX: e.clientX,
-      clientY: e.clientY
+      clientY: e.clientY,
+      angle,
+      color: slashColor
     };
     setSlashes((prev) => [...prev, newSlash]);
     setTimeout(() => {
       setSlashes((prev) => prev.filter((s) => s.id !== newSlash.id));
     }, 450);
 
-    // Spawn sparks explosion at click coordinate
-    const containerRect = containerRef.current?.getBoundingClientRect();
-    if (containerRect) {
-      const localX = e.clientX - containerRect.left;
-      const localY = e.clientY - containerRect.top;
-
-      const newSparks: Spark[] = Array.from({ length: 12 }).map((_, i) => {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 2 + Math.random() * 4;
-        return {
-          id: Date.now() + i,
-          x: localX,
-          y: localY,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - 1, // slight upward launch bias
-          color: Math.random() > 0.5 ? 'oklch(0.61 0.025 285.0)' : 'oklch(0.91 0.01 240.0)', // violet or platinum
-          size: 2 + Math.random() * 3,
-          opacity: 1
-        };
-      });
-      setSparks((prev) => [...prev, ...newSparks]);
-    }
+    // Spawn particle sparks explosion
+    const particleCount = swordStyle === 'shard' ? 8 : 15;
+    const newSparks: Spark[] = Array.from({ length: particleCount }).map((_, i) => {
+      const pAngle = Math.random() * Math.PI * 2;
+      const speed = particleShape === 'square' ? 1.5 + Math.random() * 3.5 : 2.5 + Math.random() * 4.5;
+      return {
+        id: Date.now() + i,
+        x: localX,
+        y: localY,
+        vx: Math.cos(pAngle) * speed,
+        vy: Math.sin(pAngle) * speed - (particleShape === 'shield' ? 1.5 : 0.5), // shields float upwards
+        color: particleColor,
+        size: particleShape === 'shield' ? 6 : particleShape === 'square' ? 3.5 : 2.5,
+        opacity: 1.0,
+        shape: particleShape,
+        rotation: Math.random() * 360,
+        vrot: (Math.random() - 0.5) * 15
+      };
+    });
+    setSparks((prev) => [...prev, ...newSparks]);
 
     setActiveLink(navItems[idx]);
   };
 
   return (
-    <div
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHoveringNav(true)}
-      onMouseLeave={() => setIsHoveringNav(false)}
-      className="relative w-full h-[360px] bg-carbon-black border border-graphite-light rounded-2xl flex flex-col items-center justify-center overflow-hidden shadow-2xl group select-none cursor-default"
-    >
-      {/* Custom cursor none only on links hover to feel premium */}
-      <style>{`
-        .sword-target-link {
-          cursor: none !important;
-        }
-        @keyframes slashImpact {
-          0% { transform: skewX(0deg) scale(1); }
-          15% { transform: skewX(-12deg) scale(0.96) translateY(2px); filter: brightness(1.2); }
-          30% { transform: skewX(8deg) scale(1.02) translateY(-1px); }
-          50% { transform: skewX(-4deg) scale(0.99); }
-          100% { transform: skewX(0deg) scale(1); }
-        }
-        .animate-slash-impact {
-          animation: slashImpact 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.15) forwards;
-        }
-      `}</style>
-
-      {/* Floating Sparks Canvas/Layer */}
-      {sparks.map((spark) => (
-        <div
-          key={spark.id}
-          className="absolute rounded-full pointer-events-none z-30"
-          style={{
-            left: `${spark.x}px`,
-            top: `${spark.y}px`,
-            width: `${spark.size}px`,
-            height: `${spark.size}px`,
-            backgroundColor: spark.color,
-            opacity: spark.opacity,
-            boxShadow: `0 0 6px ${spark.color}`,
-            transform: 'translate(-50%, -50%)',
+    <div className="flex flex-col gap-8 max-w-6xl w-full">
+      {/* Sub-tab switcher to select sword cursor variations */}
+      <div className="flex bg-carbon-black-2 border border-graphite-light p-1 rounded-2xl w-max gap-1 self-center shadow-lg select-none">
+        <button
+          onClick={() => {
+            setSwordStyle('katana');
           }}
-        />
-      ))}
-
-      {/* Mock Navigation Header Frame */}
-      <div className="flex flex-col items-center gap-6 z-10">
-        <span className="text-[8px] font-silkscreen text-slate-violet-light tracking-widest uppercase">
-          [ STRIKE TO NAVIGATE SYSTEM CHANNELS ]
-        </span>
-
-        <nav className="flex items-center gap-8 bg-carbon-black-2/80 backdrop-blur border border-graphite-light/60 px-8 py-4 rounded-xl shadow-xl relative">
-          {navItems.map((item, idx) => {
-            const isSlashed = slashedIdx === idx;
-            return (
-              <a
-                key={item}
-                href="#"
-                onClick={(e) => handleNavLinkClick(idx, e)}
-                className={`sword-target-link relative text-xs font-silkscreen tracking-widest text-alabaster-grey/70 hover:text-bright-snow transition-colors select-none py-1 px-2 ${
-                  isSlashed ? 'animate-slash-impact' : ''
-                }`}
-              >
-                {/* Text representation */}
-                <span className={activeLink === item ? 'text-slate-violet-light font-bold' : ''}>
-                  {item}
-                </span>
-
-                {/* Slash strike neon line overlay */}
-                {slashes.map((s) => {
-                  if (s.linkIdx !== idx) return null;
-                  return (
-                    <div
-                      key={s.id}
-                      className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] bg-bright-snow border-t border-slate-violet-light shadow-[0_0_12px_rgba(168,85,247,0.8)] pointer-events-none z-20 origin-left"
-                      style={{
-                        transform: 'rotate(-12deg) scaleX(1.15)',
-                        animation: 'fadeIn 0.4s ease-out forwards',
-                      }}
-                    />
-                  );
-                })}
-              </a>
-            );
-          })}
-        </nav>
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-silkscreen tracking-wider font-bold transition-all cursor-pointer ${
+            swordStyle === 'katana'
+              ? 'bg-slate-violet text-bright-snow shadow-md shadow-slate-violet/20'
+              : 'text-alabaster-grey/50 hover:text-bright-snow'
+          }`}
+        >
+          <Sparkles size={11} className={swordStyle === 'katana' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
+          CYBER-KATANA
+        </button>
+        <button
+          onClick={() => {
+            setSwordStyle('broadsword');
+          }}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-silkscreen tracking-wider font-bold transition-all cursor-pointer ${
+            swordStyle === 'broadsword'
+              ? 'bg-sky-600 text-bright-snow shadow-md shadow-sky-600/20'
+              : 'text-alabaster-grey/50 hover:text-bright-snow'
+          }`}
+        >
+          <Cpu size={11} className={swordStyle === 'broadsword' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
+          RETRO BROADSWORD
+        </button>
+        <button
+          onClick={() => {
+            setSwordStyle('shard');
+          }}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-silkscreen tracking-wider font-bold transition-all cursor-pointer ${
+            swordStyle === 'shard'
+              ? 'bg-emerald-600 text-bright-snow shadow-md shadow-emerald-600/20'
+              : 'text-alabaster-grey/50 hover:text-bright-snow'
+          }`}
+        >
+          <Monitor size={11} className={swordStyle === 'shard' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
+          SHARD SHIELD BLADE
+        </button>
       </div>
 
-      {/* Custom Sword Cursor (Tracks Mouse) */}
-      {isHoveringNav && (
-        <div
-          className="pointer-events-none fixed z-50 select-none filter drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]"
-          style={{
-            left: `${mousePos.x}px`,
-            top: `${mousePos.y}px`,
-            transform: `translate(-12px, -36px) rotate(${isSlashing ? '45deg' : '-35deg'})`,
-            transformOrigin: '12px 36px',
-            transition: 'transform 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
-          }}
-        >
-          {/* Detailed glowing sword SVG */}
-          <svg width="48" height="48" viewBox="0 0 64 64" fill="none">
-            {/* Glowing Edge/Aura */}
-            <path
-              d="M12 12 L44 44"
-              stroke="oklch(0.61 0.025 285.0)"
-              strokeWidth="6"
-              strokeLinecap="round"
-              className="opacity-50"
-            />
-            {/* Blade body */}
-            <path d="M12 12 L44 44" stroke="#f8fafc" strokeWidth="3" strokeLinecap="round" />
-            {/* Inner blade steel core */}
-            <path d="M14 14 L42 42" stroke="#a78bfa" strokeWidth="1" strokeLinecap="round" />
-            {/* Hilt Crossguard */}
-            <path d="M40 48 L48 40" stroke="#fbbf24" strokeWidth="3.5" strokeLinecap="round" />
-            {/* Handle wrap */}
-            <path d="M44 44 L53 53" stroke="#78350f" strokeWidth="4" strokeLinecap="round" />
-            {/* Gold pommel gemstone */}
-            <circle cx="54" cy="54" r="2.5" fill="#f59e0b" />
-          </svg>
-        </div>
-      )}
+      <div
+        ref={containerRef}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setIsHoveringNav(true)}
+        onMouseLeave={() => setIsHoveringNav(false)}
+        className="relative w-full h-[360px] bg-carbon-black border border-graphite-light rounded-2xl flex flex-col items-center justify-center overflow-hidden shadow-2xl group select-none cursor-default"
+      >
+        {/* Custom animations for split, glitch, and bounce text effects */}
+        <style>{`
+          .sword-target-link {
+            cursor: none !important;
+          }
+          
+          /* Variation E: Split Diagonal cut animation using clip-paths */
+          .split-container {
+            position: relative;
+            display: inline-block;
+          }
+          .split-top, .split-bottom {
+            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+          }
+          .split-top {
+            clip-path: polygon(0 0, 100% 0, 100% 48%, 0 62%);
+          }
+          .split-bottom {
+            clip-path: polygon(0 62%, 100% 48%, 100% 100%, 0 100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
+          .link-slashed-katana .split-top {
+            transform: translate(-3px, -2px) skewX(-6deg);
+            filter: brightness(1.2) drop-shadow(0 0 2px rgba(168,85,247,0.5));
+          }
+          .link-slashed-katana .split-bottom {
+            transform: translate(3px, 2px) skewX(-6deg);
+          }
 
-      {/* Floating Instructions */}
-      <div className="absolute bottom-4 text-[7px] font-silkscreen text-alabaster-grey/40 uppercase tracking-widest">
-        ACTIVE CHANNEL: [ {activeLink} ] // SLICING IS ENGAGED OVER NAVIGATION LINKS
+          /* Variation F: Digital 16-Bit Jitter Glitch */
+          @keyframes glitchShake {
+            0% { transform: translate(0) skewX(0); }
+            10% { transform: translate(-2px, 1px) skewX(-8deg) scaleY(0.96); }
+            20% { transform: translate(3px, -2px) skewX(12deg) scaleX(1.05); }
+            30% { transform: translate(-1px, 2px) skewX(-4deg); }
+            40% { transform: translate(2px, -1px) skewX(6deg); }
+            50% { transform: translate(0) skewX(0); }
+          }
+          .link-slashed-broadsword {
+            animation: glitchShake 0.45s steps(3) forwards;
+            filter: drop-shadow(0 0 3px rgba(56,189,248,0.6));
+          }
+
+          /* Variation G: Elastic Spring Letter bounce */
+          @keyframes springBounce {
+            0% { transform: scale(1) translateY(0); }
+            25% { transform: scale(1.22, 0.8) translateY(3px); }
+            45% { transform: scale(0.85, 1.15) translateY(-6px); filter: brightness(1.25); }
+            65% { transform: scale(1.08, 0.95) translateY(2px); }
+            85% { transform: scale(0.97, 1.02) translateY(-1px); }
+            100% { transform: scale(1) translateY(0); }
+          }
+          .link-slashed-shard {
+            animation: springBounce 0.65s cubic-bezier(0.25, 0.8, 0.25, 1.4) forwards;
+          }
+        `}</style>
+
+        {/* Dynamic Sparks Rendering */}
+        {sparks.map((spark) => {
+          if (spark.shape === 'shield') {
+            return (
+              <svg
+                key={spark.id}
+                viewBox="0 0 100 100"
+                fill="none"
+                stroke={spark.color}
+                strokeWidth="12"
+                className="absolute pointer-events-none z-30 filter"
+                style={{
+                  left: `${spark.x}px`,
+                  top: `${spark.y}px`,
+                  width: `${spark.size * 2}px`,
+                  height: `${spark.size * 2}px`,
+                  opacity: spark.opacity,
+                  transform: `translate(-50%, -50%) rotate(${spark.rotation}deg)`,
+                  filter: `drop-shadow(0 0 3px ${spark.color})`
+                }}
+              >
+                <path d="M 20 20 L 80 20 L 80 50 C 80 72 65 88 50 95 C 35 88 20 72 20 50 Z" />
+              </svg>
+            );
+          }
+          return (
+            <div
+              key={spark.id}
+              className={`absolute pointer-events-none z-30 ${spark.shape === 'square' ? '' : 'rounded-full'}`}
+              style={{
+                left: `${spark.x}px`,
+                top: `${spark.y}px`,
+                width: `${spark.size}px`,
+                height: `${spark.size}px`,
+                backgroundColor: spark.color,
+                opacity: spark.opacity,
+                boxShadow: `0 0 8px ${spark.color}`,
+                transform: `translate(-50%, -50%) rotate(${spark.rotation}deg)`,
+              }}
+            />
+          );
+        })}
+
+        {/* Navigation Mock Layout */}
+        <div className="flex flex-col items-center gap-6 z-10">
+          <span className="text-[8px] font-silkscreen text-slate-violet-light tracking-widest uppercase">
+            [ SELECT STYLE ABOVE • CLICK NAVIGATION LINKS TO SLICE ]
+          </span>
+
+          <nav className="flex items-center gap-8 bg-carbon-black-2/80 backdrop-blur border border-graphite-light/60 px-8 py-4 rounded-xl shadow-xl relative">
+            {navItems.map((item, idx) => {
+              const isSlashed = slashedIdx === idx;
+              
+              // Decide style override classes
+              let animationClass = '';
+              if (isSlashed) {
+                if (swordStyle === 'katana') animationClass = 'link-slashed-katana';
+                else if (swordStyle === 'broadsword') animationClass = 'link-slashed-broadsword';
+                else if (swordStyle === 'shard') animationClass = 'link-slashed-shard';
+              }
+
+              return (
+                <a
+                  key={item}
+                  href="#"
+                  onClick={(e) => handleNavLinkClick(idx, e)}
+                  className={`sword-target-link relative text-xs font-silkscreen tracking-widest text-alabaster-grey/70 hover:text-bright-snow transition-colors select-none py-1 px-2 ${animationClass}`}
+                >
+                  {/* Top / Bottom split structure for Variation E (Katana) */}
+                  {swordStyle === 'katana' ? (
+                    <div className="split-container">
+                      <span className={`split-top ${activeLink === item ? 'text-slate-violet-light font-bold' : ''}`}>{item}</span>
+                      <span className={`split-bottom ${activeLink === item ? 'text-slate-violet-light font-bold' : ''}`} aria-hidden="true">{item}</span>
+                    </div>
+                  ) : (
+                    <span className={activeLink === item ? 'text-slate-violet-light font-bold' : ''}>
+                      {item}
+                    </span>
+                  )}
+
+                  {/* Slash neon streak overlay line */}
+                  {slashes.map((s) => {
+                    if (s.linkIdx !== idx) return null;
+                    return (
+                      <div
+                        key={s.id}
+                        className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2.5px] bg-bright-snow pointer-events-none z-20 origin-left"
+                        style={{
+                          transform: `rotate(${s.angle}deg) scaleX(1.2)`,
+                          boxShadow: `0 0 10px ${s.color}, 0 0 4px #ffffff`,
+                          backgroundColor: '#ffffff',
+                          animation: 'fadeIn 0.35s ease-out forwards',
+                        }}
+                      />
+                    );
+                  })}
+                </a>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Premium Aligned Sword Cursor (Tracks Mouse Coordinates) */}
+        {isHoveringNav && (
+          <div
+            className="pointer-events-none fixed z-50 select-none"
+            style={{
+              left: `${mousePos.x}px`,
+              top: `${mousePos.y}px`,
+              /* 
+                SWORD POINTER MATHEMATICS:
+                Tip of the blade sits exactly at (0,0) inside the SVG viewport.
+                Transform-origin (0px 0px) binds the rotation axis directly to the blade tip.
+                The cursor coordinate maps precisely to the tip of the blade, feeling 100% accurate.
+              */
+              transform: swordStyle === 'katana'
+                ? `rotate(${isSlashing ? '45deg' : '-35deg'})`
+                : swordStyle === 'broadsword'
+                ? `rotate(${isSlashing ? '25deg' : '-50deg'})`
+                : `scale(${isSlashing ? 1.25 : 1.0}) rotate(${isSlashing ? '30deg' : '-30deg'})`,
+              transformOrigin: '0px 0px',
+              transition: 'transform 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
+            }}
+          >
+            {/* VARIATION E: Neon Cyber-Katana (Purple) */}
+            {swordStyle === 'katana' && (
+              <svg width="44" height="44" viewBox="0 0 44 44" fill="none" className="filter drop-shadow-[0_0_8px_rgba(168,85,247,0.85)]">
+                {/* 
+                  Drawn extending down-right from (0,0) hotspot tip.
+                  Tip: x=0, y=0.
+                  Hilt Pommel end: x=40, y=40.
+                */}
+                {/* Blade Glow aura */}
+                <line x1="2" y1="2" x2="28" y2="28" stroke="oklch(0.61 0.025 285.0)" strokeWidth="4.5" strokeLinecap="round" className="opacity-45" />
+                {/* Blade razor edge */}
+                <line x1="0" y1="0" x2="26" y2="26" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" />
+                {/* Steel core */}
+                <line x1="1" y1="1" x2="25" y2="25" stroke="#c084fc" strokeWidth="1" strokeLinecap="round" />
+                {/* Sleek Tsuba/Guard */}
+                <line x1="23" y1="29" x2="29" y2="23" stroke="#1e1b4b" strokeWidth="3" strokeLinecap="round" />
+                {/* Handle/Tsuka */}
+                <line x1="27" y1="27" x2="37" y2="37" stroke="#000000" strokeWidth="3.2" strokeLinecap="round" />
+                <line x1="28" y1="28" x2="36" y2="36" stroke="#a855f7" strokeWidth="1.5" strokeLinecap="round" />
+                {/* Golden pommel */}
+                <circle cx="38" cy="38" r="1.8" fill="#fbbf24" />
+              </svg>
+            )}
+
+            {/* VARIATION F: Arcade Broadsword (Sky Blue / Golden) */}
+            {swordStyle === 'broadsword' && (
+              <svg width="46" height="46" viewBox="0 0 46 46" fill="none" className="filter drop-shadow-[0_0_8px_rgba(56,189,248,0.85)]">
+                {/* 
+                  Tip: x=0, y=0.
+                  Pommel: x=42, y=42.
+                */}
+                {/* Crystal blade core */}
+                <line x1="0" y1="0" x2="24" y2="24" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+                <line x1="1" y1="1" x2="23" y2="23" stroke="#38bdf8" strokeWidth="1.5" strokeLinecap="round" />
+                {/* Golden crossguard */}
+                <line x1="18" y1="28" x2="28" y2="18" stroke="#fbbf24" strokeWidth="4.5" strokeLinecap="round" />
+                {/* Wooden hilt wrap */}
+                <line x1="24" y1="24" x2="38" y2="38" stroke="#78350f" strokeWidth="4" strokeLinecap="round" />
+                <line x1="26" y1="26" x2="36" y2="36" stroke="#fbbf24" strokeWidth="1" strokeLinecap="round" />
+                {/* Diamond Blue Pommel Gem */}
+                <polygon points="38,38 42,38 42,42 38,42" fill="#38bdf8" />
+              </svg>
+            )}
+
+            {/* VARIATION G: Shard Energy Blade (Sage Green Shards) */}
+            {swordStyle === 'shard' && (
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="filter drop-shadow-[0_0_10px_rgba(52,211,153,0.9)]">
+                {/* 
+                  Floating, hum/pulse energy crest weapon.
+                  Tip: x=0, y=0.
+                  Pommel: x=44, y=44.
+                */}
+                {/* Shard 1: Blade tip segment */}
+                <polygon points="0,0 6,4 4,6" fill="#ffffff" />
+                <polygon points="0,0 5,3 3,5" fill="#34d399" />
+                
+                {/* Shard 2: Mid blade gap & segment */}
+                <polygon points="9,9 16,13 13,16" fill="#34d399" className="opacity-90" />
+                <polygon points="10,10 15,12 12,15" fill="#a7f3d0" />
+
+                {/* Shard 3: Lower blade segment */}
+                <polygon points="18,18 26,23 23,26" fill="#34d399" />
+
+                {/* Cyber hilt socket emitter */}
+                <circle cx="28" cy="28" r="3.5" fill="#064e3b" stroke="#34d399" strokeWidth="1" />
+                {/* Glowing shield pommel base */}
+                <path d="M 28 28 L 40 40 L 38 42 C 34 44 32 40 28 38 Z" fill="#065f46" stroke="#34d399" strokeWidth="1.5" />
+              </svg>
+            )}
+          </div>
+        )}
+
+        {/* Dynamic HUD information footer */}
+        <div className="absolute bottom-4 text-[7px] font-silkscreen text-alabaster-grey/40 uppercase tracking-widest flex items-center gap-1.5 select-none">
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-violet-light animate-pulse" />
+          ACTIVE CHANNEL: [ {activeLink} ] // STYLE: [ {swordStyle.toUpperCase()} ] // ALIGNMENT: OK [TIP HOTSPOT ENABLED]
+        </div>
       </div>
     </div>
   );
