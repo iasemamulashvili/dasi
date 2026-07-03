@@ -220,27 +220,47 @@ export default function Header() {
           position: relative;
           display: inline-block;
         }
-        .split-top, .split-bottom {
-          clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
-          transition: transform 0.38s cubic-bezier(0.19, 1, 0.22, 1);
+        .split-normal {
+          display: inline-block;
+          opacity: 1;
+          transition: opacity 0s;
         }
-        .split-bottom {
-          clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+        .split-top, .split-bottom {
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0s, transform 0s;
+        }
+        .split-top {
+          clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+        }
+        .split-bottom {
+          clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
         }
         
         /* Snow White splits ONLY on click active slash */
+        .link-slashed-white .split-normal {
+          opacity: 0;
+          transition: opacity 0s;
+        }
+        .link-slashed-white .split-top,
+        .link-slashed-white .split-bottom {
+          opacity: 1;
+          transition: opacity 0s;
+        }
         .link-slashed-white .split-top {
           transform: translateY(-4px);
           filter: brightness(1.25) drop-shadow(0 0 3.5px rgba(255, 255, 255, 0.85));
+          transition: transform 0.38s cubic-bezier(0.19, 1, 0.22, 1), opacity 0s;
         }
         .link-slashed-white .split-bottom {
           transform: translateY(4px);
           filter: brightness(1.25) drop-shadow(0 0 3.5px rgba(255, 255, 255, 0.85));
+          transition: transform 0.38s cubic-bezier(0.19, 1, 0.22, 1), opacity 0s;
         }
 
         @keyframes fadeIn {
@@ -273,7 +293,10 @@ export default function Header() {
               } ${slashClass(link.label)}`}
             >
               <div className="split-container">
-                <span className="split-top">{link.label}</span>
+                <span className="split-normal">{link.label}</span>
+                <span className="split-top" aria-hidden="true">
+                  {link.label}
+                </span>
                 <span className="split-bottom" aria-hidden="true">
                   {link.label}
                 </span>
@@ -329,7 +352,10 @@ export default function Header() {
               } ${slashClass(link.label)}`}
             >
               <div className="split-container">
-                <span className="split-top">{link.label}</span>
+                <span className="split-normal">{link.label}</span>
+                <span className="split-top" aria-hidden="true">
+                  {link.label}
+                </span>
                 <span className="split-bottom" aria-hidden="true">
                   {link.label}
                 </span>
