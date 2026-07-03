@@ -1316,11 +1316,11 @@ interface NavSlash {
   color: string;
 }
 
-type SwordStyle = 'katana' | 'plasma' | 'rune';
+type KatanaColor = 'blue' | 'white' | 'black';
 
 function SwordCursorSandbox() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [swordStyle, setSwordStyle] = useState<SwordStyle>('katana');
+  const [katanaColor, setKatanaColor] = useState<KatanaColor>('blue');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHoveringNav, setIsHoveringNav] = useState(false);
   const [isSlashing, setIsSlashing] = useState(false);
@@ -1348,13 +1348,9 @@ function SwordCursorSandbox() {
             ...spark,
             x: spark.x + spark.vx,
             y: spark.y + spark.vy,
-            vy: spark.shape === 'square'
-              ? spark.vy + 0.16
-              : spark.shape === 'rune'
-              ? spark.vy + 0.04
-              : spark.vy + 0.08,
+            vy: spark.vy + 0.08,
             rotation: spark.rotation + spark.vrot,
-            opacity: spark.opacity - (spark.shape === 'rune' ? 0.015 : 0.025),
+            opacity: spark.opacity - 0.025,
           }))
           .filter((spark) => spark.opacity > 0)
       );
@@ -1381,19 +1377,16 @@ function SwordCursorSandbox() {
     const localX = e.clientX - containerRect.left;
     const localY = e.clientY - containerRect.top;
 
-    // Unified violet-theme color values resembling the collected letters
-    let slashColor = 'rgba(168, 85, 247, 0.85)'; // primary violet
-    let particleColor = 'oklch(0.61 0.22 285.0)'; // vibrant violet
-    let particleShape: 'circle' | 'square' | 'shield' | 'rune' = 'circle';
+    // Define colors depending on selection
+    let slashColor = 'rgba(6, 182, 212, 0.9)'; // light blue
+    let particleColor = 'oklch(0.75 0.18 200.0)';
 
-    if (swordStyle === 'plasma') {
-      slashColor = 'rgba(192, 132, 252, 0.9)'; // lighter violet-purple
-      particleColor = 'oklch(0.75 0.18 290.0)'; // bright violet-snow
-      particleShape = 'circle';
-    } else if (swordStyle === 'rune') {
-      slashColor = 'rgba(147, 51, 234, 0.85)'; // deep violet
-      particleColor = 'oklch(0.55 0.25 280.0)'; // rich indigo-purple
-      particleShape = 'rune';
+    if (katanaColor === 'white') {
+      slashColor = 'rgba(248, 250, 252, 0.9)'; // snow white
+      particleColor = 'oklch(0.98 0.005 240.0)';
+    } else if (katanaColor === 'black') {
+      slashColor = 'rgba(168, 85, 247, 0.7)'; // obsidian violet-black
+      particleColor = 'oklch(0.35 0.05 285.0)';
     }
 
     // Spawn horizontal centered slash trail overlay
@@ -1410,10 +1403,9 @@ function SwordCursorSandbox() {
     }, 450);
 
     // Spawn particle sparks explosion
-    const particleCount = swordStyle === 'rune' ? 22 : 12;
-    const newSparks: Spark[] = Array.from({ length: particleCount }).map((_, i) => {
+    const newSparks: Spark[] = Array.from({ length: 12 }).map((_, i) => {
       const pAngle = Math.random() * Math.PI * 2;
-      const speed = swordStyle === 'rune' ? 1.0 + Math.random() * 2.5 : 2.0 + Math.random() * 3.5;
+      const speed = 2.0 + Math.random() * 3.5;
       return {
         id: Date.now() + i,
         x: localX,
@@ -1421,9 +1413,9 @@ function SwordCursorSandbox() {
         vx: Math.cos(pAngle) * speed,
         vy: Math.sin(pAngle) * speed - 0.3,
         color: particleColor,
-        size: swordStyle === 'rune' ? 10 + Math.random() * 5 : 3 + Math.random() * 3,
+        size: 3 + Math.random() * 3,
         opacity: 1.0,
-        shape: particleShape,
+        shape: 'circle',
         rotation: Math.random() * 360,
         vrot: (Math.random() - 0.5) * 8
       };
@@ -1435,46 +1427,40 @@ function SwordCursorSandbox() {
 
   return (
     <div className="flex flex-col gap-8 max-w-6xl w-full">
-      {/* Sub-tab switcher to select sword cursor variations */}
+      {/* Sub-tab switcher to select katana color variations */}
       <div className="flex bg-carbon-black-2 border border-graphite-light p-1 rounded-2xl w-max gap-1 self-center shadow-lg select-none">
         <button
-          onClick={() => {
-            setSwordStyle('katana');
-          }}
+          onClick={() => setKatanaColor('blue')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-silkscreen tracking-wider font-bold transition-all cursor-pointer ${
-            swordStyle === 'katana'
-              ? 'bg-purple-600 text-bright-snow shadow-md shadow-purple-600/20'
+            katanaColor === 'blue'
+              ? 'bg-cyan-600 text-bright-snow shadow-md shadow-cyan-600/20'
               : 'text-alabaster-grey/50 hover:text-bright-snow'
           }`}
         >
-          <Sparkles size={11} className={swordStyle === 'katana' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
-          CYBER-KATANA (VIOLET)
+          <Sparkles size={11} className={katanaColor === 'blue' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
+          LIGHT BLUE (HUD)
         </button>
         <button
-          onClick={() => {
-            setSwordStyle('plasma');
-          }}
+          onClick={() => setKatanaColor('white')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-silkscreen tracking-wider font-bold transition-all cursor-pointer ${
-            swordStyle === 'plasma'
-              ? 'bg-purple-500 text-bright-snow shadow-md shadow-purple-500/20'
+            katanaColor === 'white'
+              ? 'bg-slate-200 text-carbon-black shadow-md shadow-white/20'
               : 'text-alabaster-grey/50 hover:text-bright-snow'
           }`}
         >
-          <Cpu size={11} className={swordStyle === 'plasma' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
-          PLASMA SABER (PURPLE)
+          <Cpu size={11} className={katanaColor === 'white' ? 'text-carbon-black' : 'text-alabaster-grey/50'} />
+          SNOW WHITE (PLATINUM)
         </button>
         <button
-          onClick={() => {
-            setSwordStyle('rune');
-          }}
+          onClick={() => setKatanaColor('black')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-silkscreen tracking-wider font-bold transition-all cursor-pointer ${
-            swordStyle === 'rune'
-              ? 'bg-indigo-600 text-bright-snow shadow-md shadow-indigo-600/20'
+            katanaColor === 'black'
+              ? 'bg-purple-950/80 text-bright-snow border border-purple-500/20 shadow-md shadow-purple-950/40'
               : 'text-alabaster-grey/50 hover:text-bright-snow'
           }`}
         >
-          <Monitor size={11} className={swordStyle === 'rune' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
-          RUNE GREATSWORD (INDIGO)
+          <Monitor size={11} className={katanaColor === 'black' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
+          OBSIDIAN BLACK (STEALTH)
         </button>
       </div>
 
@@ -1504,62 +1490,16 @@ function SwordCursorSandbox() {
             animation: arcadeSwordSwing 0.45s cubic-bezier(0.25, 0.8, 0.25, 1.25) forwards;
           }
 
-          /* Variation E: Split Diagonal cut animation using clip-paths (Violet themed) */
+          /* Horizontal centered split structure (Sliding apart) */
           .split-container {
             position: relative;
             display: inline-block;
           }
           .split-top, .split-bottom {
-            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-          }
-          .split-top {
-            clip-path: polygon(0 0, 100% 0, 100% 48%, 0 62%);
-          }
-          .split-bottom {
-            clip-path: polygon(0 62%, 100% 48%, 100% 100%, 0 100%);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-          }
-          .link-slashed-katana .split-top {
-            transform: translate(-4px, -2px) skewX(-6deg);
-            filter: brightness(1.2) drop-shadow(0 0 2px rgba(168,85,247,0.7));
-          }
-          .link-slashed-katana .split-bottom {
-            transform: translate(4px, 2px) skewX(-6deg);
-          }
-
-          /* Variation H: Horizontal split for Plasma Saber (Centered Purple) */
-          .split-top-horizontal {
             clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
-          }
-          .split-bottom-horizontal {
-            clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-          }
-          .split-top-horizontal, .split-bottom-horizontal {
             transition: transform 0.38s cubic-bezier(0.19, 1, 0.22, 1);
           }
-          .link-slashed-plasma .split-top-horizontal {
-            transform: translateY(-4px);
-            filter: brightness(1.2) drop-shadow(0 0 3px rgba(168,85,247,0.8));
-          }
-          .link-slashed-plasma .split-bottom-horizontal {
-            transform: translateY(4px);
-            filter: brightness(1.2) drop-shadow(0 0 3px rgba(168,85,247,0.8));
-          }
-
-          /* Variation I: Centered horizontal fracture split for Rune Greatsword (Indigo) */
-          .split-top-rune {
-            clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
-          }
-          .split-bottom-rune {
+          .split-bottom {
             clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
             position: absolute;
             top: 0;
@@ -1567,59 +1507,55 @@ function SwordCursorSandbox() {
             width: 100%;
             height: 100%;
           }
-          .split-top-rune, .split-bottom-rune {
-            transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          
+          /* Light Blue splits */
+          .link-slashed-blue .split-top {
+            transform: translateY(-4px);
+            filter: brightness(1.2) drop-shadow(0 0 3px rgba(6,182,212,0.8));
           }
-          .link-slashed-rune .split-top-rune {
-            transform: translateY(-3px) skewX(4deg);
-            filter: brightness(1.2) drop-shadow(0 0 3px rgba(99,102,241,0.8));
+          .link-slashed-blue .split-bottom {
+            transform: translateY(4px);
+            filter: brightness(1.2) drop-shadow(0 0 3px rgba(6,182,212,0.8));
           }
-          .link-slashed-rune .split-bottom-rune {
-            transform: translateY(3px) skewX(-4deg);
-            filter: brightness(1.2) drop-shadow(0 0 3px rgba(99,102,241,0.8));
+
+          /* Snow White splits */
+          .link-slashed-white .split-top {
+            transform: translateY(-4px);
+            filter: brightness(1.25) drop-shadow(0 0 3px rgba(255,255,255,0.8));
+          }
+          .link-slashed-white .split-bottom {
+            transform: translateY(4px);
+            filter: brightness(1.25) drop-shadow(0 0 3px rgba(255,255,255,0.8));
+          }
+
+          /* Obsidian Black splits */
+          .link-slashed-black .split-top {
+            transform: translateY(-4px);
+            filter: brightness(1.1) drop-shadow(0 0 3px rgba(168,85,247,0.7));
+          }
+          .link-slashed-black .split-bottom {
+            transform: translateY(4px);
+            filter: brightness(1.1) drop-shadow(0 0 3px rgba(168,85,247,0.7));
           }
         `}</style>
 
         {/* Dynamic Sparks Rendering */}
-        {sparks.map((spark) => {
-          if (spark.shape === 'rune') {
-            const runes = ['ᚠ', 'ᚢ', 'ᚦ', 'ᚨ', 'ᚱ', 'ᚲ', 'ᚷ', 'ᚹ', 'ᚺ', 'ᚾ', 'ᛁ', 'ᛃ', 'ᛇ', 'ᛈ', 'ᛉ', 'ᛊ', 'ᛏ', 'ᛒ', 'ᛖ', 'ᛗ', 'ᛚ', 'ᛜ', 'ᛞ', 'ᛟ'];
-            const runeChar = runes[spark.id % runes.length];
-            return (
-              <span
-                key={spark.id}
-                className="absolute pointer-events-none z-30 font-mono font-bold select-none"
-                style={{
-                  left: `${spark.x}px`,
-                  top: `${spark.y}px`,
-                  fontSize: `${spark.size}px`,
-                  color: spark.color,
-                  opacity: spark.opacity,
-                  textShadow: `0 0 6px ${spark.color}`,
-                  transform: `translate(-50%, -50%) rotate(${spark.rotation}deg)`,
-                }}
-              >
-                {runeChar}
-              </span>
-            );
-          }
-          return (
-            <div
-              key={spark.id}
-              className={`absolute pointer-events-none z-30 ${spark.shape === 'square' ? '' : 'rounded-full'}`}
-              style={{
-                left: `${spark.x}px`,
-                top: `${spark.y}px`,
-                width: `${spark.size}px`,
-                height: `${spark.size}px`,
-                backgroundColor: spark.color,
-                opacity: spark.opacity,
-                boxShadow: `0 0 8px ${spark.color}`,
-                transform: `translate(-50%, -50%) rotate(${spark.rotation}deg)`,
-              }}
-            />
-          );
-        })}
+        {sparks.map((spark) => (
+          <div
+            key={spark.id}
+            className="absolute rounded-full pointer-events-none z-30"
+            style={{
+              left: `${spark.x}px`,
+              top: `${spark.y}px`,
+              width: `${spark.size}px`,
+              height: `${spark.size}px`,
+              backgroundColor: spark.color,
+              opacity: spark.opacity,
+              boxShadow: `0 0 8px ${spark.color}`,
+              transform: `translate(-50%, -50%) rotate(${spark.rotation}deg)`,
+            }}
+          />
+        ))}
 
         {/* Navigation Mock Layout */}
         <div className="flex flex-col items-center gap-6 z-10">
@@ -1630,14 +1566,8 @@ function SwordCursorSandbox() {
           <nav className="flex items-center gap-8 bg-carbon-black-2/80 backdrop-blur border border-graphite-light/60 px-8 py-4 rounded-xl shadow-xl relative">
             {navItems.map((item, idx) => {
               const isSlashed = slashedIdx === idx;
-              
-              // Decide style override classes
-              let animationClass = '';
-              if (isSlashed) {
-                if (swordStyle === 'katana') animationClass = 'link-slashed-katana';
-                else if (swordStyle === 'plasma') animationClass = 'link-slashed-plasma';
-                else if (swordStyle === 'rune') animationClass = 'link-slashed-rune';
-              }
+              let animationClass = isSlashed ? `link-slashed-${katanaColor}` : '';
+              let activeColorText = katanaColor === 'blue' ? 'text-cyan-400' : katanaColor === 'white' ? 'text-slate-100 drop-shadow-[0_0_3px_rgba(255,255,255,0.4)]' : 'text-purple-500';
 
               return (
                 <a
@@ -1647,22 +1577,10 @@ function SwordCursorSandbox() {
                   className={`sword-target-link relative text-xs font-silkscreen tracking-widest text-alabaster-grey/70 hover:text-bright-snow transition-colors select-none py-1 px-2 ${animationClass}`}
                 >
                   {/* Top / Bottom split structure (Horizontal Centered Splits) */}
-                  {swordStyle === 'katana' ? (
-                    <div className="split-container">
-                      <span className={`split-top ${activeLink === item ? 'text-purple-400 font-bold' : ''}`}>{item}</span>
-                      <span className={`split-bottom ${activeLink === item ? 'text-purple-400 font-bold' : ''}`} aria-hidden="true">{item}</span>
-                    </div>
-                  ) : swordStyle === 'plasma' ? (
-                    <div className="split-container">
-                      <span className={`split-top-horizontal ${activeLink === item ? 'text-purple-400 font-bold' : ''}`}>{item}</span>
-                      <span className={`split-bottom-horizontal ${activeLink === item ? 'text-purple-400 font-bold' : ''}`} aria-hidden="true">{item}</span>
-                    </div>
-                  ) : (
-                    <div className="split-container">
-                      <span className={`split-top-rune ${activeLink === item ? 'text-indigo-400 font-bold' : ''}`}>{item}</span>
-                      <span className={`split-bottom-rune ${activeLink === item ? 'text-indigo-400 font-bold' : ''}`} aria-hidden="true">{item}</span>
-                    </div>
-                  )}
+                  <div className="split-container">
+                    <span className={`split-top ${activeLink === item ? activeColorText + ' font-bold' : ''}`}>{item}</span>
+                    <span className={`split-bottom ${activeLink === item ? activeColorText + ' font-bold' : ''}`} aria-hidden="true">{item}</span>
+                  </div>
 
                   {/* Slash centered horizontal neon streak overlay line */}
                   {slashes.map((s) => {
@@ -1686,117 +1604,68 @@ function SwordCursorSandbox() {
           </nav>
         </div>
 
-        {/* Premium Centered Sword Cursor (Tracks Mouse Coordinates) */}
         {isHoveringNav && (
           <div
             className={`pointer-events-none fixed z-50 select-none ${isSlashing ? 'animate-arcade-swing' : ''}`}
             style={{
-              /* 
-                SWORD POINTER CENTERING MATHEMATICS:
-                Positions the exact center (50% 50%) of each sword SVG directly on the mouse coordinate.
-                Katana: width 44, offset 22.
-                Plasma: width 48, offset 24.
-                Rune: width 54, offset 27.
-              */
-              left: swordStyle === 'katana'
-                ? `${mousePos.x - 22}px`
-                : swordStyle === 'plasma'
-                ? `${mousePos.x - 24}px`
-                : `${mousePos.x - 27}px`,
-              top: swordStyle === 'katana'
-                ? `${mousePos.y - 22}px`
-                : swordStyle === 'plasma'
-                ? `${mousePos.y - 24}px`
-                : `${mousePos.y - 27}px`,
-              transformOrigin: swordStyle === 'katana'
-                ? '22px 22px'
-                : swordStyle === 'plasma'
-                ? '24px 24px'
-                : '27px 27px',
+              left: `${mousePos.x - 22}px`,
+              top: `${mousePos.y - 22}px`,
+              transformOrigin: '22px 22px',
               transition: isSlashing ? 'none' : 'transform 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
             }}
           >
-            {/* VARIATION E: Neon Cyber-Katana (Purple Glow - Centered Alignment) */}
-            {swordStyle === 'katana' && (
-              <svg width="44" height="44" viewBox="0 0 44 44" fill="none" className="filter drop-shadow-[0_0_8px_rgba(168,85,247,0.85)]">
-                {/* 
-                  Tip: x=0, y=0.
-                  Center: x=22, y=22.
-                  Hilt: x=34, y=34.
-                */}
-                {/* Blade Glow aura */}
-                <line x1="2" y1="2" x2="28" y2="28" stroke="oklch(0.61 0.22 285.0)" strokeWidth="4.5" strokeLinecap="round" className="opacity-45" />
-                {/* Blade razor edge */}
-                <line x1="0" y1="0" x2="26" y2="26" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" />
-                {/* Steel core */}
-                <line x1="1" y1="1" x2="25" y2="25" stroke="#c084fc" strokeWidth="1" strokeLinecap="round" />
-                {/* Sleek Tsuba/Guard */}
-                <line x1="23" y1="29" x2="29" y2="23" stroke="#1e1b4b" strokeWidth="3" strokeLinecap="round" />
-                {/* Handle/Tsuka */}
-                <line x1="27" y1="27" x2="37" y2="37" stroke="#000000" strokeWidth="3.2" strokeLinecap="round" />
-                <line x1="28" y1="28" x2="36" y2="36" stroke="#a855f7" strokeWidth="1.5" strokeLinecap="round" />
-                {/* Golden pommel */}
-                <circle cx="38" cy="38" r="1.8" fill="#fbbf24" />
-              </svg>
-            )}
-
-            {/* VARIATION H: Plasma Saber (Violet-Purple - Centered Alignment) */}
-            {swordStyle === 'plasma' && (
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="filter drop-shadow-[0_0_10px_rgba(168,85,247,0.9)]">
-                {/* 
-                  Tip: x=0, y=0.
-                  Center: x=24, y=24.
-                  Emitter: x=36, y=36.
-                */}
-                {/* Energy blade glow */}
-                <line x1="0" y1="0" x2="36" y2="36" stroke="rgba(168,85,247,0.5)" strokeWidth="6" strokeLinecap="round" />
-                <line x1="0" y1="0" x2="36" y2="36" stroke="rgba(168,85,247,0.8)" strokeWidth="4" strokeLinecap="round" />
-                {/* White hot core */}
-                <line x1="0" y1="0" x2="36" y2="36" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" />
-                {/* Emitter shroud / details */}
-                <circle cx="36" cy="36" r="3" fill="#334155" stroke="#a855f7" strokeWidth="1" />
-                {/* Cyber handle/hilt */}
-                <line x1="36" y1="36" x2="44" y2="44" stroke="#1e293b" strokeWidth="3.5" strokeLinecap="round" />
-                <line x1="38" y1="38" x2="42" y2="42" stroke="#a855f7" strokeWidth="1.2" strokeLinecap="round" />
-                {/* Hilt end cap */}
-                <circle cx="44" cy="44" r="1.5" fill="#f43f5e" />
-              </svg>
-            )}
-
-            {/* VARIATION I: Rune Greatsword (Steel/Violet Runes - Centered Alignment) */}
-            {swordStyle === 'rune' && (
-              <svg width="54" height="54" viewBox="0 0 54 54" fill="none" className="filter drop-shadow-[0_0_10px_rgba(129,140,248,0.7)]">
-                {/* 
-                  Tip: x=0, y=0.
-                  Center: x=27, y=27.
-                  Guard: x=40, y=40.
-                */}
-                {/* Steel blade base */}
-                <polygon points="0,0 36,41 41,36" fill="#64748b" stroke="#334155" strokeWidth="1.5" />
-                <polygon points="0,0 37,39 39,37" fill="#94a3b8" />
-                {/* Central blood groove */}
-                <line x1="2" y1="2" x2="38" y2="38" stroke="#0f172a" strokeWidth="1.5" />
-                {/* Glowing violet runes along the central groove */}
-                <line x1="6" y1="6" x2="34" y2="34" stroke="#818cf8" strokeWidth="1.2" strokeDasharray="3 4" className="opacity-95" />
-                {/* Crossguard */}
-                <line x1="30" y1="50" x2="50" y2="30" stroke="#4f46e5" strokeWidth="5.5" strokeLinecap="round" />
-                <line x1="32" y1="48" x2="48" y2="32" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" />
-                {/* Purple Gem in crossguard center */}
-                <circle cx="40" cy="40" r="2.2" fill="#a855f7" />
-                {/* Handle */}
-                <line x1="40" y1="40" x2="49" y2="49" stroke="#312e81" strokeWidth="4" strokeLinecap="round" />
-                <line x1="42" y1="42" x2="47" y2="47" stroke="#4338ca" strokeWidth="2" strokeLinecap="round" />
-                {/* Pommel */}
-                <circle cx="50" cy="50" r="2.5" fill="#4f46e5" stroke="#6366f1" strokeWidth="1" />
-              </svg>
-            )}
+            {/* Template Cyber-Katana SVG rendering customized colors */}
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="none" 
+              className={`filter ${
+                katanaColor === 'blue'
+                  ? 'drop-shadow-[0_0_8px_rgba(6,182,212,0.85)]'
+                  : katanaColor === 'white'
+                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]'
+                  : 'drop-shadow-[0_0_8px_rgba(168,85,247,0.7)]'
+              }`}
+            >
+              {/* Outer blade neon glow */}
+              <line 
+                x1="2" y1="2" x2="28" y2="28" 
+                stroke={katanaColor === 'blue' ? 'oklch(0.75 0.18 200.0)' : katanaColor === 'white' ? 'oklch(0.98 0.005 240.0)' : 'oklch(0.35 0.05 285.0)'} 
+                strokeWidth="4.5" strokeLinecap="round" className="opacity-45" 
+              />
+              
+              {/* Blade razor edge */}
+              <line x1="0" y1="0" x2="26" y2="26" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" />
+              
+              {/* Blade steel core */}
+              <line 
+                x1="1" y1="1" x2="25" y2="25" 
+                stroke={katanaColor === 'blue' ? '#22d3ee' : katanaColor === 'white' ? '#e2e8f0' : '#475569'} 
+                strokeWidth="1.2" strokeLinecap="round" 
+              />
+              
+              {/* Sleek Tsuba/Guard */}
+              <line 
+                x1="23" y1="29" x2="29" y2="23" 
+                stroke={katanaColor === 'blue' ? '#0e7490' : katanaColor === 'white' ? '#334155' : '#0f172a'} 
+                strokeWidth="3.5" strokeLinecap="round" 
+              />
+              
+              {/* Handle/Tsuka */}
+              <line x1="27" y1="27" x2="37" y2="37" stroke="#000000" strokeWidth="3.2" strokeLinecap="round" />
+              <line 
+                x1="28" y1="28" x2="36" y2="36" 
+                stroke={katanaColor === 'blue' ? '#06b6d4' : katanaColor === 'white' ? '#cbd5e1' : '#6b21a8'} 
+                strokeWidth="1.5" strokeLinecap="round" 
+              />
+              
+              {/* Golden pommel */}
+              <circle cx="38" cy="38" r="1.8" fill="#fbbf24" />
+            </svg>
           </div>
         )}
 
         {/* Dynamic HUD information footer */}
         <div className="absolute bottom-4 text-[7px] font-silkscreen text-alabaster-grey/40 uppercase tracking-widest flex items-center gap-1.5 select-none">
           <span className="w-1.5 h-1.5 rounded-full bg-slate-violet-light animate-pulse" />
-          ACTIVE CHANNEL: [ {activeLink} ] // STYLE: [ {swordStyle === 'katana' ? 'CYBER-KATANA (VAR E)' : swordStyle === 'plasma' ? 'PLASMA SABER (VAR H)' : 'RUNE GREATSWORD (VAR I)'} ] // ALIGNMENT: [ CENTER-POINT POINTER HOTSPOT ]
+          ACTIVE CHANNEL: [ {activeLink} ] // STYLE: [ CYBER-KATANA ({katanaColor.toUpperCase()}) ] // ALIGNMENT: [ CENTER-POINT POINTER HOTSPOT ]
         </div>
       </div>
     </div>
