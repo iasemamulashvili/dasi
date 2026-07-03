@@ -99,6 +99,15 @@ interface WebGLFeaturedSliderProps {
   })[];
 }
 
+interface Ripple {
+  x: number;
+  y: number;
+  radius: number;
+  maxRadius: number;
+  intensity: number;
+  speed: number;
+}
+
 export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSliderProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -115,6 +124,10 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
   const [isModalPlaying, setIsModalPlaying] = useState(true);
   const modalVideoRef = useRef<HTMLVideoElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  // EMP Shockwave Ripple states
+  const ripplesRef = useRef<Ripple[]>([]);
+  const [rippleTrigger, setRippleTrigger] = useState(0);
 
   const gamesData = featuredGames.length > 0 
     ? featuredGames.map(g => ({
@@ -159,6 +172,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
   const uCanvasSizeLocRef = useRef<WebGLUniformLocation | null>(null);
   const uTexture1LocRef = useRef<WebGLUniformLocation | null>(null);
   const uTexture2LocRef = useRef<WebGLUniformLocation | null>(null);
+  const uRipplesLocRef = useRef<WebGLUniformLocation | null>(null);
 
   // Fallback CSS fade system state
   const [prevIndex, setPrevIndex] = useState(0);
@@ -197,6 +211,9 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
       uniform float u_progress;
       uniform vec2 u_canvasSize;
 
+      #define MAX_RIPPLES 8
+      uniform vec4 u_ripples[MAX_RIPPLES]; // x, y, radius, intensity
+
       // Cover scaling helper
       vec2 getCoverUV(vec2 uv, vec2 canvasSize, vec2 imgSize) {
         float cRatio = canvasSize.x / canvasSize.y;
@@ -228,14 +245,41 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
 
       void main() {
         vec2 uv = v_texCoord;
-        vec2 canvasRatio = u_canvasSize;
+        vec2 aspect = vec2(u_canvasSize.x / u_canvasSize.y, 1.0);
+
+        // Accumulate EMP ripples
+        vec2 rippleDistortion = vec2(0.0);
+        for (int i = 0; i < MAX_RIPPLES; i++) {
+          vec4 ripple = u_ripples[i];
+          if (ripple.z > 0.0) {
+            vec2 center = ripple.xy;
+            float radius = ripple.z;
+            float intensity = ripple.w;
+
+            vec2 diff = (uv - center) * aspect;
+            float dist = length(diff);
+
+            float ringWidth = 0.06;
+            if (dist > radius - ringWidth && dist < radius + ringWidth) {
+              float peak = abs(dist - radius);
+              float norm = peak / ringWidth;
+              float force = cos(norm * 3.14159) * 0.5 + 0.5;
+
+              // Refract outward
+              vec2 displace = normalize(diff);
+              rippleDistortion += displace * sin((dist - radius) * 45.0) * 0.035 * force * intensity;
+            }
+          }
+        }
+
+        vec2 finalUV = uv + rippleDistortion;
         vec2 imageRatio = vec2(1920.0, 1080.0); // Widescreen baseline
         
-        vec2 uv1 = getCoverUV(uv, canvasRatio, imageRatio);
-        vec2 uv2 = getCoverUV(uv, canvasRatio, imageRatio);
+        vec2 uv1 = getCoverUV(finalUV, u_canvasSize, imageRatio);
+        vec2 uv2 = getCoverUV(finalUV, u_canvasSize, imageRatio);
 
         // Dynamic wave liquid morph factor
-        float waveNoise = noise(uv * 12.0 + vec2(u_progress * 2.0, u_progress * 1.5)) * 0.1;
+        float waveNoise = noise(finalUV * 12.0 + vec2(u_progress * 2.0, u_progress * 1.5)) * 0.1;
         
         // Displace lookups in opposite vectors based on transition step
         vec2 dist1 = uv1 + vec2(waveNoise * u_progress, waveNoise * u_progress);
@@ -309,6 +353,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
     uCanvasSizeLocRef.current = gl.getUniformLocation(program, 'u_canvasSize');
     uTexture1LocRef.current = gl.getUniformLocation(program, 'u_texture1');
     uTexture2LocRef.current = gl.getUniformLocation(program, 'u_texture2');
+    uRipplesLocRef.current = gl.getUniformLocation(program, 'u_ripples');
 
     // Load textures
     const imageUrls = gamesData.map(g => g.image);
@@ -405,6 +450,26 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
     if (uProgressLocRef.current) gl.uniform1f(uProgressLocRef.current, progress);
     if (uCanvasSizeLocRef.current) gl.uniform2f(uCanvasSizeLocRef.current, canvas.width, canvas.height);
 
+    // Format ripples flat array (8 items * 4 properties: x, y, radius, intensity)
+    const rippleArray = new Float32Array(8 * 4);
+    for (let i = 0; i < 8; i++) {
+      if (i < ripplesRef.current.length) {
+        const r = ripplesRef.current[i];
+        rippleArray[i * 4] = r.x;
+        rippleArray[i * 4 + 1] = r.y;
+        rippleArray[i * 4 + 2] = r.radius;
+        rippleArray[i * 4 + 3] = r.intensity;
+      } else {
+        rippleArray[i * 4] = 0.0;
+        rippleArray[i * 4 + 1] = 0.0;
+        rippleArray[i * 4 + 2] = 0.0;
+        rippleArray[i * 4 + 3] = 0.0;
+      }
+    }
+    if (uRipplesLocRef.current) {
+      gl.uniform4fv(uRipplesLocRef.current, rippleArray);
+    }
+
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   };
 
@@ -457,6 +522,84 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
       customCursorRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
     }
   };
+
+  const handleSliderClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Only fire if modal is closed
+    if (isModalOpen) return;
+
+    // Ignore clicks on buttons/links
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a')) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    // Normalize coordinates (U/V map from 0.0 to 1.0)
+    const normX = clickX / rect.width;
+    const normY = clickY / rect.height;
+
+    // Trigger tech EMP shockwave ripple
+    const newRipple: Ripple = {
+      x: normX,
+      y: normY,
+      radius: 0.0,
+      maxRadius: 0.55 + Math.random() * 0.15,
+      intensity: 1.0,
+      speed: 0.38
+    };
+
+    ripplesRef.current.push(newRipple);
+    if (ripplesRef.current.length > 8) {
+      ripplesRef.current.shift();
+    }
+
+    // Trigger kinetic screen shake on shader canvas
+    const canvas = canvasRef.current;
+    if (canvas) {
+      gsap.fromTo(canvas,
+        { x: () => (Math.random() - 0.5) * 8, y: () => (Math.random() - 0.5) * 8 },
+        { x: 0, y: 0, duration: 0.12, ease: 'rough', clearProps: 'x,y' }
+      );
+    }
+
+    setRippleTrigger(prev => prev + 1);
+  };
+
+  // Ripples Animation Ticking Effect
+  useEffect(() => {
+    if (ripplesRef.current.length === 0) return;
+
+    let animationId: number;
+    const runFrame = () => {
+      const activeRipples = ripplesRef.current;
+      for (let i = 0; i < activeRipples.length; i++) {
+        const ripple = activeRipples[i];
+        ripple.radius += ripple.speed * 0.016; // approx 60fps
+        ripple.intensity = Math.max(0, 1.0 - (ripple.radius / ripple.maxRadius));
+      }
+      ripplesRef.current = activeRipples.filter(r => r.radius < r.maxRadius && r.intensity > 0);
+
+      // Redraw WebGL frame
+      const progress = transitionRef.current.active ? fadeProgress : 0;
+      const prevIdx = transitionRef.current.active ? prevIndex : activeIndex;
+      if (webglSupported) {
+        drawWebGL(prevIdx, activeIndex, progress);
+      }
+
+      if (ripplesRef.current.length > 0) {
+        animationId = requestAnimationFrame(runFrame);
+      } else {
+        // Redraw final frame to clear ripples
+        if (webglSupported) {
+          drawWebGL(activeIndex, activeIndex, 0);
+        }
+      }
+    };
+
+    animationId = requestAnimationFrame(runFrame);
+    return () => cancelAnimationFrame(animationId);
+  }, [rippleTrigger, activeIndex, prevIndex, fadeProgress, webglSupported]);
 
   // Keyboard and Focus Management for Modal
   useEffect(() => {
@@ -525,6 +668,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
       <div 
         ref={sliderRef}
         onMouseMove={handleMouseMove}
+        onClick={handleSliderClick}
         onMouseEnter={() => setCursorHovered(true)}
         onMouseLeave={() => setCursorHovered(false)}
         className={`relative w-full h-[500px] md:h-[600px] bg-carbon-black border border-graphite-light rounded-2xl overflow-hidden flex flex-col justify-end p-8 md:p-12 select-none slider-glow ${isModalOpen ? 'cursor-default' : 'cursor-none'}`}
@@ -598,7 +742,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
         {/* Dark Overlay vignette */}
         <div className="absolute inset-0 bg-gradient-to-t from-carbon-black via-carbon-black/45 to-carbon-black/50 z-10 pointer-events-none" />
 
-        {/* Custom Retro Magnetic Wireframe Crosshair Cursor Overlay */}
+        {/* Custom Option C Minimal Tech Scope Crosshair Cursor Overlay */}
         <div 
           ref={customCursorRef}
           className="absolute pointer-events-none z-40 hidden md:flex items-center justify-center"
@@ -612,27 +756,34 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
           }}
         >
           <div className="relative w-16 h-16 flex items-center justify-center">
-            {/* Outer dotted spinning wireframe ring */}
+            {/* Primary thin circular reticle with pronounced slate-violet glow */}
             <div 
-              className="absolute inset-0 rounded-full border border-dashed animate-[spin_10s_linear_infinite]"
+              className="absolute w-10 h-10 rounded-full border border-slate-violet-light/95"
               style={{ 
-                borderColor: 'var(--color-slate-violet-light)', 
-                boxShadow: `0 0 12px var(--color-slate-violet)44` 
+                boxShadow: `0 0 10px rgba(168, 85, 247, 0.7)` 
               }}
             />
-            {/* Inner solid ring */}
-            <div 
-              className="absolute w-8 h-8 rounded-full border border-double"
-              style={{ borderColor: 'var(--color-platinum-silver)' }}
-            />
-            {/* Crosshair target lines */}
-            <div className="absolute w-5 h-[1px] bg-slate-violet-light" />
-            <div className="absolute h-5 w-[1px] bg-slate-violet-light" />
-            {/* HUD Target readout text */}
+            
+            {/* Precision Technical Brackets framing the scope */}
+            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-slate-violet-light/90" />
+            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-slate-violet-light/90" />
+            <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-slate-violet-light/90" />
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-slate-violet-light/90" />
+
+            {/* Crosshair pointer needles */}
+            <div className="absolute w-[8px] h-[1.5px] bg-slate-violet-light/95 -translate-x-6" />
+            <div className="absolute w-[8px] h-[1.5px] bg-slate-violet-light/95 translate-x-6" />
+            <div className="absolute h-[8px] w-[1.5px] bg-slate-violet-light/95 -translate-y-6" />
+            <div className="absolute h-[8px] w-[1.5px] bg-slate-violet-light/95 translate-y-6" />
+
+            {/* Center target dot */}
+            <div className="absolute w-1.5 h-1.5 rounded-full bg-bright-snow shadow-[0_0_6px_#ffffff]" />
+
+            {/* Precision Technical Readouts */}
             <span 
-              className="absolute top-10 font-sans text-[7px] bg-carbon-black/90 px-1.5 py-0.5 border border-graphite-light rounded text-bright-snow tracking-widest whitespace-nowrap"
+              className="absolute top-11 font-mono text-[7px] bg-carbon-black/95 px-2 py-0.5 border border-slate-violet-light/30 rounded text-bright-snow tracking-widest whitespace-nowrap"
             >
-              LOCK: {activeGame.title.toUpperCase()}
+              EMP // LOCK: {activeGame.title.toUpperCase()}
             </span>
           </div>
         </div>
@@ -673,15 +824,6 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
           </div>
 
           <div className="slider-hud-element pointer-events-auto flex flex-wrap items-center gap-4">
-            <button 
-              onClick={() => {
-                document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="inset-pixel-btn-primary group/btn inline-flex items-center py-2 px-4 cursor-pointer"
-            >
-              <Play size={10} className="mr-2 fill-current" /> EXPLORE GAME <ArrowRight size={10} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
-            </button>
-
             {activeGame.videoSrc && (
               <button 
                 onClick={() => {
@@ -695,7 +837,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
               </button>
             )}
             
-            {/* App Store and Google Play Download Links */}
+            {/* App Store and Google Play Download Links (Aligned directly next to single preview button) */}
             <div className="flex items-center gap-2">
               {activeGame.appstoreLink && (
                 <a 

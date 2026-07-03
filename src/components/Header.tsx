@@ -46,6 +46,7 @@ function createSparks(clientX: number, clientY: number, currentSparkIdx: number)
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
   const pathname = usePathname();
   const router = useRouter();
 
@@ -63,13 +64,28 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
+      setIsScrolled(window.scrollY > 20);
+
+      // Section active zone tracking observer logic
+      const sections = ['home', 'portfolio', 'about', 'careers', 'contact'];
+      let currentSection = 'home';
+      const thresholdOffset = 120; // Height of header + padding threshold
+
+      for (const sectionId of sections) {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= thresholdOffset && rect.bottom >= thresholdOffset) {
+            currentSection = sectionId;
+            break;
+          }
+        }
       }
+      setActiveSection(currentSection);
     };
     window.addEventListener('scroll', handleScroll);
+    // Run initial scroll check
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -159,11 +175,11 @@ export default function Header() {
   };
 
   const navLinks = [
-    { label: 'HOME', href: '#home' },
-    { label: 'GAMES', href: '#portfolio' },
-    { label: 'ABOUT', href: '#about' },
-    { label: 'CAREERS', href: '#careers' },
-    { label: 'CONTACT', href: '#contact' },
+    { label: 'HOME', href: '#home', id: 'home' },
+    { label: 'GAMES', href: '#portfolio', id: 'portfolio' },
+    { label: 'ABOUT', href: '#about', id: 'about' },
+    { label: 'CAREERS', href: '#careers', id: 'careers' },
+    { label: 'CONTACT', href: '#contact', id: 'contact' },
   ];
 
   const slashClass = (label: string) => (slashedLabel === label ? 'link-slashed-white' : '');
@@ -217,16 +233,14 @@ export default function Header() {
           height: 100%;
         }
         
-        /* Snow White splits on hover or active slash */
-        .group-hover-slash:hover .split-top,
+        /* Snow White splits ONLY on click active slash */
         .link-slashed-white .split-top {
           transform: translateY(-4px);
-          filter: brightness(1.25) drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
+          filter: brightness(1.25) drop-shadow(0 0 3.5px rgba(255, 255, 255, 0.85));
         }
-        .group-hover-slash:hover .split-bottom,
         .link-slashed-white .split-bottom {
           transform: translateY(4px);
-          filter: brightness(1.25) drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
+          filter: brightness(1.25) drop-shadow(0 0 3.5px rgba(255, 255, 255, 0.85));
         }
 
         @keyframes fadeIn {
@@ -252,9 +266,11 @@ export default function Header() {
               key={link.label}
               href={link.href}
               onClick={(e) => handleNavLinkClick(e, link)}
-              className={`relative group-hover-slash select-none text-xs font-silkscreen tracking-widest text-alabaster-grey hover:text-bright-snow transition-colors duration-300 py-1 px-2 ${slashClass(
-                link.label
-              )}`}
+              className={`relative group-hover-slash select-none text-xs font-silkscreen tracking-widest transition-all duration-300 py-1 px-2 ${
+                activeSection === link.id
+                  ? 'text-bright-snow drop-shadow-[0_0_8px_rgba(255,255,255,0.75)] font-bold'
+                  : 'text-alabaster-grey hover:text-bright-snow'
+              } ${slashClass(link.label)}`}
             >
               <div className="split-container">
                 <span className="split-top">{link.label}</span>
@@ -306,9 +322,11 @@ export default function Header() {
               key={link.label}
               href={link.href}
               onClick={(e) => handleNavLinkClick(e, link)}
-              className={`relative group-hover-slash select-none text-sm font-silkscreen tracking-widest text-alabaster-grey hover:text-bright-snow py-3 border-b border-graphite-light transition-colors ${slashClass(
-                link.label
-              )}`}
+              className={`relative group-hover-slash select-none text-sm font-silkscreen tracking-widest py-3 border-b border-graphite-light transition-all duration-300 ${
+                activeSection === link.id
+                  ? 'text-bright-snow drop-shadow-[0_0_8px_rgba(255,255,255,0.75)] font-bold'
+                  : 'text-alabaster-grey hover:text-bright-snow'
+              } ${slashClass(link.label)}`}
             >
               <div className="split-container">
                 <span className="split-top">{link.label}</span>
