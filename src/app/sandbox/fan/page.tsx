@@ -2,7 +2,20 @@
 
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
-import { Play, Volume2, VolumeX, X, Monitor, Cpu, Sparkles } from 'lucide-react';
+import { Play, Volume2, VolumeX, X, Monitor, Cpu, Sparkles, Trophy, ArrowRight } from 'lucide-react';
+
+// Official App Store & Google Play Store SVG Icons
+const AppStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 384 512" fill="currentColor" className={className}>
+    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-48.7-22.9-76.9-22.4-36.6.6-70.3 21.6-89.2 54.2-38 65.9-9.8 162.8 27.3 216.3 18.2 26.2 39.8 55.3 68.2 54.2 27.2-1.1 37.5-17.6 68.5-17.6 31.1 0 40.4 17.6 68.8 17.1 29-1 48.2-26.4 66.2-52.7 21-30.7 29.7-60.4 30.2-62-1-1-65.2-25.1-65.7-100zM281.2 81.7c15.2-18.3 25.4-43.9 22.6-69.5-22 1-48.8 14.8-64.6 33.2-13.8 15.9-25.9 41.7-22.7 67 24.5 2 49.7-12.4 64.7-30.7z" />
+  </svg>
+);
+
+const PlayStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 512 512" fill="currentColor" className={className}>
+    <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58 33.3 60.1 60.1L512 288c0-22-13.7-47.8-40-62.4zM325.3 277.7l60.1 60.1L104.6 499l220.7-221.3z" />
+  </svg>
+);
 
 // Helper component for each sandbox option to keep states isolated
 function FanSandboxItem({
@@ -920,7 +933,7 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'C' | 'D' }) {
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setCursorHovered(true)}
       onMouseLeave={() => setCursorHovered(false)}
-      className="relative w-full h-[450px] bg-carbon-black border border-graphite-light rounded-xl overflow-hidden flex flex-col justify-end p-5 md:p-6 cursor-none select-none slider-glow"
+      className="relative w-full h-[500px] md:h-[600px] bg-carbon-black border border-graphite-light rounded-2xl overflow-hidden flex flex-col justify-end p-8 md:p-12 cursor-none select-none slider-glow"
     >
       <style>{`
         @keyframes crt-flicker {
@@ -990,9 +1003,9 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'C' | 'D' }) {
       )}
 
       {/* Dark Overlay Vignette */}
-      <div className="absolute inset-0 bg-gradient-to-t from-carbon-black via-carbon-black/40 to-carbon-black/45 z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-carbon-black via-carbon-black/45 to-carbon-black/50 z-10 pointer-events-none" />
 
-      {/* Custom Retro Magnetic Cursor Overlay */}
+      {/* Custom Retro Magnetic Wireframe Crosshair Cursor Overlay */}
       <div 
         ref={customCursorRef}
         className="absolute pointer-events-none z-40 hidden md:flex items-center justify-center"
@@ -1005,78 +1018,124 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'C' | 'D' }) {
           transition: 'opacity 0.2s ease, scale 0.2s ease'
         }}
       >
-        <div className="relative w-12 h-12 flex items-center justify-center">
+        <div className="relative w-16 h-16 flex items-center justify-center">
+          {/* Outer dotted spinning wireframe ring */}
           <div 
             className="absolute inset-0 rounded-full border border-dashed animate-[spin_10s_linear_infinite]"
             style={{ 
               borderColor: 'var(--color-slate-violet-light)', 
-              boxShadow: `0 0 8px var(--color-slate-violet)44` 
+              boxShadow: `0 0 12px var(--color-slate-violet)44` 
             }}
           />
+          {/* Inner solid ring */}
           <div 
-            className="absolute w-6 h-6 rounded-full border border-double"
+            className="absolute w-8 h-8 rounded-full border border-double"
             style={{ borderColor: 'var(--color-platinum-silver)' }}
           />
-          <div className="absolute w-4 h-[1px] bg-slate-violet-light" />
-          <div className="absolute h-4 w-[1px] bg-slate-violet-light" />
+          {/* Crosshair target lines */}
+          <div className="absolute w-5 h-[1px] bg-slate-violet-light" />
+          <div className="absolute h-5 w-[1px] bg-slate-violet-light" />
+          {/* HUD Target readout text */}
           <span 
-            className="absolute top-8 font-sans text-[6px] bg-carbon-black/90 px-1 border border-graphite-light rounded text-bright-snow tracking-widest whitespace-nowrap"
+            className="absolute top-10 font-sans text-[7px] bg-carbon-black/90 px-1.5 py-0.5 border border-graphite-light rounded text-bright-snow tracking-widest whitespace-nowrap"
           >
             LOCK: {activeGame.title.toUpperCase()}
           </span>
         </div>
       </div>
 
-      {/* Main Slide Layout Content */}
-      <div className="relative w-full h-full flex flex-col justify-between z-10 pt-4 pb-12">
+      {/* Foreground Content HUD */}
+      <div className="relative w-full h-full flex flex-col justify-end z-10 text-left pointer-events-none">
         {/* Title HUD Info (Left-aligned) or Inline Morphing Player */}
-        <div className={`flex flex-col gap-1.5 pointer-events-none slider-hud-element z-20 transition-all duration-300 ${
-          showVideoInline ? 'max-w-[85%] sm:max-w-[65%] md:max-w-[55%]' : 'max-w-[55%]'
-        }`}>
+        <div className="flex flex-col z-20 transition-all duration-300 max-w-lg">
           
           {/* STATE 1: Text details block */}
           <div 
-            className={`flex flex-col gap-1.5 transition-all duration-500 ease-in-out ${
+            className={`flex flex-col transition-all duration-500 ease-in-out ${
               showVideoInline 
                 ? 'opacity-0 -translate-y-2 scale-95 pointer-events-none select-none h-0 overflow-hidden' 
                 : 'opacity-100 translate-y-0 scale-100'
             }`}
           >
-            <span className="text-[8px] font-silkscreen text-slate-violet-light uppercase tracking-widest leading-none">
-              {activeGame.subtitle}
+            <span className="slider-hud-element text-[9px] font-sans text-platinum-silver tracking-widest uppercase inline-flex items-center gap-1.5 mb-3.5 px-2 py-0.5 bg-graphite/50 border border-graphite-light/40 rounded-md w-fit">
+              <span className="w-1 h-1 bg-platinum-silver rounded-full animate-ping" />
+              {activeGame.subtitle.toUpperCase()}
             </span>
-            <h4 className="text-xl font-bold font-russo-one tracking-wider text-bright-snow uppercase leading-tight">
+            <h3 className="slider-hud-element text-4xl md:text-6xl font-normal text-bright-snow uppercase tracking-wider mb-4 leading-none font-russo-one retro-heading-shadow">
               {activeGame.title}
-            </h4>
-            <p className="text-[10px] text-alabaster-grey/70 leading-relaxed font-outfit max-h-[80px] overflow-hidden text-ellipsis">
+            </h3>
+            <p className="slider-hud-element text-xs md:text-sm text-alabaster-grey leading-relaxed mb-6 font-outfit font-light">
               {activeGame.description}
             </p>
             
-            {variant === 'C' && (
-              <button
-                onClick={() => {
-                  setIsModalMuted(false);
-                  setIsModalOpen(true);
-                }}
-                className="mt-2.5 group flex items-center justify-center gap-2 px-3 py-1.5 w-fit border border-slate-violet/40 hover:border-slate-violet-light bg-black/60 hover:bg-slate-violet/20 rounded-md text-center cursor-pointer pointer-events-auto transition-all focus-visible:ring-2 focus-visible:ring-slate-violet-light focus-visible:outline-none text-[9px] font-silkscreen tracking-widest text-bright-snow font-bold"
-              >
-                <Play size={10} className="fill-current text-slate-violet-light group-hover:scale-110 transition-transform" />
-                WATCH GAMEPLAY
-              </button>
-            )}
+            {/* Modern Specs HUD Panel with Real Game Stats */}
+            <div className="slider-hud-element font-mono text-[9px] text-alabaster-grey/85 border border-graphite-light/60 bg-carbon-black-2/95 p-4 rounded-xl space-y-1.5 mt-2 mb-6 max-w-[280px] relative backdrop-blur-md shadow-lg">
+              <div className="flex justify-between">
+                <span>Engine:</span>
+                <span className="text-platinum-silver font-bold">{activeGame.stats.engine}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Total Downloads:</span>
+                <span className="text-platinum-silver font-bold">{activeGame.stats.downloads}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Active Players:</span>
+                <span className="text-platinum-silver font-bold">{activeGame.stats.activePlayers}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Rating:</span>
+                <span className="text-muted-green font-bold">{activeGame.stats.rating} ★</span>
+              </div>
+            </div>
 
-            {variant === 'D' && (
-              <button
-                onClick={() => {
-                  setIsInlineMuted(false);
-                  setShowVideoInline(true);
-                }}
-                className="mt-2.5 group flex items-center justify-center gap-2 px-3 py-1.5 w-fit border border-slate-violet/40 hover:border-slate-violet-light bg-black/60 hover:bg-slate-violet/20 rounded-md text-center cursor-pointer pointer-events-auto transition-all focus-visible:ring-2 focus-visible:ring-slate-violet-light focus-visible:outline-none text-[9px] font-silkscreen tracking-widest text-bright-snow font-bold"
-              >
-                <Play size={10} className="fill-current text-slate-violet-light group-hover:scale-110 transition-transform" />
-                PLAY GAMEPLAY
-              </button>
-            )}
+            {/* Buttons Group */}
+            <div className="slider-hud-element pointer-events-auto flex flex-wrap items-center gap-4">
+              {variant === 'C' && (
+                <button 
+                  onClick={() => {
+                    setIsModalMuted(false);
+                    setIsModalOpen(true);
+                  }}
+                  className="inset-pixel-btn-primary group/btn inline-flex items-center py-2 px-4 cursor-pointer"
+                >
+                  <Play size={10} className="mr-2 fill-current" /> WATCH GAMEPLAY <ArrowRight size={10} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                </button>
+              )}
+
+              {variant === 'D' && (
+                <button 
+                  onClick={() => {
+                    setIsInlineMuted(false);
+                    setShowVideoInline(true);
+                  }}
+                  className="inset-pixel-btn-primary group/btn inline-flex items-center py-2 px-4 cursor-pointer"
+                >
+                  <Play size={10} className="mr-2 fill-current" /> PLAY GAMEPLAY <ArrowRight size={10} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                </button>
+              )}
+
+              {/* App Store and Google Play Download Links */}
+              <div className="flex items-center gap-2">
+                <a 
+                  href="https://apps.apple.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-2.5 bg-carbon-black/80 border border-graphite-light/60 hover:border-platinum-silver/80 rounded-md text-alabaster-grey hover:text-bright-snow transition-all hover:scale-105"
+                  title="Download on the App Store"
+                >
+                  <AppStoreIcon className="w-3.5 h-3.5" />
+                </a>
+                <a 
+                  href="https://play.google.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-2.5 bg-carbon-black/80 border border-graphite-light/60 hover:border-platinum-silver/80 rounded-md text-alabaster-grey hover:text-bright-snow transition-all hover:scale-105"
+                  title="Get it on Google Play"
+                >
+                  <PlayStoreIcon className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* STATE 2: Inline morphing video player card */}
@@ -1088,71 +1147,81 @@ function WebGLFeaturedSliderSandbox({ variant }: { variant: 'C' | 'D' }) {
                   : 'opacity-0 scale-90 translate-y-4 pointer-events-none select-none h-0 overflow-hidden'
               }`}
             >
-              <div className="relative w-full max-w-[360px] aspect-video bg-carbon-black-2/95 border border-slate-violet/50 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(120,119,198,0.3)] p-2.5 flex flex-col gap-2">
+              <div className="relative w-full max-w-[420px] aspect-video bg-carbon-black-2/95 border border-slate-violet/50 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(120,119,198,0.3)] p-3 flex flex-col gap-2">
                 {/* Mini Header */}
                 <div className="flex items-center justify-between border-b border-slate-violet/20 pb-1.5">
-                  <span className="text-[7px] font-silkscreen text-slate-violet-light tracking-widest uppercase flex items-center gap-1 select-none">
-                    <span className="w-1 h-1 rounded-full bg-slate-violet-light animate-ping" />
+                  <span className="text-[8px] font-silkscreen text-slate-violet-light tracking-widest uppercase flex items-center gap-1.5 select-none">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-violet-light animate-ping" />
                     INLINE PREVIEW: {activeGame.title}
                   </span>
                   
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     {/* Mute/Unmute */}
                     <button
                       onClick={() => setIsInlineMuted(!isInlineMuted)}
-                      className="p-1 bg-graphite hover:bg-slate-800 border border-graphite-light rounded text-alabaster-grey hover:text-bright-snow transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-violet-light focus-visible:outline-none"
+                      className="p-1.5 bg-graphite hover:bg-slate-800 border border-graphite-light rounded text-alabaster-grey hover:text-bright-snow transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-violet-light focus-visible:outline-none"
                       title={isInlineMuted ? "Unmute Audio" : "Mute Audio"}
                     >
-                      {isInlineMuted ? <VolumeX size={8} /> : <Volume2 size={8} className="text-slate-violet-light animate-pulse" />}
+                      {isInlineMuted ? <VolumeX size={10} /> : <Volume2 size={10} className="text-slate-violet-light animate-pulse" />}
                     </button>
                     {/* Back to details */}
                     <button
                       onClick={() => setShowVideoInline(false)}
-                      className="px-1.5 py-0.5 bg-graphite hover:bg-slate-800 border border-graphite-light rounded text-[7px] font-silkscreen text-alabaster-grey hover:text-bright-snow transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-violet-light focus-visible:outline-none uppercase font-bold"
+                      className="px-2 py-1 bg-graphite hover:bg-slate-800 border border-graphite-light rounded text-[8px] font-silkscreen text-alabaster-grey hover:text-bright-snow transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-violet-light focus-visible:outline-none uppercase font-bold"
                     >
-                      Show Details
+                      CLOSE PREVIEW
                     </button>
                   </div>
                 </div>
 
                 {/* Inline video display */}
                 <div className="flex-1 rounded border border-graphite-light overflow-hidden bg-black relative">
+                  {/* CRT scanline simulation overlay */}
+                  <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,6px_100%] opacity-25 z-10 animate-crt-flicker" />
+                  <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_60%,rgba(0,0,0,0.5)_100%)] opacity-70 z-10" />
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-slate-violet/5 to-transparent h-[10%] w-full z-10 animate-crt-scanlines" />
+
                   <video
                     ref={inlineVideoRef}
                     src={activeGame.videoSrc}
                     loop
                     muted={isInlineMuted}
                     playsInline
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover filter brightness-[1.05] contrast-[1.05]"
                   />
                 </div>
               </div>
             </div>
           )}
-
         </div>
       </div>
 
-      {/* Specs Footer & Dot Navigation */}
-      <div className="absolute bottom-4 left-5 right-5 border-t border-graphite-light/40 pt-3 flex justify-between items-center gap-3 text-[8px] font-silkscreen text-alabaster-grey/50 z-10">
-        <div className="flex gap-4">
-          <div>ENGINE: <span className="text-bright-snow">{activeGame.stats.engine}</span></div>
-          <div>DOWNLOADS: <span className="text-bright-snow">{activeGame.stats.downloads}</span></div>
-        </div>
+      {/* Navigation Dot Indicators */}
+      <div className="absolute right-6 md:right-8 top-1/2 -translate-y-1/2 flex flex-col gap-6 z-20 pointer-events-auto">
+        {sandboxGames.map((game, idx) => (
+          <button
+            key={game.id}
+            onClick={() => transitionTo(idx)}
+            className="group relative flex items-center justify-center w-12 h-12 rounded-full focus:outline-none cursor-pointer"
+          >
+            <span className="absolute right-full mr-4 bg-carbon-black border border-graphite-light px-3 py-1.5 rounded-lg text-[8px] font-sans text-alabaster-grey uppercase tracking-widest opacity-0 scale-75 origin-right transition-all group-hover:opacity-100 group-hover:scale-100 shadow-lg pointer-events-none">
+              {game.title}
+            </span>
+            
+            <span className={`text-[10px] font-sans ${
+              activeIndex === idx ? 'text-bright-snow scale-125' : 'text-alabaster-grey group-hover:text-bright-snow transition-colors'
+            }`}>
+              0{idx + 1}
+            </span>
 
-        {/* Dot Indicators */}
-        <div className="flex gap-1.5 pointer-events-auto">
-          {sandboxGames.map((game, idx) => (
-            <button
-              key={game.id}
-              onClick={() => transitionTo(idx)}
-              className={`w-2 h-2 rounded-full transition-all focus-visible:ring-1 focus-visible:ring-slate-violet-light focus-visible:outline-none cursor-pointer ${
-                activeIndex === idx ? 'bg-bright-snow scale-125' : 'bg-alabaster-grey/30 hover:bg-alabaster-grey/60'
-              }`}
-              aria-label={`Go to slide ${idx + 1}`}
+            <span className={`absolute bottom-0 right-0 w-full h-full rounded-full border transition-all ${
+              activeIndex === idx 
+                ? 'border-platinum-silver scale-110' 
+                : 'scale-90 opacity-0 group-hover:opacity-100 group-hover:scale-95 border-graphite-light'
+            }`} 
             />
-          ))}
-        </div>
+          </button>
+        ))}
       </div>
 
       {/* Cinematic Modal Overlay for Variation C */}
@@ -1244,7 +1313,6 @@ interface NavSlash {
   linkIdx: number;
   clientX: number;
   clientY: number;
-  angle: number;
   color: string;
 }
 
@@ -1281,12 +1349,12 @@ function SwordCursorSandbox() {
             x: spark.x + spark.vx,
             y: spark.y + spark.vy,
             vy: spark.shape === 'square'
-              ? spark.vy + 0.18
+              ? spark.vy + 0.16
               : spark.shape === 'rune'
-              ? spark.vy + 0.05
-              : spark.vy + 0.1,
+              ? spark.vy + 0.04
+              : spark.vy + 0.08,
             rotation: spark.rotation + spark.vrot,
-            opacity: spark.opacity - (spark.shape === 'rune' ? 0.015 : 0.03),
+            opacity: spark.opacity - (spark.shape === 'rune' ? 0.015 : 0.025),
           }))
           .filter((spark) => spark.opacity > 0)
       );
@@ -1303,8 +1371,8 @@ function SwordCursorSandbox() {
     setIsSlashing(true);
     setSlashedIdx(idx);
 
-    // Trigger sword swipe swing duration
-    setTimeout(() => setIsSlashing(false), 140);
+    // Trigger sword swipe swing duration (matches CSS keyframes 450ms)
+    setTimeout(() => setIsSlashing(false), 450);
     setTimeout(() => setSlashedIdx(null), 500);
 
     const containerRect = containerRef.current?.getBoundingClientRect();
@@ -1313,31 +1381,27 @@ function SwordCursorSandbox() {
     const localX = e.clientX - containerRect.left;
     const localY = e.clientY - containerRect.top;
 
-    // Define variation-specific properties
-    let slashColor = 'rgba(168, 85, 247, 0.8)';
-    let particleColor = 'oklch(0.61 0.025 285.0)';
+    // Unified violet-theme color values resembling the collected letters
+    let slashColor = 'rgba(168, 85, 247, 0.85)'; // primary violet
+    let particleColor = 'oklch(0.61 0.22 285.0)'; // vibrant violet
     let particleShape: 'circle' | 'square' | 'shield' | 'rune' = 'circle';
-    let angle = -12;
 
     if (swordStyle === 'plasma') {
-      slashColor = 'rgba(6, 182, 212, 0.9)';
-      particleColor = 'oklch(0.79 0.25 200.0)';
+      slashColor = 'rgba(192, 132, 252, 0.9)'; // lighter violet-purple
+      particleColor = 'oklch(0.75 0.18 290.0)'; // bright violet-snow
       particleShape = 'circle';
-      angle = 0;
     } else if (swordStyle === 'rune') {
-      slashColor = 'rgba(245, 158, 11, 0.85)';
-      particleColor = 'oklch(0.79 0.15 75.0)';
+      slashColor = 'rgba(147, 51, 234, 0.85)'; // deep violet
+      particleColor = 'oklch(0.55 0.25 280.0)'; // rich indigo-purple
       particleShape = 'rune';
-      angle = -20;
     }
 
-    // Spawn neon slice trail overlay
+    // Spawn horizontal centered slash trail overlay
     const newSlash: NavSlash = {
       id: Date.now(),
       linkIdx: idx,
       clientX: e.clientX,
       clientY: e.clientY,
-      angle,
       color: slashColor
     };
     setSlashes((prev) => [...prev, newSlash]);
@@ -1346,22 +1410,22 @@ function SwordCursorSandbox() {
     }, 450);
 
     // Spawn particle sparks explosion
-    const particleCount = swordStyle === 'rune' ? 20 : 12;
+    const particleCount = swordStyle === 'rune' ? 22 : 12;
     const newSparks: Spark[] = Array.from({ length: particleCount }).map((_, i) => {
       const pAngle = Math.random() * Math.PI * 2;
-      const speed = swordStyle === 'rune' ? 1.0 + Math.random() * 3.0 : 2.0 + Math.random() * 4.0;
+      const speed = swordStyle === 'rune' ? 1.0 + Math.random() * 2.5 : 2.0 + Math.random() * 3.5;
       return {
         id: Date.now() + i,
         x: localX,
         y: localY,
         vx: Math.cos(pAngle) * speed,
-        vy: Math.sin(pAngle) * speed - (swordStyle === 'rune' ? 1.0 : 0.5),
+        vy: Math.sin(pAngle) * speed - 0.3,
         color: particleColor,
-        size: swordStyle === 'rune' ? 10 + Math.random() * 6 : 3 + Math.random() * 3,
+        size: swordStyle === 'rune' ? 10 + Math.random() * 5 : 3 + Math.random() * 3,
         opacity: 1.0,
         shape: particleShape,
         rotation: Math.random() * 360,
-        vrot: (Math.random() - 0.5) * 10
+        vrot: (Math.random() - 0.5) * 8
       };
     });
     setSparks((prev) => [...prev, ...newSparks]);
@@ -1384,7 +1448,7 @@ function SwordCursorSandbox() {
           }`}
         >
           <Sparkles size={11} className={swordStyle === 'katana' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
-          KATANA TWEAK (VAR E)
+          CYBER-KATANA (VIOLET)
         </button>
         <button
           onClick={() => {
@@ -1392,12 +1456,12 @@ function SwordCursorSandbox() {
           }}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-silkscreen tracking-wider font-bold transition-all cursor-pointer ${
             swordStyle === 'plasma'
-              ? 'bg-cyan-600 text-bright-snow shadow-md shadow-cyan-600/20'
+              ? 'bg-purple-500 text-bright-snow shadow-md shadow-purple-500/20'
               : 'text-alabaster-grey/50 hover:text-bright-snow'
           }`}
         >
           <Cpu size={11} className={swordStyle === 'plasma' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
-          PLASMA SABER (VAR H)
+          PLASMA SABER (PURPLE)
         </button>
         <button
           onClick={() => {
@@ -1405,12 +1469,12 @@ function SwordCursorSandbox() {
           }}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-silkscreen tracking-wider font-bold transition-all cursor-pointer ${
             swordStyle === 'rune'
-              ? 'bg-amber-600 text-bright-snow shadow-md shadow-amber-600/20'
+              ? 'bg-indigo-600 text-bright-snow shadow-md shadow-indigo-600/20'
               : 'text-alabaster-grey/50 hover:text-bright-snow'
           }`}
         >
           <Monitor size={11} className={swordStyle === 'rune' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
-          RUNE GREATSWORD (VAR I)
+          RUNE GREATSWORD (INDIGO)
         </button>
       </div>
 
@@ -1427,7 +1491,20 @@ function SwordCursorSandbox() {
             cursor: none !important;
           }
           
-          /* Variation E: Split Diagonal cut animation using clip-paths */
+          /* Custom Arcade Game Sword swing animation */
+          @keyframes arcadeSwordSwing {
+            0% { transform: rotate(0deg); }
+            12% { transform: rotate(20deg); } /* wind-up anticipation */
+            30% { transform: rotate(-85deg); } /* fast strike slash */
+            55% { transform: rotate(-10deg); } /* recoil bounce */
+            75% { transform: rotate(4deg); }
+            100% { transform: rotate(0deg); } /* return to center */
+          }
+          .animate-arcade-swing {
+            animation: arcadeSwordSwing 0.45s cubic-bezier(0.25, 0.8, 0.25, 1.25) forwards;
+          }
+
+          /* Variation E: Split Diagonal cut animation using clip-paths (Violet themed) */
           .split-container {
             position: relative;
             display: inline-block;
@@ -1447,14 +1524,14 @@ function SwordCursorSandbox() {
             height: 100%;
           }
           .link-slashed-katana .split-top {
-            transform: translate(-3px, -2px) skewX(-6deg);
-            filter: brightness(1.2) drop-shadow(0 0 2px rgba(168,85,247,0.5));
+            transform: translate(-4px, -2px) skewX(-6deg);
+            filter: brightness(1.2) drop-shadow(0 0 2px rgba(168,85,247,0.7));
           }
           .link-slashed-katana .split-bottom {
-            transform: translate(3px, 2px) skewX(-6deg);
+            transform: translate(4px, 2px) skewX(-6deg);
           }
 
-          /* Variation H: Horizontal split for Plasma Saber */
+          /* Variation H: Horizontal split for Plasma Saber (Centered Purple) */
           .split-top-horizontal {
             clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
           }
@@ -1467,29 +1544,39 @@ function SwordCursorSandbox() {
             height: 100%;
           }
           .split-top-horizontal, .split-bottom-horizontal {
-            transition: transform 0.35s cubic-bezier(0.19, 1, 0.22, 1);
+            transition: transform 0.38s cubic-bezier(0.19, 1, 0.22, 1);
           }
           .link-slashed-plasma .split-top-horizontal {
-            transform: translateY(-3px);
-            filter: brightness(1.2) drop-shadow(0 0 3px rgba(6,182,212,0.8));
+            transform: translateY(-4px);
+            filter: brightness(1.2) drop-shadow(0 0 3px rgba(168,85,247,0.8));
           }
           .link-slashed-plasma .split-bottom-horizontal {
-            transform: translateY(3px);
-            filter: brightness(1.2) drop-shadow(0 0 3px rgba(6,182,212,0.8));
+            transform: translateY(4px);
+            filter: brightness(1.2) drop-shadow(0 0 3px rgba(168,85,247,0.8));
           }
 
-          /* Variation I: Jagged fracture and shatter for Rune Greatsword */
-          @keyframes runeFracture {
-            0% { transform: scale(1) skewX(0) rotate(0); }
-            15% { transform: scale(1.12, 0.88) skewX(-12deg) rotate(-2deg); filter: brightness(1.3) drop-shadow(0 0 3px #fbbf24); }
-            30% { transform: scale(0.88, 1.12) skewX(15deg) rotate(2deg); filter: brightness(1.4) drop-shadow(0 0 5px #f59e0b); }
-            45% { transform: scale(1.08, 0.92) skewX(-8deg) rotate(-1deg); }
-            60% { transform: scale(0.96, 1.04) skewX(5deg) rotate(1deg); }
-            75% { transform: scale(1.01, 0.99) skewX(-2deg); }
-            100% { transform: scale(1) skewX(0) rotate(0); }
+          /* Variation I: Centered horizontal fracture split for Rune Greatsword (Indigo) */
+          .split-top-rune {
+            clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
           }
-          .link-slashed-rune {
-            animation: runeFracture 0.55s cubic-bezier(0.15, 0.85, 0.35, 1.25) forwards;
+          .split-bottom-rune {
+            clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
+          .split-top-rune, .split-bottom-rune {
+            transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          }
+          .link-slashed-rune .split-top-rune {
+            transform: translateY(-3px) skewX(4deg);
+            filter: brightness(1.2) drop-shadow(0 0 3px rgba(99,102,241,0.8));
+          }
+          .link-slashed-rune .split-bottom-rune {
+            transform: translateY(3px) skewX(-4deg);
+            filter: brightness(1.2) drop-shadow(0 0 3px rgba(99,102,241,0.8));
           }
         `}</style>
 
@@ -1559,7 +1646,7 @@ function SwordCursorSandbox() {
                   onClick={(e) => handleNavLinkClick(idx, e)}
                   className={`sword-target-link relative text-xs font-silkscreen tracking-widest text-alabaster-grey/70 hover:text-bright-snow transition-colors select-none py-1 px-2 ${animationClass}`}
                 >
-                  {/* Top / Bottom split structure for Variation E (Katana) */}
+                  {/* Top / Bottom split structure (Horizontal Centered Splits) */}
                   {swordStyle === 'katana' ? (
                     <div className="split-container">
                       <span className={`split-top ${activeLink === item ? 'text-purple-400 font-bold' : ''}`}>{item}</span>
@@ -1567,24 +1654,25 @@ function SwordCursorSandbox() {
                     </div>
                   ) : swordStyle === 'plasma' ? (
                     <div className="split-container">
-                      <span className={`split-top-horizontal ${activeLink === item ? 'text-cyan-400 font-bold' : ''}`}>{item}</span>
-                      <span className={`split-bottom-horizontal ${activeLink === item ? 'text-cyan-400 font-bold' : ''}`} aria-hidden="true">{item}</span>
+                      <span className={`split-top-horizontal ${activeLink === item ? 'text-purple-400 font-bold' : ''}`}>{item}</span>
+                      <span className={`split-bottom-horizontal ${activeLink === item ? 'text-purple-400 font-bold' : ''}`} aria-hidden="true">{item}</span>
                     </div>
                   ) : (
-                    <span className={activeLink === item ? 'text-amber-400 font-bold drop-shadow-[0_0_4px_rgba(245,158,11,0.5)]' : ''}>
-                      {item}
-                    </span>
+                    <div className="split-container">
+                      <span className={`split-top-rune ${activeLink === item ? 'text-indigo-400 font-bold' : ''}`}>{item}</span>
+                      <span className={`split-bottom-rune ${activeLink === item ? 'text-indigo-400 font-bold' : ''}`} aria-hidden="true">{item}</span>
+                    </div>
                   )}
 
-                  {/* Slash neon streak overlay line */}
+                  {/* Slash centered horizontal neon streak overlay line */}
                   {slashes.map((s) => {
                     if (s.linkIdx !== idx) return null;
                     return (
                       <div
                         key={s.id}
-                        className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2.5px] bg-bright-snow pointer-events-none z-20 origin-left"
+                        className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2.5px] pointer-events-none z-20 origin-center"
                         style={{
-                          transform: `rotate(${s.angle}deg) scaleX(1.2)`,
+                          transform: 'scaleX(1.15)',
                           boxShadow: `0 0 10px ${s.color}, 0 0 4px #ffffff`,
                           backgroundColor: '#ffffff',
                           animation: 'fadeIn 0.35s ease-out forwards',
@@ -1598,51 +1686,46 @@ function SwordCursorSandbox() {
           </nav>
         </div>
 
-        {/* Premium Aligned Sword Cursor (Tracks Mouse Coordinates) */}
+        {/* Premium Centered Sword Cursor (Tracks Mouse Coordinates) */}
         {isHoveringNav && (
           <div
-            className="pointer-events-none fixed z-50 select-none"
+            className={`pointer-events-none fixed z-50 select-none ${isSlashing ? 'animate-arcade-swing' : ''}`}
             style={{
-              left: swordStyle === 'katana'
-                ? `${mousePos.x - 32}px`
-                : swordStyle === 'plasma'
-                ? `${mousePos.x - 36}px`
-                : `${mousePos.x - 40}px`,
-              top: swordStyle === 'katana'
-                ? `${mousePos.y - 32}px`
-                : swordStyle === 'plasma'
-                ? `${mousePos.y - 36}px`
-                : `${mousePos.y - 40}px`,
               /* 
-                SWORD POINTER MATHEMATICS:
-                Tip of the blade sits exactly at (0,0) inside the SVG viewport.
-                Transform-origin binds the rotation axis directly to the specified hilt/emitter/guard coordinate.
-                The cursor coordinate maps precisely to this anchor point, keeping it perfectly anchored to the mouse pointer.
+                SWORD POINTER CENTERING MATHEMATICS:
+                Positions the exact center (50% 50%) of each sword SVG directly on the mouse coordinate.
+                Katana: width 44, offset 22.
+                Plasma: width 48, offset 24.
+                Rune: width 54, offset 27.
               */
-              transform: swordStyle === 'katana'
-                ? `rotate(${isSlashing ? '-75deg' : '0deg'})`
+              left: swordStyle === 'katana'
+                ? `${mousePos.x - 22}px`
                 : swordStyle === 'plasma'
-                ? `rotate(${isSlashing ? '-45deg' : '0deg'})`
-                : `rotate(${isSlashing ? '-65deg' : '0deg'})`,
+                ? `${mousePos.x - 24}px`
+                : `${mousePos.x - 27}px`,
+              top: swordStyle === 'katana'
+                ? `${mousePos.y - 22}px`
+                : swordStyle === 'plasma'
+                ? `${mousePos.y - 24}px`
+                : `${mousePos.y - 27}px`,
               transformOrigin: swordStyle === 'katana'
-                ? '32px 32px'
+                ? '22px 22px'
                 : swordStyle === 'plasma'
-                ? '36px 36px'
-                : '40px 40px',
-              transition: 'transform 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
+                ? '24px 24px'
+                : '27px 27px',
+              transition: isSlashing ? 'none' : 'transform 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
             }}
           >
-            {/* VARIATION E: Neon Cyber-Katana (Purple) */}
+            {/* VARIATION E: Neon Cyber-Katana (Purple Glow - Centered Alignment) */}
             {swordStyle === 'katana' && (
               <svg width="44" height="44" viewBox="0 0 44 44" fill="none" className="filter drop-shadow-[0_0_8px_rgba(168,85,247,0.85)]">
                 {/* 
-                  Drawn extending down-right from (0,0) hotspot tip.
                   Tip: x=0, y=0.
-                  Hilt Pommel end: x=38, y=38.
-                  Hilt pivot at x=32, y=32.
+                  Center: x=22, y=22.
+                  Hilt: x=34, y=34.
                 */}
                 {/* Blade Glow aura */}
-                <line x1="2" y1="2" x2="28" y2="28" stroke="oklch(0.61 0.025 285.0)" strokeWidth="4.5" strokeLinecap="round" className="opacity-45" />
+                <line x1="2" y1="2" x2="28" y2="28" stroke="oklch(0.61 0.22 285.0)" strokeWidth="4.5" strokeLinecap="round" className="opacity-45" />
                 {/* Blade razor edge */}
                 <line x1="0" y1="0" x2="26" y2="26" stroke="#f8fafc" strokeWidth="2.2" strokeLinecap="round" />
                 {/* Steel core */}
@@ -1657,54 +1740,54 @@ function SwordCursorSandbox() {
               </svg>
             )}
 
-            {/* VARIATION H: Plasma Saber (Cyan) */}
+            {/* VARIATION H: Plasma Saber (Violet-Purple - Centered Alignment) */}
             {swordStyle === 'plasma' && (
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="filter drop-shadow-[0_0_10px_rgba(6,182,212,0.9)]">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="filter drop-shadow-[0_0_10px_rgba(168,85,247,0.9)]">
                 {/* 
                   Tip: x=0, y=0.
-                  Hilt Emitter: x=36, y=36.
-                  Hilt Pommel end: x=44, y=44.
+                  Center: x=24, y=24.
+                  Emitter: x=36, y=36.
                 */}
-                {/* Cyan energy blade glow */}
-                <line x1="0" y1="0" x2="36" y2="36" stroke="rgba(6,182,212,0.5)" strokeWidth="6" strokeLinecap="round" />
-                <line x1="0" y1="0" x2="36" y2="36" stroke="rgba(6,182,212,0.8)" strokeWidth="4" strokeLinecap="round" />
+                {/* Energy blade glow */}
+                <line x1="0" y1="0" x2="36" y2="36" stroke="rgba(168,85,247,0.5)" strokeWidth="6" strokeLinecap="round" />
+                <line x1="0" y1="0" x2="36" y2="36" stroke="rgba(168,85,247,0.8)" strokeWidth="4" strokeLinecap="round" />
                 {/* White hot core */}
                 <line x1="0" y1="0" x2="36" y2="36" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" />
                 {/* Emitter shroud / details */}
-                <circle cx="36" cy="36" r="3" fill="#334155" stroke="#0891b2" strokeWidth="1" />
+                <circle cx="36" cy="36" r="3" fill="#334155" stroke="#a855f7" strokeWidth="1" />
                 {/* Cyber handle/hilt */}
                 <line x1="36" y1="36" x2="44" y2="44" stroke="#1e293b" strokeWidth="3.5" strokeLinecap="round" />
-                <line x1="38" y1="38" x2="42" y2="42" stroke="#0891b2" strokeWidth="1.2" strokeLinecap="round" />
+                <line x1="38" y1="38" x2="42" y2="42" stroke="#a855f7" strokeWidth="1.2" strokeLinecap="round" />
                 {/* Hilt end cap */}
                 <circle cx="44" cy="44" r="1.5" fill="#f43f5e" />
               </svg>
             )}
 
-            {/* VARIATION I: Rune Greatsword (Steel/Golden Runes) */}
+            {/* VARIATION I: Rune Greatsword (Steel/Violet Runes - Centered Alignment) */}
             {swordStyle === 'rune' && (
-              <svg width="54" height="54" viewBox="0 0 54 54" fill="none" className="filter drop-shadow-[0_0_10px_rgba(245,158,11,0.7)]">
+              <svg width="54" height="54" viewBox="0 0 54 54" fill="none" className="filter drop-shadow-[0_0_10px_rgba(129,140,248,0.7)]">
                 {/* 
                   Tip: x=0, y=0.
+                  Center: x=27, y=27.
                   Guard: x=40, y=40.
-                  Pommel: x=50, y=50.
                 */}
                 {/* Steel blade base */}
                 <polygon points="0,0 36,41 41,36" fill="#64748b" stroke="#334155" strokeWidth="1.5" />
                 <polygon points="0,0 37,39 39,37" fill="#94a3b8" />
                 {/* Central blood groove */}
                 <line x1="2" y1="2" x2="38" y2="38" stroke="#0f172a" strokeWidth="1.5" />
-                {/* Glowing golden runes along the central groove */}
-                <line x1="6" y1="6" x2="34" y2="34" stroke="#fbbf24" strokeWidth="1.2" strokeDasharray="3 4" className="opacity-95" />
+                {/* Glowing violet runes along the central groove */}
+                <line x1="6" y1="6" x2="34" y2="34" stroke="#818cf8" strokeWidth="1.2" strokeDasharray="3 4" className="opacity-95" />
                 {/* Crossguard */}
-                <line x1="30" y1="50" x2="50" y2="30" stroke="#b45309" strokeWidth="5.5" strokeLinecap="round" />
-                <line x1="32" y1="48" x2="48" y2="32" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" />
-                {/* Ruby Gem in crossguard center */}
-                <circle cx="40" cy="40" r="2.2" fill="#dc2626" />
+                <line x1="30" y1="50" x2="50" y2="30" stroke="#4f46e5" strokeWidth="5.5" strokeLinecap="round" />
+                <line x1="32" y1="48" x2="48" y2="32" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" />
+                {/* Purple Gem in crossguard center */}
+                <circle cx="40" cy="40" r="2.2" fill="#a855f7" />
                 {/* Handle */}
-                <line x1="40" y1="40" x2="49" y2="49" stroke="#451a03" strokeWidth="4" strokeLinecap="round" />
-                <line x1="42" y1="42" x2="47" y2="47" stroke="#78350f" strokeWidth="2" strokeLinecap="round" />
+                <line x1="40" y1="40" x2="49" y2="49" stroke="#312e81" strokeWidth="4" strokeLinecap="round" />
+                <line x1="42" y1="42" x2="47" y2="47" stroke="#4338ca" strokeWidth="2" strokeLinecap="round" />
                 {/* Pommel */}
-                <circle cx="50" cy="50" r="2.5" fill="#b45309" stroke="#d97706" strokeWidth="1" />
+                <circle cx="50" cy="50" r="2.5" fill="#4f46e5" stroke="#6366f1" strokeWidth="1" />
               </svg>
             )}
           </div>
@@ -1713,7 +1796,7 @@ function SwordCursorSandbox() {
         {/* Dynamic HUD information footer */}
         <div className="absolute bottom-4 text-[7px] font-silkscreen text-alabaster-grey/40 uppercase tracking-widest flex items-center gap-1.5 select-none">
           <span className="w-1.5 h-1.5 rounded-full bg-slate-violet-light animate-pulse" />
-          ACTIVE CHANNEL: [ {activeLink} ] // STYLE: [ {swordStyle === 'katana' ? 'CYBER-KATANA (VAR E)' : swordStyle === 'plasma' ? 'PLASMA SABER (VAR H)' : 'RUNE GREATSWORD (VAR I)'} ] // ALIGNMENT: [ {swordStyle === 'katana' ? 'HILT ANCHORED (32,32)' : swordStyle === 'plasma' ? 'EMITTER ANCHORED (36,36)' : 'GUARD ANCHORED (40,40)'} ]
+          ACTIVE CHANNEL: [ {activeLink} ] // STYLE: [ {swordStyle === 'katana' ? 'CYBER-KATANA (VAR E)' : swordStyle === 'plasma' ? 'PLASMA SABER (VAR H)' : 'RUNE GREATSWORD (VAR I)'} ] // ALIGNMENT: [ CENTER-POINT POINTER HOTSPOT ]
         </div>
       </div>
     </div>
@@ -1722,45 +1805,43 @@ function SwordCursorSandbox() {
 
 function ShowcaseSandbox() {
   return (
-    <div className="flex flex-col gap-12 max-w-6xl w-full">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* ================= VARIATION C: CINEMATIC OVERLAY MODAL ================= */}
-        <div className="bg-carbon-black-2 border border-graphite-light rounded-2xl p-6 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-slate-violet/10 border border-slate-violet/20 px-2 py-0.5 rounded text-[8px] font-silkscreen text-slate-violet-light uppercase tracking-wider font-bold">
-            <Sparkles size={8} /> Variation C
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold font-russo-one tracking-wide text-bright-snow uppercase">
-              Cinematic Overlay Modal
-            </h3>
-            <p className="text-xs text-alabaster-grey/70 mt-1 leading-relaxed font-outfit">
-              Renders a play button next to details. Clicking triggers a centered modal overlay with scanlines, unmuted gameplay, and keyboard close.
-            </p>
-          </div>
-
-          {/* Slider Layout */}
-          <WebGLFeaturedSliderSandbox variant="C" />
+    <div className="flex flex-col gap-12 w-full max-w-7xl mx-auto">
+      {/* ================= VARIATION C: CINEMATIC OVERLAY MODAL ================= */}
+      <div className="bg-carbon-black-2 border border-graphite-light rounded-2xl p-6 md:p-8 flex flex-col gap-6 shadow-2xl relative overflow-hidden w-full">
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-slate-violet/10 border border-slate-violet/20 px-2.5 py-1 rounded text-[10px] font-silkscreen text-slate-violet-light uppercase tracking-wider font-bold">
+          <Sparkles size={10} /> Variation C
         </div>
 
-        {/* ================= VARIATION D: INLINE MORPHING VIDEO PLAYER ================= */}
-        <div className="bg-carbon-black-2 border border-graphite-light rounded-2xl p-6 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-muted-green/10 border border-muted-green/20 px-2 py-0.5 rounded text-[8px] font-silkscreen text-muted-green-light uppercase tracking-wider font-bold">
-            <Monitor size={8} /> Variation D
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold font-russo-one tracking-wide text-bright-snow uppercase">
-              Inline Morphing Player
-            </h3>
-            <p className="text-xs text-alabaster-grey/70 mt-1 leading-relaxed font-outfit">
-              Displays a play button. Clicking fades description details and smoothly morphs/scales an inline video player in its place.
-            </p>
-          </div>
-
-          {/* Slider Layout */}
-          <WebGLFeaturedSliderSandbox variant="D" />
+        <div>
+          <h3 className="text-xl font-bold font-russo-one tracking-wide text-bright-snow uppercase">
+            Cinematic Overlay Modal
+          </h3>
+          <p className="text-xs md:text-sm text-alabaster-grey/70 mt-1 leading-relaxed font-outfit">
+            Renders a play button next to details. Clicking triggers a centered modal overlay with scanlines, unmuted gameplay, and keyboard close.
+          </p>
         </div>
+
+        {/* Slider Layout */}
+        <WebGLFeaturedSliderSandbox variant="C" />
+      </div>
+
+      {/* ================= VARIATION D: INLINE MORPHING VIDEO PLAYER ================= */}
+      <div className="bg-carbon-black-2 border border-graphite-light rounded-2xl p-6 md:p-8 flex flex-col gap-6 shadow-2xl relative overflow-hidden w-full">
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-muted-green/10 border border-muted-green/20 px-2.5 py-1 rounded text-[10px] font-silkscreen text-muted-green-light uppercase tracking-wider font-bold">
+          <Monitor size={10} /> Variation D
+        </div>
+
+        <div>
+          <h3 className="text-xl font-bold font-russo-one tracking-wide text-bright-snow uppercase">
+            Inline Morphing Player
+          </h3>
+          <p className="text-xs md:text-sm text-alabaster-grey/70 mt-1 leading-relaxed font-outfit">
+            Displays a play button. Clicking fades description details and smoothly morphs/scales an inline video player in its place.
+          </p>
+        </div>
+
+        {/* Slider Layout */}
+        <WebGLFeaturedSliderSandbox variant="D" />
       </div>
     </div>
   );
