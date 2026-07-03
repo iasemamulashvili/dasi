@@ -1234,7 +1234,7 @@ interface Spark {
   color: string;
   size: number;
   opacity: number;
-  shape: 'circle' | 'square' | 'shield';
+  shape: 'circle' | 'square' | 'shield' | 'rune';
   rotation: number;
   vrot: number;
 }
@@ -1248,7 +1248,7 @@ interface NavSlash {
   color: string;
 }
 
-type SwordStyle = 'katana' | 'broadsword' | 'shard';
+type SwordStyle = 'katana' | 'plasma' | 'rune';
 
 function SwordCursorSandbox() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1280,9 +1280,13 @@ function SwordCursorSandbox() {
             ...spark,
             x: spark.x + spark.vx,
             y: spark.y + spark.vy,
-            vy: spark.shape === 'square' ? spark.vy + 0.18 : spark.vy + 0.1, // broadsword particles are heavier
+            vy: spark.shape === 'square'
+              ? spark.vy + 0.18
+              : spark.shape === 'rune'
+              ? spark.vy + 0.05
+              : spark.vy + 0.1,
             rotation: spark.rotation + spark.vrot,
-            opacity: spark.opacity - (spark.shape === 'shield' ? 0.02 : 0.03), // shield particles float longer
+            opacity: spark.opacity - (spark.shape === 'rune' ? 0.015 : 0.03),
           }))
           .filter((spark) => spark.opacity > 0)
       );
@@ -1312,19 +1316,19 @@ function SwordCursorSandbox() {
     // Define variation-specific properties
     let slashColor = 'rgba(168, 85, 247, 0.8)';
     let particleColor = 'oklch(0.61 0.025 285.0)';
-    let particleShape: 'circle' | 'square' | 'shield' = 'circle';
+    let particleShape: 'circle' | 'square' | 'shield' | 'rune' = 'circle';
     let angle = -12;
 
-    if (swordStyle === 'broadsword') {
-      slashColor = 'rgba(56, 189, 248, 0.8)';
-      particleColor = 'oklch(0.79 0.13 222.0)'; // blue
-      particleShape = 'square';
-      angle = -25; // steeper chop angle
-    } else if (swordStyle === 'shard') {
-      slashColor = 'rgba(34, 197, 94, 0.8)';
-      particleColor = 'oklch(0.79 0.13 145.0)'; // neon sage green
-      particleShape = 'shield';
-      angle = 0; // horizontal shockwave slice
+    if (swordStyle === 'plasma') {
+      slashColor = 'rgba(6, 182, 212, 0.9)';
+      particleColor = 'oklch(0.79 0.25 200.0)';
+      particleShape = 'circle';
+      angle = 0;
+    } else if (swordStyle === 'rune') {
+      slashColor = 'rgba(245, 158, 11, 0.85)';
+      particleColor = 'oklch(0.79 0.15 75.0)';
+      particleShape = 'rune';
+      angle = -20;
     }
 
     // Spawn neon slice trail overlay
@@ -1342,22 +1346,22 @@ function SwordCursorSandbox() {
     }, 450);
 
     // Spawn particle sparks explosion
-    const particleCount = swordStyle === 'shard' ? 8 : 15;
+    const particleCount = swordStyle === 'rune' ? 20 : 12;
     const newSparks: Spark[] = Array.from({ length: particleCount }).map((_, i) => {
       const pAngle = Math.random() * Math.PI * 2;
-      const speed = particleShape === 'square' ? 1.5 + Math.random() * 3.5 : 2.5 + Math.random() * 4.5;
+      const speed = swordStyle === 'rune' ? 1.0 + Math.random() * 3.0 : 2.0 + Math.random() * 4.0;
       return {
         id: Date.now() + i,
         x: localX,
         y: localY,
         vx: Math.cos(pAngle) * speed,
-        vy: Math.sin(pAngle) * speed - (particleShape === 'shield' ? 1.5 : 0.5), // shields float upwards
+        vy: Math.sin(pAngle) * speed - (swordStyle === 'rune' ? 1.0 : 0.5),
         color: particleColor,
-        size: particleShape === 'shield' ? 6 : particleShape === 'square' ? 3.5 : 2.5,
+        size: swordStyle === 'rune' ? 10 + Math.random() * 6 : 3 + Math.random() * 3,
         opacity: 1.0,
         shape: particleShape,
         rotation: Math.random() * 360,
-        vrot: (Math.random() - 0.5) * 15
+        vrot: (Math.random() - 0.5) * 10
       };
     });
     setSparks((prev) => [...prev, ...newSparks]);
@@ -1375,38 +1379,38 @@ function SwordCursorSandbox() {
           }}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-silkscreen tracking-wider font-bold transition-all cursor-pointer ${
             swordStyle === 'katana'
-              ? 'bg-slate-violet text-bright-snow shadow-md shadow-slate-violet/20'
+              ? 'bg-purple-600 text-bright-snow shadow-md shadow-purple-600/20'
               : 'text-alabaster-grey/50 hover:text-bright-snow'
           }`}
         >
           <Sparkles size={11} className={swordStyle === 'katana' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
-          CYBER-KATANA
+          KATANA TWEAK (VAR E)
         </button>
         <button
           onClick={() => {
-            setSwordStyle('broadsword');
+            setSwordStyle('plasma');
           }}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-silkscreen tracking-wider font-bold transition-all cursor-pointer ${
-            swordStyle === 'broadsword'
-              ? 'bg-sky-600 text-bright-snow shadow-md shadow-sky-600/20'
+            swordStyle === 'plasma'
+              ? 'bg-cyan-600 text-bright-snow shadow-md shadow-cyan-600/20'
               : 'text-alabaster-grey/50 hover:text-bright-snow'
           }`}
         >
-          <Cpu size={11} className={swordStyle === 'broadsword' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
-          RETRO BROADSWORD
+          <Cpu size={11} className={swordStyle === 'plasma' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
+          PLASMA SABER (VAR H)
         </button>
         <button
           onClick={() => {
-            setSwordStyle('shard');
+            setSwordStyle('rune');
           }}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-silkscreen tracking-wider font-bold transition-all cursor-pointer ${
-            swordStyle === 'shard'
-              ? 'bg-emerald-600 text-bright-snow shadow-md shadow-emerald-600/20'
+            swordStyle === 'rune'
+              ? 'bg-amber-600 text-bright-snow shadow-md shadow-amber-600/20'
               : 'text-alabaster-grey/50 hover:text-bright-snow'
           }`}
         >
-          <Monitor size={11} className={swordStyle === 'shard' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
-          SHARD SHIELD BLADE
+          <Monitor size={11} className={swordStyle === 'rune' ? 'text-bright-snow' : 'text-alabaster-grey/50'} />
+          RUNE GREATSWORD (VAR I)
         </button>
       </div>
 
@@ -1450,57 +1454,66 @@ function SwordCursorSandbox() {
             transform: translate(3px, 2px) skewX(-6deg);
           }
 
-          /* Variation F: Digital 16-Bit Jitter Glitch */
-          @keyframes glitchShake {
-            0% { transform: translate(0) skewX(0); }
-            10% { transform: translate(-2px, 1px) skewX(-8deg) scaleY(0.96); }
-            20% { transform: translate(3px, -2px) skewX(12deg) scaleX(1.05); }
-            30% { transform: translate(-1px, 2px) skewX(-4deg); }
-            40% { transform: translate(2px, -1px) skewX(6deg); }
-            50% { transform: translate(0) skewX(0); }
+          /* Variation H: Horizontal split for Plasma Saber */
+          .split-top-horizontal {
+            clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
           }
-          .link-slashed-broadsword {
-            animation: glitchShake 0.45s steps(3) forwards;
-            filter: drop-shadow(0 0 3px rgba(56,189,248,0.6));
+          .split-bottom-horizontal {
+            clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
+          .split-top-horizontal, .split-bottom-horizontal {
+            transition: transform 0.35s cubic-bezier(0.19, 1, 0.22, 1);
+          }
+          .link-slashed-plasma .split-top-horizontal {
+            transform: translateY(-3px);
+            filter: brightness(1.2) drop-shadow(0 0 3px rgba(6,182,212,0.8));
+          }
+          .link-slashed-plasma .split-bottom-horizontal {
+            transform: translateY(3px);
+            filter: brightness(1.2) drop-shadow(0 0 3px rgba(6,182,212,0.8));
           }
 
-          /* Variation G: Elastic Spring Letter bounce */
-          @keyframes springBounce {
-            0% { transform: scale(1) translateY(0); }
-            25% { transform: scale(1.22, 0.8) translateY(3px); }
-            45% { transform: scale(0.85, 1.15) translateY(-6px); filter: brightness(1.25); }
-            65% { transform: scale(1.08, 0.95) translateY(2px); }
-            85% { transform: scale(0.97, 1.02) translateY(-1px); }
-            100% { transform: scale(1) translateY(0); }
+          /* Variation I: Jagged fracture and shatter for Rune Greatsword */
+          @keyframes runeFracture {
+            0% { transform: scale(1) skewX(0) rotate(0); }
+            15% { transform: scale(1.12, 0.88) skewX(-12deg) rotate(-2deg); filter: brightness(1.3) drop-shadow(0 0 3px #fbbf24); }
+            30% { transform: scale(0.88, 1.12) skewX(15deg) rotate(2deg); filter: brightness(1.4) drop-shadow(0 0 5px #f59e0b); }
+            45% { transform: scale(1.08, 0.92) skewX(-8deg) rotate(-1deg); }
+            60% { transform: scale(0.96, 1.04) skewX(5deg) rotate(1deg); }
+            75% { transform: scale(1.01, 0.99) skewX(-2deg); }
+            100% { transform: scale(1) skewX(0) rotate(0); }
           }
-          .link-slashed-shard {
-            animation: springBounce 0.65s cubic-bezier(0.25, 0.8, 0.25, 1.4) forwards;
+          .link-slashed-rune {
+            animation: runeFracture 0.55s cubic-bezier(0.15, 0.85, 0.35, 1.25) forwards;
           }
         `}</style>
 
         {/* Dynamic Sparks Rendering */}
         {sparks.map((spark) => {
-          if (spark.shape === 'shield') {
+          if (spark.shape === 'rune') {
+            const runes = ['ᚠ', 'ᚢ', 'ᚦ', 'ᚨ', 'ᚱ', 'ᚲ', 'ᚷ', 'ᚹ', 'ᚺ', 'ᚾ', 'ᛁ', 'ᛃ', 'ᛇ', 'ᛈ', 'ᛉ', 'ᛊ', 'ᛏ', 'ᛒ', 'ᛖ', 'ᛗ', 'ᛚ', 'ᛜ', 'ᛞ', 'ᛟ'];
+            const runeChar = runes[spark.id % runes.length];
             return (
-              <svg
+              <span
                 key={spark.id}
-                viewBox="0 0 100 100"
-                fill="none"
-                stroke={spark.color}
-                strokeWidth="12"
-                className="absolute pointer-events-none z-30 filter"
+                className="absolute pointer-events-none z-30 font-mono font-bold select-none"
                 style={{
                   left: `${spark.x}px`,
                   top: `${spark.y}px`,
-                  width: `${spark.size * 2}px`,
-                  height: `${spark.size * 2}px`,
+                  fontSize: `${spark.size}px`,
+                  color: spark.color,
                   opacity: spark.opacity,
+                  textShadow: `0 0 6px ${spark.color}`,
                   transform: `translate(-50%, -50%) rotate(${spark.rotation}deg)`,
-                  filter: `drop-shadow(0 0 3px ${spark.color})`
                 }}
               >
-                <path d="M 20 20 L 80 20 L 80 50 C 80 72 65 88 50 95 C 35 88 20 72 20 50 Z" />
-              </svg>
+                {runeChar}
+              </span>
             );
           }
           return (
@@ -1535,8 +1548,8 @@ function SwordCursorSandbox() {
               let animationClass = '';
               if (isSlashed) {
                 if (swordStyle === 'katana') animationClass = 'link-slashed-katana';
-                else if (swordStyle === 'broadsword') animationClass = 'link-slashed-broadsword';
-                else if (swordStyle === 'shard') animationClass = 'link-slashed-shard';
+                else if (swordStyle === 'plasma') animationClass = 'link-slashed-plasma';
+                else if (swordStyle === 'rune') animationClass = 'link-slashed-rune';
               }
 
               return (
@@ -1549,11 +1562,16 @@ function SwordCursorSandbox() {
                   {/* Top / Bottom split structure for Variation E (Katana) */}
                   {swordStyle === 'katana' ? (
                     <div className="split-container">
-                      <span className={`split-top ${activeLink === item ? 'text-slate-violet-light font-bold' : ''}`}>{item}</span>
-                      <span className={`split-bottom ${activeLink === item ? 'text-slate-violet-light font-bold' : ''}`} aria-hidden="true">{item}</span>
+                      <span className={`split-top ${activeLink === item ? 'text-purple-400 font-bold' : ''}`}>{item}</span>
+                      <span className={`split-bottom ${activeLink === item ? 'text-purple-400 font-bold' : ''}`} aria-hidden="true">{item}</span>
+                    </div>
+                  ) : swordStyle === 'plasma' ? (
+                    <div className="split-container">
+                      <span className={`split-top-horizontal ${activeLink === item ? 'text-cyan-400 font-bold' : ''}`}>{item}</span>
+                      <span className={`split-bottom-horizontal ${activeLink === item ? 'text-cyan-400 font-bold' : ''}`} aria-hidden="true">{item}</span>
                     </div>
                   ) : (
-                    <span className={activeLink === item ? 'text-slate-violet-light font-bold' : ''}>
+                    <span className={activeLink === item ? 'text-amber-400 font-bold drop-shadow-[0_0_4px_rgba(245,158,11,0.5)]' : ''}>
                       {item}
                     </span>
                   )}
@@ -1585,20 +1603,32 @@ function SwordCursorSandbox() {
           <div
             className="pointer-events-none fixed z-50 select-none"
             style={{
-              left: `${mousePos.x}px`,
-              top: `${mousePos.y}px`,
+              left: swordStyle === 'katana'
+                ? `${mousePos.x - 32}px`
+                : swordStyle === 'plasma'
+                ? `${mousePos.x - 36}px`
+                : `${mousePos.x - 40}px`,
+              top: swordStyle === 'katana'
+                ? `${mousePos.y - 32}px`
+                : swordStyle === 'plasma'
+                ? `${mousePos.y - 36}px`
+                : `${mousePos.y - 40}px`,
               /* 
                 SWORD POINTER MATHEMATICS:
                 Tip of the blade sits exactly at (0,0) inside the SVG viewport.
-                Transform-origin (0px 0px) binds the rotation axis directly to the blade tip.
-                The cursor coordinate maps precisely to the tip of the blade, feeling 100% accurate.
+                Transform-origin binds the rotation axis directly to the specified hilt/emitter/guard coordinate.
+                The cursor coordinate maps precisely to this anchor point, keeping it perfectly anchored to the mouse pointer.
               */
               transform: swordStyle === 'katana'
-                ? `rotate(${isSlashing ? '45deg' : '-35deg'})`
-                : swordStyle === 'broadsword'
-                ? `rotate(${isSlashing ? '25deg' : '-50deg'})`
-                : `scale(${isSlashing ? 1.25 : 1.0}) rotate(${isSlashing ? '30deg' : '-30deg'})`,
-              transformOrigin: '0px 0px',
+                ? `rotate(${isSlashing ? '-75deg' : '0deg'})`
+                : swordStyle === 'plasma'
+                ? `rotate(${isSlashing ? '-45deg' : '0deg'})`
+                : `rotate(${isSlashing ? '-65deg' : '0deg'})`,
+              transformOrigin: swordStyle === 'katana'
+                ? '32px 32px'
+                : swordStyle === 'plasma'
+                ? '36px 36px'
+                : '40px 40px',
               transition: 'transform 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
             }}
           >
@@ -1608,7 +1638,8 @@ function SwordCursorSandbox() {
                 {/* 
                   Drawn extending down-right from (0,0) hotspot tip.
                   Tip: x=0, y=0.
-                  Hilt Pommel end: x=40, y=40.
+                  Hilt Pommel end: x=38, y=38.
+                  Hilt pivot at x=32, y=32.
                 */}
                 {/* Blade Glow aura */}
                 <line x1="2" y1="2" x2="28" y2="28" stroke="oklch(0.61 0.025 285.0)" strokeWidth="4.5" strokeLinecap="round" className="opacity-45" />
@@ -1626,49 +1657,54 @@ function SwordCursorSandbox() {
               </svg>
             )}
 
-            {/* VARIATION F: Arcade Broadsword (Sky Blue / Golden) */}
-            {swordStyle === 'broadsword' && (
-              <svg width="46" height="46" viewBox="0 0 46 46" fill="none" className="filter drop-shadow-[0_0_8px_rgba(56,189,248,0.85)]">
+            {/* VARIATION H: Plasma Saber (Cyan) */}
+            {swordStyle === 'plasma' && (
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="filter drop-shadow-[0_0_10px_rgba(6,182,212,0.9)]">
                 {/* 
                   Tip: x=0, y=0.
-                  Pommel: x=42, y=42.
+                  Hilt Emitter: x=36, y=36.
+                  Hilt Pommel end: x=44, y=44.
                 */}
-                {/* Crystal blade core */}
-                <line x1="0" y1="0" x2="24" y2="24" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
-                <line x1="1" y1="1" x2="23" y2="23" stroke="#38bdf8" strokeWidth="1.5" strokeLinecap="round" />
-                {/* Golden crossguard */}
-                <line x1="18" y1="28" x2="28" y2="18" stroke="#fbbf24" strokeWidth="4.5" strokeLinecap="round" />
-                {/* Wooden hilt wrap */}
-                <line x1="24" y1="24" x2="38" y2="38" stroke="#78350f" strokeWidth="4" strokeLinecap="round" />
-                <line x1="26" y1="26" x2="36" y2="36" stroke="#fbbf24" strokeWidth="1" strokeLinecap="round" />
-                {/* Diamond Blue Pommel Gem */}
-                <polygon points="38,38 42,38 42,42 38,42" fill="#38bdf8" />
+                {/* Cyan energy blade glow */}
+                <line x1="0" y1="0" x2="36" y2="36" stroke="rgba(6,182,212,0.5)" strokeWidth="6" strokeLinecap="round" />
+                <line x1="0" y1="0" x2="36" y2="36" stroke="rgba(6,182,212,0.8)" strokeWidth="4" strokeLinecap="round" />
+                {/* White hot core */}
+                <line x1="0" y1="0" x2="36" y2="36" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" />
+                {/* Emitter shroud / details */}
+                <circle cx="36" cy="36" r="3" fill="#334155" stroke="#0891b2" strokeWidth="1" />
+                {/* Cyber handle/hilt */}
+                <line x1="36" y1="36" x2="44" y2="44" stroke="#1e293b" strokeWidth="3.5" strokeLinecap="round" />
+                <line x1="38" y1="38" x2="42" y2="42" stroke="#0891b2" strokeWidth="1.2" strokeLinecap="round" />
+                {/* Hilt end cap */}
+                <circle cx="44" cy="44" r="1.5" fill="#f43f5e" />
               </svg>
             )}
 
-            {/* VARIATION G: Shard Energy Blade (Sage Green Shards) */}
-            {swordStyle === 'shard' && (
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="filter drop-shadow-[0_0_10px_rgba(52,211,153,0.9)]">
+            {/* VARIATION I: Rune Greatsword (Steel/Golden Runes) */}
+            {swordStyle === 'rune' && (
+              <svg width="54" height="54" viewBox="0 0 54 54" fill="none" className="filter drop-shadow-[0_0_10px_rgba(245,158,11,0.7)]">
                 {/* 
-                  Floating, hum/pulse energy crest weapon.
                   Tip: x=0, y=0.
-                  Pommel: x=44, y=44.
+                  Guard: x=40, y=40.
+                  Pommel: x=50, y=50.
                 */}
-                {/* Shard 1: Blade tip segment */}
-                <polygon points="0,0 6,4 4,6" fill="#ffffff" />
-                <polygon points="0,0 5,3 3,5" fill="#34d399" />
-                
-                {/* Shard 2: Mid blade gap & segment */}
-                <polygon points="9,9 16,13 13,16" fill="#34d399" className="opacity-90" />
-                <polygon points="10,10 15,12 12,15" fill="#a7f3d0" />
-
-                {/* Shard 3: Lower blade segment */}
-                <polygon points="18,18 26,23 23,26" fill="#34d399" />
-
-                {/* Cyber hilt socket emitter */}
-                <circle cx="28" cy="28" r="3.5" fill="#064e3b" stroke="#34d399" strokeWidth="1" />
-                {/* Glowing shield pommel base */}
-                <path d="M 28 28 L 40 40 L 38 42 C 34 44 32 40 28 38 Z" fill="#065f46" stroke="#34d399" strokeWidth="1.5" />
+                {/* Steel blade base */}
+                <polygon points="0,0 36,41 41,36" fill="#64748b" stroke="#334155" strokeWidth="1.5" />
+                <polygon points="0,0 37,39 39,37" fill="#94a3b8" />
+                {/* Central blood groove */}
+                <line x1="2" y1="2" x2="38" y2="38" stroke="#0f172a" strokeWidth="1.5" />
+                {/* Glowing golden runes along the central groove */}
+                <line x1="6" y1="6" x2="34" y2="34" stroke="#fbbf24" strokeWidth="1.2" strokeDasharray="3 4" className="opacity-95" />
+                {/* Crossguard */}
+                <line x1="30" y1="50" x2="50" y2="30" stroke="#b45309" strokeWidth="5.5" strokeLinecap="round" />
+                <line x1="32" y1="48" x2="48" y2="32" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" />
+                {/* Ruby Gem in crossguard center */}
+                <circle cx="40" cy="40" r="2.2" fill="#dc2626" />
+                {/* Handle */}
+                <line x1="40" y1="40" x2="49" y2="49" stroke="#451a03" strokeWidth="4" strokeLinecap="round" />
+                <line x1="42" y1="42" x2="47" y2="47" stroke="#78350f" strokeWidth="2" strokeLinecap="round" />
+                {/* Pommel */}
+                <circle cx="50" cy="50" r="2.5" fill="#b45309" stroke="#d97706" strokeWidth="1" />
               </svg>
             )}
           </div>
@@ -1677,7 +1713,7 @@ function SwordCursorSandbox() {
         {/* Dynamic HUD information footer */}
         <div className="absolute bottom-4 text-[7px] font-silkscreen text-alabaster-grey/40 uppercase tracking-widest flex items-center gap-1.5 select-none">
           <span className="w-1.5 h-1.5 rounded-full bg-slate-violet-light animate-pulse" />
-          ACTIVE CHANNEL: [ {activeLink} ] // STYLE: [ {swordStyle.toUpperCase()} ] // ALIGNMENT: OK [TIP HOTSPOT ENABLED]
+          ACTIVE CHANNEL: [ {activeLink} ] // STYLE: [ {swordStyle === 'katana' ? 'CYBER-KATANA (VAR E)' : swordStyle === 'plasma' ? 'PLASMA SABER (VAR H)' : 'RUNE GREATSWORD (VAR I)'} ] // ALIGNMENT: [ {swordStyle === 'katana' ? 'HILT ANCHORED (32,32)' : swordStyle === 'plasma' ? 'EMITTER ANCHORED (36,36)' : 'GUARD ANCHORED (40,40)'} ]
         </div>
       </div>
     </div>
