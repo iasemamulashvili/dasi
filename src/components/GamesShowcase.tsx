@@ -29,7 +29,6 @@ interface CyberScanningMatrixProps {
 function CyberScanningMatrix({ isHovered, gameId }: CyberScanningMatrixProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isHoveredRef = useRef(isHovered);
-  const speedRef = useRef(1.0);
 
   // Sync hover state ref without recreating the animation loop
   useEffect(() => {
@@ -43,275 +42,110 @@ function CyberScanningMatrix({ isHovered, gameId }: CyberScanningMatrixProps) {
     if (!ctx) return;
 
     let animationId: number;
-    let time = 0;
+    const fontSize = 10;
+    let columns = Math.floor(canvas.width / fontSize) || 20;
+    let drops: number[] = Array(columns).fill(0).map(() => Math.random() * -30);
 
-    // Handle canvas dimensions matching parent container
     const resizeCanvas = () => {
-      canvas.width = canvas.parentElement?.offsetWidth || 300;
-      canvas.height = canvas.parentElement?.offsetHeight || 260;
+      if (!canvas.parentElement) return;
+      canvas.width = canvas.parentElement.offsetWidth;
+      canvas.height = canvas.parentElement.offsetHeight;
+      columns = Math.floor(canvas.width / fontSize) || 20;
+      drops = Array(columns).fill(0).map(() => Math.random() * -30);
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Matrix Rain setup
-    const fontSize = 11;
-    const columnsCount = Math.ceil(canvas.width / fontSize) + 2;
-    
-    interface Drop {
-      x: number;
-      y: number;
-      speed: number;
-      chars: string[];
-      length: number;
-      opacity: number;
-    }
-    
-    const drops: Drop[] = [];
-    const charPool = "010101010101ABCDEF0123456789X-[]<>_";
-    
-    const initDrop = (colIndex: number, isInitial = false): Drop => {
-      const length = Math.floor(Math.random() * 10) + 6;
-      // Stagger start heights
-      const y = isInitial 
-        ? Math.random() * -canvas.height - (length * fontSize)
-        : -length * fontSize;
-      
-      const speed = Math.random() * 1.2 + 0.6;
-      const opacity = Math.random() * 0.4 + 0.4;
-      
-      const chars: string[] = [];
-      for (let i = 0; i < length; i++) {
-        chars.push(charPool[Math.floor(Math.random() * charPool.length)]);
-      }
-      
-      return {
-        x: colIndex * fontSize - 4,
-        y,
-        speed,
-        chars,
-        length,
-        opacity,
-      };
-    };
-
-    for (let i = 0; i < columnsCount; i++) {
-      drops.push(initDrop(i, true));
-    }
-
-    // Vertical scanline sweep variables
-    let sweepY1 = 0;
-    let sweepY2 = canvas.height * 0.5;
-    const sweepSpeed1 = 0.5;
-    const sweepSpeed2 = 0.9;
-
-    // Diagnostic equalizer segments config
-    const eqBars = [
-      { segments: 8, currentVal: 4, targetVal: 4, speed: 0.15 },
-      { segments: 8, currentVal: 2, targetVal: 2, speed: 0.12 },
-      { segments: 8, currentVal: 6, targetVal: 6, speed: 0.18 },
-      { segments: 8, currentVal: 3, targetVal: 3, speed: 0.20 },
-    ];
+    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZMATRIXSYS';
+    let sweepY = 0;
+    let sweepDirection = 1;
 
     const animate = () => {
-      // Smoothly interpolate current speed multiplier
-      const targetSpeed = isHoveredRef.current ? 2.5 : 1.0;
-      speedRef.current += (targetSpeed - speedRef.current) * 0.08;
-      const currentSpeed = speedRef.current;
-
-      // Deep graphite-black clear with tail trailing fade
-      ctx.fillStyle = 'rgba(24, 24, 24, 0.22)'; 
+      // Fade trail
+      ctx.fillStyle = 'rgba(18, 18, 20, 0.12)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Subtle background grid
-      ctx.strokeStyle = 'rgba(109, 109, 128, 0.015)';
-      ctx.lineWidth = 1;
-      const gridSpacing = 16;
-      for (let x = 0; x < canvas.width; x += gridSpacing) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
-      }
-      for (let y = 0; y < canvas.height; y += gridSpacing) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
-      }
-
-      // Draw Matrix rain drops
+      // 1. Matrix code rain
       ctx.font = `${fontSize}px monospace`;
-      for (let i = 0; i < drops.length; i++) {
-        const drop = drops[i];
-        drop.y += drop.speed * currentSpeed;
-
-        if (drop.y - drop.length * fontSize > canvas.height) {
-          drops[i] = initDrop(i, false);
-          continue;
-        }
-
-        // Randomly mutate characters
-        if (Math.random() < 0.02 * currentSpeed) {
-          const idx = Math.floor(Math.random() * drop.length);
-          drop.chars[idx] = charPool[Math.floor(Math.random() * charPool.length)];
-        }
-
-        for (let j = 0; j < drop.length; j++) {
-          const charY = drop.y - (j * fontSize);
-          if (charY < 0 || charY > canvas.height + fontSize) continue;
-
-          const distFromHead = j / drop.length;
-          const baseAlpha = (1 - distFromHead) * drop.opacity;
-          
-          let colorString = '';
-          if (j === 0) {
-            colorString = `rgba(255, 255, 255, ${baseAlpha * 1.3})`; // White highlight head
-          } else if (distFromHead < 0.3) {
-            colorString = `rgba(226, 232, 240, ${baseAlpha})`; // Platinum silver
-          } else {
-            colorString = `rgba(109, 109, 128, ${baseAlpha})`; // Slate violet
-          }
-
-          ctx.fillStyle = colorString;
-          
-          if (j === 0) {
-            ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
-            ctx.shadowBlur = 4;
-          } else {
-            ctx.shadowBlur = 0;
-          }
-
-          ctx.fillText(drop.chars[j], drop.x, charY);
-        }
-      }
-      ctx.shadowBlur = 0;
-
-      // Update and draw scanline sweeps
-      sweepY1 += sweepSpeed1 * currentSpeed;
-      if (sweepY1 > canvas.height + 40) sweepY1 = -40;
       
-      sweepY2 += sweepSpeed2 * currentSpeed;
-      if (sweepY2 > canvas.height + 40) sweepY2 = -40;
+      for (let i = 0; i < drops.length; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
 
-      const drawSweep = (y: number, opacityMultiplier: number) => {
-        if (y < 0 || y > canvas.height) return;
+        // Draw character
+        const randVal = Math.random();
+        if (randVal > 0.94) {
+          ctx.fillStyle = '#ffffff'; // White highlights
+        } else if (randVal > 0.55) {
+          ctx.fillStyle = 'oklch(0.91 0.01 240.0)'; // Platinum silver
+        } else if (randVal > 0.25) {
+          ctx.fillStyle = 'oklch(0.61 0.025 285.0)'; // Slate-violet light
+        } else {
+          ctx.fillStyle = 'oklch(0.36 0 3.2)'; // Graphite/carbon-black tone
+        }
 
-        // Glow sweep gradient
-        const sweepGrad = ctx.createLinearGradient(0, y - 12, 0, y + 12);
-        sweepGrad.addColorStop(0, 'rgba(109, 109, 128, 0)');
-        sweepGrad.addColorStop(0.5, `rgba(226, 232, 240, ${0.08 * opacityMultiplier})`);
-        sweepGrad.addColorStop(1, 'rgba(109, 109, 128, 0)');
-        
-        ctx.fillStyle = sweepGrad;
-        ctx.fillRect(0, y - 12, canvas.width, 24);
+        ctx.fillText(char, x, y);
 
-        // Thin sweep line
-        ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 * opacityMultiplier})`;
-        ctx.lineWidth = 1;
+        if (y > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i] += isHoveredRef.current ? 1.4 : 0.75;
+      }
+
+      // 2. Scan sweep
+      const sweepSpeed = isHoveredRef.current ? 3.5 : 1.5;
+      sweepY += sweepSpeed * sweepDirection;
+      if (sweepY > canvas.height) {
+        sweepY = canvas.height;
+        sweepDirection = -1;
+      } else if (sweepY < 0) {
+        sweepY = 0;
+        sweepDirection = 1;
+      }
+
+      // Sweep gradient glow - slate-violet
+      const grad = ctx.createLinearGradient(0, sweepY - 12, 0, sweepY + 12);
+      grad.addColorStop(0, 'rgba(120, 119, 198, 0)');
+      grad.addColorStop(0.5, 'rgba(120, 119, 198, 0.15)');
+      grad.addColorStop(1, 'rgba(120, 119, 198, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, sweepY - 12, canvas.width, 24);
+
+      // Scanline beam - silver/white highlight
+      ctx.fillStyle = 'oklch(0.91 0.01 240.0 / 0.4)';
+      ctx.fillRect(0, sweepY, canvas.width, 1);
+
+      // 3. Diagnostic vertical tracking bar - graphite/slate-violet
+      const padding = 12;
+      const barW = 3;
+      const barH = canvas.height - padding * 2;
+      
+      ctx.strokeStyle = 'oklch(0.61 0.025 285.0 / 0.2)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(padding, padding, barW, barH);
+      
+      const level = 0.5 + Math.sin(Date.now() * 0.002) * 0.35;
+      ctx.fillStyle = 'oklch(0.61 0.025 285.0 / 0.5)';
+      ctx.fillRect(padding, padding + barH * (1 - level), barW, barH * level);
+
+      // 4. CRT Fine scan lines
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
+      ctx.lineWidth = 1;
+      for (let y = 0; y < canvas.height; y += 4) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(canvas.width, y);
         ctx.stroke();
-      };
+      }
 
-      drawSweep(sweepY1, 1.0);
-      drawSweep(sweepY2, 0.6);
-
-      // Render diagnostic equalizer bars
-      const eqX = canvas.width - 34;
-      const eqY = canvas.height - 30;
-      const barWidth = 3;
-      const barGap = 3;
-      const segmentHeight = 2.5;
-      const segmentGap = 1.5;
-
-      eqBars.forEach((bar, barIdx) => {
-        if (Math.abs(bar.currentVal - bar.targetVal) < 0.1) {
-          bar.targetVal = Math.floor(Math.random() * bar.segments);
-        } else {
-          bar.currentVal += (bar.targetVal - bar.currentVal) * bar.speed * currentSpeed;
-        }
-
-        const activeCount = Math.round(bar.currentVal);
-        const xPos = eqX + barIdx * (barWidth + barGap);
-
-        for (let s = 0; s < bar.segments; s++) {
-          const yPos = eqY - s * (segmentHeight + segmentGap);
-          if (s < activeCount) {
-            if (s > bar.segments - 3) {
-              ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-            } else if (s > bar.segments - 5) {
-              ctx.fillStyle = 'rgba(226, 232, 240, 0.7)';
-            } else {
-              ctx.fillStyle = 'rgba(109, 109, 128, 0.8)';
-            }
-          } else {
-            ctx.fillStyle = 'rgba(109, 109, 128, 0.12)';
-          }
-          ctx.fillRect(xPos, yPos, barWidth, segmentHeight);
-        }
-      });
-
-      // Render readout telemetry texts
-      ctx.fillStyle = 'rgba(226, 232, 240, 0.55)';
+      // 5. Corner readout
+      ctx.fillStyle = 'oklch(0.61 0.025 285.0 / 0.6)';
       ctx.font = '8px monospace';
       ctx.textAlign = 'left';
+      ctx.fillText('CYBER_SCAN: ON', padding + 10, padding + 10);
+      ctx.fillText(`SWEEP: ${sweepY.toFixed(0)}PX`, padding + 10, padding + 20);
 
-      // Top-left
-      ctx.fillText('SYS_STATUS: ACTIVE', 12, 16);
-      ctx.fillStyle = 'rgba(109, 109, 128, 0.65)';
-      ctx.fillText(`SCAN_MODE: CYBER`, 12, 25);
-
-      // Top-right
-      ctx.textAlign = 'right';
-      ctx.fillStyle = 'rgba(226, 232, 240, 0.55)';
-      ctx.fillText('CYBER_SCAN: ON', canvas.width - 12, 16);
-      const freq = (84.1 + Math.sin(time * 0.04) * 1.8).toFixed(1);
-      ctx.fillStyle = 'rgba(109, 109, 128, 0.65)';
-      ctx.fillText(`FREQ: ${freq}GHz`, canvas.width - 12, 25);
-
-      // Bottom-left
-      ctx.textAlign = 'left';
-      ctx.fillStyle = 'rgba(226, 232, 240, 0.55)';
-      ctx.fillText(`RATE: x${currentSpeed.toFixed(1)}`, 12, canvas.height - 20);
-      ctx.fillStyle = 'rgba(109, 109, 128, 0.65)';
-      ctx.fillText('FLOW_BUFF: OK', 12, canvas.height - 11);
-
-      // Corner viewport L-brackets
-      const bracketSize = 5;
-      const offset = 8;
-      ctx.strokeStyle = 'rgba(109, 109, 128, 0.35)';
-      ctx.lineWidth = 1;
-
-      // Top-Left
-      ctx.beginPath();
-      ctx.moveTo(offset, offset + bracketSize);
-      ctx.lineTo(offset, offset);
-      ctx.lineTo(offset + bracketSize, offset);
-      ctx.stroke();
-
-      // Top-Right
-      ctx.beginPath();
-      ctx.moveTo(canvas.width - offset, offset + bracketSize);
-      ctx.lineTo(canvas.width - offset, offset);
-      ctx.lineTo(canvas.width - offset - bracketSize, offset);
-      ctx.stroke();
-
-      // Bottom-Left
-      ctx.beginPath();
-      ctx.moveTo(offset, canvas.height - offset - bracketSize);
-      ctx.lineTo(offset, canvas.height - offset);
-      ctx.lineTo(offset + bracketSize, canvas.height - offset);
-      ctx.stroke();
-
-      // Bottom-Right
-      ctx.beginPath();
-      ctx.moveTo(canvas.width - offset, canvas.height - offset - bracketSize);
-      ctx.lineTo(canvas.width - offset, canvas.height - offset);
-      ctx.lineTo(canvas.width - offset - bracketSize, canvas.height - offset);
-      ctx.stroke();
-
-      time += 1.0;
       animationId = requestAnimationFrame(animate);
     };
 
@@ -323,7 +157,7 @@ function CyberScanningMatrix({ isHovered, gameId }: CyberScanningMatrixProps) {
     };
   }, [gameId]);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover pointer-events-none" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0" />;
 }
 
 // Main Component
