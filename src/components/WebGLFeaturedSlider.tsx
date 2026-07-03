@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
-import { Play, ArrowRight, Trophy } from 'lucide-react';
+import { Play, ArrowRight, Trophy, Volume2, VolumeX, X, Cpu } from 'lucide-react';
 import { Game } from '@/utils/db';
 
 // Official App Store & Google Play Store SVG Icons
@@ -79,6 +79,19 @@ const defaultMockGames = [
   }
 ];
 
+const getVideoFallback = (id: string) => {
+  switch (id) {
+    case 'crown-quest':
+      return 'https://assets.mixkit.co/videos/preview/mixkit-hand-holding-a-smartphone-playing-a-video-game-41584-large.mp4';
+    case 'lumber-chopper':
+      return '/videos/lumber-chopper.mp4';
+    case 'hotel-manager':
+      return 'https://assets.mixkit.co/videos/preview/mixkit-luxury-resort-hotel-swimming-pool-and-palm-trees-48744-large.mp4';
+    default:
+      return '';
+  }
+};
+
 interface WebGLFeaturedSliderProps {
   featuredGames: (Game & {
     featuredSubtitle?: string;
@@ -96,6 +109,13 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
   const [webglSupported, setWebglSupported] = useState(true);
   const transitionRef = useRef({ active: false });
 
+  // Gameplay Preview Modal States
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalMuted, setIsModalMuted] = useState(false);
+  const [isModalPlaying, setIsModalPlaying] = useState(true);
+  const modalVideoRef = useRef<HTMLVideoElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+
   const gamesData = featuredGames.length > 0 
     ? featuredGames.map(g => ({
         id: g.id,
@@ -109,6 +129,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
         image: g.featuredImage || g.iconSrc || '/crown-quest.png',
         playstoreLink: g.playstoreLink,
         appstoreLink: g.appstoreLink,
+        videoSrc: g.videoSrc || getVideoFallback(g.id),
         stats: {
           activePlayers: g.activePlayers || '100K+',
           rating: g.rating || '4.5',
@@ -126,7 +147,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
         isAndroid: true,
         isIOS: true,
         isPoki: false,
-        videoSrc: '',
+        videoSrc: getVideoFallback(g.id),
         isFeatured: true
       }));
 
@@ -393,6 +414,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
 
     setPrevIndex(activeIndex);
     setActiveIndex(targetIdx);
+    setIsModalOpen(false);
 
     const animationObj = { progress: 0 };
 
@@ -436,6 +458,48 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
     }
   };
 
+  // Keyboard and Focus Management for Modal
+  useEffect(() => {
+    if (isModalOpen) {
+      closeBtnRef.current?.focus();
+      
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          setIsModalOpen(false);
+        }
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isModalOpen]);
+
+  // Video Autoplay Trigger for Modal
+  useEffect(() => {
+    if (isModalOpen && modalVideoRef.current) {
+      setIsModalPlaying(true);
+      modalVideoRef.current.play().catch(e => {
+        console.log("Autoplay blocked", e);
+        setIsModalPlaying(false);
+      });
+    }
+  }, [isModalOpen, activeIndex]);
+
+  const togglePlayPause = () => {
+    if (modalVideoRef.current) {
+      if (modalVideoRef.current.paused) {
+        modalVideoRef.current.play().catch(e => console.log("Play failed", e));
+      } else {
+        modalVideoRef.current.pause();
+      }
+    }
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      setIsModalOpen(false);
+    }
+  };
+
   const activeGame = gamesData[activeIndex];
 
   return (
@@ -463,8 +527,40 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setCursorHovered(true)}
         onMouseLeave={() => setCursorHovered(false)}
-        className="relative w-full h-[500px] md:h-[600px] bg-carbon-black border border-graphite-light rounded-2xl overflow-hidden flex flex-col justify-end p-8 md:p-12 cursor-none select-none slider-glow"
+        className={`relative w-full h-[500px] md:h-[600px] bg-carbon-black border border-graphite-light rounded-2xl overflow-hidden flex flex-col justify-end p-8 md:p-12 select-none slider-glow ${isModalOpen ? 'cursor-default' : 'cursor-none'}`}
       >
+        <style>{`
+          @keyframes crt-flicker {
+            0% { opacity: 0.98; }
+            50% { opacity: 1; }
+            100% { opacity: 0.99; }
+          }
+          @keyframes crt-scanlines {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+          }
+          @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px rgba(120, 119, 198, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(120, 119, 198, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(120, 119, 198, 0.4); }
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          .animate-crt-flicker {
+            animation: crt-flicker 0.15s infinite;
+          }
+          .animate-crt-scanlines {
+            animation: crt-scanlines 6s linear infinite;
+          }
+          .animate-pulse-glow {
+            animation: pulse-glow 2s infinite ease-in-out;
+          }
+          .animate-fadeIn {
+            animation: fadeIn 0.25s ease-out forwards;
+          }
+        `}</style>
         {/* Loader */}
         {loading && (
           <div className="absolute inset-0 bg-[#181818] z-50 flex flex-col items-center justify-center gap-3">
@@ -509,7 +605,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
           style={{ 
             top: 0,
             left: 0,
-            opacity: cursorHovered ? 1 : 0,
+            opacity: (cursorHovered && !isModalOpen) ? 1 : 0,
             transform: `translate3d(0px, 0px, 0) translate(-50%, -50%)`,
             scale: cursorHovered ? '1' : '0.2',
             transition: 'opacity 0.2s ease, scale 0.2s ease'
@@ -585,6 +681,19 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
             >
               <Play size={10} className="mr-2 fill-current" /> EXPLORE GAME <ArrowRight size={10} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
             </button>
+
+            {activeGame.videoSrc && (
+              <button 
+                onClick={() => {
+                  setIsModalMuted(false);
+                  setIsModalOpen(true);
+                  setIsModalPlaying(true);
+                }}
+                className="inset-pixel-btn-primary group/btn inline-flex items-center py-2 px-4 cursor-pointer"
+              >
+                <Play size={10} className="mr-2 fill-current" /> GAMEPLAY PREVIEW <ArrowRight size={10} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
+              </button>
+            )}
             
             {/* App Store and Google Play Download Links */}
             <div className="flex items-center gap-2">
@@ -641,6 +750,95 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
             </button>
           ))}
         </div>
+
+        {/* Gameplay Preview Modal Overlay */}
+        {isModalOpen && (
+          <div
+            onClick={handleBackdropClick}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fadeIn cursor-default select-none animate-fadeIn"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Gameplay Preview - ${activeGame.title}`}
+          >
+            {/* Modal Container with Glowing Frame and Graphite Border */}
+            <div 
+              className="relative w-full max-w-2xl aspect-video bg-carbon-black border border-graphite-light rounded-2xl overflow-hidden shadow-[0_0_35px_rgba(109,109,128,0.35)] z-30 flex flex-col justify-between p-5 pointer-events-auto"
+              style={{ contentVisibility: 'auto' }}
+            >
+              {/* Top Bar inside Modal */}
+              <div className="flex items-center justify-between border-b border-graphite-light/50 pb-3 mb-3">
+                <span className="text-xs font-russo-one text-bright-snow tracking-wider uppercase flex items-center gap-2 select-none">
+                  <Cpu size={14} className="text-slate-violet-light animate-spin" />
+                  GAMEPLAY PREVIEW: {activeGame.title}
+                </span>
+                
+                <div className="flex items-center gap-2">
+                  {/* Mute/Unmute */}
+                  <button
+                    onClick={() => setIsModalMuted(!isModalMuted)}
+                    className="p-1.5 bg-graphite hover:bg-graphite-light border border-graphite-light hover:border-slate-violet-light/50 rounded-lg text-alabaster-grey hover:text-bright-snow transition-all cursor-pointer focus-visible:ring-1 focus-visible:ring-slate-violet-light focus-visible:outline-none"
+                    title={isModalMuted ? "Unmute Audio" : "Mute Audio"}
+                  >
+                    {isModalMuted ? <VolumeX size={14} /> : <Volume2 size={14} className="text-slate-violet-light animate-pulse" />}
+                  </button>
+                  {/* Close */}
+                  <button
+                    ref={closeBtnRef}
+                    onClick={() => setIsModalOpen(false)}
+                    className="p-1.5 bg-graphite hover:bg-rose-950/40 border border-graphite-light hover:border-rose-500/40 rounded-lg text-alabaster-grey hover:text-rose-400 transition-all cursor-pointer focus-visible:ring-1 focus-visible:ring-rose-500 focus-visible:outline-none"
+                    title="Close Preview"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Video Content Container */}
+              <div 
+                onClick={togglePlayPause}
+                className="flex-1 rounded-xl border border-graphite-light overflow-hidden bg-black relative group/video cursor-pointer"
+              >
+                {/* Subtle CRT scanline simulation overlay inside video player */}
+                <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,6px_100%] opacity-20 z-10 animate-crt-flicker" />
+                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_60%,rgba(0,0,0,0.5)_100%)] opacity-60 z-10" />
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-slate-violet/5 to-transparent h-[10%] w-full z-10 animate-crt-scanlines" />
+
+                {/* Play state HUD overlay indicator */}
+                <div className="absolute bottom-3 left-3 z-20 font-outfit text-[9px] bg-carbon-black/85 px-2 py-0.5 border border-graphite-light rounded text-bright-snow tracking-widest uppercase flex items-center gap-1.5 select-none pointer-events-none">
+                  <span className={`w-1.5 h-1.5 rounded-full ${isModalPlaying ? 'bg-muted-green animate-pulse' : 'bg-rose-500'}`} />
+                  {isModalPlaying ? 'PLAYING' : 'PAUSED'}
+                </div>
+
+                {/* Visual Pause Overlay */}
+                {!isModalPlaying && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 pointer-events-none animate-fadeIn">
+                    <div className="w-12 h-12 rounded-full bg-carbon-black/90 border border-graphite-light flex items-center justify-center text-bright-snow shadow-lg">
+                      <Play size={18} className="fill-current translate-x-0.5" />
+                    </div>
+                  </div>
+                )}
+
+                <video
+                  ref={modalVideoRef}
+                  src={activeGame.videoSrc}
+                  loop
+                  muted={isModalMuted}
+                  playsInline
+                  onPlay={() => setIsModalPlaying(true)}
+                  onPause={() => setIsModalPlaying(false)}
+                  className="w-full h-full object-cover filter brightness-[1.05] contrast-[1.05] transition-all duration-300 group-hover/video:brightness-110"
+                />
+              </div>
+
+              {/* Modal Footer using Outfit font */}
+              <div className="flex items-center justify-between text-[10px] font-outfit text-alabaster-grey/50 mt-3 uppercase tracking-wider select-none border-t border-graphite-light/50 pt-2.5">
+                <span className="font-semibold text-slate-violet-light">{activeGame.subtitle}</span>
+                <span>PRESS ESC, X OR OUTSIDE TO CLOSE</span>
+              </div>
+
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,15 +1,65 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
+
+interface Spark {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  color: string;
+  size: number;
+  opacity: number;
+  rotation: number;
+  vrot: number;
+}
+
+interface NavSlash {
+  id: string;
+  label: string;
+  color: string;
+}
+
+function createSparks(clientX: number, clientY: number, currentSparkIdx: number): Spark[] {
+  return Array.from({ length: 12 }).map((_, i) => {
+    const pAngle = Math.random() * Math.PI * 2;
+    const speed = 2.0 + Math.random() * 3.5;
+    return {
+      id: `spark-${currentSparkIdx}-${i}`,
+      x: clientX,
+      y: clientY,
+      vx: Math.cos(pAngle) * speed,
+      vy: Math.sin(pAngle) * speed - 0.3,
+      color: 'oklch(0.98 0.005 240.0)', // Snow White: pure white/platinum
+      size: 3 + Math.random() * 3,
+      opacity: 1.0,
+      rotation: Math.random() * 360,
+      vrot: (Math.random() - 0.5) * 8
+    };
+  });
+}
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  // Cyber-Katana States
+  const [isHovering, setIsHovering] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isSlashing, setIsSlashing] = useState(false);
+  const [slashedLabel, setSlashedLabel] = useState<string | null>(null);
+  const [slashes, setSlashes] = useState<NavSlash[]>([]);
+  const [sparks, setSparks] = useState<Spark[]>([]);
+
+  // Refs for tracking unique IDs for sparks and slashes inside event handlers
+  const slashCounter = useRef(0);
+  const sparkCounter = useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +72,38 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Sparks physics calculation animation loop
+  useEffect(() => {
+    if (sparks.length === 0) return;
+    let animationId: number;
+
+    const updateSparks = () => {
+      setSparks((prevSparks) =>
+        prevSparks
+          .map((spark) => ({
+            ...spark,
+            x: spark.x + spark.vx,
+            y: spark.y + spark.vy,
+            vy: spark.vy + 0.08,
+            rotation: spark.rotation + spark.vrot,
+            opacity: spark.opacity - 0.025,
+          }))
+          .filter((spark) => spark.opacity > 0)
+      );
+      animationId = requestAnimationFrame(updateSparks);
+    };
+
+    updateSparks();
+    return () => cancelAnimationFrame(animationId);
+  }, [sparks.length]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+    if (!isHovering) {
+      setIsHovering(true);
+    }
+  };
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
@@ -47,6 +129,35 @@ export default function Header() {
     }
   };
 
+  const handleNavLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: { label: string; href: string }) => {
+    // 1. Play swing animation
+    setIsSlashing(true);
+    setSlashedLabel(link.label);
+    
+    setTimeout(() => setIsSlashing(false), 450);
+    setTimeout(() => setSlashedLabel(null), 500);
+
+    // 2. Spawn slash overlay
+    slashCounter.current += 1;
+    const newSlash: NavSlash = {
+      id: `slash-${slashCounter.current}`,
+      label: link.label,
+      color: 'rgba(255, 255, 255, 0.9)', // Snow White palette
+    };
+    setSlashes((prev) => [...prev, newSlash]);
+    setTimeout(() => {
+      setSlashes((prev) => prev.filter((s) => s.id !== newSlash.id));
+    }, 450);
+
+    // 3. Spawn particle sparks
+    sparkCounter.current += 1;
+    const newSparks = createSparks(e.clientX, e.clientY, sparkCounter.current);
+    setSparks((prev) => [...prev, ...newSparks]);
+
+    // 4. Original navigation logic
+    handleNavClick(e, link.href);
+  };
+
   const navLinks = [
     { label: 'HOME', href: '#home' },
     { label: 'GAMES', href: '#portfolio' },
@@ -55,14 +166,75 @@ export default function Header() {
     { label: 'CONTACT', href: '#contact' },
   ];
 
+  const slashClass = (label: string) => (slashedLabel === label ? 'link-slashed-white' : '');
+
   return (
     <header
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      onMouseMove={handleMouseMove}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isHovering ? 'sword-cursor-active' : ''
+      } ${
         isScrolled
           ? 'bg-carbon-black/90 backdrop-blur-md border-b border-graphite-light py-4 shadow-lg'
           : 'bg-transparent py-6'
       }`}
     >
+      <style>{`
+        .sword-cursor-active, .sword-cursor-active * {
+          cursor: none !important;
+        }
+        
+        /* Custom Arcade Game Sword swing animation */
+        @keyframes arcadeSwordSwing {
+          0% { transform: rotate(0deg); }
+          12% { transform: rotate(20deg); } /* wind-up anticipation */
+          30% { transform: rotate(-85deg); } /* fast strike slash */
+          55% { transform: rotate(-10deg); } /* recoil bounce */
+          75% { transform: rotate(4deg); }
+          100% { transform: rotate(0deg); } /* return to center */
+        }
+        .animate-arcade-swing {
+          animation: arcadeSwordSwing 0.45s cubic-bezier(0.25, 0.8, 0.25, 1.25) forwards;
+        }
+
+        /* Horizontal centered split structure (Sliding apart) */
+        .split-container {
+          position: relative;
+          display: inline-block;
+        }
+        .split-top, .split-bottom {
+          clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+          transition: transform 0.38s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .split-bottom {
+          clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+        }
+        
+        /* Snow White splits on hover or active slash */
+        .group-hover-slash:hover .split-top,
+        .link-slashed-white .split-top {
+          transform: translateY(-4px);
+          filter: brightness(1.25) drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
+        }
+        .group-hover-slash:hover .split-bottom,
+        .link-slashed-white .split-bottom {
+          transform: translateY(4px);
+          filter: brightness(1.25) drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
+
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" onClick={(e) => handleNavClick(e, '#home')} className="flex items-center gap-2 group">
@@ -79,10 +251,34 @@ export default function Header() {
             <a
               key={link.label}
               href={link.href}
-              onClick={(e) => handleNavClick(e, link.href)}
-              className="text-xs font-silkscreen tracking-widest text-alabaster-grey hover:text-bright-snow transition-colors duration-300"
+              onClick={(e) => handleNavLinkClick(e, link)}
+              className={`relative group-hover-slash select-none text-xs font-silkscreen tracking-widest text-alabaster-grey hover:text-bright-snow transition-colors duration-300 py-1 px-2 ${slashClass(
+                link.label
+              )}`}
             >
-              {link.label}
+              <div className="split-container">
+                <span className="split-top">{link.label}</span>
+                <span className="split-bottom" aria-hidden="true">
+                  {link.label}
+                </span>
+              </div>
+
+              {/* Slash centered horizontal neon streak overlay line */}
+              {slashes.map((s) => {
+                if (s.label !== link.label) return null;
+                return (
+                  <div
+                    key={s.id}
+                    className="absolute inset-x-0 top-1/2 h-[2.5px] pointer-events-none z-20 origin-center"
+                    style={{
+                      transform: 'translateY(-50%) scaleX(1.15)',
+                      boxShadow: `0 0 10px ${s.color}, 0 0 4px #ffffff`,
+                      backgroundColor: '#ffffff',
+                      animation: 'fadeIn 0.35s ease-out forwards',
+                    }}
+                  />
+                );
+              })}
             </a>
           ))}
         </nav>
@@ -109,14 +305,132 @@ export default function Header() {
             <a
               key={link.label}
               href={link.href}
-              onClick={(e) => handleNavClick(e, link.href)}
-              className="text-sm font-silkscreen tracking-widest text-alabaster-grey hover:text-bright-snow py-3 border-b border-graphite-light transition-colors"
+              onClick={(e) => handleNavLinkClick(e, link)}
+              className={`relative group-hover-slash select-none text-sm font-silkscreen tracking-widest text-alabaster-grey hover:text-bright-snow py-3 border-b border-graphite-light transition-colors ${slashClass(
+                link.label
+              )}`}
             >
-              {link.label}
+              <div className="split-container">
+                <span className="split-top">{link.label}</span>
+                <span className="split-bottom" aria-hidden="true">
+                  {link.label}
+                </span>
+              </div>
+
+              {/* Slash centered horizontal neon streak overlay line */}
+              {slashes.map((s) => {
+                if (s.label !== link.label) return null;
+                return (
+                  <div
+                    key={s.id}
+                    className="absolute inset-x-0 top-1/2 h-[2.5px] pointer-events-none z-20 origin-center"
+                    style={{
+                      transform: 'translateY(-50%) scaleX(1.15)',
+                      boxShadow: `0 0 10px ${s.color}, 0 0 4px #ffffff`,
+                      backgroundColor: '#ffffff',
+                      animation: 'fadeIn 0.35s ease-out forwards',
+                    }}
+                  />
+                );
+              })}
             </a>
           ))}
         </nav>
       </div>
+
+      {/* Custom Sword Cursor rendering */}
+      {isHovering && (
+        <div
+          className={`pointer-events-none fixed z-[9999] select-none ${
+            isSlashing ? 'animate-arcade-swing' : ''
+          }`}
+          style={{
+            left: `${mousePos.x - 22}px`,
+            top: `${mousePos.y - 22}px`,
+            transformOrigin: '22px 22px',
+            transition: isSlashing ? 'none' : 'transform 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
+          }}
+        >
+          {/* Template Cyber-Katana SVG rendering customized colors */}
+          <svg
+            width="44"
+            height="44"
+            viewBox="0 0 44 44"
+            fill="none"
+            className="filter drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+          >
+            {/* Outer blade neon glow */}
+            <line
+              x1="2"
+              y1="2"
+              x2="28"
+              y2="28"
+              stroke="oklch(0.98 0.005 240.0)"
+              strokeWidth="4.5"
+              strokeLinecap="round"
+              className="opacity-45"
+            />
+
+            {/* Blade razor edge */}
+            <line x1="0" y1="0" x2="26" y2="26" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" />
+
+            {/* Blade steel core */}
+            <line
+              x1="1"
+              y1="1"
+              x2="25"
+              y2="25"
+              stroke="#e2e8f0"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+            />
+
+            {/* Sleek Tsuba/Guard */}
+            <line
+              x1="23"
+              y1="29"
+              x2="29"
+              y2="23"
+              stroke="#334155"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+            />
+
+            {/* Handle/Tsuka */}
+            <line x1="27" y1="27" x2="37" y2="37" stroke="#000000" strokeWidth="3.2" strokeLinecap="round" />
+            <line
+              x1="28"
+              y1="28"
+              x2="36"
+              y2="36"
+              stroke="#cbd5e1"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+
+            {/* Golden pommel */}
+            <circle cx="38" cy="38" r="1.8" fill="#fbbf24" />
+          </svg>
+        </div>
+      )}
+
+      {/* Dynamic Sparks Rendering */}
+      {sparks.map((spark) => (
+        <div
+          key={spark.id}
+          className="fixed rounded-full pointer-events-none z-[9999]"
+          style={{
+            left: `${spark.x}px`,
+            top: `${spark.y}px`,
+            width: `${spark.size}px`,
+            height: `${spark.size}px`,
+            backgroundColor: spark.color,
+            opacity: spark.opacity,
+            boxShadow: `0 0 8px ${spark.color}`,
+            transform: `translate(-50%, -50%) rotate(${spark.rotation}deg)`,
+          }}
+        />
+      ))}
     </header>
   );
 }
