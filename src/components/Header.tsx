@@ -198,8 +198,10 @@ export default function Header() {
       }`}
     >
       <style>{`
-        .sword-cursor-active, .sword-cursor-active * {
-          cursor: none !important;
+        @media (min-width: 768px) {
+          .sword-cursor-active, .sword-cursor-active * {
+            cursor: none !important;
+          }
         }
         
         /* Custom Arcade Game Sword swing animation */
@@ -385,7 +387,7 @@ export default function Header() {
       {/* Custom Sword Cursor rendering */}
       {isHovering && (
         <div
-          className={`pointer-events-none fixed z-[9999] select-none ${
+          className={`pointer-events-none fixed z-[9999] select-none hidden md:block ${
             isSlashing ? 'animate-arcade-swing' : ''
           }`}
           style={{

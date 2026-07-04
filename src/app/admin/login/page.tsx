@@ -24,7 +24,9 @@ export default function AdminLoginPage() {
       formData.append('password', password);
 
       const result = await loginAction(null, formData);
-      if (result && result.error) {
+      if (result && result.success) {
+        router.push('/admin/dashboard');
+      } else if (result && result.error) {
         setError(result.error);
         setLoading(false);
       }

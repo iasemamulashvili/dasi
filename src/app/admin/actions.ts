@@ -21,7 +21,7 @@ export async function loginAction(prevState: any, formData: FormData) {
 
   if (username === DEFAULT_ADMIN_USER && password === DEFAULT_ADMIN_PASS) {
     await createSession(username);
-    redirect('/admin/dashboard');
+    return { success: true };
   }
 
   return { error: 'Invalid username or password.' };

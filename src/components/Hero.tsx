@@ -31,12 +31,15 @@ export default function Hero() {
   useEffect(() => {
     const handleScroll = () => {
       if (carriedLetters.current.length === 0) return;
+      const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
+      const xOffset = isMobile ? 4 : 6;
+      const yOffset = isMobile ? 8 : 15;
       carriedLetters.current.forEach((index, i) => {
         const parent = parentRefs.current[index];
         if (!parent) return;
         const rect = parent.getBoundingClientRect();
-        const targetViewportX = mousePos.current.x + 20 + (i * 6);
-        const targetViewportY = mousePos.current.y - 15 - (i * 15);
+        const targetViewportX = mousePos.current.x + 20 + (i * xOffset);
+        const targetViewportY = mousePos.current.y - 15 - (i * yOffset);
         targets.current[index] = {
           x: targetViewportX - rect.left,
           y: targetViewportY - rect.top,
@@ -225,11 +228,11 @@ export default function Hero() {
 
       // Update mousePos to the tapped letter's center if it hasn't been set yet
       if (mousePos.current.x === 0 && mousePos.current.y === 0) {
-        mousePos.current = { x: rect.left + rect.width / 2, y: rect.top - 120 };
+        mousePos.current = { x: rect.left + rect.width / 2, y: rect.top - 45 };
       }
 
-      const targetViewportX = mousePos.current.x + 20 + (stackIdx * 6);
-      const targetViewportY = mousePos.current.y - 15 - (stackIdx * 15);
+      const targetViewportX = mousePos.current.x + 20 + (stackIdx * 4);
+      const targetViewportY = mousePos.current.y - 15 - (stackIdx * 8);
 
       targets.current[index] = {
         x: targetViewportX - rect.left,

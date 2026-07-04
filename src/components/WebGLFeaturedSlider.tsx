@@ -481,6 +481,11 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
     setActiveIndex(targetIdx);
     setIsModalOpen(false);
 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const maxScale = isMobile ? 30 : 75;
+    const scaleUpDuration = isMobile ? 0.45 : 0.35;
+    const scaleDownDuration = isMobile ? 0.9 : 0.8;
+
     const animationObj = { progress: 0 };
 
     gsap.to(animationObj, {
@@ -527,13 +532,13 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
         gsap.fromTo(disp,
           { attr: { scale: 0 } },
           {
-            attr: { scale: 75 },
-            duration: 0.35,
+            attr: { scale: maxScale },
+            duration: scaleUpDuration,
             ease: 'power2.out',
             onComplete: () => {
               gsap.to(disp, {
                 attr: { scale: 0 },
-                duration: 0.8,
+                duration: scaleDownDuration,
                 ease: 'power2.inOut',
                 onComplete: () => {
                   textContainers.forEach(el => {
@@ -1011,7 +1016,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
           >
             {/* Modal Container with Glowing Frame and Graphite Border */}
             <div 
-              className="relative w-full max-w-2xl aspect-video bg-carbon-black border border-graphite-light rounded-2xl overflow-hidden shadow-[0_0_35px_rgba(109,109,128,0.35)] z-30 flex flex-col justify-between p-5 pointer-events-auto"
+              className="relative w-full max-w-2xl bg-carbon-black border border-graphite-light rounded-2xl overflow-hidden shadow-[0_0_35px_rgba(109,109,128,0.35)] z-30 flex flex-col justify-between p-5 pointer-events-auto"
               style={{ contentVisibility: 'auto' }}
             >
               {/* Top Bar inside Modal */}
@@ -1045,7 +1050,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
               {/* Video Content Container */}
               <div 
                 onClick={togglePlayPause}
-                className="flex-1 rounded-xl border border-graphite-light overflow-hidden bg-black relative group/video cursor-pointer"
+                className="aspect-video w-full rounded-xl border border-graphite-light overflow-hidden bg-black relative group/video cursor-pointer"
               >
                 {/* Subtle CRT scanline simulation overlay inside video player */}
                 <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,6px_100%] opacity-20 z-10 animate-crt-flicker" />

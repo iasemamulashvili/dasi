@@ -439,10 +439,10 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
 
         {/* Tab Header Selector */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-8">
-          <div className="flex bg-carbon-black border border-graphite-light p-1 rounded-xl w-max flex-wrap gap-1">
+          <div className="grid grid-cols-2 sm:flex bg-carbon-black border border-graphite-light p-1 rounded-xl w-full sm:w-auto gap-1">
             <button
               onClick={() => setActiveTab('games')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
+              className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === 'games'
                   ? 'bg-graphite text-bright-snow'
                   : 'text-alabaster-grey/60 hover:text-bright-snow'
@@ -453,7 +453,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             </button>
             <button
               onClick={() => setActiveTab('showcase')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
+              className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === 'showcase'
                   ? 'bg-graphite text-bright-snow'
                   : 'text-alabaster-grey/60 hover:text-bright-snow'
@@ -464,7 +464,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             </button>
             <button
               onClick={() => setActiveTab('jobs')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
+              className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === 'jobs'
                   ? 'bg-graphite text-bright-snow'
                   : 'text-alabaster-grey/60 hover:text-bright-snow'
@@ -475,7 +475,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             </button>
             <button
               onClick={() => setActiveTab('settings')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
+              className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === 'settings'
                   ? 'bg-graphite text-bright-snow'
                   : 'text-alabaster-grey/60 hover:text-bright-snow'
@@ -1041,6 +1041,52 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                 </label>
               </div>
 
+              {/* Store Links */}
+              <div className="flex flex-col gap-4">
+                {gameFormData.isAndroid && (
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                      Google Play Store Link
+                    </label>
+                    <input
+                      type="text"
+                      value={gameFormData.playstoreLink}
+                      onChange={(e) => setGameFormData({ ...gameFormData, playstoreLink: e.target.value })}
+                      placeholder="https://play.google.com/..."
+                      className="w-full px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
+                    />
+                  </div>
+                )}
+                {gameFormData.isIOS && (
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                      iOS App Store Link
+                    </label>
+                    <input
+                      type="text"
+                      value={gameFormData.appstoreLink}
+                      onChange={(e) => setGameFormData({ ...gameFormData, appstoreLink: e.target.value })}
+                      placeholder="https://apps.apple.com/..."
+                      className="w-full px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
+                    />
+                  </div>
+                )}
+                {gameFormData.isPoki && (
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                      Poki Play Link
+                    </label>
+                    <input
+                      type="text"
+                      value={gameFormData.pokiLink}
+                      onChange={(e) => setGameFormData({ ...gameFormData, pokiLink: e.target.value })}
+                      placeholder="https://poki.com/..."
+                      className="w-full px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
+                    />
+                  </div>
+                )}
+              </div>
+
               {/* Game Analytics & Stats (Always Editable) */}
               <div className="bg-carbon-black border border-graphite-light p-4 rounded-xl flex flex-col gap-4">
                 <h4 className="text-xs font-bold text-bright-snow tracking-wider uppercase border-b border-graphite-light/40 pb-2">
@@ -1096,52 +1142,6 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                     />
                   </div>
                 </div>
-              </div>
-
-              {/* Store Links */}
-              <div className="flex flex-col gap-4">
-                {gameFormData.isAndroid && (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                      Google Play Store Link
-                    </label>
-                    <input
-                      type="text"
-                      value={gameFormData.playstoreLink}
-                      onChange={(e) => setGameFormData({ ...gameFormData, playstoreLink: e.target.value })}
-                      placeholder="https://play.google.com/..."
-                      className="w-full px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
-                    />
-                  </div>
-                )}
-                {gameFormData.isIOS && (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                      iOS App Store Link
-                    </label>
-                    <input
-                      type="text"
-                      value={gameFormData.appstoreLink}
-                      onChange={(e) => setGameFormData({ ...gameFormData, appstoreLink: e.target.value })}
-                      placeholder="https://apps.apple.com/..."
-                      className="w-full px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
-                    />
-                  </div>
-                )}
-                {gameFormData.isPoki && (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                      Poki Play Link
-                    </label>
-                    <input
-                      type="text"
-                      value={gameFormData.pokiLink}
-                      onChange={(e) => setGameFormData({ ...gameFormData, pokiLink: e.target.value })}
-                      placeholder="https://poki.com/..."
-                      className="w-full px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light"
-                    />
-                  </div>
-                )}
               </div>
 
               {/* Submit panel */}
