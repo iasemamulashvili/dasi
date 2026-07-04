@@ -55,8 +55,8 @@ let inMemoryGames: Game[] | null = null;
 let inMemoryJobs: Job[] | null = null;
 let inMemorySettings: Settings | null = null;
 
-// Helper to determine if we are in server-side node environment and can write files
-const isLocalFileSystemWritable = () => {
+// Cache the write check once at startup to avoid blocking the event loop on every request
+const cachedLocalFileSystemWritable = (() => {
   try {
     const tempFile = path.join(process.cwd(), 'src', 'data', '.writable-test');
     fs.writeFileSync(tempFile, 'test');
@@ -65,7 +65,10 @@ const isLocalFileSystemWritable = () => {
   } catch (e) {
     return false;
   }
-};
+})();
+
+// Helper to determine if we are in server-side node environment and can write files
+const isLocalFileSystemWritable = () => cachedLocalFileSystemWritable;
 
 // Vercel KV Helper
 const getKVConfig = () => {

@@ -65,28 +65,35 @@ export default function Header() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
-
-      // Section active zone tracking observer logic
-      const sections = ['home', 'portfolio', 'about', 'careers', 'contact'];
-      let currentSection = 'home';
-      const thresholdOffset = 120; // Height of header + padding threshold
-
-      for (const sectionId of sections) {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= thresholdOffset && rect.bottom >= thresholdOffset) {
-            currentSection = sectionId;
-            break;
-          }
-        }
-      }
-      setActiveSection(currentSection);
     };
     window.addEventListener('scroll', handleScroll);
-    // Run initial scroll check
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const sections = ['home', 'portfolio', 'about', 'careers', 'contact'];
+    const observerOptions = {
+      root: null,
+      rootMargin: '-120px 0px -50% 0px', // Header offset and viewport top-half zone
+      threshold: 0.05,
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   // Sparks physics calculation animation loop

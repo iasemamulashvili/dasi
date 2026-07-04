@@ -398,7 +398,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
   };
 
   return (
-    <div className="min-h-screen bg-carbon-black text-alabaster-grey">
+    <div className="min-h-screen bg-carbon-black text-alabaster-grey admin-lock-screen">
       {/* Top Bar */}
       <header className="border-b border-graphite-light bg-carbon-black/60 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -499,9 +499,17 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
 
         {/* Tab Content: Games List */}
         {activeTab === 'games' && (
-          <div className="flex flex-col gap-6">
+          <div className="bg-carbon-black-2 border border-graphite-light p-4 sm:p-6 rounded-2xl flex flex-col gap-6">
+            <div className="border-b border-graphite-light/40 pb-4">
+              <h3 className="text-base font-bold text-bright-snow font-russo-one uppercase tracking-wider mb-1">
+                Games Directory
+              </h3>
+              <p className="text-xs text-alabaster-grey/70 font-outfit max-w-2xl">
+                Manage the games collection, supported store channels, platforms, and assets.
+              </p>
+            </div>
             {/* Desktop Table view (Visible on md and up) */}
-            <div className="hidden md:block bg-carbon-black-2 border border-graphite-light rounded-2xl overflow-hidden">
+            <div className="hidden md:block border border-graphite-light rounded-xl overflow-hidden bg-carbon-black">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
@@ -571,7 +579,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             {/* Mobile Card List (Visible on mobile only) */}
             <div className="grid grid-cols-1 gap-4 md:hidden">
               {games.map((game) => (
-                <div key={game.id} className="bg-carbon-black-2 border border-graphite-light p-4 rounded-xl flex flex-col gap-4">
+                <div key={game.id} className="bg-carbon-black border border-graphite-light p-4 rounded-xl flex flex-col gap-4">
                   <div className="flex gap-3 items-start">
                     <img 
                       src={game.iconSrc || 'https://dasigames.com/Images/low_res_images/dasigames_logo(transparent).png'} 
@@ -758,9 +766,17 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
 
         {/* Tab Content: Careers List */}
         {activeTab === 'jobs' && (
-          <div className="flex flex-col gap-6">
+          <div className="bg-carbon-black-2 border border-graphite-light p-4 sm:p-6 rounded-2xl flex flex-col gap-6">
+            <div className="border-b border-graphite-light/40 pb-4">
+              <h3 className="text-base font-bold text-bright-snow font-russo-one uppercase tracking-wider mb-1">
+                Careers Registry
+              </h3>
+              <p className="text-xs text-alabaster-grey/70 font-outfit max-w-2xl">
+                Manage open job postings, recruitment parameters, and responsibilities.
+              </p>
+            </div>
             {/* Desktop Table view (Visible on md and up) */}
-            <div className="hidden md:block bg-carbon-black-2 border border-graphite-light rounded-2xl overflow-hidden">
+            <div className="hidden md:block border border-graphite-light rounded-xl overflow-hidden bg-carbon-black">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
@@ -811,7 +827,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             {/* Mobile Card List for Careers (Visible on mobile only) */}
             <div className="grid grid-cols-1 gap-4 md:hidden">
               {jobs.map((job) => (
-                <div key={job.id} className="bg-carbon-black-2 border border-graphite-light p-4 rounded-xl flex flex-col gap-4">
+                <div key={job.id} className="bg-carbon-black border border-graphite-light p-4 rounded-xl flex flex-col gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-bright-snow truncate text-base">
                       {job.title}
@@ -1266,6 +1282,12 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
         .scrollbar-none {
           -ms-overflow-style: none;
           scrollbar-width: none;
+        }
+        .admin-lock-screen {
+          overflow-x: hidden !important;
+          width: 100% !important;
+          max-width: 100vw !important;
+          touch-action: pan-y !important;
         }
       `}</style>
     </div>

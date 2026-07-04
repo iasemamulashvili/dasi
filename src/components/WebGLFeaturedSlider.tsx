@@ -623,8 +623,14 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
     const charEls = container.querySelectorAll('.emp-char') as NodeListOf<HTMLElement>;
     const rippleSpeed = 0.38 * containerRect.height; // Ripple speed matching shader (0.38 heights/sec)
 
-    charEls.forEach((charEl) => {
-      const rect = charEl.getBoundingClientRect();
+    // Batch DOM reads to prevent forced layout invalidation between loop iterations
+    const rects = Array.from(charEls).map(el => {
+      const r = el.getBoundingClientRect();
+      return { left: r.left, top: r.top, width: r.width, height: r.height };
+    });
+
+    charEls.forEach((charEl, idx) => {
+      const rect = rects[idx];
       const charX = rect.left + rect.width / 2 - containerRect.left;
       const charY = rect.top + rect.height / 2 - containerRect.top;
 
@@ -1050,10 +1056,9 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
                 onClick={togglePlayPause}
                 className="aspect-video w-full rounded-xl border border-graphite-light overflow-hidden bg-black relative group/video cursor-pointer"
               >
-                {/* Subtle CRT scanline simulation overlay inside video player */}
-                <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,6px_100%] opacity-20 z-10 animate-crt-flicker" />
-                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_60%,rgba(0,0,0,0.5)_100%)] opacity-60 z-10" />
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-slate-violet/5 to-transparent h-[10%] w-full z-10 animate-crt-scanlines" />
+                {/* Subtle static CRT scanline simulation overlay inside video player to keep retro look without layout/compositing performance lag */}
+                <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.12)_50%)] bg-[length:100%_4px] opacity-15 z-10" />
+                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_60%,rgba(0,0,0,0.45)_100%)] opacity-50 z-10" />
 
                 {/* Play state HUD overlay indicator */}
                 <div className="absolute bottom-3 left-3 z-20 font-outfit text-[9px] bg-carbon-black/85 px-2 py-0.5 border border-graphite-light rounded text-bright-snow tracking-widest uppercase flex items-center gap-1.5 select-none pointer-events-none">
@@ -1083,9 +1088,9 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
               </div>
 
               {/* Modal Footer using Outfit font */}
-              <div className="flex items-center justify-between text-[10px] font-outfit text-alabaster-grey/50 mt-3 uppercase tracking-wider select-none border-t border-graphite-light/50 pt-2.5">
-                <span className="font-semibold text-slate-violet-light">{activeGame.subtitle}</span>
-                <span>PRESS ESC, X OR OUTSIDE TO CLOSE</span>
+              <div className="flex items-center justify-between text-[8px] font-outfit text-alabaster-grey/40 mt-3 uppercase tracking-widest select-none border-t border-graphite-light/30 pt-2">
+                <span className="font-semibold text-slate-violet-light/70">{activeGame.subtitle}</span>
+                <span>CLOSE [X]</span>
               </div>
 
             </div>

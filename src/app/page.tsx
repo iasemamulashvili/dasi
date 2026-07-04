@@ -8,8 +8,8 @@ import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
 import { getGames, getJobs, getSettings } from "@/utils/db";
 
-// Force dynamic so that database edits are read live in production
-export const dynamic = 'force-dynamic';
+// Cache the landing page for 5 minutes, invalidated immediately in production when admin saves updates
+export const revalidate = 300;
 
 export default async function Home() {
   const [games, jobs, settings] = await Promise.all([

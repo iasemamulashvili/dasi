@@ -60,7 +60,11 @@ function CyberScanningMatrix({ isHovered, gameId }: CyberScanningMatrixProps) {
     let sweepY = 0;
     let sweepDirection = 1;
 
+    let isVisible = false;
+
     const animate = () => {
+      if (!isVisible) return;
+
       // Fade trail
       ctx.fillStyle = 'rgba(18, 18, 20, 0.12)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -149,10 +153,23 @@ function CyberScanningMatrix({ isHovered, gameId }: CyberScanningMatrixProps) {
       animationId = requestAnimationFrame(animate);
     };
 
-    animate();
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const wasVisible = isVisible;
+        isVisible = entry.isIntersecting;
+        if (isVisible && !wasVisible) {
+          animate();
+        } else if (!isVisible && wasVisible) {
+          cancelAnimationFrame(animationId);
+        }
+      },
+      { threshold: 0.02 }
+    );
+    observer.observe(canvas);
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      observer.disconnect();
       cancelAnimationFrame(animationId);
     };
   }, [gameId]);

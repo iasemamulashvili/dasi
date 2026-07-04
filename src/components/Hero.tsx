@@ -34,10 +34,17 @@ export default function Hero() {
       const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
       const xOffset = isMobile ? 4 : 6;
       const yOffset = isMobile ? 8 : 15;
+      
+      // Batch read bounding boxes first
+      const rects = carriedLetters.current.map(index => {
+        const parent = parentRefs.current[index];
+        return parent ? parent.getBoundingClientRect() : null;
+      });
+
       carriedLetters.current.forEach((index, i) => {
         const parent = parentRefs.current[index];
-        if (!parent) return;
-        const rect = parent.getBoundingClientRect();
+        const rect = rects[i];
+        if (!parent || !rect) return;
         const targetViewportX = mousePos.current.x + 20 + (i * xOffset);
         const targetViewportY = mousePos.current.y - 15 - (i * yOffset);
         targets.current[index] = {
@@ -226,9 +233,9 @@ export default function Hero() {
       gsap.killTweensOf(letter);
       gsap.killTweensOf(`.letter-placeholder-${index}`);
 
-      // Update mousePos to the tapped letter's center if it hasn't been set yet
+      // Update mousePos to the tapped letter's center if it hasn't been set yet (positioned higher to prevent overlapping carrying alert pill)
       if (mousePos.current.x === 0 && mousePos.current.y === 0) {
-        mousePos.current = { x: rect.left + rect.width / 2, y: rect.top - 45 };
+        mousePos.current = { x: rect.left + rect.width / 2, y: rect.top - 80 };
       }
 
       const targetViewportX = mousePos.current.x + 20 + (stackIdx * 4);
@@ -275,11 +282,15 @@ export default function Hero() {
     
     mousePos.current = { x: e.clientX, y: e.clientY };
 
+    // Batch read bounding boxes to prevent layout thrashing in mousemove loop
+    const rects = parentRefs.current.map(parent => {
+      return parent ? parent.getBoundingClientRect() : null;
+    });
+
     parentRefs.current.forEach((parent, index) => {
       const letter = letterRefs.current[index];
-      if (!parent || !letter) return;
-
-      const rect = parent.getBoundingClientRect();
+      const rect = rects[index];
+      if (!parent || !letter || !rect) return;
 
       if (carriedLetters.current.includes(index)) {
         // Calculate target relative to its parent container
