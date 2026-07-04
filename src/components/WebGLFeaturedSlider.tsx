@@ -529,33 +529,31 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
           el.classList.add('emp-warp-active');
         });
 
-        gsap.fromTo(disp,
-          { attr: { scale: 0 } },
-          {
-            attr: { scale: maxScale },
-            duration: scaleUpDuration,
-            ease: 'power2.out',
-            onComplete: () => {
-              gsap.to(disp, {
-                attr: { scale: 0 },
-                duration: scaleDownDuration,
-                ease: 'power2.inOut',
-                onComplete: () => {
-                  textContainers.forEach(el => {
-                    el.classList.remove('emp-warp-active');
-                  });
-                }
-              });
-            }
-          }
-        );
+        const animationObj = { progress: 0 };
+        const duration = isMobile ? 1.5 : 1.3;
 
-        gsap.fromTo(turb,
-          { attr: { baseFrequency: "0.01 0.08" } },
+        gsap.fromTo(animationObj,
+          { progress: 0 },
           {
-            attr: { baseFrequency: "0.08 0.25" },
-            duration: 1.15,
-            ease: 'sine.inOut'
+            progress: 1,
+            duration: duration,
+            ease: 'power2.inOut',
+            onUpdate: () => {
+              const p = animationObj.progress;
+              // Mathematically smooth bell curve peaking at 0.5 progress and returning to 0 at 1
+              const currentScale = Math.sin(p * Math.PI) * maxScale;
+              const currentFreq = 0.08 + Math.sin(p * Math.PI) * 0.17;
+              
+              if (disp) disp.setAttribute('scale', currentScale.toFixed(2));
+              if (turb) turb.setAttribute('baseFrequency', `0.01 ${currentFreq.toFixed(3)}`);
+            },
+            onComplete: () => {
+              textContainers.forEach(el => {
+                el.classList.remove('emp-warp-active');
+              });
+              if (disp) disp.setAttribute('scale', '0');
+              if (turb) turb.setAttribute('baseFrequency', '0.01 0.08');
+            }
           }
         );
       }
@@ -1080,7 +1078,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
                   playsInline
                   onPlay={() => setIsModalPlaying(true)}
                   onPause={() => setIsModalPlaying(false)}
-                  className="w-full h-full object-cover filter brightness-[1.05] contrast-[1.05] transition-all duration-300 group-hover/video:brightness-110"
+                  className="w-full h-full object-cover transition-all duration-300"
                 />
               </div>
 

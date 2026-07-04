@@ -439,10 +439,10 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
 
         {/* Tab Header Selector */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-8">
-          <div className="grid grid-cols-2 sm:flex bg-carbon-black border border-graphite-light p-1 rounded-xl w-full sm:w-auto gap-1">
+          <div className="flex bg-carbon-black border border-graphite-light p-1 rounded-xl w-full sm:w-auto overflow-x-auto scrollbar-none gap-1 whitespace-nowrap">
             <button
               onClick={() => setActiveTab('games')}
-              className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer shrink-0 ${
                 activeTab === 'games'
                   ? 'bg-graphite text-bright-snow'
                   : 'text-alabaster-grey/60 hover:text-bright-snow'
@@ -453,7 +453,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             </button>
             <button
               onClick={() => setActiveTab('showcase')}
-              className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer shrink-0 ${
                 activeTab === 'showcase'
                   ? 'bg-graphite text-bright-snow'
                   : 'text-alabaster-grey/60 hover:text-bright-snow'
@@ -464,7 +464,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             </button>
             <button
               onClick={() => setActiveTab('jobs')}
-              className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer shrink-0 ${
                 activeTab === 'jobs'
                   ? 'bg-graphite text-bright-snow'
                   : 'text-alabaster-grey/60 hover:text-bright-snow'
@@ -475,7 +475,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             </button>
             <button
               onClick={() => setActiveTab('settings')}
-              className={`flex items-center justify-center sm:justify-start gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer shrink-0 ${
                 activeTab === 'settings'
                   ? 'bg-graphite text-bright-snow'
                   : 'text-alabaster-grey/60 hover:text-bright-snow'
@@ -625,12 +625,10 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
           <div className="flex flex-col gap-8">
             <div className="bg-carbon-black-2 border border-graphite-light p-6 rounded-2xl">
               <h3 className="text-base font-bold text-bright-snow font-russo-one uppercase tracking-wider mb-2">
-                WebGL Displacement Slider Configuration
+                Homepage Hero Showcase
               </h3>
               <p className="text-xs text-alabaster-grey/70 mb-6 leading-relaxed font-outfit max-w-2xl">
-                Configure the three games featured in the WebGL liquid-morphing slider on the homepage. 
-                Select a game for each slot, enter a featured subtitle, and upload the background morphing image. 
-                Save your settings at the bottom to apply changes.
+                Select which games take center stage on the homepage slider. For each of the three slots, choose a game, add a brief tagline, and upload a background morph texture. Click save below to update the live showcase.
               </p>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1261,6 +1259,15 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
           </div>
         </div>
       )}
+      <style>{`
+        .scrollbar-none::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-none {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 }
