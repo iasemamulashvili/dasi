@@ -25,6 +25,7 @@ export default function Hero() {
   const carriedLetters = useRef<number[]>([]);
   const targets = useRef<{ x: number; y: number }[]>([]);
   const mousePos = useRef({ x: 0, y: 0 });
+  const letterTimelines = useRef<(gsap.core.Timeline | null)[]>([]);
 
   const titleText = "DASI GAMES";
 
@@ -215,6 +216,7 @@ export default function Hero() {
   }, []);
 
   const handleLetterClick = (index: number) => {
+    if (isBlowing) return; // Block collection while letters are returning to home
     const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
     if (!isMobile) return;
 
@@ -229,6 +231,11 @@ export default function Hero() {
       const rect = parent.getBoundingClientRect();
       const stackIdx = carriedLetters.current.length - 1;
 
+      // Kill any active timeline on this letter to prevent overwrite/snap conflicts
+      if (letterTimelines.current[index]) {
+        letterTimelines.current[index]?.kill();
+        letterTimelines.current[index] = null;
+      }
       // Kill any active returning/release animations on the letter and its placeholder
       gsap.killTweensOf(letter);
       gsap.killTweensOf(`.letter-placeholder-${index}`);
@@ -264,6 +271,7 @@ export default function Hero() {
   };
 
   const handleContainerMouseMove = (e: React.MouseEvent) => {
+    if (isBlowing) return; // Block interaction while letters are returning to home
     if (window.innerWidth < 768 || ('ontouchstart' in window)) return;
     
     // Bulletproof Release: Check if the mouse is inside the RELEASE box bounding box
@@ -312,6 +320,11 @@ export default function Hero() {
           carriedLetters.current.push(index);
           setCollectedCount(carriedLetters.current.length);
 
+          // Kill any active timeline on this letter to prevent overwrite/snap conflicts
+          if (letterTimelines.current[index]) {
+            letterTimelines.current[index]?.kill();
+            letterTimelines.current[index] = null;
+          }
           // Kill any active returning/release animations on the letter and its placeholder
           gsap.killTweensOf(letter);
           gsap.killTweensOf(`.letter-placeholder-${index}`);
@@ -368,7 +381,13 @@ export default function Hero() {
     letterRefs.current.forEach((letter, index) => {
       if (letter && carriedLetters.current.includes(index)) {
         const stackIdx = carriedLetters.current.indexOf(index);
-        const tl = gsap.timeline({ delay: stackIdx * 0.04 });
+        const tl = gsap.timeline({ 
+          delay: stackIdx * 0.04,
+          onComplete: () => {
+            letterTimelines.current[index] = null;
+          }
+        });
+        letterTimelines.current[index] = tl;
         
         tl.to(letter, {
           x: '-=150',
@@ -383,7 +402,6 @@ export default function Hero() {
           '--letter-c': 0.01,
           '--letter-h': 0,
           duration: 0.15,
-          overwrite: 'auto',
         })
         .to(letter, {
           // Decelerate, return to home, and smoothly fade back to Bright Snow
