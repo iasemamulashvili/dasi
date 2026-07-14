@@ -61,7 +61,7 @@ const mockGames: Game[] = [
     isPoki: false,
     rating: "4.8",
     downloads: "5M+",
-    videoSrc: "https://assets.mixkit.co/videos/preview/mixkit-hand-holding-a-smartphone-playing-a-video-game-41584-large.mp4"
+    videoSrc: "/videos/lumber-chopper.mp4"
   },
   {
     id: "lumber-chopper",
@@ -77,7 +77,7 @@ const mockGames: Game[] = [
     isPoki: false,
     rating: "4.6",
     downloads: "3M+",
-    videoSrc: "https://assets.mixkit.co/videos/preview/mixkit-industrial-forest-log-loader-working-43187-large.mp4"
+    videoSrc: "/videos/lumber-chopper.mp4"
   },
   {
     id: "hotel-manager",
@@ -93,7 +93,7 @@ const mockGames: Game[] = [
     isPoki: false,
     rating: "4.5",
     downloads: "1.5M+",
-    videoSrc: "https://assets.mixkit.co/videos/preview/mixkit-luxury-resort-hotel-swimming-pool-and-palm-trees-48744-large.mp4"
+    videoSrc: "/videos/lumber-chopper.mp4"
   },
   {
     id: "coworking-manager",
@@ -109,7 +109,7 @@ const mockGames: Game[] = [
     isPoki: true,
     rating: "4.3",
     downloads: "800K+",
-    videoSrc: "https://assets.mixkit.co/videos/preview/mixkit-typing-on-a-laptop-in-a-sunny-office-close-up-41585-large.mp4"
+    videoSrc: "/videos/lumber-chopper.mp4"
   },
   {
     id: "hospital-manager",
@@ -125,7 +125,7 @@ const mockGames: Game[] = [
     isPoki: true,
     rating: "4.4",
     downloads: "1.2M+",
-    videoSrc: "https://assets.mixkit.co/videos/preview/mixkit-doctor-explaining-prescriptions-to-a-patient-48756-large.mp4"
+    videoSrc: "/videos/lumber-chopper.mp4"
   },
   {
     id: "my-spa-resort",
@@ -141,7 +141,7 @@ const mockGames: Game[] = [
     isPoki: false,
     rating: "4.2",
     downloads: "400K+",
-    videoSrc: "https://assets.mixkit.co/videos/preview/mixkit-massage-therapist-applying-hot-stones-to-a-womans-back-48749-large.mp4"
+    videoSrc: "/videos/lumber-chopper.mp4"
   }
 ];
 
@@ -150,6 +150,15 @@ export default function GamesCarouselSandbox() {
 
   return (
     <div className="min-h-screen bg-carbon-black text-alabaster-grey relative overflow-x-hidden select-none">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes scan-line-anim {
+          0% { top: 0%; }
+          100% { top: 100%; }
+        }
+        .animate-scan-line {
+          animation: scan-line-anim 4s linear infinite;
+        }
+      ` }} />
       {/* Decorative Grids */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0" />
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-slate-violet/5 blur-[120px] rounded-full pointer-events-none z-0" />
@@ -190,8 +199,8 @@ export default function GamesCarouselSandbox() {
         </div>
 
         {/* Tab Switcher Console */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-graphite-light/35 pb-5">
-          <div className="flex bg-carbon-black-2 border border-graphite-light p-1 rounded-xl w-full md:w-auto scrollbar-none overflow-x-auto whitespace-nowrap gap-1">
+        <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 border-b border-graphite-light/35 pb-5">
+          <div className="flex bg-carbon-black-2 border border-graphite-light p-1 rounded-xl w-full xl:w-auto scrollbar-none overflow-x-auto whitespace-nowrap gap-1">
             <button
               onClick={() => setActiveTab('kinetic')}
               className={`px-5 py-2 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans shrink-0 ${
@@ -278,7 +287,10 @@ export default function GamesCarouselSandbox() {
 /* ==========================================
    SHARED VIDEO CARD COMPONENT
    ========================================== */
-function VideoGameCard({ 
+/* ==========================================
+   VARIATION A: KINETIC BEZEL DEVICE CARD
+   ========================================== */
+function KineticCard({ 
   game, 
   index, 
   hoveredIdx, 
@@ -304,32 +316,133 @@ function VideoGameCard({
         stiffness: 145,
         damping: 20
       }}
-      className="h-[320px] bg-carbon-black-2 border border-graphite-light p-5 rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-violet/5 relative group shrink-0 overflow-hidden"
+      className="h-[320px] bg-carbon-black-2 border border-graphite-light p-4 rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-violet/5 relative group shrink-0 overflow-hidden"
+    >
+      <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-25" />
+
+      {/* Handheld Device Bezel Frame Screen */}
+      <div className="relative w-full h-[125px] bg-zinc-950 rounded-xl border-[5px] border-zinc-800 shadow-[inset_0_0_12px_rgba(0,0,0,0.85)] overflow-hidden flex items-center justify-center">
+        {/* Mock Handheld Buttons (visible when card expands) */}
+        <div className="absolute left-1.5 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-20 opacity-0 group-hover:opacity-40 transition-opacity duration-300">
+          <div className="w-1.5 h-3 bg-zinc-500 rounded-sm" />
+          <div className="w-3 h-1.5 bg-zinc-500 rounded-sm -ml-0.5" />
+        </div>
+        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex gap-1.5 z-20 opacity-0 group-hover:opacity-40 transition-opacity duration-300">
+          <div className="w-2.5 h-2.5 bg-zinc-500 rounded-full" />
+          <div className="w-2.5 h-2.5 bg-zinc-500 rounded-full" />
+        </div>
+
+        {/* Video plays continuously */}
+        {game.videoSrc && (
+          <video
+            src={game.videoSrc}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        )}
+
+        {/* CRT Scanline Overlay */}
+        <div className="absolute inset-0 pointer-events-none z-10 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.03)_50%,rgba(0,0,0,0.12)_50%)] bg-[size:100%_4px]" />
+        
+        {/* Bezel inner shadow */}
+        <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.45)_100%)]" />
+        
+        {/* Scanning horizontal line */}
+        <div className="absolute inset-x-0 h-[1.5px] bg-slate-violet/30 pointer-events-none z-10 animate-scan-line" />
+      </div>
+
+      {/* Card Details */}
+      <div className="relative z-10 flex flex-col justify-between flex-1 mt-3 pointer-events-none select-none">
+        <div>
+          <div className="flex items-center gap-3">
+            <img
+              src={game.iconSrc}
+              alt={game.title}
+              className="w-8 h-8 rounded-lg object-cover border border-graphite-light/50"
+            />
+            <div>
+              <h4 className="text-xs font-bold text-bright-snow font-russo-one tracking-wide">
+                {game.title}
+              </h4>
+              <div className="flex gap-1 mt-0.5 text-alabaster-grey/50">
+                {game.isIOS && <AppStoreIcon className="w-2.5 h-2.5 text-slate-violet-light" />}
+                {game.isAndroid && <PlayStoreIcon className="w-2.5 h-2.5 text-slate-violet-light" />}
+                {game.isPoki && <Globe size={10} className="text-slate-violet-light" />}
+              </div>
+            </div>
+          </div>
+          <p className={`text-[10px] text-alabaster-grey/70 font-outfit leading-relaxed mt-2 line-clamp-2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-70'}`}>
+            {game.description}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between border-t border-graphite-light/20 pt-2.5 mt-2">
+          <span className="text-[9px] font-mono text-slate-violet-light">
+            {game.downloads || 'FREE'}
+          </span>
+          <span className="text-[9px] font-bold text-bright-snow group-hover:text-slate-violet-light transition-colors flex items-center gap-1 font-outfit uppercase">
+            Play Game <ChevronRight size={10} />
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ==========================================
+   VARIATION B: GLIDE FULL-BLEED BACKDROP CARD
+   ========================================== */
+function GlideCard({ 
+  game, 
+  index, 
+  hoveredIdx, 
+  setHoveredIdx 
+}: { 
+  game: Game; 
+  index: number; 
+  hoveredIdx: number | null; 
+  setHoveredIdx: (idx: number | null) => void;
+}) {
+  const isHovered = hoveredIdx === index;
+
+  return (
+    <motion.div
+      onMouseEnter={() => setHoveredIdx(index)}
+      onMouseLeave={() => setHoveredIdx(null)}
+      animate={{
+        width: isHovered ? 400 : 280,
+        scale: isHovered ? 1.02 : 1,
+        borderColor: isHovered ? '#7c3aed' : 'rgba(55, 65, 81, 0.4)'
+      }}
+      transition={{
+        type: 'spring',
+        stiffness: 145,
+        damping: 20
+      }}
+      className="h-[320px] bg-gradient-to-br from-carbon-black-2 to-graphite/30 border border-graphite-light p-5 rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-violet/10 relative group shrink-0 overflow-hidden"
     >
       <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-10" />
 
       {/* Autoplay Video Loop Backdrop */}
-      <AnimatePresence>
-        {isHovered && game.videoSrc && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.6 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.45 }}
-            className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
-          >
-            <video
-              src={game.videoSrc}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-carbon-black via-carbon-black/45 to-transparent" />
-          </motion.div>
+      <div 
+        className="absolute inset-0 z-0 pointer-events-none overflow-hidden transition-opacity duration-500 ease-in-out"
+        style={{ opacity: isHovered ? 0.45 : 0 }}
+      >
+        {game.videoSrc && (
+          <video
+            src={game.videoSrc}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
         )}
-      </AnimatePresence>
+        <div className="absolute inset-0 bg-gradient-to-t from-carbon-black via-carbon-black/85 to-carbon-black/60" />
+      </div>
 
       {/* Card Details */}
       <div className="relative z-10 flex flex-col justify-between h-full pointer-events-none select-none">
@@ -375,6 +488,107 @@ function VideoGameCard({
           <span className="text-[9px] font-bold text-bright-snow group-hover:text-slate-violet-light transition-colors flex items-center gap-1 font-outfit uppercase">
             View Game <ChevronRight size={10} />
           </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ==========================================
+   VARIATION C: TIMELINE SPLIT APP STORE CARD
+   ========================================== */
+function TimelineCard({ 
+  game, 
+  index, 
+  hoveredIdx, 
+  setHoveredIdx 
+}: { 
+  game: Game; 
+  index: number; 
+  hoveredIdx: number | null; 
+  setHoveredIdx: (idx: number | null) => void;
+}) {
+  const isHovered = hoveredIdx === index;
+
+  return (
+    <motion.div
+      onMouseEnter={() => setHoveredIdx(index)}
+      onMouseLeave={() => setHoveredIdx(null)}
+      animate={{
+        scale: isHovered ? 1.03 : 1,
+        borderColor: isHovered ? '#7c3aed' : 'rgba(55, 65, 81, 0.4)'
+      }}
+      transition={{
+        type: 'spring',
+        stiffness: 200,
+        damping: 22
+      }}
+      className="w-[280px] h-[320px] bg-carbon-black-2 border border-graphite-light rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-violet/5 relative group shrink-0 overflow-hidden"
+    >
+      <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-20" />
+
+      {/* Top 50%: Fixed Continuous Autoplay Video Header */}
+      <div className="h-[150px] w-full bg-zinc-950 overflow-hidden relative border-b border-graphite-light/30">
+        {game.videoSrc && (
+          <video
+            src={game.videoSrc}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        )}
+        <div className="absolute top-3 left-3 bg-carbon-black/75 backdrop-blur-sm px-2 py-0.5 rounded-md border border-white/10 flex items-center gap-1 z-10">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[8px] font-mono font-bold text-bright-snow uppercase tracking-wider">Gameplay</span>
+        </div>
+      </div>
+
+      {/* Bottom 50%: Clean white/grey metadata details & slate-violet button */}
+      <div className="h-[170px] w-full bg-white text-zinc-900 p-4 flex flex-col justify-between relative z-10">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <img
+                src={game.iconSrc}
+                alt={game.title}
+                className="w-7 h-7 rounded-lg object-cover border border-zinc-200"
+              />
+              <h4 className="text-xs font-bold text-zinc-900 font-russo-one tracking-wide line-clamp-1">
+                {game.title}
+              </h4>
+            </div>
+            {game.rating && (
+              <div className="flex items-center gap-0.5 bg-zinc-100 px-1.5 py-0.5 rounded text-[9px] font-bold text-zinc-700 font-mono">
+                <span>{game.rating}</span>
+                <span className="text-amber-500">★</span>
+              </div>
+            )}
+          </div>
+          
+          <p className="text-[10px] text-zinc-600 font-outfit leading-relaxed line-clamp-2">
+            {game.description}
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2 pt-2 border-t border-zinc-100">
+          <div className="flex items-center justify-between text-[8px] font-mono text-zinc-500">
+            <span>{game.downloads ? `${game.downloads} DOWNLOADS` : 'FREE TO PLAY'}</span>
+            <div className="flex gap-1 text-zinc-400">
+              {game.isIOS && <AppStoreIcon className="w-2.5 h-2.5" />}
+              {game.isAndroid && <PlayStoreIcon className="w-2.5 h-2.5" />}
+              {game.isPoki && <Globe size={10} />}
+            </div>
+          </div>
+
+          <Link
+            href={game.playstoreLink || game.appstoreLink || game.pokiLink || '#'}
+            target="_blank"
+            className="w-full bg-slate-violet hover:bg-slate-violet-light text-white rounded-xl py-2 text-[10px] font-bold font-sans tracking-widest uppercase text-center cursor-pointer transition-all hover:shadow-md hover:shadow-slate-violet/20 flex items-center justify-center gap-1"
+          >
+            <Play size={10} fill="currentColor" /> GET GAME
+          </Link>
         </div>
       </div>
     </motion.div>
@@ -478,7 +692,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
           className="flex gap-6 w-max px-6"
         >
           {tripleGames.map((game, index) => (
-            <VideoGameCard
+            <KineticCard
               key={`${game.id}-kinetic-${index}`}
               game={game}
               index={index}
@@ -582,7 +796,7 @@ function GlideButtonStream({ games }: { games: Game[] }) {
           className="flex gap-6 w-max px-6"
         >
           {tripleGames.map((game, index) => (
-            <VideoGameCard
+            <GlideCard
               key={`${game.id}-glide-${index}`}
               game={game}
               index={index}
@@ -722,7 +936,7 @@ function TimelineScrubberStream({ games }: { games: Game[] }) {
           className="flex gap-6 w-max px-6"
         >
           {tripleGames.map((game, index) => (
-            <VideoGameCard
+            <TimelineCard
               key={`${game.id}-scrub-${index}`}
               game={game}
               index={index}
