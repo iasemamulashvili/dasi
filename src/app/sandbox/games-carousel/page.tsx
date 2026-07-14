@@ -25,10 +25,9 @@ const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <rect x="0.5" y="0.5" width="119" height="39" rx="6" fill="#000000" stroke="#374151" strokeWidth={1} />
-    <path
-      d="M18.5 13.85c-.05-2.07 1.69-3.07 1.77-3.12-1-1.4-2.45-1.59-2.98-1.64-1.26-.13-2.46.74-3.1.74-.64 0-1.64-.73-2.69-.71-1.38.02-2.66.8-3.37 2.03-1.43 2.48-.37 6.13 1.02 8.14.68.98 1.48 2.07 2.54 2.03 1.02-.04 1.41-.66 2.65-.66 1.23 0 1.58.66 2.65.64 1.08-.02 1.78-.98 2.44-1.96.77-1.12 1.08-2.2 1.1-2.25-.02-.01-2.11-.81-2.13-3.23zM16.4 8.23c.56-.68.94-1.62.84-2.56-.8.03-1.78.53-2.35 1.2-.5.58-.94 1.54-.82 2.47.9.07 1.8-.43 2.33-1.11z"
-      fill="#ffffff"
-    />
+    <g transform="translate(10, 10) scale(0.035)" fill="#ffffff">
+      <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-48.7-22.9-76.9-22.4-36.6.6-70.3 21.6-89.2 54.2-38 65.9-9.8 162.8 27.3 216.3 18.2 26.2 39.8 55.3 68.2 54.2 27.2-1.1 37.5-17.6 68.5-17.6 31.1 0 40.4 17.6 68.8 17.1 29-1 48.2-26.4 66.2-52.7 21-30.7 29.7-60.4 30.2-62-1-1-65.2-25.1-65.7-100zM281.2 81.7c15.2-18.3 25.4-43.9 22.6-69.5-22 1-48.8 14.8-64.6 33.2-13.8 15.9-25.9 41.7-22.7 67 24.5 2 49.7-12.4 64.7-30.7z" />
+    </g>
     <text x="32" y="16" fill="#A1A1AA" fontSize="5.5" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="500">Download on the</text>
     <text x="32" y="27" fill="#ffffff" fontSize="11" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700">App Store</text>
   </svg>
@@ -42,14 +41,18 @@ const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <rect x="0.5" y="0.5" width="119" height="39" rx="6" fill="#000000" stroke="#374151" strokeWidth={1} />
-    <g transform="translate(8, 8) scale(0.046875)">
-      <path d="M47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0z" fill="#00b0ff" />
-      <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="#00e676" />
-      <path d="M425.2 225.6l-58 33.3 60.1 60.1L512 288c0-22-13.7-47.8-40-62.4z" fill="#ff3d00" />
-      <path d="M325.3 277.7l60.1 60.1L104.6 499l220.7-221.3z" fill="#ffea00" />
+    <g transform="translate(10, 11) scale(0.035)">
+      {/* Left triangle (Cyan) */}
+      <path d="M47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0z" fill="#00E6FF" />
+      {/* Top triangle (Red) */}
+      <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="#FF3A44" />
+      {/* Right triangle (Yellow) */}
+      <path d="M472.2 225.6l-58 33.3 60.1 60.1L512 288c0-22-13.7-47.8-40-62.4z" fill="#FFC700" />
+      {/* Bottom triangle (Green) */}
+      <path d="M325.3 277.7l60.1 60.1L104.6 499l220.7-221.3z" fill="#00F076" />
     </g>
-    <text x="34" y="16" fill="#A1A1AA" fontSize="5.5" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="500">GET IT ON</text>
-    <text x="34" y="27" fill="#ffffff" fontSize="11" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700">Google Play</text>
+    <text x="32" y="16" fill="#A1A1AA" fontSize="5.5" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="500">GET IT ON</text>
+    <text x="32" y="27" fill="#ffffff" fontSize="11" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700">Google Play</text>
   </svg>
 );
 
@@ -61,21 +64,11 @@ const PokiPlayBadge = ({ className = "h-8" }: { className?: string }) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <rect x="0.5" y="0.5" width="119" height="39" rx="6" fill="#000000" stroke="#374151" strokeWidth={1} />
-    <g transform="translate(6, 0)">
-      <circle cx="10" cy="20" r="5" fill="#FF9F0A" />
-      <text x="10" y="23" fill="#000000" fontSize="8" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="900" textAnchor="middle">p</text>
-      
-      <circle cx="18" cy="20" r="5" fill="#0A84FF" />
-      <text x="18" y="23" fill="#000000" fontSize="8" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="900" textAnchor="middle">o</text>
-
-      <circle cx="26" cy="20" r="5" fill="#30D158" />
-      <text x="26" y="23" fill="#000000" fontSize="8" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="900" textAnchor="middle">k</text>
-
-      <circle cx="34" cy="20" r="5" fill="#BF5AF2" />
-      <text x="34" y="23" fill="#000000" fontSize="8" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="900" textAnchor="middle">i</text>
+    <g transform="translate(10, 12)" fill="#BF5AF2">
+      <path d="M15 2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9H4v2H3V9H1V8h2V6h1v2h2v1zm7 .5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zm1.5-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5z" />
     </g>
-    <text x="49" y="16" fill="#A1A1AA" fontSize="5.5" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="500">PLAY NOW ON</text>
-    <text x="49" y="27" fill="#ffffff" fontSize="11" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700">Poki Web</text>
+    <text x="32" y="16" fill="#A1A1AA" fontSize="5.5" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="500">PLAY NOW ON</text>
+    <text x="32" y="27" fill="#ffffff" fontSize="11" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700">Poki Web</text>
   </svg>
 );
 
