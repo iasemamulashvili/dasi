@@ -845,6 +845,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isCooldown, setIsCooldown] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const cooldownTimer = useRef<NodeJS.Timeout | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -874,11 +875,18 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
   // Infinite auto-scroll loop
   useAnimationFrame((time, delta) => {
+    const currentX = trackX.get();
+    const nearestCardIdx = Math.round(-currentX / 304);
+    const mappedActive = ((nearestCardIdx % games.length) + games.length) % games.length;
+    if (mappedActive !== activeIndex) {
+      setActiveIndex(mappedActive);
+    }
+
     // Stop scrolling when dragging, hovered, or cooling down
     if (isDragging || hoveredIdx !== null || isCooldown) return;
 
     const speed = 0.85 * (delta / 16.6); // normalize ~60fps scroll
-    let nextX = trackX.get() - speed;
+    let nextX = currentX - speed;
 
     // Wrapping boundary logic
     if (nextX < -repeatInterval) {
@@ -918,6 +926,19 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       stiffness: 100,
       damping: 22
     });
+  };
+
+  const handleDotClick = (idx: number) => {
+    setIsCooldown(true);
+    if (cooldownTimer.current) clearTimeout(cooldownTimer.current);
+    
+    const targetX = -(games.length + idx) * 304;
+    animateTo(targetX);
+    setActiveIndex(idx);
+    
+    cooldownTimer.current = setTimeout(() => {
+      setIsCooldown(false);
+    }, 5000);
   };
 
   const handlePrev = () => {
@@ -992,7 +1013,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       <div className="flex flex-col sm:flex-row items-center justify-between px-6 gap-4 z-30">
         <div className="flex justify-center gap-1.5 items-center text-[10px] text-alabaster-grey/70 uppercase tracking-widest font-mono pointer-events-none">
           <MousePointer size={12} />
-          <span>Drag track directly or use buttons to navigate</span>
+          <span>Drag the carousel or use the controls below to browse our games</span>
         </div>
 
         <div className="flex items-center gap-4">
@@ -1003,6 +1024,23 @@ function KineticSpinStream({ games }: { games: Game[] }) {
           >
             <ChevronLeft size={18} className="md:w-4 md:h-4" />
           </button>
+
+          {/* Clickable Horizontal Line Dots */}
+          <div className="flex gap-1.5 items-center">
+            {games.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleDotClick(idx)}
+                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  idx === activeIndex
+                    ? 'w-6 bg-platinum-silver'
+                    : 'w-1.5 bg-graphite-light/60 hover:bg-alabaster-grey/50'
+                }`}
+                title={`Go to game ${idx + 1}`}
+              />
+            ))}
+          </div>
+
           <button
             onClick={handleNext}
             className="p-3 md:p-2.5 bg-carbon-black-2 hover:bg-graphite border border-graphite-light hover:border-platinum-silver text-alabaster-grey hover:text-bright-snow rounded-xl transition-all cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
