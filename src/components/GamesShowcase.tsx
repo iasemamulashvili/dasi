@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence, useMotionValue, useSpring, useAnimationFrame } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useAnimationFrame, animate } from 'framer-motion';
 import { 
   ExternalLink,
   ChevronRight,
@@ -95,14 +95,16 @@ function KineticCard({
   game, 
   index, 
   hoveredIdx, 
-  setHoveredIdx 
+  setHoveredIdx,
+  isMobile
 }: { 
   game: Game; 
   index: number; 
   hoveredIdx: number | null; 
   setHoveredIdx: (idx: number | null) => void;
+  isMobile: boolean;
 }) {
-  const isHovered = hoveredIdx === index;
+  const isHovered = !isMobile && hoveredIdx === index;
 
   const activeStores = [
     ...(game.isIOS && game.appstoreLink ? [{ id: 'ios', href: game.appstoreLink, component: <AppStoreBadge className="h-[26px] w-auto" />, label: 'App Store' }] : []),
@@ -199,44 +201,71 @@ function KineticCard({
         </div>
 
         <div className="flex items-center justify-between border-t border-graphite-light/20 pt-2.5 mt-2 relative">
-          <span className="text-[9px] font-mono text-alabaster-grey/70">
-            {game.downloads || 'FREE'}
-          </span>
-          <div className="flex items-center gap-2 relative h-[26px] min-w-[100px] justify-end pointer-events-auto">
-            <motion.span
-              animate={{ x: isHovered && activeStores.length > 0 ? -(activeStores.length * 82 + 6) : 0 }}
-              transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-              className="text-[9px] font-bold text-bright-snow flex items-center gap-1 font-outfit uppercase pointer-events-none absolute right-0"
-            >
-              Play Game <ChevronRight size={10} />
-            </motion.span>
-            
-            <div className="absolute right-0 flex items-center gap-1">
-              <AnimatePresence>
-                {isHovered && activeStores.map((store, sIdx) => (
-                  <motion.a
+          {!isMobile && (
+            <span className="text-[9px] font-mono text-alabaster-grey/70">
+              {game.downloads || 'FREE'}
+            </span>
+          )}
+          
+          {isMobile ? (
+            <div className="flex items-center justify-between w-full pointer-events-auto">
+              <span className="text-[9px] font-mono text-alabaster-grey/70">
+                {game.downloads || 'FREE'}
+              </span>
+              <div className="flex items-center gap-1.5">
+                {activeStores.map((store) => (
+                  <a
                     key={store.id}
                     href={store.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    initial={{ opacity: 0, scale: 0, x: 10 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0, x: 10 }}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 300,
-                      damping: 20,
-                      delay: sIdx * 0.05
-                    }}
-                    className="cursor-pointer flex shrink-0"
+                    className="cursor-pointer flex shrink-0 py-2 px-1 -my-2 -mx-1"
                     title={store.label}
                   >
-                    {store.component}
-                  </motion.a>
+                    {store.id === 'ios' ? <AppStoreBadge className="h-[22px] w-auto" /> : 
+                     store.id === 'android' ? <PlayStoreBadge className="h-[22px] w-auto" /> : 
+                     <PokiPlayBadge className="h-[22px] w-auto" />}
+                  </a>
                 ))}
-              </AnimatePresence>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center gap-2 relative h-[26px] min-w-[100px] justify-end pointer-events-auto">
+              <motion.span
+                animate={{ x: isHovered && activeStores.length > 0 ? -(activeStores.length * 82 + 6) : 0 }}
+                transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+                className="text-[9px] font-bold text-bright-snow flex items-center gap-1 font-outfit uppercase pointer-events-none absolute right-0"
+              >
+                Play Game <ChevronRight size={10} />
+              </motion.span>
+              
+              <div className="absolute right-0 flex items-center gap-1">
+                <AnimatePresence>
+                  {isHovered && activeStores.map((store, sIdx) => (
+                    <motion.a
+                      key={store.id}
+                      href={store.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      initial={{ opacity: 0, scale: 0, x: 10 }}
+                      animate={{ opacity: 1, scale: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0, x: 10 }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 300,
+                        damping: 20,
+                        delay: sIdx * 0.05
+                      }}
+                      className="cursor-pointer flex shrink-0"
+                      title={store.label}
+                    >
+                      {store.component}
+                    </motion.a>
+                  ))}
+                </AnimatePresence>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
@@ -254,29 +283,27 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
-  const [oneIterationWidth, setOneIterationWidth] = useState(0);
+
+  const repeatInterval = games.length * 304;
+
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const trackX = useMotionValue(0);
-  const trackSpringX = useSpring(trackX, { stiffness: 100, damping: 22 });
 
   useEffect(() => {
-    const updateConstraints = () => {
-      if (containerRef.current && trackRef.current) {
-        const totalScrollWidth = trackRef.current.scrollWidth;
-        const singleIterationW = totalScrollWidth / 3;
-
-        setOneIterationWidth(singleIterationW);
-        setDragConstraints({
-          left: -singleIterationW * 2,
-          right: 0
-        });
-      }
-    };
-
-    updateConstraints();
-    window.addEventListener('resize', updateConstraints);
-    return () => window.removeEventListener('resize', updateConstraints);
-  }, [games]);
+    setDragConstraints({
+      left: -repeatInterval * 2,
+      right: 0
+    });
+  }, [repeatInterval]);
 
   useAnimationFrame((time, delta) => {
     if (isDragging || hoveredIdx !== null || isCooldown) return;
@@ -284,8 +311,8 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     const speed = 0.85 * (delta / 16.6);
     let nextX = trackX.get() - speed;
 
-    if (nextX < -oneIterationWidth) {
-      nextX += oneIterationWidth;
+    if (nextX < -repeatInterval) {
+      nextX += repeatInterval;
     }
     trackX.set(nextX);
   });
@@ -300,17 +327,25 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     setIsCooldown(true);
 
     let currentX = trackX.get();
-    if (currentX < -oneIterationWidth) {
-      currentX += oneIterationWidth;
+    if (currentX < -repeatInterval) {
+      currentX += repeatInterval;
       trackX.set(currentX);
     } else if (currentX > 0) {
-      currentX -= oneIterationWidth;
+      currentX -= repeatInterval;
       trackX.set(currentX);
     }
 
     cooldownTimer.current = setTimeout(() => {
       setIsCooldown(false);
     }, 4500);
+  };
+
+  const animateTo = (targetX: number) => {
+    animate(trackX, targetX, {
+      type: 'spring',
+      stiffness: 100,
+      damping: 22
+    });
   };
 
   const handlePrev = () => {
@@ -322,10 +357,10 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     let targetX = (nearestCardIdx + 1) * 304;
     
     if (targetX > 0) {
-      targetX -= oneIterationWidth;
+      targetX -= repeatInterval;
     }
     
-    trackX.set(targetX);
+    animateTo(targetX);
     
     cooldownTimer.current = setTimeout(() => {
       setIsCooldown(false);
@@ -340,11 +375,11 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     const nearestCardIdx = Math.round(currentX / 304);
     let targetX = (nearestCardIdx - 1) * 304;
     
-    if (targetX < -oneIterationWidth * 2) {
-      targetX += oneIterationWidth;
+    if (targetX < -repeatInterval * 2) {
+      targetX += repeatInterval;
     }
     
-    trackX.set(targetX);
+    animateTo(targetX);
     
     cooldownTimer.current = setTimeout(() => {
       setIsCooldown(false);
@@ -353,20 +388,20 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
   return (
     <div ref={containerRef} className="w-full relative flex flex-col gap-6 overflow-hidden">
-      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#0b0b0c] to-transparent z-25 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#0b0b0c] to-transparent z-25 pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-[#0b0b0c] to-transparent z-25 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-l from-[#0b0b0c] to-transparent z-25 pointer-events-none" />
 
       {/* Drag Track Container */}
       <div className="w-full overflow-hidden py-4 cursor-grab active:cursor-grabbing">
         <motion.div
           ref={trackRef}
           drag="x"
-          style={{ x: trackSpringX }}
+          style={{ x: trackX }}
           dragConstraints={dragConstraints}
           dragElastic={0.1}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
-          className="flex gap-6 w-max px-6"
+          className="flex gap-6 w-max px-6 touch-pan-y"
         >
           {tripleGames.map((game, index) => (
             <KineticCard
@@ -375,6 +410,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
               index={index}
               hoveredIdx={hoveredIdx}
               setHoveredIdx={setHoveredIdx}
+              isMobile={isMobile}
             />
           ))}
         </motion.div>
@@ -390,17 +426,17 @@ function KineticSpinStream({ games }: { games: Game[] }) {
         <div className="flex items-center gap-4">
           <button
             onClick={handlePrev}
-            className="p-2.5 bg-carbon-black-2 hover:bg-graphite border border-graphite-light hover:border-platinum-silver text-alabaster-grey hover:text-bright-snow rounded-xl transition-all cursor-pointer"
+            className="p-3 md:p-2.5 bg-carbon-black-2 hover:bg-graphite border border-graphite-light hover:border-platinum-silver text-alabaster-grey hover:text-bright-snow rounded-xl transition-all cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
             title="Previous Game"
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={18} className="md:w-4 md:h-4" />
           </button>
           <button
             onClick={handleNext}
-            className="p-2.5 bg-carbon-black-2 hover:bg-graphite border border-graphite-light hover:border-platinum-silver text-alabaster-grey hover:text-bright-snow rounded-xl transition-all cursor-pointer"
+            className="p-3 md:p-2.5 bg-carbon-black-2 hover:bg-graphite border border-graphite-light hover:border-platinum-silver text-alabaster-grey hover:text-bright-snow rounded-xl transition-all cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
             title="Next Game"
           >
-            <ChevronRight size={16} />
+            <ChevronRight size={18} className="md:w-4 md:h-4" />
           </button>
         </div>
       </div>
