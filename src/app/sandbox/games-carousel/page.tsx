@@ -16,16 +16,66 @@ import {
   Navigation
 } from 'lucide-react';
 
-// Official Store SVGs
-const AppStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
-  <svg viewBox="0 0 384 512" fill="currentColor" className={className}>
-    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-48.7-22.9-76.9-22.4-36.6.6-70.3 21.6-89.2 54.2-38 65.9-9.8 162.8 27.3 216.3 18.2 26.2 39.8 55.3 68.2 54.2 27.2-1.1 37.5-17.6 68.5-17.6 31.1 0 40.4 17.6 68.8 17.1 29-1 48.2-26.4 66.2-52.7 21-30.7 29.7-60.4 30.2-62-1-1-65.2-25.1-65.7-100zM281.2 81.7c15.2-18.3 25.4-43.9 22.6-69.5-22 1-48.8 14.8-64.6 33.2-13.8 15.9-25.9 41.7-22.7 67 24.5 2 49.7-12.4 64.7-30.7z" />
+// Official Black Store Badges
+const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 120 40"
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect x="0.5" y="0.5" width="119" height="39" rx="6" fill="#000000" stroke="#374151" strokeWidth={1} />
+    <path
+      d="M18.5 13.85c-.05-2.07 1.69-3.07 1.77-3.12-1-1.4-2.45-1.59-2.98-1.64-1.26-.13-2.46.74-3.1.74-.64 0-1.64-.73-2.69-.71-1.38.02-2.66.8-3.37 2.03-1.43 2.48-.37 6.13 1.02 8.14.68.98 1.48 2.07 2.54 2.03 1.02-.04 1.41-.66 2.65-.66 1.23 0 1.58.66 2.65.64 1.08-.02 1.78-.98 2.44-1.96.77-1.12 1.08-2.2 1.1-2.25-.02-.01-2.11-.81-2.13-3.23zM16.4 8.23c.56-.68.94-1.62.84-2.56-.8.03-1.78.53-2.35 1.2-.5.58-.94 1.54-.82 2.47.9.07 1.8-.43 2.33-1.11z"
+      fill="#ffffff"
+    />
+    <text x="32" y="16" fill="#A1A1AA" fontSize="5.5" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="500">Download on the</text>
+    <text x="32" y="27" fill="#ffffff" fontSize="11" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700">App Store</text>
   </svg>
 );
 
-const PlayStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
-  <svg viewBox="0 0 512 512" fill="currentColor" className={className}>
-    <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58 33.3 60.1 60.1L512 288c0-22-13.7-47.8-40-62.4zM325.3 277.7l60.1 60.1L104.6 499l220.7-221.3z" />
+const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 120 40"
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect x="0.5" y="0.5" width="119" height="39" rx="6" fill="#000000" stroke="#374151" strokeWidth={1} />
+    <g transform="translate(8, 8) scale(0.046875)">
+      <path d="M47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0z" fill="#00b0ff" />
+      <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="#00e676" />
+      <path d="M425.2 225.6l-58 33.3 60.1 60.1L512 288c0-22-13.7-47.8-40-62.4z" fill="#ff3d00" />
+      <path d="M325.3 277.7l60.1 60.1L104.6 499l220.7-221.3z" fill="#ffea00" />
+    </g>
+    <text x="34" y="16" fill="#A1A1AA" fontSize="5.5" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="500">GET IT ON</text>
+    <text x="34" y="27" fill="#ffffff" fontSize="11" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700">Google Play</text>
+  </svg>
+);
+
+const PokiPlayBadge = ({ className = "h-8" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 120 40"
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect x="0.5" y="0.5" width="119" height="39" rx="6" fill="#000000" stroke="#374151" strokeWidth={1} />
+    <g transform="translate(6, 0)">
+      <circle cx="10" cy="20" r="5" fill="#FF9F0A" />
+      <text x="10" y="23" fill="#000000" fontSize="8" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="900" textAnchor="middle">p</text>
+      
+      <circle cx="18" cy="20" r="5" fill="#0A84FF" />
+      <text x="18" y="23" fill="#000000" fontSize="8" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="900" textAnchor="middle">o</text>
+
+      <circle cx="26" cy="20" r="5" fill="#30D158" />
+      <text x="26" y="23" fill="#000000" fontSize="8" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="900" textAnchor="middle">k</text>
+
+      <circle cx="34" cy="20" r="5" fill="#BF5AF2" />
+      <text x="34" y="23" fill="#000000" fontSize="8" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="900" textAnchor="middle">i</text>
+    </g>
+    <text x="49" y="16" fill="#A1A1AA" fontSize="5.5" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="500">PLAY NOW ON</text>
+    <text x="49" y="27" fill="#ffffff" fontSize="11" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700">Poki Web</text>
   </svg>
 );
 
@@ -200,10 +250,10 @@ export default function GamesCarouselSandbox() {
 
         {/* Tab Switcher Console */}
         <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 border-b border-graphite-light/35 pb-5 w-full">
-          <div className="flex flex-1 min-w-0 bg-carbon-black-2 border border-graphite-light p-1 rounded-xl w-full xl:w-auto scrollbar-none overflow-x-auto whitespace-nowrap gap-1">
+          <div className="flex flex-col sm:flex-row bg-carbon-black-2 border border-graphite-light p-1 rounded-xl w-full sm:w-auto gap-1 shrink-0">
             <button
               onClick={() => setActiveTab('kinetic')}
-              className={`px-5 py-2 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans shrink-0 whitespace-nowrap ${
+              className={`px-5 py-2.5 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans text-center sm:text-left ${
                 activeTab === 'kinetic'
                   ? 'bg-slate-violet text-bright-snow shadow-lg shadow-slate-violet/20'
                   : 'text-alabaster-grey/60 hover:text-bright-snow hover:bg-graphite/40'
@@ -213,7 +263,7 @@ export default function GamesCarouselSandbox() {
             </button>
             <button
               onClick={() => setActiveTab('glide')}
-              className={`px-5 py-2 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans shrink-0 whitespace-nowrap ${
+              className={`px-5 py-2.5 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans text-center sm:text-left ${
                 activeTab === 'glide'
                   ? 'bg-slate-violet text-bright-snow shadow-lg shadow-slate-violet/20'
                   : 'text-alabaster-grey/60 hover:text-bright-snow hover:bg-graphite/40'
@@ -223,7 +273,7 @@ export default function GamesCarouselSandbox() {
             </button>
             <button
               onClick={() => setActiveTab('scrub')}
-              className={`px-5 py-2 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans shrink-0 whitespace-nowrap ${
+              className={`px-5 py-2.5 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans text-center sm:text-left ${
                 activeTab === 'scrub'
                   ? 'bg-slate-violet text-bright-snow shadow-lg shadow-slate-violet/20'
                   : 'text-alabaster-grey/60 hover:text-bright-snow hover:bg-graphite/40'
@@ -304,9 +354,9 @@ function KineticCard({
   const isHovered = hoveredIdx === index;
 
   const activeStores = [
-    ...(game.isIOS && game.appstoreLink ? [{ id: 'ios', href: game.appstoreLink, icon: <AppStoreIcon className="w-3 h-3 text-bright-snow" />, label: 'App Store' }] : []),
-    ...(game.isAndroid && game.playstoreLink ? [{ id: 'android', href: game.playstoreLink, icon: <PlayStoreIcon className="w-3 h-3 text-bright-snow" />, label: 'Play Store' }] : []),
-    ...(game.isPoki && game.pokiLink ? [{ id: 'poki', href: game.pokiLink, icon: <Globe size={12} className="text-bright-snow" />, label: 'Poki' }] : [])
+    ...(game.isIOS && game.appstoreLink ? [{ id: 'ios', href: game.appstoreLink, component: <AppStoreBadge className="h-[26px] w-auto" />, label: 'App Store' }] : []),
+    ...(game.isAndroid && game.playstoreLink ? [{ id: 'android', href: game.playstoreLink, component: <PlayStoreBadge className="h-[26px] w-auto" />, label: 'Google Play' }] : []),
+    ...(game.isPoki && game.pokiLink ? [{ id: 'poki', href: game.pokiLink, component: <PokiPlayBadge className="h-[26px] w-auto" />, label: 'Poki Web' }] : [])
   ];
 
   return (
@@ -388,11 +438,6 @@ function KineticCard({
               <h4 className="text-xs font-bold text-bright-snow font-russo-one tracking-wide">
                 {game.title}
               </h4>
-              <div className="flex gap-1 mt-0.5 text-alabaster-grey/50">
-                {game.isIOS && <AppStoreIcon className="w-2.5 h-2.5 text-slate-violet-light" />}
-                {game.isAndroid && <PlayStoreIcon className="w-2.5 h-2.5 text-slate-violet-light" />}
-                {game.isPoki && <Globe size={10} className="text-slate-violet-light" />}
-              </div>
             </div>
           </div>
           <p className={`text-[10px] text-alabaster-grey/70 font-outfit leading-relaxed mt-2 line-clamp-2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-70'}`}>
@@ -404,9 +449,9 @@ function KineticCard({
           <span className="text-[9px] font-mono text-slate-violet-light">
             {game.downloads || 'FREE'}
           </span>
-          <div className="flex items-center gap-2 relative h-6 min-w-[100px] justify-end pointer-events-auto">
+          <div className="flex items-center gap-2 relative h-[26px] min-w-[100px] justify-end pointer-events-auto">
             <motion.span
-              animate={{ x: isHovered && activeStores.length > 0 ? -(activeStores.length * 28 + 6) : 0 }}
+              animate={{ x: isHovered && activeStores.length > 0 ? -(activeStores.length * 82 + 6) : 0 }}
               transition={{ type: 'spring', stiffness: 200, damping: 22 }}
               className="text-[9px] font-bold text-bright-snow group-hover:text-slate-violet-light transition-colors flex items-center gap-1 font-outfit uppercase pointer-events-none absolute right-0"
             >
@@ -430,10 +475,10 @@ function KineticCard({
                       damping: 20,
                       delay: sIdx * 0.05
                     }}
-                    className="w-6 h-6 flex items-center justify-center rounded bg-zinc-800 hover:bg-slate-violet border border-white/10 hover:border-slate-violet-light transition-colors cursor-pointer"
+                    className="cursor-pointer flex shrink-0"
                     title={store.label}
                   >
-                    {store.icon}
+                    {store.component}
                   </motion.a>
                 ))}
               </AnimatePresence>
@@ -556,11 +601,6 @@ function GlideCard({
               <h4 className="text-xs font-bold text-bright-snow font-russo-one tracking-wide">
                 {game.title}
               </h4>
-              <div className="flex gap-1 mt-0.5 text-alabaster-grey/50">
-                {game.isIOS && <AppStoreIcon className="w-2.5 h-2.5 text-slate-violet-light" />}
-                {game.isAndroid && <PlayStoreIcon className="w-2.5 h-2.5 text-slate-violet-light" />}
-                {game.isPoki && <Globe size={10} className="text-slate-violet-light" />}
-              </div>
             </div>
           </div>
 
@@ -580,13 +620,27 @@ function GlideCard({
           )}
         </div>
 
-        <div className="flex items-center justify-between border-t border-graphite-light/20 pt-3 mt-2">
-          <span className="text-[9px] font-mono text-slate-violet-light">
+        <div className="flex items-center justify-between border-t border-graphite-light/20 pt-3 mt-2 pointer-events-auto">
+          <span className="text-[9px] font-mono text-slate-violet-light shrink-0">
             {game.downloads || 'FREE'}
           </span>
-          <span className="text-[9px] font-bold text-bright-snow group-hover:text-slate-violet-light transition-colors flex items-center gap-1 font-outfit uppercase">
-            View Game <ChevronRight size={10} />
-          </span>
+          <div className="flex items-center gap-1.5">
+            {game.isIOS && game.appstoreLink && (
+              <a href={game.appstoreLink} target="_blank" rel="noopener noreferrer" className="cursor-pointer shrink-0">
+                <AppStoreBadge className="h-[26px] w-auto" />
+              </a>
+            )}
+            {game.isAndroid && game.playstoreLink && (
+              <a href={game.playstoreLink} target="_blank" rel="noopener noreferrer" className="cursor-pointer shrink-0">
+                <PlayStoreBadge className="h-[26px] w-auto" />
+              </a>
+            )}
+            {game.isPoki && game.pokiLink && (
+              <a href={game.pokiLink} target="_blank" rel="noopener noreferrer" className="cursor-pointer shrink-0">
+                <PokiPlayBadge className="h-[26px] w-auto" />
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>
@@ -608,12 +662,7 @@ function TimelineCard({
   setHoveredIdx: (idx: number | null) => void;
 }) {
   const isHovered = hoveredIdx === index;
-
-  const activeStores = [
-    ...(game.isIOS && game.appstoreLink ? [{ id: 'ios', href: game.appstoreLink, icon: <AppStoreIcon className="w-3.5 h-3.5" />, label: 'App Store', className: 'border-cyan-500/30 hover:border-cyan-400 bg-cyan-950/10 hover:bg-cyan-950/30 text-cyan-400 hover:text-cyan-300 shadow-[0_0_8px_rgba(6,182,212,0.05)] hover:shadow-[0_0_12px_rgba(6,182,212,0.15)]' }] : []),
-    ...(game.isAndroid && game.playstoreLink ? [{ id: 'android', href: game.playstoreLink, icon: <PlayStoreIcon className="w-3.5 h-3.5" />, label: 'Google Play', className: 'border-emerald-500/30 hover:border-emerald-400 bg-emerald-950/10 hover:bg-emerald-950/30 text-emerald-400 hover:text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.05)] hover:shadow-[0_0_12px_rgba(16,185,129,0.15)]' }] : []),
-    ...(game.isPoki && game.pokiLink ? [{ id: 'poki', href: game.pokiLink, icon: <Globe size={14} />, label: 'Poki', className: 'border-graphite hover:border-alabaster-grey/50 bg-carbon-black/45 hover:bg-graphite/45 text-alabaster-grey hover:text-bright-snow' }] : [])
-  ];
+  const hasStore = game.isIOS || game.isAndroid || game.isPoki;
 
   return (
     <motion.div
@@ -628,7 +677,7 @@ function TimelineCard({
         stiffness: 200,
         damping: 22
       }}
-      className="w-[280px] h-[330px] bg-carbon-black-2 border border-graphite-light rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-violet/5 relative group shrink-0 overflow-hidden"
+      className="w-[280px] h-[340px] bg-carbon-black-2 border border-graphite-light rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-violet/5 relative group shrink-0 overflow-hidden"
     >
       <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-20" />
 
@@ -696,30 +745,27 @@ function TimelineCard({
         </div>
 
         <div className="flex flex-col gap-2 pt-2 border-t border-graphite-light/20">
-          <div className="flex items-center justify-between text-[8px] font-mono text-alabaster-grey/50">
+          <div className="flex items-center justify-between text-[8px] font-mono text-alabaster-grey/70">
             <span>{game.downloads ? `${game.downloads} DOWNLOADS` : 'FREE TO PLAY'}</span>
-            <div className="flex gap-1 text-alabaster-grey/40">
-              {game.isIOS && <AppStoreIcon className="w-2.5 h-2.5" />}
-              {game.isAndroid && <PlayStoreIcon className="w-2.5 h-2.5" />}
-              {game.isPoki && <Globe size={10} />}
-            </div>
           </div>
 
-          {activeStores.length > 0 ? (
-            <div className="grid grid-cols-2 gap-2 w-full">
-              {activeStores.map((store, sIdx) => {
-                const isFullWidth = activeStores.length === 1 || (activeStores.length === 3 && sIdx === 2);
-                return (
-                  <Link
-                    key={store.id}
-                    href={store.href}
-                    target="_blank"
-                    className={`border rounded-xl py-1.5 text-[10px] font-bold font-sans tracking-widest uppercase text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 ${store.className} ${isFullWidth ? 'col-span-2' : ''}`}
-                  >
-                    {store.icon} {store.label}
-                  </Link>
-                );
-              })}
+          {hasStore ? (
+            <div className="flex flex-wrap gap-2 justify-center items-center w-full">
+              {game.isIOS && game.appstoreLink && (
+                <a href={game.appstoreLink} target="_blank" rel="noopener noreferrer" className="cursor-pointer shrink-0">
+                  <AppStoreBadge className="h-[28px] w-auto" />
+                </a>
+              )}
+              {game.isAndroid && game.playstoreLink && (
+                <a href={game.playstoreLink} target="_blank" rel="noopener noreferrer" className="cursor-pointer shrink-0">
+                  <PlayStoreBadge className="h-[28px] w-auto" />
+                </a>
+              )}
+              {game.isPoki && game.pokiLink && (
+                <a href={game.pokiLink} target="_blank" rel="noopener noreferrer" className="cursor-pointer shrink-0">
+                  <PokiPlayBadge className="h-[28px] w-auto" />
+                </a>
+              )}
             </div>
           ) : (
             <Link
