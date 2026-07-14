@@ -199,8 +199,8 @@ export default function GamesCarouselSandbox() {
         </div>
 
         {/* Tab Switcher Console */}
-        <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 border-b border-graphite-light/35 pb-5">
-          <div className="flex bg-carbon-black-2 border border-graphite-light p-1 rounded-xl w-full xl:w-auto scrollbar-none overflow-x-auto whitespace-nowrap gap-1">
+        <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 border-b border-graphite-light/35 pb-5 w-full">
+          <div className="flex flex-1 min-w-0 bg-carbon-black-2 border border-graphite-light p-1 rounded-xl w-full xl:w-auto scrollbar-none overflow-x-auto whitespace-nowrap gap-1">
             <button
               onClick={() => setActiveTab('kinetic')}
               className={`px-5 py-2 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans shrink-0 ${
@@ -321,7 +321,7 @@ function KineticCard({
       <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-25" />
 
       {/* Handheld Device Bezel Frame Screen */}
-      <div className="relative w-full h-[125px] bg-zinc-950 rounded-xl border-[5px] border-zinc-800 shadow-[inset_0_0_12px_rgba(0,0,0,0.85)] overflow-hidden flex items-center justify-center">
+      <div className="relative w-full aspect-video bg-zinc-950 rounded-xl border-[5px] border-zinc-800 shadow-[inset_0_0_12px_rgba(0,0,0,0.85)] overflow-hidden flex items-center justify-center">
         {/* Mock Handheld Buttons (visible when card expands) */}
         <div className="absolute left-1.5 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-20 opacity-0 group-hover:opacity-40 transition-opacity duration-300">
           <div className="w-1.5 h-3 bg-zinc-500 rounded-sm" />
@@ -332,8 +332,8 @@ function KineticCard({
           <div className="w-2.5 h-2.5 bg-zinc-500 rounded-full" />
         </div>
 
-        {/* Video plays continuously */}
-        {game.videoSrc && (
+        {/* Video plays continuously only for lumber-chopper */}
+        {game.id === 'lumber-chopper' && game.videoSrc ? (
           <video
             src={game.videoSrc}
             autoPlay
@@ -342,6 +342,21 @@ function KineticCard({
             playsInline
             className="w-full h-full object-cover"
           />
+        ) : (
+          /* Static game graphic/icon placeholder */
+          <div className="w-full h-full flex items-center justify-center bg-carbon-black-2 relative">
+            <img
+              src={game.iconSrc}
+              alt={game.title}
+              className="w-16 h-16 rounded-xl object-cover border border-white/10 relative z-10 shadow-lg"
+            />
+            {/* Ambient background blur of the icon */}
+            <img
+              src={game.iconSrc}
+              alt={game.title}
+              className="absolute inset-0 w-full h-full object-cover filter blur-[8px] opacity-20 pointer-events-none"
+            />
+          </div>
         )}
 
         {/* CRT Scanline Overlay */}
@@ -414,6 +429,7 @@ function GlideCard({
       onMouseLeave={() => setHoveredIdx(null)}
       animate={{
         width: isHovered ? 400 : 280,
+        height: isHovered ? 380 : 320,
         scale: isHovered ? 1.02 : 1,
         borderColor: isHovered ? '#7c3aed' : 'rgba(55, 65, 81, 0.4)'
       }}
@@ -422,54 +438,99 @@ function GlideCard({
         stiffness: 145,
         damping: 20
       }}
-      className="h-[320px] bg-gradient-to-br from-carbon-black-2 to-graphite/30 border border-graphite-light p-5 rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-violet/10 relative group shrink-0 overflow-hidden"
+      className="border border-graphite-light rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-violet/10 relative group shrink-0 overflow-hidden bg-gradient-to-br from-carbon-black-2 to-graphite/30"
     >
-      <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-10" />
+      <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-20" />
 
-      {/* Autoplay Video Loop Backdrop */}
+      {/* Backdrop (Static Game Icon when not hovered) */}
       <div 
-        className="absolute inset-0 z-0 pointer-events-none overflow-hidden transition-opacity duration-500 ease-in-out"
-        style={{ opacity: isHovered ? 0.45 : 0 }}
+        className="absolute inset-0 z-0 pointer-events-none overflow-hidden transition-all duration-500 ease-in-out"
+        style={{ opacity: isHovered ? 0 : 0.15 }}
       >
-        {game.videoSrc && (
-          <video
-            src={game.videoSrc}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-carbon-black via-carbon-black/85 to-carbon-black/60" />
+        <img
+          src={game.iconSrc}
+          alt={game.title}
+          className="w-full h-full object-cover filter blur-[20px]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-carbon-black via-carbon-black/70 to-transparent" />
       </div>
 
-      {/* Card Details */}
-      <div className="relative z-10 flex flex-col justify-between h-full pointer-events-none select-none">
-        <div className="flex items-center gap-3">
-          <img
-            src={game.iconSrc}
-            alt={game.title}
-            className="w-10 h-10 rounded-xl object-cover border border-graphite-light/50"
-          />
-          <div>
-            <h4 className="text-xs font-bold text-bright-snow font-russo-one tracking-wide">
-              {game.title}
-            </h4>
-            <div className="flex gap-1 mt-0.5 text-alabaster-grey/50">
-              {game.isIOS && <AppStoreIcon className="w-2.5 h-2.5 text-slate-violet-light" />}
-              {game.isAndroid && <PlayStoreIcon className="w-2.5 h-2.5 text-slate-violet-light" />}
-              {game.isPoki && <Globe size={10} className="text-slate-violet-light" />}
+      {/* Top screen panel for Video/Preview (revealed at full brightness on hover) */}
+      <motion.div
+        animate={{
+          height: isHovered ? 160 : 0,
+          opacity: isHovered ? 1 : 0
+        }}
+        transition={{
+          type: 'spring',
+          stiffness: 145,
+          damping: 20
+        }}
+        className="w-full bg-zinc-950 overflow-hidden relative shrink-0 z-10 border-b border-graphite-light/20"
+      >
+        {game.id === 'lumber-chopper' && game.videoSrc ? (
+          <>
+            <video
+              src={game.videoSrc}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute top-3 left-3 bg-red-600/90 backdrop-blur-sm px-2 py-0.5 rounded-md border border-white/10 flex items-center gap-1 z-10">
+              <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              <span className="text-[8px] font-mono font-bold text-bright-snow uppercase tracking-wider">Preview</span>
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-carbon-black-2 relative">
+            <img
+              src={game.iconSrc}
+              alt={game.title}
+              className="w-16 h-16 rounded-xl object-cover border border-white/10 relative z-10 shadow-lg"
+            />
+            <img
+              src={game.iconSrc}
+              alt={game.title}
+              className="absolute inset-0 w-full h-full object-cover filter blur-[8px] opacity-20 pointer-events-none"
+            />
+          </div>
+        )}
+      </motion.div>
+
+      {/* Card Details Tray - slides down into solid opaque bg-carbon-black */}
+      <div 
+        className={`flex-1 flex flex-col justify-between z-10 relative select-none w-full transition-all duration-300 ${
+          isHovered 
+            ? 'bg-carbon-black p-4' 
+            : 'bg-transparent p-5'
+        }`}
+      >
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <img
+              src={game.iconSrc}
+              alt={game.title}
+              className="w-10 h-10 rounded-xl object-cover border border-graphite-light/50 shrink-0"
+            />
+            <div>
+              <h4 className="text-xs font-bold text-bright-snow font-russo-one tracking-wide">
+                {game.title}
+              </h4>
+              <div className="flex gap-1 mt-0.5 text-alabaster-grey/50">
+                {game.isIOS && <AppStoreIcon className="w-2.5 h-2.5 text-slate-violet-light" />}
+                {game.isAndroid && <PlayStoreIcon className="w-2.5 h-2.5 text-slate-violet-light" />}
+                {game.isPoki && <Globe size={10} className="text-slate-violet-light" />}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col gap-2">
           <p className={`text-[10px] text-alabaster-grey/85 font-outfit leading-relaxed line-clamp-3 transition-opacity ${isHovered ? 'opacity-100' : 'opacity-65'}`}>
             {game.description}
           </p>
 
-          {isHovered && (
+          {isHovered && game.id === 'lumber-chopper' && (
             <motion.div
               initial={{ opacity: 0, y: 3 }}
               animate={{ opacity: 1, y: 0 }}
@@ -481,7 +542,7 @@ function GlideCard({
           )}
         </div>
 
-        <div className="flex items-center justify-between border-t border-graphite-light/20 pt-3">
+        <div className="flex items-center justify-between border-t border-graphite-light/20 pt-3 mt-2">
           <span className="text-[9px] font-mono text-slate-violet-light">
             {game.downloads || 'FREE'}
           </span>
@@ -527,55 +588,73 @@ function TimelineCard({
     >
       <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-20" />
 
-      {/* Top 50%: Fixed Continuous Autoplay Video Header */}
+      {/* Top 50%: Fixed Continuous Autoplay Video Header / Graphic */}
       <div className="h-[150px] w-full bg-zinc-950 overflow-hidden relative border-b border-graphite-light/30">
-        {game.videoSrc && (
-          <video
-            src={game.videoSrc}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          />
+        {game.id === 'lumber-chopper' && game.videoSrc ? (
+          <>
+            <video
+              src={game.videoSrc}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute top-3 left-3 bg-carbon-black/75 backdrop-blur-sm px-2 py-0.5 rounded-md border border-white/10 flex items-center gap-1 z-10">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[8px] font-mono font-bold text-bright-snow uppercase tracking-wider">Gameplay</span>
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-carbon-black-2 relative">
+            <img
+              src={game.iconSrc}
+              alt={game.title}
+              className="w-16 h-16 rounded-xl object-cover border border-white/10 relative z-10 shadow-lg"
+            />
+            <img
+              src={game.iconSrc}
+              alt={game.title}
+              className="absolute inset-0 w-full h-full object-cover filter blur-[8px] opacity-20 pointer-events-none"
+            />
+            <div className="absolute top-3 left-3 bg-carbon-black/75 backdrop-blur-sm px-2 py-0.5 rounded-md border border-white/10 flex items-center gap-1 z-10">
+              <span className="text-[8px] font-mono font-bold text-bright-snow uppercase tracking-wider">Preview</span>
+            </div>
+          </div>
         )}
-        <div className="absolute top-3 left-3 bg-carbon-black/75 backdrop-blur-sm px-2 py-0.5 rounded-md border border-white/10 flex items-center gap-1 z-10">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-[8px] font-mono font-bold text-bright-snow uppercase tracking-wider">Gameplay</span>
-        </div>
       </div>
 
-      {/* Bottom 50%: Clean white/grey metadata details & slate-violet button */}
-      <div className="h-[170px] w-full bg-white text-zinc-900 p-4 flex flex-col justify-between relative z-10">
+      {/* Bottom 50%: Clean dark theme metadata details & slate-violet button */}
+      <div className="h-[170px] w-full bg-carbon-black-2 text-alabaster-grey p-4 flex flex-col justify-between relative z-10">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">
               <img
                 src={game.iconSrc}
                 alt={game.title}
-                className="w-7 h-7 rounded-lg object-cover border border-zinc-200"
+                className="w-7 h-7 rounded-lg object-cover border border-graphite-light/30"
               />
-              <h4 className="text-xs font-bold text-zinc-900 font-russo-one tracking-wide line-clamp-1">
+              <h4 className="text-xs font-bold text-bright-snow font-russo-one tracking-wide line-clamp-1">
                 {game.title}
               </h4>
             </div>
             {game.rating && (
-              <div className="flex items-center gap-0.5 bg-zinc-100 px-1.5 py-0.5 rounded text-[9px] font-bold text-zinc-700 font-mono">
+              <div className="flex items-center gap-0.5 bg-carbon-black/60 border border-graphite-light/30 px-1.5 py-0.5 rounded text-[9px] font-bold text-amber-500 font-mono">
                 <span>{game.rating}</span>
-                <span className="text-amber-500">★</span>
+                <span>★</span>
               </div>
             )}
           </div>
           
-          <p className="text-[10px] text-zinc-600 font-outfit leading-relaxed line-clamp-2">
+          <p className="text-[10px] text-alabaster-grey/70 font-outfit leading-relaxed line-clamp-2">
             {game.description}
           </p>
         </div>
 
-        <div className="flex flex-col gap-2 pt-2 border-t border-zinc-100">
-          <div className="flex items-center justify-between text-[8px] font-mono text-zinc-500">
+        <div className="flex flex-col gap-2 pt-2 border-t border-graphite-light/20">
+          <div className="flex items-center justify-between text-[8px] font-mono text-alabaster-grey/50">
             <span>{game.downloads ? `${game.downloads} DOWNLOADS` : 'FREE TO PLAY'}</span>
-            <div className="flex gap-1 text-zinc-400">
+            <div className="flex gap-1 text-alabaster-grey/40">
               {game.isIOS && <AppStoreIcon className="w-2.5 h-2.5" />}
               {game.isAndroid && <PlayStoreIcon className="w-2.5 h-2.5" />}
               {game.isPoki && <Globe size={10} />}
