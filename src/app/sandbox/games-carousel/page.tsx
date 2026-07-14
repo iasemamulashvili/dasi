@@ -30,7 +30,7 @@ const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#7c3aed] transition-colors duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 10) scale(0.035)" fill="#ffffff">
@@ -54,7 +54,7 @@ const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#7c3aed] transition-colors duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 11) scale(0.035)">
@@ -85,7 +85,7 @@ const PokiPlayBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#7c3aed] transition-colors duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 12)" fill="#BF5AF2">
@@ -389,14 +389,14 @@ function KineticCard({
       onMouseLeave={() => setHoveredIdx(null)}
       animate={{
         width: isHovered ? 400 : 280,
-        borderColor: isHovered ? '#7c3aed' : 'rgba(55, 65, 81, 0.4)'
+        borderColor: isHovered ? 'var(--color-platinum-silver)' : 'rgba(55, 65, 81, 0.4)'
       }}
       transition={{
         type: 'spring',
         stiffness: 145,
         damping: 20
       }}
-      className="h-[320px] bg-carbon-black-2 border border-graphite-light p-4 rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-violet/5 relative group shrink-0 overflow-hidden"
+      className="h-[320px] bg-carbon-black-2 border border-graphite-light p-4 rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-white/5 relative group shrink-0 overflow-hidden"
     >
       <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-25" />
 
@@ -446,7 +446,9 @@ function KineticCard({
         <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.45)_100%)]" />
         
         {/* Scanning horizontal line */}
-        <div className="absolute inset-x-0 h-[1.5px] bg-slate-violet/30 pointer-events-none z-10 animate-scan-line" />
+        {isHovered && (
+          <div className="absolute inset-x-0 h-[1.5px] bg-white/20 pointer-events-none z-10 animate-scan-line" />
+        )}
       </div>
 
       {/* Card Details */}
@@ -470,14 +472,14 @@ function KineticCard({
         </div>
 
         <div className="flex items-center justify-between border-t border-graphite-light/20 pt-2.5 mt-2 relative">
-          <span className="text-[9px] font-mono text-slate-violet-light">
+          <span className="text-[9px] font-mono text-alabaster-grey/70">
             {game.downloads || 'FREE'}
           </span>
           <div className="flex items-center gap-2 relative h-[26px] min-w-[100px] justify-end pointer-events-auto">
             <motion.span
               animate={{ x: isHovered && activeStores.length > 0 ? -(activeStores.length * 82 + 6) : 0 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 22 }}
-              className="text-[9px] font-bold text-bright-snow group-hover:text-slate-violet-light transition-colors flex items-center gap-1 font-outfit uppercase pointer-events-none absolute right-0"
+              transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+              className="text-[9px] font-bold text-bright-snow flex items-center gap-1 font-outfit uppercase pointer-events-none absolute right-0"
             >
               Play Game <ChevronRight size={10} />
             </motion.span>
@@ -884,6 +886,44 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     }, 4500);
   };
 
+  const handlePrev = () => {
+    setIsCooldown(true);
+    if (cooldownTimer.current) clearTimeout(cooldownTimer.current);
+    
+    const currentX = trackX.get();
+    const nearestCardIdx = Math.round(currentX / 304);
+    let targetX = (nearestCardIdx + 1) * 304;
+    
+    if (targetX > 0) {
+      targetX -= oneIterationWidth;
+    }
+    
+    trackX.set(targetX);
+    
+    cooldownTimer.current = setTimeout(() => {
+      setIsCooldown(false);
+    }, 5000);
+  };
+
+  const handleNext = () => {
+    setIsCooldown(true);
+    if (cooldownTimer.current) clearTimeout(cooldownTimer.current);
+    
+    const currentX = trackX.get();
+    const nearestCardIdx = Math.round(currentX / 304);
+    let targetX = (nearestCardIdx - 1) * 304;
+    
+    if (targetX < -oneIterationWidth * 2) {
+      targetX += oneIterationWidth;
+    }
+    
+    trackX.set(targetX);
+    
+    cooldownTimer.current = setTimeout(() => {
+      setIsCooldown(false);
+    }, 5000);
+  };
+
   return (
     <div ref={containerRef} className="w-full relative flex flex-col gap-6 overflow-hidden">
       <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-carbon-black to-transparent z-25 pointer-events-none" />
@@ -913,9 +953,29 @@ function KineticSpinStream({ games }: { games: Game[] }) {
         </motion.div>
       </div>
 
-      <div className="flex justify-center gap-1.5 items-center text-[10px] text-slate-violet-light/70 uppercase tracking-widest font-mono">
-        <MousePointer size={12} />
-        <span>Drag track directly to spin or search games</span>
+      {/* Manual Arrow Controls & Instruction */}
+      <div className="flex flex-col sm:flex-row items-center justify-between px-6 gap-4 z-30">
+        <div className="flex justify-center gap-1.5 items-center text-[10px] text-alabaster-grey/70 uppercase tracking-widest font-mono pointer-events-none">
+          <MousePointer size={12} />
+          <span>Drag track directly or use buttons to navigate</span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handlePrev}
+            className="p-2.5 bg-carbon-black-2 hover:bg-graphite border border-graphite-light hover:border-platinum-silver text-alabaster-grey hover:text-bright-snow rounded-xl transition-all cursor-pointer"
+            title="Previous Game"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            onClick={handleNext}
+            className="p-2.5 bg-carbon-black-2 hover:bg-graphite border border-graphite-light hover:border-platinum-silver text-alabaster-grey hover:text-bright-snow rounded-xl transition-all cursor-pointer"
+            title="Next Game"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
       </div>
     </div>
   );

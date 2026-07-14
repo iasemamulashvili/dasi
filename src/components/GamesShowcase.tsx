@@ -5,11 +5,12 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useAnimationFrame }
 import { 
   ExternalLink,
   ChevronRight,
+  ChevronLeft,
   MousePointer
 } from 'lucide-react';
 import { Game } from '@/utils/db';
 
-// Official Store Badges (charcoal-grey bg, violet glowing border on hover)
+// Official Store Badges (charcoal-grey bg, silver/zinc outline on hover)
 const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
@@ -23,7 +24,7 @@ const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#7c3aed] transition-colors duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 10) scale(0.035)" fill="#ffffff">
@@ -47,13 +48,17 @@ const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#7c3aed] transition-colors duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 11) scale(0.035)">
+      {/* Left triangle (Cyan) */}
       <path d="M47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0z" fill="#00E6FF" />
+      {/* Top triangle (Red) */}
       <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="#FF3A44" />
+      {/* Right triangle (Yellow) */}
       <path d="M472.2 225.6l-58 33.3 60.1 60.1L512 288c0-22-13.7-47.8-40-62.4z" fill="#FFC700" />
+      {/* Bottom triangle (Green) */}
       <path d="M325.3 277.7l60.1 60.1L104.6 499l220.7-221.3z" fill="#00F076" />
     </g>
     <text x="32" y="16" fill="#A1A1AA" fontSize="5.5" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="500">GET IT ON</text>
@@ -74,7 +79,7 @@ const PokiPlayBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#7c3aed] transition-colors duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 12)" fill="#BF5AF2">
@@ -111,14 +116,14 @@ function KineticCard({
       onMouseLeave={() => setHoveredIdx(null)}
       animate={{
         width: isHovered ? 400 : 280,
-        borderColor: isHovered ? '#7c3aed' : 'rgba(55, 65, 81, 0.4)'
+        borderColor: isHovered ? 'var(--color-platinum-silver)' : 'rgba(55, 65, 81, 0.4)'
       }}
       transition={{
         type: 'spring',
         stiffness: 145,
         damping: 20
       }}
-      className="h-[320px] bg-carbon-black-2 border border-graphite-light p-4 rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-violet/5 relative group shrink-0 overflow-hidden"
+      className="h-[320px] bg-carbon-black-2 border border-graphite-light p-4 rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-white/5 relative group shrink-0 overflow-hidden"
     >
       <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-25" />
 
@@ -168,7 +173,9 @@ function KineticCard({
         <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.45)_100%)]" />
         
         {/* Scanning horizontal line */}
-        <div className="absolute inset-x-0 h-[1.5px] bg-slate-violet/30 pointer-events-none z-10 animate-scan-line" />
+        {isHovered && (
+          <div className="absolute inset-x-0 h-[1.5px] bg-white/20 pointer-events-none z-10 animate-scan-line" />
+        )}
       </div>
 
       {/* Card Details */}
@@ -192,14 +199,14 @@ function KineticCard({
         </div>
 
         <div className="flex items-center justify-between border-t border-graphite-light/20 pt-2.5 mt-2 relative">
-          <span className="text-[9px] font-mono text-slate-violet-light">
+          <span className="text-[9px] font-mono text-alabaster-grey/70">
             {game.downloads || 'FREE'}
           </span>
           <div className="flex items-center gap-2 relative h-[26px] min-w-[100px] justify-end pointer-events-auto">
             <motion.span
               animate={{ x: isHovered && activeStores.length > 0 ? -(activeStores.length * 82 + 6) : 0 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 22 }}
-              className="text-[9px] font-bold text-bright-snow group-hover:text-slate-violet-light transition-colors flex items-center gap-1 font-outfit uppercase pointer-events-none absolute right-0"
+              transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+              className="text-[9px] font-bold text-bright-snow flex items-center gap-1 font-outfit uppercase pointer-events-none absolute right-0"
             >
               Play Game <ChevronRight size={10} />
             </motion.span>
@@ -306,6 +313,44 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     }, 4500);
   };
 
+  const handlePrev = () => {
+    setIsCooldown(true);
+    if (cooldownTimer.current) clearTimeout(cooldownTimer.current);
+    
+    const currentX = trackX.get();
+    const nearestCardIdx = Math.round(currentX / 304);
+    let targetX = (nearestCardIdx + 1) * 304;
+    
+    if (targetX > 0) {
+      targetX -= oneIterationWidth;
+    }
+    
+    trackX.set(targetX);
+    
+    cooldownTimer.current = setTimeout(() => {
+      setIsCooldown(false);
+    }, 5000);
+  };
+
+  const handleNext = () => {
+    setIsCooldown(true);
+    if (cooldownTimer.current) clearTimeout(cooldownTimer.current);
+    
+    const currentX = trackX.get();
+    const nearestCardIdx = Math.round(currentX / 304);
+    let targetX = (nearestCardIdx - 1) * 304;
+    
+    if (targetX < -oneIterationWidth * 2) {
+      targetX += oneIterationWidth;
+    }
+    
+    trackX.set(targetX);
+    
+    cooldownTimer.current = setTimeout(() => {
+      setIsCooldown(false);
+    }, 5000);
+  };
+
   return (
     <div ref={containerRef} className="w-full relative flex flex-col gap-6 overflow-hidden">
       <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#0b0b0c] to-transparent z-25 pointer-events-none" />
@@ -335,9 +380,29 @@ function KineticSpinStream({ games }: { games: Game[] }) {
         </motion.div>
       </div>
 
-      <div className="flex justify-center gap-1.5 items-center text-[10px] text-slate-violet-light/70 uppercase tracking-widest font-mono">
-        <MousePointer size={12} />
-        <span>Drag track directly to spin or explore games</span>
+      {/* Manual Arrow Controls & Instruction */}
+      <div className="flex flex-col sm:flex-row items-center justify-between px-6 gap-4 z-30">
+        <div className="flex justify-center gap-1.5 items-center text-[10px] text-alabaster-grey/70 uppercase tracking-widest font-mono pointer-events-none">
+          <MousePointer size={12} />
+          <span>Drag track directly or use buttons to navigate</span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handlePrev}
+            className="p-2.5 bg-carbon-black-2 hover:bg-graphite border border-graphite-light hover:border-platinum-silver text-alabaster-grey hover:text-bright-snow rounded-xl transition-all cursor-pointer"
+            title="Previous Game"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            onClick={handleNext}
+            className="p-2.5 bg-carbon-black-2 hover:bg-graphite border border-graphite-light hover:border-platinum-silver text-alabaster-grey hover:text-bright-snow rounded-xl transition-all cursor-pointer"
+            title="Next Game"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -359,7 +424,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
       {/* Section Title */}
       <div className="max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row md:items-end justify-between gap-4 z-20">
         <div>
-          <span className="text-xs font-silkscreen tracking-widest text-slate-violet-light uppercase flex items-center gap-2">
+          <span className="text-xs font-silkscreen tracking-widest text-alabaster-grey/80 uppercase flex items-center gap-2">
             <span>•</span> Our Portfolio Showcase
           </span>
           <h2 className="text-3xl md:text-5xl font-normal text-bright-snow tracking-wide mt-2 font-russo-one retro-heading-shadow">
@@ -371,7 +436,7 @@ export default function GamesShowcase({ initialGames }: { initialGames: Game[] }
           href="https://play.google.com/store/apps/dev?id=5818328852601157830&hl=en"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 text-xs font-silkscreen tracking-widest text-slate-violet-light hover:text-bright-snow border border-slate-violet/20 hover:border-slate-violet bg-slate-violet/5 hover:bg-slate-violet/10 px-4 py-2.5 rounded-xl transition-all w-fit cursor-pointer self-start md:self-auto"
+          className="flex items-center gap-2 text-xs font-silkscreen tracking-widest text-alabaster-grey hover:text-bright-snow border border-graphite hover:border-platinum-silver bg-carbon-black-2 hover:bg-graphite/30 px-4 py-2.5 rounded-xl transition-all w-fit cursor-pointer self-start md:self-auto"
         >
           <span>VIEW ALL ON GOOGLE PLAY</span>
           <ExternalLink size={12} />
