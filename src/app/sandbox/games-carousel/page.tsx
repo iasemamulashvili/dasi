@@ -20,11 +20,19 @@ import {
 const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={className}
+    className={`${className} group cursor-pointer`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <rect x="0.5" y="0.5" width="119" height="39" rx="6" fill="#000000" stroke="#374151" strokeWidth={1} />
+    <rect
+      x="0.5"
+      y="0.5"
+      width="119"
+      height="39"
+      rx="6"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#7c3aed] transition-colors duration-300"
+      strokeWidth={1}
+    />
     <g transform="translate(10, 10) scale(0.035)" fill="#ffffff">
       <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-48.7-22.9-76.9-22.4-36.6.6-70.3 21.6-89.2 54.2-38 65.9-9.8 162.8 27.3 216.3 18.2 26.2 39.8 55.3 68.2 54.2 27.2-1.1 37.5-17.6 68.5-17.6 31.1 0 40.4 17.6 68.8 17.1 29-1 48.2-26.4 66.2-52.7 21-30.7 29.7-60.4 30.2-62-1-1-65.2-25.1-65.7-100zM281.2 81.7c15.2-18.3 25.4-43.9 22.6-69.5-22 1-48.8 14.8-64.6 33.2-13.8 15.9-25.9 41.7-22.7 67 24.5 2 49.7-12.4 64.7-30.7z" />
     </g>
@@ -36,11 +44,19 @@ const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
 const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={className}
+    className={`${className} group cursor-pointer`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <rect x="0.5" y="0.5" width="119" height="39" rx="6" fill="#000000" stroke="#374151" strokeWidth={1} />
+    <rect
+      x="0.5"
+      y="0.5"
+      width="119"
+      height="39"
+      rx="6"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#7c3aed] transition-colors duration-300"
+      strokeWidth={1}
+    />
     <g transform="translate(10, 11) scale(0.035)">
       {/* Left triangle (Cyan) */}
       <path d="M47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0z" fill="#00E6FF" />
@@ -59,11 +75,19 @@ const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
 const PokiPlayBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={className}
+    className={`${className} group cursor-pointer`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <rect x="0.5" y="0.5" width="119" height="39" rx="6" fill="#000000" stroke="#374151" strokeWidth={1} />
+    <rect
+      x="0.5"
+      y="0.5"
+      width="119"
+      height="39"
+      rx="6"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#7c3aed] transition-colors duration-300"
+      strokeWidth={1}
+    />
     <g transform="translate(10, 12)" fill="#BF5AF2">
       <path d="M15 2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9H4v2H3V9H1V8h2V6h1v2h2v1zm7 .5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zm1.5-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5z" />
     </g>
@@ -201,6 +225,13 @@ export default function GamesCarouselSandbox() {
         .animate-scan-line {
           animation: scan-line-anim 4s linear infinite;
         }
+        .scrollbar-none::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-none {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
       ` }} />
       {/* Decorative Grids */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0" />
@@ -243,10 +274,10 @@ export default function GamesCarouselSandbox() {
 
         {/* Tab Switcher Console */}
         <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 border-b border-graphite-light/35 pb-5 w-full">
-          <div className="flex flex-col sm:flex-row bg-carbon-black-2 border border-graphite-light p-1 rounded-xl w-full sm:w-auto gap-1 shrink-0">
+          <div className="flex flex-row overflow-x-auto max-w-full bg-carbon-black-2 border border-graphite-light p-1 rounded-xl gap-1 shrink-0 scrollbar-none">
             <button
               onClick={() => setActiveTab('kinetic')}
-              className={`px-5 py-2.5 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans text-center sm:text-left ${
+              className={`px-5 py-2.5 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans text-center whitespace-nowrap shrink-0 ${
                 activeTab === 'kinetic'
                   ? 'bg-slate-violet text-bright-snow shadow-lg shadow-slate-violet/20'
                   : 'text-alabaster-grey/60 hover:text-bright-snow hover:bg-graphite/40'
@@ -256,7 +287,7 @@ export default function GamesCarouselSandbox() {
             </button>
             <button
               onClick={() => setActiveTab('glide')}
-              className={`px-5 py-2.5 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans text-center sm:text-left ${
+              className={`px-5 py-2.5 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans text-center whitespace-nowrap shrink-0 ${
                 activeTab === 'glide'
                   ? 'bg-slate-violet text-bright-snow shadow-lg shadow-slate-violet/20'
                   : 'text-alabaster-grey/60 hover:text-bright-snow hover:bg-graphite/40'
@@ -266,7 +297,7 @@ export default function GamesCarouselSandbox() {
             </button>
             <button
               onClick={() => setActiveTab('scrub')}
-              className={`px-5 py-2.5 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans text-center sm:text-left ${
+              className={`px-5 py-2.5 text-xs font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer font-sans text-center whitespace-nowrap shrink-0 ${
                 activeTab === 'scrub'
                   ? 'bg-slate-violet text-bright-snow shadow-lg shadow-slate-violet/20'
                   : 'text-alabaster-grey/60 hover:text-bright-snow hover:bg-graphite/40'
