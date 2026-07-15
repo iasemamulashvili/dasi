@@ -332,6 +332,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [impulseState, setImpulseState] = useState<'left' | 'right' | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -384,13 +385,16 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
     const frameFactor = delta / 16.6;
 
-    // Accumulate speed if button is held, otherwise decay to baseline
+    // Accumulate speed if button is held, pause if hovered, otherwise decay to baseline
     if (activeImpulse.current === 'left') {
       // Left arrow moves cards left-to-right (positive speed)
       currentSpeed.current = Math.min(10, currentSpeed.current + 0.15 * frameFactor);
     } else if (activeImpulse.current === 'right') {
       // Right arrow moves cards right-to-left (negative speed)
       currentSpeed.current = Math.max(-10, currentSpeed.current - 0.15 * frameFactor);
+    } else if (hoveredIdx !== null) {
+      // Smoothly stop the carousel on hover (pause autoplay)
+      currentSpeed.current = currentSpeed.current + (0 - currentSpeed.current) * 0.08 * frameFactor;
     } else {
       currentSpeed.current = currentSpeed.current + (defaultSpeed - currentSpeed.current) * 0.035 * frameFactor;
     }
@@ -424,6 +428,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
   const startImpulse = (dir: 'left' | 'right') => {
     activeImpulse.current = dir;
+    setImpulseState(dir);
     if (dir === 'left') {
       // Left arrow moves cards left-to-right (positive speed impulse)
       currentSpeed.current = Math.min(10, currentSpeed.current + 2.0);
@@ -441,6 +446,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
   const stopImpulse = () => {
     activeImpulse.current = null;
+    setImpulseState(null);
   };
 
   const handleDragStart = () => {
@@ -518,27 +524,47 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       {/* Centered Glassmorphic Navigation controls & tech indicator */}
       <div className="flex flex-col items-center justify-center gap-3 w-full mt-4 z-30 px-6">
         {/* Navigation Bar wrapper with Glassmorphism */}
-        <div className="flex items-center gap-6 px-5 py-2.5 bg-carbon-black-2/40 backdrop-blur-md border border-graphite-light/50 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.45)]">
+        <motion.div
+          animate={{
+            borderColor: impulseState ? 'rgba(255, 255, 255, 0.7)' : 'rgba(55, 65, 81, 0.5)',
+            boxShadow: impulseState 
+              ? '0 0 20px rgba(255, 255, 255, 0.12), 0 8px 32px rgba(0, 0, 0, 0.45)' 
+              : '0 0 0px rgba(255, 255, 255, 0), 0 8px 32px rgba(0, 0, 0, 0.45)'
+          }}
+          transition={{ type: 'spring', stiffness: 140, damping: 15 }}
+          className="flex items-center gap-6 px-5 py-2.5 bg-carbon-black-2/40 backdrop-blur-md border rounded-full"
+        >
           {/* Prev Button (moves cards Left-to-Right / Clockwise) */}
-          <button
+          <motion.button
             onMouseDown={() => startImpulse('left')}
             onMouseUp={stopImpulse}
             onMouseLeave={stopImpulse}
             onTouchStart={(e) => { e.preventDefault(); startImpulse('left'); }}
             onTouchEnd={stopImpulse}
-            className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center select-none touch-none"
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
+            className="p-2 text-alabaster-grey hover:text-bright-snow transition-colors cursor-pointer flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 rounded-full"
             title="Move Left-to-Right (Hold to Accelerate)"
           >
             <ChevronLeft size={16} />
-          </button>
+          </motion.button>
 
           {/* Clickable Line Dots */}
           <div className="flex gap-2 items-center">
             {games.map((_, idx) => (
-              <button
+              <motion.button
                 key={idx}
                 onClick={() => handleDotClick(idx)}
-                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                animate={{
+                  x: impulseState === 'left' ? 4 : impulseState === 'right' ? -4 : 0,
+                  skewX: impulseState === 'left' ? -15 : impulseState === 'right' ? 15 : 0,
+                }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 180,
+                  damping: 10
+                }}
+                className={`h-1.5 rounded-full transition-colors duration-300 cursor-pointer focus:outline-none ${
                   idx === activeIndex
                     ? 'w-6 bg-platinum-silver shadow-[0_0_8px_var(--color-platinum-silver)]'
                     : 'w-1.5 bg-graphite-light/60 hover:bg-alabaster-grey/50'
@@ -549,22 +575,24 @@ function KineticSpinStream({ games }: { games: Game[] }) {
           </div>
 
           {/* Next Button (moves cards Right-to-Left / Counter-Clockwise) */}
-          <button
+          <motion.button
             onMouseDown={() => startImpulse('right')}
             onMouseUp={stopImpulse}
             onMouseLeave={stopImpulse}
             onTouchStart={(e) => { e.preventDefault(); startImpulse('right'); }}
             onTouchEnd={stopImpulse}
-            className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center select-none touch-none"
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
+            className="p-2 text-alabaster-grey hover:text-bright-snow transition-colors cursor-pointer flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 rounded-full"
             title="Move Right-to-Left (Hold to Accelerate)"
           >
             <ChevronRight size={16} />
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
         {/* Shortened helper caption below navigation bar */}
         <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/50 uppercase select-none pointer-events-none">
-          browse through by dragging
+          DRAG TO SCROLL // HOLD ARROWS TO ACCELERATE
         </div>
       </div>
     </div>
