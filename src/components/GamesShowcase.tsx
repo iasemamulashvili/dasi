@@ -363,6 +363,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   // Kinetic speed state management (default autoplay direction is leftwards)
   const defaultSpeed = -0.85;
   const currentSpeed = useRef(defaultSpeed);
+  const activeImpulse = useRef<'left' | 'right' | null>(null);
 
   useEffect(() => {
     setDragConstraints({
@@ -381,11 +382,21 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
     if (isDragging) return;
 
-    // Decay the dynamic velocity back to default autoplay speed
-    currentSpeed.current = currentSpeed.current + (defaultSpeed - currentSpeed.current) * 0.035;
-
     const frameFactor = delta / 16.6;
-    let nextX = currentX + currentSpeed.current * frameFactor;
+
+    // Accumulate speed if button is held, otherwise decay to baseline
+    if (activeImpulse.current === 'left') {
+      // Left arrow moves cards left-to-right (positive speed)
+      currentSpeed.current = Math.min(10, currentSpeed.current + 0.15 * frameFactor);
+    } else if (activeImpulse.current === 'right') {
+      // Right arrow moves cards right-to-left (negative speed)
+      currentSpeed.current = Math.max(-10, currentSpeed.current - 0.15 * frameFactor);
+    } else {
+      currentSpeed.current = currentSpeed.current + (defaultSpeed - currentSpeed.current) * 0.035 * frameFactor;
+    }
+
+    const speed = currentSpeed.current * frameFactor;
+    let nextX = currentX + speed;
 
     // Continuous loop wrapping
     if (nextX < -repeatInterval) {
@@ -411,8 +422,30 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     animate(hoverOffset, 0, { type: 'spring', stiffness: 100, damping: 20 });
   };
 
+  const startImpulse = (dir: 'left' | 'right') => {
+    activeImpulse.current = dir;
+    if (dir === 'left') {
+      // Left arrow moves cards left-to-right (positive speed impulse)
+      currentSpeed.current = Math.min(10, currentSpeed.current + 2.0);
+      animate(hoverOffset, 15, { type: 'spring', stiffness: 220, damping: 12 }).then(() => {
+        animate(hoverOffset, 0, { type: 'spring', stiffness: 100, damping: 20 });
+      });
+    } else {
+      // Right arrow moves cards right-to-left (negative speed impulse)
+      currentSpeed.current = Math.max(-10, currentSpeed.current - 2.0);
+      animate(hoverOffset, -15, { type: 'spring', stiffness: 220, damping: 12 }).then(() => {
+        animate(hoverOffset, 0, { type: 'spring', stiffness: 100, damping: 20 });
+      });
+    }
+  };
+
+  const stopImpulse = () => {
+    activeImpulse.current = null;
+  };
+
   const handleDragStart = () => {
     setIsDragging(true);
+    stopImpulse();
     currentSpeed.current = defaultSpeed;
   };
 
@@ -439,32 +472,11 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   };
 
   const handleDotClick = (idx: number) => {
+    stopImpulse();
     currentSpeed.current = defaultSpeed;
     const targetX = -(games.length + idx) * spacing;
     animateTo(targetX);
     setActiveIndex(idx);
-  };
-
-  const handlePrev = () => {
-    // Left arrow adds leftward kinetic impulse (move leftwards, negative speed)
-    // Capped at -10 max velocity
-    currentSpeed.current = Math.max(-10, currentSpeed.current - 4.5);
-    
-    // Quick visual spring bounce leftwards
-    animate(hoverOffset, -15, { type: 'spring', stiffness: 220, damping: 12 }).then(() => {
-      animate(hoverOffset, 0, { type: 'spring', stiffness: 100, damping: 20 });
-    });
-  };
-
-  const handleNext = () => {
-    // Right arrow adds rightward kinetic impulse (move rightwards, positive speed)
-    // Capped at +10 max velocity
-    currentSpeed.current = Math.min(10, currentSpeed.current + 4.5);
-    
-    // Quick visual spring bounce rightwards
-    animate(hoverOffset, 15, { type: 'spring', stiffness: 220, damping: 12 }).then(() => {
-      animate(hoverOffset, 0, { type: 'spring', stiffness: 100, damping: 20 });
-    });
   };
 
   return (
@@ -507,11 +519,15 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       <div className="flex flex-col items-center justify-center gap-3 w-full mt-4 z-30 px-6">
         {/* Navigation Bar wrapper with Glassmorphism */}
         <div className="flex items-center gap-6 px-5 py-2.5 bg-carbon-black-2/40 backdrop-blur-md border border-graphite-light/50 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.45)]">
-          {/* Prev Button */}
+          {/* Prev Button (moves cards Left-to-Right / Clockwise) */}
           <button
-            onClick={handlePrev}
-            className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
-            title="Accelerate Left"
+            onMouseDown={() => startImpulse('left')}
+            onMouseUp={stopImpulse}
+            onMouseLeave={stopImpulse}
+            onTouchStart={(e) => { e.preventDefault(); startImpulse('left'); }}
+            onTouchEnd={stopImpulse}
+            className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center select-none touch-none"
+            title="Move Left-to-Right (Hold to Accelerate)"
           >
             <ChevronLeft size={16} />
           </button>
@@ -532,11 +548,15 @@ function KineticSpinStream({ games }: { games: Game[] }) {
             ))}
           </div>
 
-          {/* Next Button */}
+          {/* Next Button (moves cards Right-to-Left / Counter-Clockwise) */}
           <button
-            onClick={handleNext}
-            className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
-            title="Accelerate Right"
+            onMouseDown={() => startImpulse('right')}
+            onMouseUp={stopImpulse}
+            onMouseLeave={stopImpulse}
+            onTouchStart={(e) => { e.preventDefault(); startImpulse('right'); }}
+            onTouchEnd={stopImpulse}
+            className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center select-none touch-none"
+            title="Move Right-to-Left (Hold to Accelerate)"
           >
             <ChevronRight size={16} />
           </button>
