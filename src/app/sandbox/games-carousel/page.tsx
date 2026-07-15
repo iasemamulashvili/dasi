@@ -226,6 +226,93 @@ export default function GamesCarouselSandbox() {
   const [factsLayout, setFactsLayout] = useState<'grid' | 'timeline' | 'spotlight'>('grid');
   const [mockNavIndex, setMockNavIndex] = useState(0);
 
+  const [var1Index, setVar1Index] = useState(0);
+  const [var1Impulse, setVar1Impulse] = useState<'left' | 'right' | null>(null);
+
+  const [var2Index, setVar2Index] = useState(0);
+  const [var2Impulse, setVar2Impulse] = useState<'left' | 'right' | null>(null);
+
+  const [var3Index, setVar3Index] = useState(0);
+  const [var3Impulse, setVar3Impulse] = useState<'left' | 'right' | null>(null);
+
+  const handleVar1Click = (dir: 'left' | 'right') => {
+    setVar1Index((prev) => {
+      const step = dir === 'left' ? -1 : 1;
+      return (prev + step + mockGames.length) % mockGames.length;
+    });
+  };
+  const handleVar1PrevClick = () => handleVar1Click('left');
+  const handleVar1NextClick = () => handleVar1Click('right');
+
+  const handleVar2Click = (dir: 'left' | 'right') => {
+    setVar2Index((prev) => {
+      const step = dir === 'left' ? -1 : 1;
+      return (prev + step + mockGames.length) % mockGames.length;
+    });
+  };
+  const handleVar2PrevClick = () => handleVar2Click('left');
+  const handleVar2NextClick = () => handleVar2Click('right');
+
+  const handleVar3Click = (dir: 'left' | 'right') => {
+    setVar3Index((prev) => {
+      const step = dir === 'left' ? -1 : 1;
+      return (prev + step + mockGames.length) % mockGames.length;
+    });
+  };
+  const handleVar3PrevClick = () => handleVar3Click('left');
+  const handleVar3NextClick = () => handleVar3Click('right');
+
+  const var1Accumulator = useRef(0);
+  const var2Accumulator = useRef(0);
+  const var3Accumulator = useRef(0);
+
+  useAnimationFrame((time, delta) => {
+    // Variation 1 hold logic
+    if (var1Impulse) {
+      var1Accumulator.current += delta;
+      const threshold = Math.max(100, 400 - (var1Accumulator.current / 5));
+      if (var1Accumulator.current > threshold) {
+        setVar1Index((prev) => {
+          const step = var1Impulse === 'left' ? -1 : 1;
+          return (prev + step + mockGames.length) % mockGames.length;
+        });
+        var1Accumulator.current = 0;
+      }
+    } else {
+      var1Accumulator.current = 0;
+    }
+
+    // Variation 2 hold logic
+    if (var2Impulse) {
+      var2Accumulator.current += delta;
+      const threshold = Math.max(100, 400 - (var2Accumulator.current / 5));
+      if (var2Accumulator.current > threshold) {
+        setVar2Index((prev) => {
+          const step = var2Impulse === 'left' ? -1 : 1;
+          return (prev + step + mockGames.length) % mockGames.length;
+        });
+        var2Accumulator.current = 0;
+      }
+    } else {
+      var2Accumulator.current = 0;
+    }
+
+    // Variation 3 hold logic
+    if (var3Impulse) {
+      var3Accumulator.current += delta;
+      const threshold = Math.max(100, 400 - (var3Accumulator.current / 5));
+      if (var3Accumulator.current > threshold) {
+        setVar3Index((prev) => {
+          const step = var3Impulse === 'left' ? -1 : 1;
+          return (prev + step + mockGames.length) % mockGames.length;
+        });
+        var3Accumulator.current = 0;
+      }
+    } else {
+      var3Accumulator.current = 0;
+    }
+  });
+
   const handleCursorAreaMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setCursorPos({
@@ -588,76 +675,296 @@ export default function GamesCarouselSandbox() {
           </div>
 
           {/* Extension 3: Centered Carousel Navigation Block */}
-          <div className="flex flex-col gap-5 mt-4">
+          <div className="flex flex-col gap-8 mt-4">
             <div>
               <h2 className="text-xl font-bold tracking-wider font-russo-one text-bright-snow uppercase">
-                3. Centered Carousel Navigation Showcase
+                3. Interactive Carousel Navigation Variations
               </h2>
               <p className="text-xs text-alabaster-grey/60 mt-1 uppercase tracking-wider">
-                Isolated showcase of the redesigned glassmorphic carousel control console
+                Compare three custom visual variations with active hold acceleration and responsive indicators
               </p>
             </div>
 
-            <div className="p-8 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl flex flex-col items-center justify-center gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               
-              {/* Mock Carousel Slide indicator viewport */}
-              <div className="w-full max-w-sm h-28 bg-carbon-black border border-graphite-light/60 rounded-xl relative overflow-hidden flex items-center justify-center p-4">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={mockNavIndex}
-                    initial={{ opacity: 0, scale: 0.9, x: 20 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, x: -20 }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                    className="flex flex-col items-center text-center gap-1.5"
-                  >
-                    <span className="text-[9px] font-mono text-slate-violet-light tracking-widest uppercase">Carousel Active Slot {mockNavIndex + 1}</span>
-                    <span className="text-sm font-bold text-bright-snow uppercase font-russo-one">{mockGames[mockNavIndex % mockGames.length]?.title}</span>
-                    <span className="text-[10px] text-alabaster-grey/50 max-w-[240px] truncate">{mockGames[mockNavIndex % mockGames.length]?.description}</span>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              {/* Centered Navigation Controls Pill with Glassmorphism */}
-              <div className="flex items-center gap-6 px-5 py-2.5 bg-carbon-black-2/50 backdrop-blur-md border border-graphite-light/50 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.45)]">
-                {/* Prev Button */}
-                <button
-                  onClick={() => setMockNavIndex((prev) => (prev - 1 + mockGames.length) % mockGames.length)}
-                  className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
-                  title="Previous Slide"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-
-                {/* Clickable Line Dots */}
-                <div className="flex gap-2 items-center">
-                  {mockGames.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setMockNavIndex(idx)}
-                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                        idx === mockNavIndex
-                          ? 'w-6 bg-platinum-silver shadow-[0_0_8px_var(--color-platinum-silver)]'
-                          : 'w-1.5 bg-graphite-light/60 hover:bg-alabaster-grey/50'
-                      }`}
-                      title={`Go to slide ${idx + 1}`}
-                    />
-                  ))}
+              {/* Variation 1: Liquid Wave Cascade */}
+              <div className="p-6 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl flex flex-col items-center justify-between gap-6 min-h-[320px]">
+                <div className="flex flex-col items-center text-center gap-1.5 w-full">
+                  <span className="text-[9px] font-mono text-slate-violet-light tracking-widest uppercase">Variation 1 // Liquid Wave Cascade</span>
+                  <div className="w-full h-16 bg-carbon-black border border-graphite-light/40 rounded-xl flex items-center justify-center p-3 overflow-hidden">
+                    <span className="text-xs font-bold text-bright-snow uppercase font-russo-one">{mockGames[var1Index % mockGames.length]?.title}</span>
+                  </div>
                 </div>
 
-                {/* Next Button */}
-                <button
-                  onClick={() => setMockNavIndex((prev) => (prev + 1) % mockGames.length)}
-                  className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
-                  title="Next Slide"
-                >
-                  <ChevronRight size={16} />
-                </button>
+                {/* Hexagonal Arrows + LED dot underneath + ripple dots */}
+                <div className="flex items-center gap-5 relative py-4">
+                  {/* Prev Hex Button */}
+                  <div className="relative flex flex-col items-center">
+                    <motion.button
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.9 }}
+                      onMouseDown={() => setVar1Impulse('left')}
+                      onMouseUp={() => setVar1Impulse(null)}
+                      onMouseLeave={() => setVar1Impulse(null)}
+                      onTouchStart={(e) => { e.preventDefault(); setVar1Impulse('left'); }}
+                      onTouchEnd={() => setVar1Impulse(null)}
+                      onClick={handleVar1PrevClick}
+                      className="w-10 h-10 flex items-center justify-center relative cursor-pointer text-alabaster-grey hover:text-bright-snow focus:outline-none"
+                    >
+                      <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full stroke-graphite-light hover:stroke-slate-violet-light fill-carbon-black-2 transition-colors duration-300">
+                        <polygon points="50,6 90,29 90,71 50,94 10,71 10,29" strokeWidth="5" />
+                      </svg>
+                      <ChevronLeft size={16} className="relative z-10" />
+                    </motion.button>
+                    {var1Impulse === 'left' && (
+                      <div className="absolute -bottom-2 w-1.5 h-1.5 rounded-full bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)]" />
+                    )}
+                  </div>
+
+                  {/* Clickable Line Dots */}
+                  <div className="flex gap-2 items-center">
+                    {mockGames.map((_, idx) => (
+                      <motion.button
+                        key={idx}
+                        onClick={() => setVar1Index(idx)}
+                        animate={{
+                          opacity: var1Impulse ? [0.6, 1.0, 0.6] : (idx === var1Index ? 1.0 : 0.6)
+                        }}
+                        transition={var1Impulse === 'left' ? {
+                          opacity: { repeat: Infinity, duration: 1.0, delay: idx * 0.1, ease: "easeInOut" }
+                        } : var1Impulse === 'right' ? {
+                          opacity: { repeat: Infinity, duration: 1.0, delay: (mockGames.length - 1 - idx) * 0.1, ease: "easeInOut" }
+                        } : {
+                          duration: 0.3
+                        }}
+                        className={`h-1.5 rounded-full transition-colors duration-300 cursor-pointer focus:outline-none ${
+                          idx === var1Index
+                            ? 'w-6 bg-platinum-silver shadow-[0_0_8px_var(--color-platinum-silver)]'
+                            : 'w-1.5 bg-graphite-light/60 hover:bg-alabaster-grey/50'
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Next Hex Button */}
+                  <div className="relative flex flex-col items-center">
+                    <motion.button
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.9 }}
+                      onMouseDown={() => setVar1Impulse('right')}
+                      onMouseUp={() => setVar1Impulse(null)}
+                      onMouseLeave={() => setVar1Impulse(null)}
+                      onTouchStart={(e) => { e.preventDefault(); setVar1Impulse('right'); }}
+                      onTouchEnd={() => setVar1Impulse(null)}
+                      onClick={handleVar1NextClick}
+                      className="w-10 h-10 flex items-center justify-center relative cursor-pointer text-alabaster-grey hover:text-bright-snow focus:outline-none"
+                    >
+                      <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full stroke-graphite-light hover:stroke-slate-violet-light fill-carbon-black-2 transition-colors duration-300">
+                        <polygon points="50,6 90,29 90,71 50,94 10,71 10,29" strokeWidth="5" />
+                      </svg>
+                      <ChevronRight size={16} className="relative z-10" />
+                    </motion.button>
+                    {var1Impulse === 'right' && (
+                      <div className="absolute -bottom-2 w-1.5 h-1.5 rounded-full bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)]" />
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/40 uppercase text-center">
+                  HEX ARROWS // SINGLE LED press indicator // Sequential cascade ripples
+                </div>
               </div>
 
-              <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/40 uppercase">
-                Redesigned dot active indicator glows with box-shadow settings
+              {/* Variation 2: Magnetic Compress Accordion */}
+              <div className="p-6 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl flex flex-col items-center justify-between gap-6 min-h-[320px]">
+                <div className="flex flex-col items-center text-center gap-1.5 w-full">
+                  <span className="text-[9px] font-mono text-slate-violet-light tracking-widest uppercase">Variation 2 // Magnetic Compress</span>
+                  <div className="w-full h-16 bg-carbon-black border border-graphite-light/40 rounded-xl flex items-center justify-center p-3 overflow-hidden">
+                    <span className="text-xs font-bold text-bright-snow uppercase font-russo-one">{mockGames[var2Index % mockGames.length]?.title}</span>
+                  </div>
+                </div>
+
+                {/* Circular Double Chevrons + sliding backdrop pill + elastic spacing dots */}
+                <div className="flex items-center gap-5 relative py-4">
+                  {/* Prev Double Chevron Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.12 }}
+                    whileTap={{ scale: 0.92 }}
+                    onMouseDown={() => setVar2Impulse('left')}
+                    onMouseUp={() => setVar2Impulse(null)}
+                    onMouseLeave={() => setVar2Impulse(null)}
+                    onTouchStart={(e) => { e.preventDefault(); setVar2Impulse('left'); }}
+                    onTouchEnd={() => setVar2Impulse(null)}
+                    onClick={handleVar2PrevClick}
+                    className="relative w-10 h-10 rounded-full bg-carbon-black-2 border border-slate-700/50 hover:border-slate-violet-light flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="11 17 6 12 11 7" />
+                      <polyline points="18 17 13 12 18 7" />
+                    </svg>
+                  </motion.button>
+
+                  {/* Clickable Line Dots with sliding layout backdrop & elastic gap animation */}
+                  <motion.div
+                    animate={{ gap: var2Impulse ? "4px" : "8px" }}
+                    transition={{ type: 'spring', stiffness: 220, damping: 15 }}
+                    className="flex items-center relative px-2"
+                  >
+                    {mockGames.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setVar2Index(idx)}
+                        className="relative py-2 focus:outline-none"
+                      >
+                        <motion.div
+                          animate={{
+                            width: idx === var2Index ? 24 : 6,
+                            backgroundColor: idx === var2Index ? '#ffffff' : '#3f3f46'
+                          }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+                          className="h-1.5 rounded-full relative z-10"
+                        />
+                        {idx === var2Index && (
+                          <motion.div
+                            layoutId="magneticPill"
+                            className="absolute inset-0 bg-slate-violet/20 border border-slate-violet-light/30 rounded-lg z-0"
+                            transition={{ type: 'spring', stiffness: 180, damping: 15 }}
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </motion.div>
+
+                  {/* Next Double Chevron Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.12 }}
+                    whileTap={{ scale: 0.92 }}
+                    onMouseDown={() => setVar2Impulse('right')}
+                    onMouseUp={() => setVar2Impulse(null)}
+                    onMouseLeave={() => setVar2Impulse(null)}
+                    onTouchStart={(e) => { e.preventDefault(); setVar2Impulse('right'); }}
+                    onTouchEnd={() => setVar2Impulse(null)}
+                    onClick={handleVar2NextClick}
+                    className="relative w-10 h-10 rounded-full bg-carbon-black-2 border border-slate-700/50 hover:border-slate-violet-light flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="13 17 18 12 13 7" />
+                      <polyline points="6 17 11 12 6 7" />
+                    </svg>
+                  </motion.button>
+                </div>
+
+                <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/40 uppercase text-center">
+                  DOUBLE CHEVRONS // LayoutId active sliding highlight pill // Elastic spacing compression
+                </div>
               </div>
+
+              {/* Variation 3: Cybernetic Glow Bar */}
+              <div className="p-6 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl flex flex-col items-center justify-between gap-6 min-h-[320px]">
+                <div className="flex flex-col items-center text-center gap-1.5 w-full">
+                  <span className="text-[9px] font-mono text-slate-violet-light tracking-widest uppercase">Variation 3 // Cybernetic Glow Bar</span>
+                  <div className="w-full h-16 bg-carbon-black border border-graphite-light/40 rounded-xl flex items-center justify-center p-3 overflow-hidden">
+                    <span className="text-xs font-bold text-bright-snow uppercase font-russo-one">{mockGames[var3Index % mockGames.length]?.title}</span>
+                  </div>
+                </div>
+
+                {/* Cyberpunk square buttons + Laser Underlines + spark tracking bar */}
+                <div className="flex items-center gap-5 relative py-4">
+                  {/* Prev Cyber Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onMouseDown={() => setVar3Impulse('left')}
+                    onMouseUp={() => setVar3Impulse(null)}
+                    onMouseLeave={() => setVar3Impulse(null)}
+                    onTouchStart={(e) => { e.preventDefault(); setVar3Impulse('left'); }}
+                    onTouchEnd={() => setVar3Impulse(null)}
+                    onClick={handleVar3PrevClick}
+                    className="relative w-11 h-11 bg-carbon-black border border-graphite-light hover:border-slate-violet-light/80 flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none overflow-hidden"
+                  >
+                    <div className="absolute top-0.5 left-0.5 w-1 h-1 border-t border-l border-slate-violet-light/50" />
+                    <div className="absolute top-0.5 right-0.5 w-1 h-1 border-t border-r border-slate-violet-light/50" />
+                    <div className="absolute bottom-0.5 left-0.5 w-1 h-1 border-b border-l border-slate-violet-light/50" />
+                    <div className="absolute bottom-0.5 right-0.5 w-1 h-1 border-b border-r border-slate-violet-light/50" />
+                    <motion.div 
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: var3Impulse === 'left' ? 1 : 0 }}
+                      className="absolute bottom-0 inset-x-1 h-0.5 bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)] origin-center"
+                    />
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 text-current" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="3" strokeWidth="1" strokeDasharray="2 2" />
+                      <path d="M14 8l-4 4 4 4" strokeWidth="2.5" />
+                      <path d="M12 2v2M12 20v2M2 12h2M20 12h2" strokeWidth="1" opacity="0.6" />
+                    </svg>
+                  </motion.button>
+
+                  {/* Spark Particles tracking bar */}
+                  <div className="relative flex items-center gap-2 px-3 py-2 bg-carbon-black border border-slate-800 rounded-lg overflow-hidden min-w-[150px] justify-center">
+                    {mockGames.map((_, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => setVar3Index(idx)}
+                        className={`h-1 w-4 rounded-sm cursor-pointer transition-colors duration-300 ${
+                          idx === var3Index ? 'bg-slate-violet-light/80 shadow-[0_0_4px_var(--color-slate-violet-light)]' : 'bg-zinc-800 hover:bg-zinc-700'
+                        }`}
+                      />
+                    ))}
+
+                    <AnimatePresence>
+                      {var3Impulse && (
+                        <motion.div
+                          key={var3Impulse}
+                          initial={{ x: var3Impulse === 'left' ? -20 : 130, opacity: 0 }}
+                          animate={{
+                            x: var3Impulse === 'left' ? [-10, 120] : [120, -10],
+                            opacity: [0, 1, 1, 0]
+                          }}
+                          exit={{ opacity: 0 }}
+                          transition={{
+                            repeat: Infinity,
+                            duration: 0.8,
+                            ease: "linear"
+                          }}
+                          className="absolute h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee] pointer-events-none"
+                        />
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Next Cyber Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onMouseDown={() => setVar3Impulse('right')}
+                    onMouseUp={() => setVar3Impulse(null)}
+                    onMouseLeave={() => setVar3Impulse(null)}
+                    onTouchStart={(e) => { e.preventDefault(); setVar3Impulse('right'); }}
+                    onTouchEnd={() => setVar3Impulse(null)}
+                    onClick={handleVar3NextClick}
+                    className="relative w-11 h-11 bg-carbon-black border border-graphite-light hover:border-slate-violet-light/80 flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none overflow-hidden"
+                  >
+                    <div className="absolute top-0.5 left-0.5 w-1 h-1 border-t border-l border-slate-violet-light/50" />
+                    <div className="absolute top-0.5 right-0.5 w-1 h-1 border-t border-r border-slate-violet-light/50" />
+                    <div className="absolute bottom-0.5 left-0.5 w-1 h-1 border-b border-l border-slate-violet-light/50" />
+                    <div className="absolute bottom-0.5 right-0.5 w-1 h-1 border-b border-r border-slate-violet-light/50" />
+                    <motion.div 
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: var3Impulse === 'right' ? 1 : 0 }}
+                      className="absolute bottom-0 inset-x-1 h-0.5 bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)] origin-center"
+                    />
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 text-current" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="3" strokeWidth="1" strokeDasharray="2 2" />
+                      <path d="M10 8l4 4-4 4" strokeWidth="2.5" />
+                      <path d="M12 2v2M12 20v2M2 12h2M20 12h2" strokeWidth="1" opacity="0.6" />
+                    </svg>
+                  </motion.button>
+                </div>
+
+                <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/40 uppercase text-center">
+                  SQUARE CYBER BUTTONS // Tactical corner ticks & laser underlines // sliding spark emitter
+                </div>
+              </div>
+
             </div>
           </div>
 

@@ -371,7 +371,8 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       left: -repeatInterval * 2,
       right: 0
     });
-  }, [repeatInterval]);
+    trackX.set(-repeatInterval);
+  }, [repeatInterval, trackX]);
 
   useAnimationFrame((time, delta) => {
     const currentX = trackX.get();
@@ -403,9 +404,9 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     let nextX = currentX + speed;
 
     // Continuous loop wrapping
-    if (nextX < -repeatInterval) {
+    if (nextX < -repeatInterval * 1.5) {
       nextX += repeatInterval;
-    } else if (nextX > 0) {
+    } else if (nextX > -repeatInterval * 0.5) {
       nextX -= repeatInterval;
     }
     trackX.set(nextX);
@@ -460,10 +461,10 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     currentSpeed.current = defaultSpeed;
 
     let currentX = trackX.get();
-    if (currentX < -repeatInterval) {
+    if (currentX < -repeatInterval * 1.5) {
       currentX += repeatInterval;
       trackX.set(currentX);
-    } else if (currentX > 0) {
+    } else if (currentX > -repeatInterval * 0.5) {
       currentX -= repeatInterval;
       trackX.set(currentX);
     }
@@ -524,30 +525,28 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       {/* Centered Glassmorphic Navigation controls & tech indicator */}
       <div className="flex flex-col items-center justify-center gap-3 w-full mt-4 z-30 px-6">
         {/* Navigation Bar wrapper with Glassmorphism */}
-        <motion.div
-          animate={{
-            borderColor: impulseState ? 'rgba(255, 255, 255, 0.7)' : 'rgba(55, 65, 81, 0.5)',
-            boxShadow: impulseState 
-              ? '0 0 20px rgba(255, 255, 255, 0.12), 0 8px 32px rgba(0, 0, 0, 0.45)' 
-              : '0 0 0px rgba(255, 255, 255, 0), 0 8px 32px rgba(0, 0, 0, 0.45)'
-          }}
-          transition={{ type: 'spring', stiffness: 140, damping: 15 }}
-          className="flex items-center gap-6 px-5 py-2.5 bg-carbon-black-2/40 backdrop-blur-md border rounded-full"
-        >
+        <div className="flex items-center gap-6 px-5 py-2.5 bg-carbon-black-2/40 backdrop-blur-md border border-slate-700/50 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.45)] relative">
           {/* Prev Button (moves cards Left-to-Right / Clockwise) */}
-          <motion.button
-            onMouseDown={() => startImpulse('left')}
-            onMouseUp={stopImpulse}
-            onMouseLeave={stopImpulse}
-            onTouchStart={(e) => { e.preventDefault(); startImpulse('left'); }}
-            onTouchEnd={stopImpulse}
-            whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.9 }}
-            className="p-2 text-alabaster-grey hover:text-bright-snow transition-colors cursor-pointer flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 rounded-full"
-            title="Move Left-to-Right (Hold to Accelerate)"
-          >
-            <ChevronLeft size={16} />
-          </motion.button>
+          {!isMobile && (
+            <div className="relative flex flex-col items-center">
+              <motion.button
+                onMouseDown={() => startImpulse('left')}
+                onMouseUp={stopImpulse}
+                onMouseLeave={stopImpulse}
+                onTouchStart={(e) => { e.preventDefault(); startImpulse('left'); }}
+                onTouchEnd={stopImpulse}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                className="p-2 text-alabaster-grey hover:text-bright-snow transition-colors cursor-pointer flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 rounded-full"
+                title="Move Left-to-Right (Hold to Accelerate)"
+              >
+                <ChevronLeft size={16} />
+              </motion.button>
+              {impulseState === 'left' && (
+                <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)]" />
+              )}
+            </div>
+          )}
 
           {/* Clickable Line Dots */}
           <div className="flex gap-2 items-center">
@@ -558,8 +557,17 @@ function KineticSpinStream({ games }: { games: Game[] }) {
                 animate={{
                   x: impulseState === 'left' ? 4 : impulseState === 'right' ? -4 : 0,
                   skewX: impulseState === 'left' ? -15 : impulseState === 'right' ? 15 : 0,
+                  opacity: impulseState === 'left' || impulseState === 'right' ? [0.6, 1.0, 0.6] : (idx === activeIndex ? 1.0 : 0.6)
                 }}
-                transition={{
+                transition={impulseState === 'left' ? {
+                  x: { type: 'spring', stiffness: 180, damping: 10 },
+                  skewX: { type: 'spring', stiffness: 180, damping: 10 },
+                  opacity: { repeat: Infinity, duration: 1.0, delay: idx * 0.1, ease: "easeInOut" }
+                } : impulseState === 'right' ? {
+                  x: { type: 'spring', stiffness: 180, damping: 10 },
+                  skewX: { type: 'spring', stiffness: 180, damping: 10 },
+                  opacity: { repeat: Infinity, duration: 1.0, delay: (games.length - 1 - idx) * 0.1, ease: "easeInOut" }
+                } : {
                   type: 'spring',
                   stiffness: 180,
                   damping: 10
@@ -575,20 +583,27 @@ function KineticSpinStream({ games }: { games: Game[] }) {
           </div>
 
           {/* Next Button (moves cards Right-to-Left / Counter-Clockwise) */}
-          <motion.button
-            onMouseDown={() => startImpulse('right')}
-            onMouseUp={stopImpulse}
-            onMouseLeave={stopImpulse}
-            onTouchStart={(e) => { e.preventDefault(); startImpulse('right'); }}
-            onTouchEnd={stopImpulse}
-            whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.9 }}
-            className="p-2 text-alabaster-grey hover:text-bright-snow transition-colors cursor-pointer flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 rounded-full"
-            title="Move Right-to-Left (Hold to Accelerate)"
-          >
-            <ChevronRight size={16} />
-          </motion.button>
-        </motion.div>
+          {!isMobile && (
+            <div className="relative flex flex-col items-center">
+              <motion.button
+                onMouseDown={() => startImpulse('right')}
+                onMouseUp={stopImpulse}
+                onMouseLeave={stopImpulse}
+                onTouchStart={(e) => { e.preventDefault(); startImpulse('right'); }}
+                onTouchEnd={stopImpulse}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                className="p-2 text-alabaster-grey hover:text-bright-snow transition-colors cursor-pointer flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 rounded-full"
+                title="Move Right-to-Left (Hold to Accelerate)"
+              >
+                <ChevronRight size={16} />
+              </motion.button>
+              {impulseState === 'right' && (
+                <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)]" />
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Shortened helper caption below navigation bar */}
         <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/50 uppercase select-none pointer-events-none">
