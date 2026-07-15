@@ -57,12 +57,18 @@ const containerVariants = {
     height: 0,
     paddingTop: 0,
     paddingBottom: 0,
+    marginTop: '-0.75rem',
+    marginBottom: '-0.75rem',
     opacity: 0,
+    borderWidth: 0,
     transition: {
       height: { type: 'spring' as const, stiffness: 300, damping: 30 },
       paddingTop: { duration: 0.2 },
       paddingBottom: { duration: 0.2 },
+      marginTop: { duration: 0.2 },
+      marginBottom: { duration: 0.2 },
       opacity: { duration: 0.15 },
+      borderWidth: { duration: 0.15 },
       when: 'afterChildren',
       staggerChildren: 0.05,
       staggerDirection: -1
@@ -72,20 +78,47 @@ const containerVariants = {
     height: 'auto',
     paddingTop: '1rem',
     paddingBottom: '1rem',
+    marginTop: '0rem',
+    marginBottom: '0rem',
     opacity: 1,
+    borderWidth: 1,
     transition: {
       height: { type: 'spring' as const, stiffness: 300, damping: 30 },
       paddingTop: { type: 'spring' as const, stiffness: 300, damping: 30 },
       paddingBottom: { type: 'spring' as const, stiffness: 300, damping: 30 },
+      marginTop: { type: 'spring' as const, stiffness: 300, damping: 30 },
+      marginBottom: { type: 'spring' as const, stiffness: 300, damping: 30 },
       opacity: { duration: 0.25 },
+      borderWidth: { duration: 0.2 },
       staggerChildren: 0.08,
       delayChildren: 0.05
+    }
+  },
+  exit: {
+    height: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    marginTop: '-0.75rem',
+    marginBottom: '-0.75rem',
+    opacity: 0,
+    borderWidth: 0,
+    transition: {
+      height: { type: 'spring' as const, stiffness: 300, damping: 30 },
+      paddingTop: { duration: 0.2 },
+      paddingBottom: { duration: 0.2 },
+      marginTop: { duration: 0.2 },
+      marginBottom: { duration: 0.2 },
+      opacity: { duration: 0.15 },
+      borderWidth: { duration: 0.15 },
+      when: 'afterChildren',
+      staggerChildren: 0.05,
+      staggerDirection: -1
     }
   }
 };
 
 const childVariants = {
-  hidden: { opacity: 0, y: 15, scale: 0.95 },
+  hidden: { opacity: 0, y: 8, scale: 0.98 },
   visible: {
     opacity: 1,
     y: 0,
@@ -98,8 +131,8 @@ const childVariants = {
   },
   exit: {
     opacity: 0,
-    y: 10,
-    scale: 0.95,
+    y: 6,
+    scale: 0.98,
     transition: {
       duration: 0.2
     }
@@ -336,15 +369,15 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
             </div>
 
             {/* Conditional File Uploads Grid */}
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence>
               {uploadConfig.allowed.length > 0 && (
                 <motion.div
                   key="upload-dropzones-container"
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
-                  exit="hidden"
-                  className="flex flex-col gap-4 bg-carbon-black/50 border border-graphite-light/35 overflow-hidden px-4"
+                  exit="exit"
+                  className="flex flex-col gap-4 bg-carbon-black/50 border-solid border-graphite-light/35 overflow-hidden px-4"
                   style={{ originY: 0 }}
                 >
                   <span className="text-[10px] font-silkscreen tracking-wider text-platinum-silver uppercase">
@@ -361,7 +394,6 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
                         <motion.div
                           key={typeId}
                           variants={childVariants}
-                          layout
                           className="flex flex-col gap-1.5"
                         >
                           <span className="text-[9px] font-silkscreen tracking-wider text-alabaster-grey uppercase flex items-center gap-1">

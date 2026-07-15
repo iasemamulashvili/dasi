@@ -25,20 +25,25 @@ interface NavSlash {
 }
 
 function createSparks(clientX: number, clientY: number, currentSparkIdx: number): Spark[] {
-  return Array.from({ length: 12 }).map((_, i) => {
-    const pAngle = Math.random() * Math.PI * 2;
-    const speed = 2.0 + Math.random() * 3.5;
+  return Array.from({ length: 16 }).map((_, i) => {
+    // North-West angles roughly between -165deg and -105deg
+    const pAngle = -Math.PI * 0.75 + (Math.random() - 0.5) * (Math.PI * 0.35);
+    const speed = 2.5 + Math.random() * 4.5;
+    const isDebris = i % 3 === 0;
+
     return {
       id: `spark-${currentSparkIdx}-${i}`,
       x: clientX,
       y: clientY,
       vx: Math.cos(pAngle) * speed,
-      vy: Math.sin(pAngle) * speed - 0.3,
-      color: 'oklch(0.98 0.005 240.0)', // Snow White: pure white/platinum
-      size: 3 + Math.random() * 3,
+      vy: Math.sin(pAngle) * speed - 0.6,
+      color: isDebris 
+        ? 'oklch(0.35 0.01 285.0)' // dark graphite debris
+        : 'oklch(0.9 0.08 240.0)', // glowing cyan/white hot sparks
+      size: isDebris ? (4 + Math.random() * 3) : (1.5 + Math.random() * 2),
       opacity: 1.0,
       rotation: Math.random() * 360,
-      vrot: (Math.random() - 0.5) * 8
+      vrot: (Math.random() - 0.5) * 12
     };
   });
 }
@@ -211,12 +216,20 @@ export default function Header() {
           }
         }
         
+        @keyframes sawSpinSlow {
+          from { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(0deg); }
+          to { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-360deg); }
+        }
+        .animate-saw-slow {
+          animation: sawSpinSlow 12s linear infinite;
+        }
+
         @keyframes sawSlash {
-          0% { transform: scale(1) rotate(0deg); opacity: 1; }
-          10% { transform: scale(1.1) rotate(15deg); }
-          30% { transform: perspective(200px) rotateX(60deg) rotate(540deg); }
-          70% { transform: perspective(200px) rotateX(60deg) rotate(1080deg); }
-          100% { transform: scale(1) rotate(1080deg); }
+          0% { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(0deg); opacity: 1; }
+          10% { transform: perspective(200px) rotateX(20deg) rotateY(-20deg) rotate(-45deg); }
+          30% { transform: perspective(200px) rotateX(65deg) rotateY(-5deg) rotate(-540deg); }
+          70% { transform: perspective(200px) rotateX(65deg) rotateY(-5deg) rotate(-1080deg); }
+          100% { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-1080deg); }
         }
         .animate-saw-slash {
           animation: sawSlash 0.45s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
@@ -400,7 +413,7 @@ export default function Header() {
           }}
         >
           <div
-            className={isSlashing ? 'animate-saw-slash' : ''}
+            className={isSlashing ? 'animate-saw-slash' : 'animate-saw-slow'}
             style={{
               transformOrigin: '50% 50%',
             }}

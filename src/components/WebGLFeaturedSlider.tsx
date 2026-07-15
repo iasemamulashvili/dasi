@@ -483,7 +483,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
   }, [activeIndex]);
 
   // WebGL Render call
-  const drawWebGL = (currIdx: number, targetIdx: number, progress: number) => {
+  function drawWebGL(currIdx: number, targetIdx: number, progress: number) {
     const gl = glRef.current;
     const program = programRef.current;
     const textures = texturesRef.current;
@@ -526,7 +526,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
     }
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-  };
+  }
 
   const handleDotClick = (targetIdx: number) => {
     transitionTo(targetIdx);
@@ -648,6 +648,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
       x: normX,
       y: normY,
       radius: 0.0,
+      // eslint-disable-next-line react-hooks/purity
       maxRadius: 0.55 + Math.random() * 0.15,
       intensity: 1.0,
       speed: 0.38
@@ -992,7 +993,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
 
             {/* Shortened HUD Target readout text (only game name) */}
             <span 
-              className="absolute top-13 font-mono text-[7px] bg-carbon-black/95 px-2 py-0.5 border border-slate-violet-light/40 rounded text-bright-snow tracking-widest whitespace-nowrap shadow-lg shadow-black/80"
+              className="absolute top-[60px] translate-y-14 font-mono text-[7px] bg-carbon-black/95 px-2 py-0.5 border border-slate-violet-light/40 rounded text-bright-snow tracking-widest whitespace-nowrap shadow-lg shadow-black/80"
             >
               {activeGame.title.toUpperCase()}
             </span>

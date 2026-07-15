@@ -548,39 +548,49 @@ function KineticSpinStream({ games }: { games: Game[] }) {
             </div>
           )}
 
-          {/* Clickable Line Dots */}
-          <div className="flex gap-2 items-center">
+          {/* Clickable Line Dots with sliding layout backdrop & elastic gap animation */}
+          <motion.div
+            animate={{ gap: impulseState ? "3px" : "8px" }}
+            transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+            className="flex items-center relative px-2"
+          >
             {games.map((_, idx) => (
-              <motion.button
+              <button
                 key={idx}
                 onClick={() => handleDotClick(idx)}
-                animate={{
-                  width: impulseState === 'left' 
-                    ? (6 + (idx / (games.length - 1)) * 8)
-                    : impulseState === 'right'
-                      ? (6 + ((games.length - 1 - idx) / (games.length - 1)) * 8)
-                      : (idx === activeIndex ? 24 : 6),
-                  x: impulseState === 'left'
-                    ? -((games.length - 1 - idx) * 1.5)
-                    : impulseState === 'right'
-                      ? (idx * 1.5)
-                      : 0,
-                  backgroundColor: idx === activeIndex ? '#ffffff' : '#3f3f46',
-                  opacity: idx === activeIndex ? 1.0 : 0.6
-                }}
-                transition={{
-                  type: 'spring',
-                  stiffness: 280,
-                  damping: 15
-                }}
-                className="h-1.5 rounded-full cursor-pointer focus:outline-none"
-                style={{
-                  boxShadow: idx === activeIndex ? '0 0 8px var(--color-platinum-silver)' : 'none'
-                }}
+                className="relative py-2 focus:outline-none"
                 title={`Go to game ${idx + 1}`}
-              />
+              >
+                <motion.div
+                  animate={{
+                    width: impulseState
+                      ? (idx === activeIndex ? 26 : 6)
+                      : (idx === activeIndex ? 24 : 6),
+                    x: impulseState === 'left'
+                      ? -((games.length - 1 - idx) * 3)
+                      : impulseState === 'right'
+                        ? (idx * 3)
+                        : 0,
+                    backgroundColor: idx === activeIndex ? '#ffffff' : '#3f3f46',
+                    opacity: idx === activeIndex ? 1.0 : 0.6
+                  }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 80,
+                    damping: 22
+                  }}
+                  className="h-1.5 rounded-full relative z-10"
+                />
+                {idx === activeIndex && (
+                  <motion.div
+                    layoutId="magneticPillMain"
+                    className="absolute inset-0 bg-slate-violet/20 border border-slate-violet-light/30 rounded-lg z-0"
+                    transition={{ type: 'spring', stiffness: 100, damping: 18 }}
+                  />
+                )}
+              </button>
             ))}
-          </div>
+          </motion.div>
 
           {/* Next Button (moves cards Right-to-Left / Counter-Clockwise) */}
           {!isMobile && (
