@@ -197,7 +197,7 @@ export default function Header() {
       onMouseLeave={() => setIsHovering(false)}
       onMouseMove={handleMouseMove}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isHovering ? 'sword-cursor-active' : ''
+        isHovering ? 'buzzsaw-cursor-active' : ''
       } ${
         isScrolled
           ? 'bg-carbon-black/90 backdrop-blur-md border-b border-graphite-light py-4 shadow-lg'
@@ -206,22 +206,20 @@ export default function Header() {
     >
       <style>{`
         @media (min-width: 768px) {
-          .sword-cursor-active, .sword-cursor-active * {
+          .buzzsaw-cursor-active, .buzzsaw-cursor-active * {
             cursor: none !important;
           }
         }
         
-        /* Custom Arcade Game Sword swing animation */
-        @keyframes arcadeSwordSwing {
-          0% { transform: rotate(0deg); }
-          12% { transform: rotate(20deg); } /* wind-up anticipation */
-          30% { transform: rotate(-85deg); } /* fast strike slash */
-          55% { transform: rotate(-10deg); } /* recoil bounce */
-          75% { transform: rotate(4deg); }
-          100% { transform: rotate(0deg); } /* return to center */
+        @keyframes sawSlash {
+          0% { transform: scale(1) rotate(0deg); opacity: 1; }
+          10% { transform: scale(1.1) rotate(15deg); }
+          30% { transform: perspective(200px) rotateX(60deg) rotate(540deg); }
+          70% { transform: perspective(200px) rotateX(60deg) rotate(1080deg); }
+          100% { transform: scale(1) rotate(1080deg); }
         }
-        .animate-arcade-swing {
-          animation: arcadeSwordSwing 0.45s cubic-bezier(0.25, 0.8, 0.25, 1.25) forwards;
+        .animate-saw-slash {
+          animation: sawSlash 0.45s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
         }
 
         /* Horizontal centered split structure (Sliding apart) */
@@ -391,79 +389,37 @@ export default function Header() {
         </nav>
       </div>
 
-      {/* Custom Sword Cursor rendering */}
+      {/* Custom Buzzsaw Cursor rendering */}
       {isHovering && (
         <div
-          className={`pointer-events-none fixed z-[9999] select-none hidden md:block ${
-            isSlashing ? 'animate-arcade-swing' : ''
-          }`}
+          className="pointer-events-none fixed z-[9999] select-none hidden md:block"
           style={{
             left: `${mousePos.x}px`,
             top: `${mousePos.y}px`,
-            transformOrigin: '33px 33px',
-            transition: isSlashing ? 'none' : 'transform 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
+            transform: 'translate(-50%, -50%)',
           }}
         >
-          {/* Template Cyber-Katana SVG rendering customized colors */}
-          <svg
-            width="44"
-            height="44"
-            viewBox="0 0 44 44"
-            fill="none"
-            className="filter drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+          <div
+            className={isSlashing ? 'animate-saw-slash' : ''}
+            style={{
+              transformOrigin: '50% 50%',
+            }}
           >
-            {/* Outer blade neon glow */}
-            <line
-              x1="2"
-              y1="2"
-              x2="28"
-              y2="28"
-              stroke="oklch(0.98 0.005 240.0)"
-              strokeWidth="4.5"
-              strokeLinecap="round"
-              className="opacity-45"
-            />
-
-            {/* Blade razor edge */}
-            <line x1="0" y1="0" x2="26" y2="26" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" />
-
-            {/* Blade steel core */}
-            <line
-              x1="1"
-              y1="1"
-              x2="25"
-              y2="25"
-              stroke="#e2e8f0"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-
-            {/* Sleek Tsuba/Guard */}
-            <line
-              x1="23"
-              y1="29"
-              x2="29"
-              y2="23"
-              stroke="#334155"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-            />
-
-            {/* Handle/Tsuka */}
-            <line x1="27" y1="27" x2="37" y2="37" stroke="#000000" strokeWidth="3.2" strokeLinecap="round" />
-            <line
-              x1="28"
-              y1="28"
-              x2="36"
-              y2="36"
-              stroke="#cbd5e1"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-
-            {/* Golden pommel */}
-            <circle cx="38" cy="38" r="1.8" fill="#fbbf24" />
-          </svg>
+            <svg
+              viewBox="0 0 100 100"
+              width="44"
+              height="44"
+              className="text-bright-snow filter drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+            >
+              <circle cx="50" cy="50" r="10" fill="currentColor" />
+              <path
+                d="M50 20 L53 30 L63 23 L61 34 L73 31 L67 40 L78 42 L69 49 L77 54 L67 57 L73 66 L61 64 L63 75 L53 68 L50 78 L47 68 L37 75 L39 64 L27 66 L33 57 L23 54 L31 49 L22 42 L33 40 L27 31 L39 34 L37 23 L47 30 Z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+            </svg>
+          </div>
         </div>
       )}
 

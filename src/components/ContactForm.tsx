@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Send, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Job {
   id: string;
@@ -48,6 +49,60 @@ const UPLOAD_LABELS: { [key: string]: { label: string; placeholder: string; acce
     label: 'Pitch Deck / GDD', 
     placeholder: 'Upload Pitch Deck or GDD', 
     accept: '.pdf,.ppt,.pptx,.zip' 
+  }
+};
+
+const containerVariants = {
+  hidden: {
+    height: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    opacity: 0,
+    transition: {
+      height: { type: 'spring' as const, stiffness: 300, damping: 30 },
+      paddingTop: { duration: 0.2 },
+      paddingBottom: { duration: 0.2 },
+      opacity: { duration: 0.15 },
+      when: 'afterChildren',
+      staggerChildren: 0.05,
+      staggerDirection: -1
+    }
+  },
+  visible: {
+    height: 'auto',
+    paddingTop: '1rem',
+    paddingBottom: '1rem',
+    opacity: 1,
+    transition: {
+      height: { type: 'spring' as const, stiffness: 300, damping: 30 },
+      paddingTop: { type: 'spring' as const, stiffness: 300, damping: 30 },
+      paddingBottom: { type: 'spring' as const, stiffness: 300, damping: 30 },
+      opacity: { duration: 0.25 },
+      staggerChildren: 0.08,
+      delayChildren: 0.05
+    }
+  }
+};
+
+const childVariants = {
+  hidden: { opacity: 0, y: 15, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: 'spring' as const,
+      stiffness: 250,
+      damping: 25
+    }
+  },
+  exit: {
+    opacity: 0,
+    y: 10,
+    scale: 0.95,
+    transition: {
+      duration: 0.2
+    }
   }
 };
 
@@ -281,50 +336,84 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
             </div>
 
             {/* Conditional File Uploads Grid */}
-            {uploadConfig.allowed.length > 0 && (
-              <div className="flex flex-col gap-4 bg-carbon-black/50 p-4 border border-graphite-light/35">
-                <span className="text-[10px] font-silkscreen tracking-wider text-platinum-silver uppercase">
-                  Required Documents
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {uploadConfig.allowed.map((typeId) => {
-                    const spec = UPLOAD_LABELS[typeId] || { label: typeId.toUpperCase(), placeholder: 'Upload file', accept: '*/*' };
-                    const isRequired = uploadConfig.required.includes(typeId);
-                    const currentFile = uploadedFiles[typeId];
-                    return (
-                      <div key={typeId} className="flex flex-col gap-1.5">
-                        <span className="text-[9px] font-silkscreen tracking-wider text-alabaster-grey uppercase flex items-center gap-1">
-                          <span>{spec.label}</span>
-                          {isRequired && <span className="text-rose-500">*</span>}
-                        </span>
-                        <label className="w-full flex flex-col items-center justify-center border border-dashed border-graphite-light bg-carbon-black hover:bg-carbon-black-2 rounded-none px-3 py-4 cursor-pointer hover:border-platinum-silver transition-all duration-300">
-                          <Upload size={14} className="text-alabaster-grey/40 mb-1.5" />
-                          <span className="text-[10px] text-alabaster-grey font-outfit text-center truncate max-w-full px-2 font-light">
-                            {currentFile ? currentFile.name : spec.placeholder}
+            <AnimatePresence mode="popLayout">
+              {uploadConfig.allowed.length > 0 && (
+                <motion.div
+                  key="upload-dropzones-container"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  className="flex flex-col gap-4 bg-carbon-black/50 border border-graphite-light/35 overflow-hidden px-4"
+                  style={{ originY: 0 }}
+                >
+                  <span className="text-[10px] font-silkscreen tracking-wider text-platinum-silver uppercase">
+                    Required Documents
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {uploadConfig.allowed.map((typeId) => {
+                      const spec = UPLOAD_LABELS[typeId] || { label: typeId.toUpperCase(), placeholder: 'Upload file', accept: '*/*' };
+                      const isRequired = uploadConfig.required.includes(typeId);
+                      const currentFile = uploadedFiles[typeId];
+                      const isUploaded = !!currentFile;
+                      
+                      return (
+                        <motion.div
+                          key={typeId}
+                          variants={childVariants}
+                          layout
+                          className="flex flex-col gap-1.5"
+                        >
+                          <span className="text-[9px] font-silkscreen tracking-wider text-alabaster-grey uppercase flex items-center gap-1">
+                            <span>{spec.label}</span>
+                            {isRequired && <span className="text-rose-500">*</span>}
                           </span>
-                          <span className="text-[8px] text-alabaster-grey/40 font-outfit mt-0.5">
-                            Allowed formats: {spec.accept}
-                          </span>
-                          <input
-                            type="file"
-                            id={`file-${typeId}`}
-                            accept={spec.accept}
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files.length > 0) {
-                                handleFileChange(typeId, e.target.files[0]);
-                              } else {
-                                handleFileChange(typeId, null);
-                              }
-                            }}
-                            className="sr-only"
-                          />
-                        </label>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+                          <motion.label
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.99 }}
+                            className={`w-full flex flex-col items-center justify-center border border-dashed rounded-none px-3 py-4 cursor-pointer transition-all duration-300 focus-within:ring-2 focus-within:ring-slate-violet-light/50 focus-within:outline-none ${
+                              isUploaded
+                                ? 'border-muted-green bg-muted-green/5 hover:border-muted-green-light hover:bg-muted-green/10'
+                                : 'border-graphite-light bg-carbon-black hover:border-platinum-silver hover:bg-carbon-black-2'
+                            }`}
+                          >
+                            <Upload
+                              size={14}
+                              className={`mb-1.5 transition-colors duration-300 ${
+                                isUploaded ? 'text-muted-green' : 'text-alabaster-grey/40'
+                              }`}
+                            />
+                            <span
+                              className={`text-[10px] text-center truncate max-w-full px-2 font-light font-outfit transition-colors duration-300 ${
+                                isUploaded ? 'text-muted-green-light font-medium' : 'text-alabaster-grey'
+                              }`}
+                            >
+                              {currentFile ? currentFile.name : spec.placeholder}
+                            </span>
+                            <span className="text-[8px] text-alabaster-grey/40 font-outfit mt-0.5">
+                              Allowed formats: {spec.accept}
+                            </span>
+                            <input
+                              type="file"
+                              id={`file-${typeId}`}
+                              accept={spec.accept}
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files.length > 0) {
+                                  handleFileChange(typeId, e.target.files[0]);
+                                } else {
+                                  handleFileChange(typeId, null);
+                                }
+                              }}
+                              className="sr-only"
+                            />
+                          </motion.label>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Message */}
             <div className="flex flex-col gap-1.5">

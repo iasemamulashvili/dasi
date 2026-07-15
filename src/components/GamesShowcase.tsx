@@ -555,28 +555,28 @@ function KineticSpinStream({ games }: { games: Game[] }) {
                 key={idx}
                 onClick={() => handleDotClick(idx)}
                 animate={{
-                  x: impulseState === 'left' ? 4 : impulseState === 'right' ? -4 : 0,
-                  skewX: impulseState === 'left' ? -15 : impulseState === 'right' ? 15 : 0,
-                  opacity: impulseState === 'left' || impulseState === 'right' ? [0.6, 1.0, 0.6] : (idx === activeIndex ? 1.0 : 0.6)
+                  width: impulseState === 'left' 
+                    ? (6 + (idx / (games.length - 1)) * 8)
+                    : impulseState === 'right'
+                      ? (6 + ((games.length - 1 - idx) / (games.length - 1)) * 8)
+                      : (idx === activeIndex ? 24 : 6),
+                  x: impulseState === 'left'
+                    ? -((games.length - 1 - idx) * 1.5)
+                    : impulseState === 'right'
+                      ? (idx * 1.5)
+                      : 0,
+                  backgroundColor: idx === activeIndex ? '#ffffff' : '#3f3f46',
+                  opacity: idx === activeIndex ? 1.0 : 0.6
                 }}
-                transition={impulseState === 'left' ? {
-                  x: { type: 'spring', stiffness: 180, damping: 10 },
-                  skewX: { type: 'spring', stiffness: 180, damping: 10 },
-                  opacity: { repeat: Infinity, duration: 1.0, delay: idx * 0.1, ease: "easeInOut" }
-                } : impulseState === 'right' ? {
-                  x: { type: 'spring', stiffness: 180, damping: 10 },
-                  skewX: { type: 'spring', stiffness: 180, damping: 10 },
-                  opacity: { repeat: Infinity, duration: 1.0, delay: (games.length - 1 - idx) * 0.1, ease: "easeInOut" }
-                } : {
+                transition={{
                   type: 'spring',
-                  stiffness: 180,
-                  damping: 10
+                  stiffness: 280,
+                  damping: 15
                 }}
-                className={`h-1.5 rounded-full transition-colors duration-300 cursor-pointer focus:outline-none ${
-                  idx === activeIndex
-                    ? 'w-6 bg-platinum-silver shadow-[0_0_8px_var(--color-platinum-silver)]'
-                    : 'w-1.5 bg-graphite-light/60 hover:bg-alabaster-grey/50'
-                }`}
+                className="h-1.5 rounded-full cursor-pointer focus:outline-none"
+                style={{
+                  boxShadow: idx === activeIndex ? '0 0 8px var(--color-platinum-silver)' : 'none'
+                }}
                 title={`Go to game ${idx + 1}`}
               />
             ))}

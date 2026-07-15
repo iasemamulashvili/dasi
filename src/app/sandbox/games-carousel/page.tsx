@@ -674,31 +674,31 @@ export default function GamesCarouselSandbox() {
             </div>
           </div>
 
-          {/* Extension 3: Centered Carousel Navigation Block */}
+          {/* Extension 3: Interactive Carousel Navigation Variations (Sub-Variations of Variation 2) */}
           <div className="flex flex-col gap-8 mt-4">
             <div>
               <h2 className="text-xl font-bold tracking-wider font-russo-one text-bright-snow uppercase">
-                3. Interactive Carousel Navigation Variations
+                3. Interactive Accordion Spacing Variations
               </h2>
               <p className="text-xs text-alabaster-grey/60 mt-1 uppercase tracking-wider">
-                Compare three custom visual variations with active hold acceleration and responsive indicators
+                Compare three sub-variations of the Accordion Spacing navigation concept with active hold acceleration
               </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               
-              {/* Variation 1: Liquid Wave Cascade */}
+              {/* Variation 1: Elastic Width Squeeze */}
               <div className="p-6 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl flex flex-col items-center justify-between gap-6 min-h-[320px]">
                 <div className="flex flex-col items-center text-center gap-1.5 w-full">
-                  <span className="text-[9px] font-mono text-slate-violet-light tracking-widest uppercase">Variation 1 // Liquid Wave Cascade</span>
+                  <span className="text-[9px] font-mono text-slate-violet-light tracking-widest uppercase">Variation 2A // Elastic Width Squeeze</span>
                   <div className="w-full h-16 bg-carbon-black border border-graphite-light/40 rounded-xl flex items-center justify-center p-3 overflow-hidden">
                     <span className="text-xs font-bold text-bright-snow uppercase font-russo-one">{mockGames[var1Index % mockGames.length]?.title}</span>
                   </div>
                 </div>
 
-                {/* Hexagonal Arrows + LED dot underneath + ripple dots */}
+                {/* Double chevrons + active LED indicator dot + elastic width dots */}
                 <div className="flex items-center gap-5 relative py-4">
-                  {/* Prev Hex Button */}
+                  {/* Prev Button */}
                   <div className="relative flex flex-col items-center">
                     <motion.button
                       whileHover={{ scale: 1.15 }}
@@ -709,12 +709,12 @@ export default function GamesCarouselSandbox() {
                       onTouchStart={(e) => { e.preventDefault(); setVar1Impulse('left'); }}
                       onTouchEnd={() => setVar1Impulse(null)}
                       onClick={handleVar1PrevClick}
-                      className="w-10 h-10 flex items-center justify-center relative cursor-pointer text-alabaster-grey hover:text-bright-snow focus:outline-none"
+                      className="w-10 h-10 rounded-full border border-slate-700/50 hover:border-slate-violet-light flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none"
                     >
-                      <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full stroke-graphite-light hover:stroke-slate-violet-light fill-carbon-black-2 transition-colors duration-300">
-                        <polygon points="50,6 90,29 90,71 50,94 10,71 10,29" strokeWidth="5" />
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="11 17 6 12 11 7" />
+                        <polyline points="18 17 13 12 18 7" />
                       </svg>
-                      <ChevronLeft size={16} className="relative z-10" />
                     </motion.button>
                     {var1Impulse === 'left' && (
                       <div className="absolute -bottom-2 w-1.5 h-1.5 rounded-full bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)]" />
@@ -728,25 +728,33 @@ export default function GamesCarouselSandbox() {
                         key={idx}
                         onClick={() => setVar1Index(idx)}
                         animate={{
-                          opacity: var1Impulse ? [0.6, 1.0, 0.6] : (idx === var1Index ? 1.0 : 0.6)
+                          width: var1Impulse === 'left' 
+                            ? (6 + (idx / (mockGames.length - 1)) * 8)
+                            : var1Impulse === 'right'
+                              ? (6 + ((mockGames.length - 1 - idx) / (mockGames.length - 1)) * 8)
+                              : (idx === var1Index ? 24 : 6),
+                          x: var1Impulse === 'left'
+                            ? -((mockGames.length - 1 - idx) * 1.5)
+                            : var1Impulse === 'right'
+                              ? (idx * 1.5)
+                              : 0,
+                          backgroundColor: idx === var1Index ? '#ffffff' : '#3f3f46',
+                          opacity: idx === var1Index ? 1.0 : 0.6
                         }}
-                        transition={var1Impulse === 'left' ? {
-                          opacity: { repeat: Infinity, duration: 1.0, delay: idx * 0.1, ease: "easeInOut" }
-                        } : var1Impulse === 'right' ? {
-                          opacity: { repeat: Infinity, duration: 1.0, delay: (mockGames.length - 1 - idx) * 0.1, ease: "easeInOut" }
-                        } : {
-                          duration: 0.3
+                        transition={{
+                          type: 'spring',
+                          stiffness: 280,
+                          damping: 15
                         }}
-                        className={`h-1.5 rounded-full transition-colors duration-300 cursor-pointer focus:outline-none ${
-                          idx === var1Index
-                            ? 'w-6 bg-platinum-silver shadow-[0_0_8px_var(--color-platinum-silver)]'
-                            : 'w-1.5 bg-graphite-light/60 hover:bg-alabaster-grey/50'
-                        }`}
+                        className="h-1.5 rounded-full cursor-pointer focus:outline-none"
+                        style={{
+                          boxShadow: idx === var1Index ? '0 0 8px var(--color-platinum-silver)' : 'none'
+                        }}
                       />
                     ))}
                   </div>
 
-                  {/* Next Hex Button */}
+                  {/* Next Button */}
                   <div className="relative flex flex-col items-center">
                     <motion.button
                       whileHover={{ scale: 1.15 }}
@@ -757,12 +765,12 @@ export default function GamesCarouselSandbox() {
                       onTouchStart={(e) => { e.preventDefault(); setVar1Impulse('right'); }}
                       onTouchEnd={() => setVar1Impulse(null)}
                       onClick={handleVar1NextClick}
-                      className="w-10 h-10 flex items-center justify-center relative cursor-pointer text-alabaster-grey hover:text-bright-snow focus:outline-none"
+                      className="w-10 h-10 rounded-full border border-slate-700/50 hover:border-slate-violet-light flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none"
                     >
-                      <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full stroke-graphite-light hover:stroke-slate-violet-light fill-carbon-black-2 transition-colors duration-300">
-                        <polygon points="50,6 90,29 90,71 50,94 10,71 10,29" strokeWidth="5" />
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="13 17 18 12 13 7" />
+                        <polyline points="6 17 11 12 6 7" />
                       </svg>
-                      <ChevronRight size={16} className="relative z-10" />
                     </motion.button>
                     {var1Impulse === 'right' && (
                       <div className="absolute -bottom-2 w-1.5 h-1.5 rounded-full bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)]" />
@@ -771,43 +779,45 @@ export default function GamesCarouselSandbox() {
                 </div>
 
                 <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/40 uppercase text-center">
-                  HEX ARROWS // SINGLE LED press indicator // Sequential cascade ripples
+                  ELASTIC COMPRESS // Snappy spring physical bounce // Opposite width expands to 14px
                 </div>
               </div>
 
-              {/* Variation 2: Magnetic Compress Accordion */}
+              {/* Variation 2: Viscous Liquid Pull */}
               <div className="p-6 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl flex flex-col items-center justify-between gap-6 min-h-[320px]">
                 <div className="flex flex-col items-center text-center gap-1.5 w-full">
-                  <span className="text-[9px] font-mono text-slate-violet-light tracking-widest uppercase">Variation 2 // Magnetic Compress</span>
+                  <span className="text-[9px] font-mono text-slate-violet-light tracking-widest uppercase">Variation 2B // Viscous Liquid Pull</span>
                   <div className="w-full h-16 bg-carbon-black border border-graphite-light/40 rounded-xl flex items-center justify-center p-3 overflow-hidden">
                     <span className="text-xs font-bold text-bright-snow uppercase font-russo-one">{mockGames[var2Index % mockGames.length]?.title}</span>
                   </div>
                 </div>
 
-                {/* Circular Double Chevrons + sliding backdrop pill + elastic spacing dots */}
+                {/* Double Chevrons + sliding layout backdrop + liquid pull dots */}
                 <div className="flex items-center gap-5 relative py-4">
-                  {/* Prev Double Chevron Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.12 }}
-                    whileTap={{ scale: 0.92 }}
-                    onMouseDown={() => setVar2Impulse('left')}
-                    onMouseUp={() => setVar2Impulse(null)}
-                    onMouseLeave={() => setVar2Impulse(null)}
-                    onTouchStart={(e) => { e.preventDefault(); setVar2Impulse('left'); }}
-                    onTouchEnd={() => setVar2Impulse(null)}
-                    onClick={handleVar2PrevClick}
-                    className="relative w-10 h-10 rounded-full bg-carbon-black-2 border border-slate-700/50 hover:border-slate-violet-light flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none"
-                  >
-                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="11 17 6 12 11 7" />
-                      <polyline points="18 17 13 12 18 7" />
-                    </svg>
-                  </motion.button>
+                  {/* Prev Button */}
+                  <div className="relative flex flex-col items-center">
+                    <motion.button
+                      whileHover={{ scale: 1.12 }}
+                      whileTap={{ scale: 0.92 }}
+                      onMouseDown={() => setVar2Impulse('left')}
+                      onMouseUp={() => setVar2Impulse(null)}
+                      onMouseLeave={() => setVar2Impulse(null)}
+                      onTouchStart={(e) => { e.preventDefault(); setVar2Impulse('left'); }}
+                      onTouchEnd={() => setVar2Impulse(null)}
+                      onClick={handleVar2PrevClick}
+                      className="relative w-10 h-10 rounded-full bg-carbon-black-2 border border-slate-700/50 hover:border-slate-violet-light flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="11 17 6 12 11 7" />
+                        <polyline points="18 17 13 12 18 7" />
+                      </svg>
+                    </motion.button>
+                  </div>
 
-                  {/* Clickable Line Dots with sliding layout backdrop & elastic gap animation */}
+                  {/* Clickable Line Dots with sliding layout backdrop & liquid gap pull */}
                   <motion.div
-                    animate={{ gap: var2Impulse ? "4px" : "8px" }}
-                    transition={{ type: 'spring', stiffness: 220, damping: 15 }}
+                    animate={{ gap: var2Impulse ? "3px" : "8px" }}
+                    transition={{ type: 'spring', stiffness: 100, damping: 20 }}
                     className="flex items-center relative px-2"
                   >
                     {mockGames.map((_, idx) => (
@@ -818,150 +828,155 @@ export default function GamesCarouselSandbox() {
                       >
                         <motion.div
                           animate={{
-                            width: idx === var2Index ? 24 : 6,
+                            width: var2Impulse === 'left'
+                              ? (idx === var2Index ? 26 : 6)
+                              : var2Impulse === 'right'
+                                ? (idx === var2Index ? 26 : 6)
+                                : (idx === var2Index ? 24 : 6),
+                            x: var2Impulse === 'left'
+                              ? -((mockGames.length - 1 - idx) * 3)
+                              : var2Impulse === 'right'
+                                ? (idx * 3)
+                                : 0,
                             backgroundColor: idx === var2Index ? '#ffffff' : '#3f3f46'
                           }}
-                          transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+                          transition={{ type: 'spring', stiffness: 80, damping: 22 }}
                           className="h-1.5 rounded-full relative z-10"
                         />
                         {idx === var2Index && (
                           <motion.div
-                            layoutId="magneticPill"
+                            layoutId="magneticPillVar2"
                             className="absolute inset-0 bg-slate-violet/20 border border-slate-violet-light/30 rounded-lg z-0"
-                            transition={{ type: 'spring', stiffness: 180, damping: 15 }}
+                            transition={{ type: 'spring', stiffness: 100, damping: 18 }}
                           />
                         )}
                       </button>
                     ))}
                   </motion.div>
 
-                  {/* Next Double Chevron Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.12 }}
-                    whileTap={{ scale: 0.92 }}
-                    onMouseDown={() => setVar2Impulse('right')}
-                    onMouseUp={() => setVar2Impulse(null)}
-                    onMouseLeave={() => setVar2Impulse(null)}
-                    onTouchStart={(e) => { e.preventDefault(); setVar2Impulse('right'); }}
-                    onTouchEnd={() => setVar2Impulse(null)}
-                    onClick={handleVar2NextClick}
-                    className="relative w-10 h-10 rounded-full bg-carbon-black-2 border border-slate-700/50 hover:border-slate-violet-light flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none"
-                  >
-                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="13 17 18 12 13 7" />
-                      <polyline points="6 17 11 12 6 7" />
-                    </svg>
-                  </motion.button>
+                  {/* Next Button */}
+                  <div className="relative flex flex-col items-center">
+                    <motion.button
+                      whileHover={{ scale: 1.12 }}
+                      whileTap={{ scale: 0.92 }}
+                      onMouseDown={() => setVar2Impulse('right')}
+                      onMouseUp={() => setVar2Impulse(null)}
+                      onMouseLeave={() => setVar2Impulse(null)}
+                      onTouchStart={(e) => { e.preventDefault(); setVar2Impulse('right'); }}
+                      onTouchEnd={() => setVar2Impulse(null)}
+                      onClick={handleVar2NextClick}
+                      className="relative w-10 h-10 rounded-full bg-carbon-black-2 border border-slate-700/50 hover:border-slate-violet-light flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="13 17 18 12 13 7" />
+                        <polyline points="6 17 11 12 6 7" />
+                      </svg>
+                    </motion.button>
+                  </div>
                 </div>
 
                 <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/40 uppercase text-center">
-                  DOUBLE CHEVRONS // LayoutId active sliding highlight pill // Elastic spacing compression
+                  LIQUID SLIDE // Heavy viscous weight translation // Active slide background highlights
                 </div>
               </div>
 
-              {/* Variation 3: Cybernetic Glow Bar */}
+              {/* Variation 3: Glow Accordion Wave */}
               <div className="p-6 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl flex flex-col items-center justify-between gap-6 min-h-[320px]">
                 <div className="flex flex-col items-center text-center gap-1.5 w-full">
-                  <span className="text-[9px] font-mono text-slate-violet-light tracking-widest uppercase">Variation 3 // Cybernetic Glow Bar</span>
+                  <span className="text-[9px] font-mono text-slate-violet-light tracking-widest uppercase">Variation 2C // Glow Accordion Wave</span>
                   <div className="w-full h-16 bg-carbon-black border border-graphite-light/40 rounded-xl flex items-center justify-center p-3 overflow-hidden">
                     <span className="text-xs font-bold text-bright-snow uppercase font-russo-one">{mockGames[var3Index % mockGames.length]?.title}</span>
                   </div>
                 </div>
 
-                {/* Cyberpunk square buttons + Laser Underlines + spark tracking bar */}
+                {/* Double Chevrons + color wave cascade + glow dots */}
                 <div className="flex items-center gap-5 relative py-4">
-                  {/* Prev Cyber Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onMouseDown={() => setVar3Impulse('left')}
-                    onMouseUp={() => setVar3Impulse(null)}
-                    onMouseLeave={() => setVar3Impulse(null)}
-                    onTouchStart={(e) => { e.preventDefault(); setVar3Impulse('left'); }}
-                    onTouchEnd={() => setVar3Impulse(null)}
-                    onClick={handleVar3PrevClick}
-                    className="relative w-11 h-11 bg-carbon-black border border-graphite-light hover:border-slate-violet-light/80 flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none overflow-hidden"
-                  >
-                    <div className="absolute top-0.5 left-0.5 w-1 h-1 border-t border-l border-slate-violet-light/50" />
-                    <div className="absolute top-0.5 right-0.5 w-1 h-1 border-t border-r border-slate-violet-light/50" />
-                    <div className="absolute bottom-0.5 left-0.5 w-1 h-1 border-b border-l border-slate-violet-light/50" />
-                    <div className="absolute bottom-0.5 right-0.5 w-1 h-1 border-b border-r border-slate-violet-light/50" />
-                    <motion.div 
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: var3Impulse === 'left' ? 1 : 0 }}
-                      className="absolute bottom-0 inset-x-1 h-0.5 bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)] origin-center"
-                    />
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 text-current" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="3" strokeWidth="1" strokeDasharray="2 2" />
-                      <path d="M14 8l-4 4 4 4" strokeWidth="2.5" />
-                      <path d="M12 2v2M12 20v2M2 12h2M20 12h2" strokeWidth="1" opacity="0.6" />
-                    </svg>
-                  </motion.button>
-
-                  {/* Spark Particles tracking bar */}
-                  <div className="relative flex items-center gap-2 px-3 py-2 bg-carbon-black border border-slate-800 rounded-lg overflow-hidden min-w-[150px] justify-center">
-                    {mockGames.map((_, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => setVar3Index(idx)}
-                        className={`h-1 w-4 rounded-sm cursor-pointer transition-colors duration-300 ${
-                          idx === var3Index ? 'bg-slate-violet-light/80 shadow-[0_0_4px_var(--color-slate-violet-light)]' : 'bg-zinc-800 hover:bg-zinc-700'
-                        }`}
-                      />
-                    ))}
-
-                    <AnimatePresence>
-                      {var3Impulse && (
-                        <motion.div
-                          key={var3Impulse}
-                          initial={{ x: var3Impulse === 'left' ? -20 : 130, opacity: 0 }}
-                          animate={{
-                            x: var3Impulse === 'left' ? [-10, 120] : [120, -10],
-                            opacity: [0, 1, 1, 0]
-                          }}
-                          exit={{ opacity: 0 }}
-                          transition={{
-                            repeat: Infinity,
-                            duration: 0.8,
-                            ease: "linear"
-                          }}
-                          className="absolute h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee] pointer-events-none"
-                        />
-                      )}
-                    </AnimatePresence>
+                  {/* Prev Button */}
+                  <div className="relative flex flex-col items-center">
+                    <motion.button
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.9 }}
+                      onMouseDown={() => setVar3Impulse('left')}
+                      onMouseUp={() => setVar3Impulse(null)}
+                      onMouseLeave={() => setVar3Impulse(null)}
+                      onTouchStart={(e) => { e.preventDefault(); setVar3Impulse('left'); }}
+                      onTouchEnd={() => setVar3Impulse(null)}
+                      onClick={handleVar3PrevClick}
+                      className="w-10 h-10 rounded-full border border-slate-700/50 hover:border-slate-violet-light flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="11 17 6 12 11 7" />
+                        <polyline points="18 17 13 12 18 7" />
+                      </svg>
+                    </motion.button>
                   </div>
 
-                  {/* Next Cyber Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onMouseDown={() => setVar3Impulse('right')}
-                    onMouseUp={() => setVar3Impulse(null)}
-                    onMouseLeave={() => setVar3Impulse(null)}
-                    onTouchStart={(e) => { e.preventDefault(); setVar3Impulse('right'); }}
-                    onTouchEnd={() => setVar3Impulse(null)}
-                    onClick={handleVar3NextClick}
-                    className="relative w-11 h-11 bg-carbon-black border border-graphite-light hover:border-slate-violet-light/80 flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none overflow-hidden"
-                  >
-                    <div className="absolute top-0.5 left-0.5 w-1 h-1 border-t border-l border-slate-violet-light/50" />
-                    <div className="absolute top-0.5 right-0.5 w-1 h-1 border-t border-r border-slate-violet-light/50" />
-                    <div className="absolute bottom-0.5 left-0.5 w-1 h-1 border-b border-l border-slate-violet-light/50" />
-                    <div className="absolute bottom-0.5 right-0.5 w-1 h-1 border-b border-r border-slate-violet-light/50" />
-                    <motion.div 
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: var3Impulse === 'right' ? 1 : 0 }}
-                      className="absolute bottom-0 inset-x-1 h-0.5 bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)] origin-center"
-                    />
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 text-current" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="3" strokeWidth="1" strokeDasharray="2 2" />
-                      <path d="M10 8l4 4-4 4" strokeWidth="2.5" />
-                      <path d="M12 2v2M12 20v2M2 12h2M20 12h2" strokeWidth="1" opacity="0.6" />
-                    </svg>
-                  </motion.button>
+                  {/* Clickable Line Dots */}
+                  <div className="flex gap-2 items-center">
+                    {mockGames.map((_, idx) => (
+                      <motion.button
+                        key={idx}
+                        onClick={() => setVar3Index(idx)}
+                        animate={{
+                          width: var3Impulse === 'left' 
+                            ? (6 + (idx / (mockGames.length - 1)) * 8)
+                            : var3Impulse === 'right'
+                              ? (6 + ((mockGames.length - 1 - idx) / (mockGames.length - 1)) * 8)
+                              : (idx === var3Index ? 24 : 6),
+                          x: var3Impulse === 'left'
+                            ? -((mockGames.length - 1 - idx) * 2)
+                            : var3Impulse === 'right'
+                              ? (idx * 2)
+                              : 0,
+                          backgroundColor: idx === var3Index 
+                            ? '#ffffff' 
+                            : (var3Impulse ? 'var(--color-slate-violet-light)' : '#3f3f46'),
+                          opacity: idx === var3Index ? 1.0 : (var3Impulse ? [0.4, 0.9, 0.4] : 0.6)
+                        }}
+                        transition={var3Impulse === 'left' ? {
+                          x: { type: 'spring', stiffness: 380, damping: 11 },
+                          width: { type: 'spring', stiffness: 380, damping: 11 },
+                          opacity: { repeat: Infinity, duration: 1.0, delay: idx * 0.1, ease: "easeInOut" }
+                        } : var3Impulse === 'right' ? {
+                          x: { type: 'spring', stiffness: 380, damping: 11 },
+                          width: { type: 'spring', stiffness: 380, damping: 11 },
+                          opacity: { repeat: Infinity, duration: 1.0, delay: (mockGames.length - 1 - idx) * 0.1, ease: "easeInOut" }
+                        } : {
+                          type: 'spring',
+                          stiffness: 380,
+                          damping: 11
+                        }}
+                        className="h-1.5 rounded-full cursor-pointer focus:outline-none"
+                        style={{
+                          boxShadow: idx === var3Index ? '0 0 8px var(--color-slate-violet-light)' : 'none'
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Next Button */}
+                  <div className="relative flex flex-col items-center">
+                    <motion.button
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.9 }}
+                      onMouseDown={() => setVar3Impulse('right')}
+                      onMouseUp={() => setVar3Impulse(null)}
+                      onMouseLeave={() => setVar3Impulse(null)}
+                      onTouchStart={(e) => { e.preventDefault(); setVar3Impulse('right'); }}
+                      onTouchEnd={() => setVar3Impulse(null)}
+                      onClick={handleVar3NextClick}
+                      className="w-10 h-10 rounded-full border border-slate-700/50 hover:border-slate-violet-light flex items-center justify-center text-alabaster-grey hover:text-bright-snow transition-colors duration-300 focus:outline-none"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="13 17 18 12 13 7" />
+                        <polyline points="6 17 11 12 6 7" />
+                      </svg>
+                    </motion.button>
+                  </div>
                 </div>
 
                 <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/40 uppercase text-center">
-                  SQUARE CYBER BUTTONS // Tactical corner ticks & laser underlines // sliding spark emitter
+                  ACCORDION GLOW WAVE // High-frequency bouncy overshoot // Brand color gradient cascade
                 </div>
               </div>
 
