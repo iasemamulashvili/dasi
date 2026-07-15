@@ -332,7 +332,6 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [impulseState, setImpulseState] = useState<'left' | 'right' | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -364,7 +363,6 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   // Kinetic speed state management (default autoplay direction is leftwards)
   const defaultSpeed = -0.85;
   const currentSpeed = useRef(defaultSpeed);
-  const activeImpulse = useRef<'left' | 'right' | null>(null);
 
   useEffect(() => {
     setDragConstraints({
@@ -386,15 +384,8 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
     const frameFactor = delta / 16.6;
 
-    // Accumulate speed if button is held, pause if hovered, otherwise decay to baseline
-    if (activeImpulse.current === 'left') {
-      // Left arrow moves cards left-to-right (positive speed)
-      currentSpeed.current = Math.min(10, currentSpeed.current + 0.15 * frameFactor);
-    } else if (activeImpulse.current === 'right') {
-      // Right arrow moves cards right-to-left (negative speed)
-      currentSpeed.current = Math.max(-10, currentSpeed.current - 0.15 * frameFactor);
-    } else if (hoveredIdx !== null) {
-      // Smoothly stop the carousel on hover (pause autoplay)
+    // Pause on hover, otherwise decay to baseline
+    if (hoveredIdx !== null) {
       currentSpeed.current = currentSpeed.current + (0 - currentSpeed.current) * 0.08 * frameFactor;
     } else {
       currentSpeed.current = currentSpeed.current + (defaultSpeed - currentSpeed.current) * 0.035 * frameFactor;
@@ -427,32 +418,8 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     animate(hoverOffset, 0, { type: 'spring', stiffness: 100, damping: 20 });
   };
 
-  const startImpulse = (dir: 'left' | 'right') => {
-    activeImpulse.current = dir;
-    setImpulseState(dir);
-    if (dir === 'left') {
-      // Left arrow moves cards left-to-right (positive speed impulse)
-      currentSpeed.current = Math.min(10, currentSpeed.current + 2.0);
-      animate(hoverOffset, 15, { type: 'spring', stiffness: 220, damping: 12 }).then(() => {
-        animate(hoverOffset, 0, { type: 'spring', stiffness: 100, damping: 20 });
-      });
-    } else {
-      // Right arrow moves cards right-to-left (negative speed impulse)
-      currentSpeed.current = Math.max(-10, currentSpeed.current - 2.0);
-      animate(hoverOffset, -15, { type: 'spring', stiffness: 220, damping: 12 }).then(() => {
-        animate(hoverOffset, 0, { type: 'spring', stiffness: 100, damping: 20 });
-      });
-    }
-  };
-
-  const stopImpulse = () => {
-    activeImpulse.current = null;
-    setImpulseState(null);
-  };
-
   const handleDragStart = () => {
     setIsDragging(true);
-    stopImpulse();
     currentSpeed.current = defaultSpeed;
   };
 
@@ -479,7 +446,6 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   };
 
   const handleDotClick = (idx: number) => {
-    stopImpulse();
     currentSpeed.current = defaultSpeed;
     const targetX = -(games.length + idx) * spacing;
     animateTo(targetX);
@@ -526,34 +492,8 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       <div className="flex flex-col items-center justify-center gap-3 w-full mt-4 z-30 px-6">
         {/* Navigation Bar wrapper with Glassmorphism */}
         <div className="flex items-center gap-6 px-5 py-2.5 bg-carbon-black-2/40 backdrop-blur-md border border-slate-700/50 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.45)] relative">
-          {/* Prev Button (moves cards Left-to-Right / Clockwise) */}
-          {!isMobile && (
-            <div className="relative flex flex-col items-center">
-              <motion.button
-                onMouseDown={() => startImpulse('left')}
-                onMouseUp={stopImpulse}
-                onMouseLeave={stopImpulse}
-                onTouchStart={(e) => { e.preventDefault(); startImpulse('left'); }}
-                onTouchEnd={stopImpulse}
-                whileHover={{ scale: 1.15 }}
-                whileTap={{ scale: 0.9 }}
-                className="p-2 text-alabaster-grey hover:text-bright-snow transition-colors cursor-pointer flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 rounded-full"
-                title="Move Left-to-Right (Hold to Accelerate)"
-              >
-                <ChevronLeft size={16} />
-              </motion.button>
-              {impulseState === 'left' && (
-                <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)]" />
-              )}
-            </div>
-          )}
-
-          {/* Clickable Line Dots with sliding layout backdrop & elastic gap animation */}
-          <motion.div
-            animate={{ gap: impulseState ? "3px" : "8px" }}
-            transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-            className="flex items-center relative px-2"
-          >
+          {/* Clickable Line Dots with sliding layout backdrop */}
+          <div className="flex gap-2 items-center relative px-2">
             {games.map((_, idx) => (
               <button
                 key={idx}
@@ -563,21 +503,14 @@ function KineticSpinStream({ games }: { games: Game[] }) {
               >
                 <motion.div
                   animate={{
-                    width: impulseState
-                      ? (idx === activeIndex ? 26 : 6)
-                      : (idx === activeIndex ? 24 : 6),
-                    x: impulseState === 'left'
-                      ? -((games.length - 1 - idx) * 3)
-                      : impulseState === 'right'
-                        ? (idx * 3)
-                        : 0,
+                    width: idx === activeIndex ? 24 : 6,
                     backgroundColor: idx === activeIndex ? '#ffffff' : '#3f3f46',
                     opacity: idx === activeIndex ? 1.0 : 0.6
                   }}
                   transition={{
                     type: 'spring',
-                    stiffness: 80,
-                    damping: 22
+                    stiffness: 280,
+                    damping: 20
                   }}
                   className="h-1.5 rounded-full relative z-10"
                 />
@@ -585,39 +518,17 @@ function KineticSpinStream({ games }: { games: Game[] }) {
                   <motion.div
                     layoutId="magneticPillMain"
                     className="absolute inset-0 bg-slate-violet/20 border border-slate-violet-light/30 rounded-lg z-0"
-                    transition={{ type: 'spring', stiffness: 100, damping: 18 }}
+                    transition={{ type: 'spring', stiffness: 220, damping: 18 }}
                   />
                 )}
               </button>
             ))}
-          </motion.div>
-
-          {/* Next Button (moves cards Right-to-Left / Counter-Clockwise) */}
-          {!isMobile && (
-            <div className="relative flex flex-col items-center">
-              <motion.button
-                onMouseDown={() => startImpulse('right')}
-                onMouseUp={stopImpulse}
-                onMouseLeave={stopImpulse}
-                onTouchStart={(e) => { e.preventDefault(); startImpulse('right'); }}
-                onTouchEnd={stopImpulse}
-                whileHover={{ scale: 1.15 }}
-                whileTap={{ scale: 0.9 }}
-                className="p-2 text-alabaster-grey hover:text-bright-snow transition-colors cursor-pointer flex items-center justify-center select-none touch-none focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 rounded-full"
-                title="Move Right-to-Left (Hold to Accelerate)"
-              >
-                <ChevronRight size={16} />
-              </motion.button>
-              {impulseState === 'right' && (
-                <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-slate-violet-light shadow-[0_0_8px_var(--color-slate-violet-light)]" />
-              )}
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Shortened helper caption below navigation bar */}
         <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/50 uppercase select-none pointer-events-none">
-          DRAG TO SCROLL // HOLD ARROWS TO ACCELERATE
+          DRAG TO SCROLL PORTFOLIO
         </div>
       </div>
     </div>

@@ -52,92 +52,7 @@ const UPLOAD_LABELS: { [key: string]: { label: string; placeholder: string; acce
   }
 };
 
-const containerVariants = {
-  hidden: {
-    height: 0,
-    paddingTop: 0,
-    paddingBottom: 0,
-    marginTop: '-0.75rem',
-    marginBottom: '-0.75rem',
-    opacity: 0,
-    borderWidth: 0,
-    transition: {
-      height: { type: 'spring' as const, stiffness: 300, damping: 30 },
-      paddingTop: { duration: 0.2 },
-      paddingBottom: { duration: 0.2 },
-      marginTop: { duration: 0.2 },
-      marginBottom: { duration: 0.2 },
-      opacity: { duration: 0.15 },
-      borderWidth: { duration: 0.15 },
-      when: 'afterChildren',
-      staggerChildren: 0.05,
-      staggerDirection: -1
-    }
-  },
-  visible: {
-    height: 'auto',
-    paddingTop: '1rem',
-    paddingBottom: '1rem',
-    marginTop: '0rem',
-    marginBottom: '0rem',
-    opacity: 1,
-    borderWidth: 1,
-    transition: {
-      height: { type: 'spring' as const, stiffness: 300, damping: 30 },
-      paddingTop: { type: 'spring' as const, stiffness: 300, damping: 30 },
-      paddingBottom: { type: 'spring' as const, stiffness: 300, damping: 30 },
-      marginTop: { type: 'spring' as const, stiffness: 300, damping: 30 },
-      marginBottom: { type: 'spring' as const, stiffness: 300, damping: 30 },
-      opacity: { duration: 0.25 },
-      borderWidth: { duration: 0.2 },
-      staggerChildren: 0.08,
-      delayChildren: 0.05
-    }
-  },
-  exit: {
-    height: 0,
-    paddingTop: 0,
-    paddingBottom: 0,
-    marginTop: '-0.75rem',
-    marginBottom: '-0.75rem',
-    opacity: 0,
-    borderWidth: 0,
-    transition: {
-      height: { type: 'spring' as const, stiffness: 300, damping: 30 },
-      paddingTop: { duration: 0.2 },
-      paddingBottom: { duration: 0.2 },
-      marginTop: { duration: 0.2 },
-      marginBottom: { duration: 0.2 },
-      opacity: { duration: 0.15 },
-      borderWidth: { duration: 0.15 },
-      when: 'afterChildren',
-      staggerChildren: 0.05,
-      staggerDirection: -1
-    }
-  }
-};
 
-const childVariants = {
-  hidden: { opacity: 0, y: 8, scale: 0.98 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: 'spring' as const,
-      stiffness: 250,
-      damping: 25
-    }
-  },
-  exit: {
-    opacity: 0,
-    y: 6,
-    scale: 0.98,
-    transition: {
-      duration: 0.2
-    }
-  }
-};
 
 export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
   const [formData, setFormData] = useState({
@@ -369,83 +284,100 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
             </div>
 
             {/* Conditional File Uploads Grid */}
-            <AnimatePresence>
-              {uploadConfig.allowed.length > 0 && (
-                <motion.div
-                  key="upload-dropzones-container"
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  className="flex flex-col gap-4 bg-carbon-black/50 border-solid border-graphite-light/35 overflow-hidden px-4"
-                  style={{ originY: 0 }}
-                >
-                  <span className="text-[10px] font-silkscreen tracking-wider text-platinum-silver uppercase">
-                    Required Documents
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {uploadConfig.allowed.map((typeId) => {
-                      const spec = UPLOAD_LABELS[typeId] || { label: typeId.toUpperCase(), placeholder: 'Upload file', accept: '*/*' };
-                      const isRequired = uploadConfig.required.includes(typeId);
-                      const currentFile = uploadedFiles[typeId];
-                      const isUploaded = !!currentFile;
-                      
-                      return (
-                        <motion.div
-                          key={typeId}
-                          variants={childVariants}
-                          className="flex flex-col gap-1.5"
-                        >
-                          <span className="text-[9px] font-silkscreen tracking-wider text-alabaster-grey uppercase flex items-center gap-1">
-                            <span>{spec.label}</span>
-                            {isRequired && <span className="text-rose-500">*</span>}
-                          </span>
-                          <motion.label
-                            whileHover={{ scale: 1.01 }}
-                            whileTap={{ scale: 0.99 }}
-                            className={`w-full flex flex-col items-center justify-center border border-dashed rounded-none px-3 py-4 cursor-pointer transition-all duration-300 focus-within:ring-2 focus-within:ring-slate-violet-light/50 focus-within:outline-none ${
-                              isUploaded
-                                ? 'border-muted-green bg-muted-green/5 hover:border-muted-green-light hover:bg-muted-green/10'
-                                : 'border-graphite-light bg-carbon-black hover:border-platinum-silver hover:bg-carbon-black-2'
-                            }`}
+            <motion.div
+              animate={{
+                height: uploadConfig.allowed.length > 0 ? 'auto' : 0,
+                paddingTop: uploadConfig.allowed.length > 0 ? '1rem' : '0px',
+                paddingBottom: uploadConfig.allowed.length > 0 ? '1rem' : '0px',
+                marginTop: uploadConfig.allowed.length > 0 ? '0px' : '-1.5rem',
+                borderWidth: uploadConfig.allowed.length > 0 ? 1 : 0,
+                opacity: uploadConfig.allowed.length > 0 ? 1 : 0,
+              }}
+              transition={{
+                height: { type: 'spring' as const, stiffness: 220, damping: 28 },
+                opacity: { duration: 0.2 },
+                marginTop: { type: 'spring' as const, stiffness: 220, damping: 28 },
+                borderWidth: { duration: 0.15 }
+              }}
+              className="flex flex-col gap-4 bg-carbon-black/50 border-solid border-graphite-light/35 overflow-hidden px-4"
+              style={{ originY: 0 }}
+            >
+              <AnimatePresence initial={false}>
+                {uploadConfig.allowed.length > 0 && (
+                  <motion.div
+                    key="dropzones-content"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex flex-col gap-4 w-full"
+                  >
+                    <span className="text-[10px] font-silkscreen tracking-wider text-platinum-silver uppercase">
+                      Required Documents
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {uploadConfig.allowed.map((typeId) => {
+                        const spec = UPLOAD_LABELS[typeId] || { label: typeId.toUpperCase(), placeholder: 'Upload file', accept: '*/*' };
+                        const isRequired = uploadConfig.required.includes(typeId);
+                        const currentFile = uploadedFiles[typeId];
+                        const isUploaded = !!currentFile;
+                        
+                        return (
+                          <div
+                            key={typeId}
+                            className="flex flex-col gap-1.5"
                           >
-                            <Upload
-                              size={14}
-                              className={`mb-1.5 transition-colors duration-300 ${
-                                isUploaded ? 'text-muted-green' : 'text-alabaster-grey/40'
-                              }`}
-                            />
-                            <span
-                              className={`text-[10px] text-center truncate max-w-full px-2 font-light font-outfit transition-colors duration-300 ${
-                                isUploaded ? 'text-muted-green-light font-medium' : 'text-alabaster-grey'
+                            <span className="text-[9px] font-silkscreen tracking-wider text-alabaster-grey uppercase flex items-center gap-1">
+                              <span>{spec.label}</span>
+                              {isRequired && <span className="text-rose-500">*</span>}
+                            </span>
+                            <motion.label
+                              whileHover={{ scale: 1.01 }}
+                              whileTap={{ scale: 0.99 }}
+                              className={`w-full flex flex-col items-center justify-center border border-dashed rounded-none px-3 py-4 cursor-pointer transition-all duration-300 focus-within:ring-2 focus-within:ring-slate-violet-light/50 focus-within:outline-none ${
+                                isUploaded
+                                  ? 'border-muted-green bg-muted-green/5 hover:border-muted-green-light hover:bg-muted-green/10'
+                                  : 'border-graphite-light bg-carbon-black hover:border-platinum-silver hover:bg-carbon-black-2'
                               }`}
                             >
-                              {currentFile ? currentFile.name : spec.placeholder}
-                            </span>
-                            <span className="text-[8px] text-alabaster-grey/40 font-outfit mt-0.5">
-                              Allowed formats: {spec.accept}
-                            </span>
-                            <input
-                              type="file"
-                              id={`file-${typeId}`}
-                              accept={spec.accept}
-                              onChange={(e) => {
-                                if (e.target.files && e.target.files.length > 0) {
-                                  handleFileChange(typeId, e.target.files[0]);
-                                } else {
-                                  handleFileChange(typeId, null);
-                                }
-                              }}
-                              className="sr-only"
-                            />
-                          </motion.label>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                              <Upload
+                                size={14}
+                                className={`mb-1.5 transition-colors duration-300 ${
+                                  isUploaded ? 'text-muted-green' : 'text-alabaster-grey/40'
+                                }`}
+                              />
+                              <span
+                                className={`text-[10px] text-center truncate max-w-full px-2 font-light font-outfit transition-colors duration-300 ${
+                                  isUploaded ? 'text-muted-green-light font-medium' : 'text-alabaster-grey'
+                                }`}
+                              >
+                                {currentFile ? currentFile.name : spec.placeholder}
+                              </span>
+                              <span className="text-[8px] text-alabaster-grey/40 font-outfit mt-0.5">
+                                Allowed formats: {spec.accept}
+                              </span>
+                              <input
+                                type="file"
+                                id={`file-${typeId}`}
+                                accept={spec.accept}
+                                onChange={(e) => {
+                                  if (e.target.files && e.target.files.length > 0) {
+                                    handleFileChange(typeId, e.target.files[0]);
+                                  } else {
+                                    handleFileChange(typeId, null);
+                                  }
+                                }}
+                                className="sr-only"
+                              />
+                            </motion.label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
             {/* Message */}
             <div className="flex flex-col gap-1.5">

@@ -993,7 +993,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
 
             {/* Shortened HUD Target readout text (only game name) */}
             <span 
-              className="absolute top-[60px] translate-y-14 font-mono text-[7px] bg-carbon-black/95 px-2 py-0.5 border border-slate-violet-light/40 rounded text-bright-snow tracking-widest whitespace-nowrap shadow-lg shadow-black/80"
+              className="absolute top-[52px] font-mono text-[7px] bg-carbon-black/95 px-2 py-0.5 border border-slate-violet-light/40 rounded text-bright-snow tracking-widest whitespace-nowrap shadow-lg shadow-black/80"
             >
               {activeGame.title.toUpperCase()}
             </span>
@@ -1080,23 +1080,33 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
         </div>
 
         {/* Navigation Dot Indicators */}
-        <div className="absolute right-6 md:right-8 top-1/2 -translate-y-1/2 flex flex-col gap-6 z-20 pointer-events-auto">
+        <div className="absolute right-6 md:right-8 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-20 pointer-events-auto">
           {gamesData.map((game, idx) => (
             <button
               key={game.id}
               onClick={() => handleDotClick(idx)}
-              className={`group relative flex items-center justify-center w-12 h-12 rounded-full focus:outline-none cursor-pointer transition-all duration-300 ${
+              className={`group relative flex items-center justify-center w-11 h-11 rounded-full focus:outline-none cursor-pointer transition-all duration-300 ${
                 activeIndex === idx
-                  ? 'bg-carbon-black-2/65 border border-platinum-silver/80 shadow-[0_0_15px_rgba(255,255,255,0.08)] scale-110'
-                  : 'bg-carbon-black-2/35 hover:bg-carbon-black-2/50 border border-graphite-light/50 hover:border-alabaster-grey/40 shadow-md hover:scale-105'
-              } backdrop-blur-md`}
+                  ? 'bg-gradient-to-br from-carbon-black/80 to-slate-violet/25 border-2 border-slate-violet-light/75 shadow-[0_0_20px_rgba(155,100,255,0.45)] scale-110'
+                  : 'bg-carbon-black-2/30 hover:bg-carbon-black-2/55 border border-slate-700/50 hover:border-slate-violet-light/35 shadow-md hover:scale-105'
+              } backdrop-blur-lg relative overflow-hidden`}
             >
-              <span className="absolute right-full mr-4 bg-carbon-black border border-graphite-light px-3 py-1.5 rounded-lg text-[8px] font-sans text-alabaster-grey uppercase tracking-widest opacity-0 scale-75 origin-right transition-all group-hover:opacity-100 group-hover:scale-100 shadow-lg pointer-events-none">
+              {/* Corner tech marks inside active button */}
+              {activeIndex === idx && (
+                <>
+                  <div className="absolute top-1 left-1 w-1.5 h-1.5 border-t border-l border-slate-violet-light" />
+                  <div className="absolute top-1 right-1 w-1.5 h-1.5 border-t border-r border-slate-violet-light" />
+                  <div className="absolute bottom-1 left-1 w-1.5 h-1.5 border-b border-l border-slate-violet-light" />
+                  <div className="absolute bottom-1 right-1 w-1.5 h-1.5 border-b border-r border-slate-violet-light" />
+                </>
+              )}
+
+              <span className="absolute right-full mr-4 bg-carbon-black/95 border border-slate-700 px-3 py-1.5 rounded-lg text-[8px] font-silkscreen text-slate-violet-light uppercase tracking-widest opacity-0 scale-75 origin-right transition-all group-hover:opacity-100 group-hover:scale-100 shadow-2xl pointer-events-none">
                 {game.title}
               </span>
               
-              <span className={`text-[10px] font-sans ${
-                activeIndex === idx ? 'text-bright-snow scale-125 font-bold' : 'text-alabaster-grey group-hover:text-bright-snow transition-colors'
+              <span className={`text-[10px] font-silkscreen tracking-wide transition-all ${
+                activeIndex === idx ? 'text-bright-snow scale-110 font-bold' : 'text-alabaster-grey/85 group-hover:text-bright-snow'
               }`}>
                 0{idx + 1}
               </span>

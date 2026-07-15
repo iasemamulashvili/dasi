@@ -217,19 +217,19 @@ export default function Header() {
         }
         
         @keyframes sawSpinSlow {
-          from { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(0deg); }
-          to { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-360deg); }
+          from { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-35deg); }
+          to { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-395deg); }
         }
         .animate-saw-slow {
           animation: sawSpinSlow 12s linear infinite;
         }
 
         @keyframes sawSlash {
-          0% { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(0deg); opacity: 1; }
-          10% { transform: perspective(200px) rotateX(20deg) rotateY(-20deg) rotate(-45deg); }
-          30% { transform: perspective(200px) rotateX(65deg) rotateY(-5deg) rotate(-540deg); }
-          70% { transform: perspective(200px) rotateX(65deg) rotateY(-5deg) rotate(-1080deg); }
-          100% { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-1080deg); }
+          0% { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-35deg); opacity: 1; }
+          10% { transform: perspective(200px) rotateX(20deg) rotateY(-20deg) rotate(-80deg); }
+          30% { transform: perspective(200px) rotateX(65deg) rotateY(-5deg) rotate(-575deg); }
+          70% { transform: perspective(200px) rotateX(65deg) rotateY(-5deg) rotate(-1115deg); }
+          100% { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-1115deg); }
         }
         .animate-saw-slash {
           animation: sawSlash 0.45s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
