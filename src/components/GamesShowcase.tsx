@@ -99,7 +99,9 @@ function KineticCard({
   isMobile,
   trackX,
   onCardMouseMove,
-  onCardMouseLeave
+  onCardMouseLeave,
+  cardWidth,
+  cardSpacing
 }: { 
   game: Game; 
   index: number; 
@@ -109,6 +111,8 @@ function KineticCard({
   trackX: any;
   onCardMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
   onCardMouseLeave: () => void;
+  cardWidth: number;
+  cardSpacing: number;
 }) {
   const isHovered = !isMobile && hoveredIdx === index;
 
@@ -119,8 +123,6 @@ function KineticCard({
   ];
 
   // Dynamic Opacity calculation: fades cards as they approach the left/right boundaries of the screen
-  const cardSpacing = 344;
-  const cardWidth = 320;
   const cardCenterInTrack = index * cardSpacing + cardWidth / 2;
 
   const opacity = useTransform(trackX, (latestX: number) => {
@@ -129,10 +131,12 @@ function KineticCard({
     const centerX = viewportWidth / 2;
     const cardCenterInViewport = latestX + cardCenterInTrack;
     const distanceFromCenter = Math.abs(cardCenterInViewport - centerX);
-    // Smoothly drop to 0.15 opacity towards edges of 45% of viewport width
-    const maxDistance = viewportWidth * 0.45;
+    
+    // Broaden fading boundary and increase minimum opacity for mobile viewports
+    const maxDistance = isMobile ? viewportWidth * 0.75 : viewportWidth * 0.45;
     const normalized = Math.min(distanceFromCenter / maxDistance, 1);
-    return 1 - normalized * 0.85; // 1.0 at center, 0.15 at edges
+    const minOpacity = isMobile ? 0.35 : 0.15;
+    return 1 - normalized * (1 - minOpacity);
   });
 
   return (
@@ -141,7 +145,7 @@ function KineticCard({
       onMouseLeave={onCardMouseLeave}
       onMouseMove={onCardMouseMove}
       animate={{
-        width: isHovered ? 460 : 320,
+        width: isHovered ? 460 : cardWidth,
         borderColor: isHovered ? 'var(--color-platinum-silver)' : 'rgba(55, 65, 81, 0.4)'
       }}
       transition={{
@@ -150,7 +154,7 @@ function KineticCard({
         damping: 20
       }}
       style={{ opacity, willChange: 'width, transform' }}
-      className="h-[360px] bg-carbon-black-2 border border-graphite-light p-4 rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-white/5 relative group shrink-0 overflow-hidden select-none"
+      className="h-[310px] md:h-[360px] bg-carbon-black-2 border border-graphite-light p-4 rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-white/5 relative group shrink-0 overflow-hidden select-none"
     >
       <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-25" />
 
@@ -327,17 +331,11 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   const tripleGames = [...games, ...games, ...games];
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isCooldown, setIsCooldown] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const cooldownTimer = useRef<NodeJS.Timeout | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
-
-  // Standard Spacing is card width (320px) + gap (24px) = 344px
-  const spacing = 344;
-  const repeatInterval = games.length * spacing;
 
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -349,12 +347,22 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Standard Spacing: Mobile is 265px card + 16px gap, Desktop is 320px card + 24px gap
+  const cardWidth = isMobile ? 265 : 320;
+  const cardGap = isMobile ? 16 : 24;
+  const spacing = cardWidth + cardGap;
+  const repeatInterval = games.length * spacing;
+
   const trackX = useMotionValue(0);
   const hoverOffset = useMotionValue(0);
   const hoverOffsetSpring = useSpring(hoverOffset, { stiffness: 100, damping: 20 });
   
   // Combine core scroll translation with cursor hover shift
   const finalX = useTransform<number, number>([trackX, hoverOffsetSpring], (inputs) => inputs[0] + inputs[1]);
+
+  // Kinetic speed state management (default autoplay direction is leftwards)
+  const defaultSpeed = -0.85;
+  const currentSpeed = useRef(defaultSpeed);
 
   useEffect(() => {
     setDragConstraints({
@@ -371,13 +379,19 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       setActiveIndex(mappedActive);
     }
 
-    if (isDragging || hoveredIdx !== null || isCooldown) return;
+    if (isDragging) return;
 
-    const speed = 0.85 * (delta / 16.6);
-    let nextX = currentX - speed;
+    // Decay the dynamic velocity back to default autoplay speed
+    currentSpeed.current = currentSpeed.current + (defaultSpeed - currentSpeed.current) * 0.035;
 
+    const frameFactor = delta / 16.6;
+    let nextX = currentX + currentSpeed.current * frameFactor;
+
+    // Continuous loop wrapping
     if (nextX < -repeatInterval) {
       nextX += repeatInterval;
+    } else if (nextX > 0) {
+      nextX -= repeatInterval;
     }
     trackX.set(nextX);
   });
@@ -399,12 +413,12 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
   const handleDragStart = () => {
     setIsDragging(true);
-    if (cooldownTimer.current) clearTimeout(cooldownTimer.current);
+    currentSpeed.current = defaultSpeed;
   };
 
   const handleDragEnd = (e: any, info: any) => {
     setIsDragging(false);
-    setIsCooldown(true);
+    currentSpeed.current = defaultSpeed;
 
     let currentX = trackX.get();
     if (currentX < -repeatInterval) {
@@ -414,10 +428,6 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       currentX -= repeatInterval;
       trackX.set(currentX);
     }
-
-    cooldownTimer.current = setTimeout(() => {
-      setIsCooldown(false);
-    }, 4500);
   };
 
   const animateTo = (targetX: number) => {
@@ -429,54 +439,32 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   };
 
   const handleDotClick = (idx: number) => {
-    setIsCooldown(true);
-    if (cooldownTimer.current) clearTimeout(cooldownTimer.current);
-    
+    currentSpeed.current = defaultSpeed;
     const targetX = -(games.length + idx) * spacing;
     animateTo(targetX);
     setActiveIndex(idx);
-    
-    cooldownTimer.current = setTimeout(() => {
-      setIsCooldown(false);
-    }, 5000);
   };
 
   const handlePrev = () => {
-    setIsCooldown(true);
-    if (cooldownTimer.current) clearTimeout(cooldownTimer.current);
+    // Left arrow adds leftward kinetic impulse (move leftwards, negative speed)
+    // Capped at -10 max velocity
+    currentSpeed.current = Math.max(-10, currentSpeed.current - 4.5);
     
-    const currentX = trackX.get();
-    const nearestCardIdx = Math.round(currentX / spacing);
-    let targetX = (nearestCardIdx + 1) * spacing;
-    
-    if (targetX > 0) {
-      targetX -= repeatInterval;
-    }
-    
-    animateTo(targetX);
-    
-    cooldownTimer.current = setTimeout(() => {
-      setIsCooldown(false);
-    }, 5000);
+    // Quick visual spring bounce leftwards
+    animate(hoverOffset, -15, { type: 'spring', stiffness: 220, damping: 12 }).then(() => {
+      animate(hoverOffset, 0, { type: 'spring', stiffness: 100, damping: 20 });
+    });
   };
 
   const handleNext = () => {
-    setIsCooldown(true);
-    if (cooldownTimer.current) clearTimeout(cooldownTimer.current);
+    // Right arrow adds rightward kinetic impulse (move rightwards, positive speed)
+    // Capped at +10 max velocity
+    currentSpeed.current = Math.min(10, currentSpeed.current + 4.5);
     
-    const currentX = trackX.get();
-    const nearestCardIdx = Math.round(currentX / spacing);
-    let targetX = (nearestCardIdx - 1) * spacing;
-    
-    if (targetX < -repeatInterval * 2) {
-      targetX += repeatInterval;
-    }
-    
-    animateTo(targetX);
-    
-    cooldownTimer.current = setTimeout(() => {
-      setIsCooldown(false);
-    }, 5000);
+    // Quick visual spring bounce rightwards
+    animate(hoverOffset, 15, { type: 'spring', stiffness: 220, damping: 12 }).then(() => {
+      animate(hoverOffset, 0, { type: 'spring', stiffness: 100, damping: 20 });
+    });
   };
 
   return (
@@ -495,7 +483,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
           dragElastic={0.1}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
-          className="flex gap-6 w-max px-6 touch-pan-y"
+          className="flex gap-4 md:gap-6 w-max px-6 touch-pan-y"
         >
           {tripleGames.map((game, index) => (
             <KineticCard
@@ -508,6 +496,8 @@ function KineticSpinStream({ games }: { games: Game[] }) {
               trackX={trackX}
               onCardMouseMove={handleCardMouseMove}
               onCardMouseLeave={handleCardMouseLeave}
+              cardWidth={cardWidth}
+              cardSpacing={spacing}
             />
           ))}
         </motion.div>
@@ -521,7 +511,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
           <button
             onClick={handlePrev}
             className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
-            title="Previous Game"
+            title="Accelerate Left"
           >
             <ChevronLeft size={16} />
           </button>
@@ -546,7 +536,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
           <button
             onClick={handleNext}
             className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
-            title="Next Game"
+            title="Accelerate Right"
           >
             <ChevronRight size={16} />
           </button>
