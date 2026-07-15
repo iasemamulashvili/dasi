@@ -119,6 +119,23 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
 
   const uploadConfig = getUploadConfig();
 
+  const [activeUploadConfig, setActiveUploadConfig] = useState(uploadConfig);
+  const [isUploadsVisible, setIsUploadsVisible] = useState(uploadConfig.allowed.length > 0);
+
+  useEffect(() => {
+    if (uploadConfig.allowed.length > 0) {
+      setActiveUploadConfig(uploadConfig);
+      setIsUploadsVisible(true);
+    } else {
+      setIsUploadsVisible(false);
+      // Wait for collapse transition (500ms) before clearing the active configuration
+      const timer = setTimeout(() => {
+        setActiveUploadConfig(uploadConfig);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [uploadConfig]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -286,12 +303,12 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
             {/* Conditional File Uploads Grid */}
             <motion.div
               animate={{
-                height: uploadConfig.allowed.length > 0 ? 'auto' : 0,
-                paddingTop: uploadConfig.allowed.length > 0 ? '1rem' : '0px',
-                paddingBottom: uploadConfig.allowed.length > 0 ? '1rem' : '0px',
-                marginTop: uploadConfig.allowed.length > 0 ? '0px' : '-1.5rem',
-                borderWidth: uploadConfig.allowed.length > 0 ? 1 : 0,
-                opacity: uploadConfig.allowed.length > 0 ? 1 : 0,
+                height: isUploadsVisible ? 'auto' : 0,
+                paddingTop: isUploadsVisible ? '1rem' : '0px',
+                paddingBottom: isUploadsVisible ? '1rem' : '0px',
+                marginTop: isUploadsVisible ? '0px' : '-1.5rem',
+                borderWidth: isUploadsVisible ? 1 : 0,
+                opacity: isUploadsVisible ? 1 : 0,
               }}
               transition={{
                 height: { type: 'spring' as const, stiffness: 220, damping: 28 },
@@ -303,7 +320,7 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
               style={{ originY: 0 }}
             >
               <AnimatePresence initial={false}>
-                {uploadConfig.allowed.length > 0 && (
+                {activeUploadConfig.allowed.length > 0 && (
                   <motion.div
                     key="dropzones-content"
                     initial={{ opacity: 0, y: 10 }}
@@ -316,9 +333,9 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
                       Required Documents
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {uploadConfig.allowed.map((typeId) => {
+                      {activeUploadConfig.allowed.map((typeId) => {
                         const spec = UPLOAD_LABELS[typeId] || { label: typeId.toUpperCase(), placeholder: 'Upload file', accept: '*/*' };
-                        const isRequired = uploadConfig.required.includes(typeId);
+                        const isRequired = activeUploadConfig.required.includes(typeId);
                         const currentFile = uploadedFiles[typeId];
                         const isUploaded = !!currentFile;
                         

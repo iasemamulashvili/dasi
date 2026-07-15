@@ -993,7 +993,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
 
             {/* Shortened HUD Target readout text (only game name) */}
             <span 
-              className="absolute top-[52px] font-mono text-[7px] bg-carbon-black/95 px-2 py-0.5 border border-slate-violet-light/40 rounded text-bright-snow tracking-widest whitespace-nowrap shadow-lg shadow-black/80"
+              className="absolute top-[76px] font-mono text-[7px] bg-carbon-black/95 px-2 py-0.5 border border-slate-violet-light/40 rounded text-bright-snow tracking-widest whitespace-nowrap shadow-lg shadow-black/80"
             >
               {activeGame.title.toUpperCase()}
             </span>

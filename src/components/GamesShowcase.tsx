@@ -460,31 +460,33 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
       {/* Drag Track Container */}
       <div className="w-full overflow-hidden py-4 cursor-grab active:cursor-grabbing">
-        <motion.div
-          ref={trackRef}
-          drag="x"
-          style={{ x: finalX }}
-          dragConstraints={dragConstraints}
-          dragElastic={0.1}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          className="flex gap-4 md:gap-6 w-max px-6 touch-pan-y"
-        >
-          {tripleGames.map((game, index) => (
-            <KineticCard
-              key={`${game.id}-kinetic-${index}`}
-              game={game}
-              index={index}
-              hoveredIdx={hoveredIdx}
-              setHoveredIdx={setHoveredIdx}
-              isMobile={isMobile}
-              trackX={trackX}
-              onCardMouseMove={handleCardMouseMove}
-              onCardMouseLeave={handleCardMouseLeave}
-              cardWidth={cardWidth}
-              cardSpacing={spacing}
-            />
-          ))}
+        <motion.div style={{ x: hoverOffsetSpring }}>
+          <motion.div
+            ref={trackRef}
+            drag="x"
+            style={{ x: trackX }}
+            dragConstraints={dragConstraints}
+            dragElastic={0.1}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            className="flex gap-4 md:gap-6 w-max px-6 touch-pan-y"
+          >
+            {tripleGames.map((game, index) => (
+              <KineticCard
+                key={`${game.id}-kinetic-${index}`}
+                game={game}
+                index={index}
+                hoveredIdx={hoveredIdx}
+                setHoveredIdx={setHoveredIdx}
+                isMobile={isMobile}
+                trackX={trackX}
+                onCardMouseMove={handleCardMouseMove}
+                onCardMouseLeave={handleCardMouseLeave}
+                cardWidth={cardWidth}
+                cardSpacing={spacing}
+              />
+            ))}
+          </motion.div>
         </motion.div>
       </div>
 
@@ -492,13 +494,13 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       <div className="flex flex-col items-center justify-center gap-3 w-full mt-4 z-30 px-6">
         {/* Navigation Bar wrapper with Glassmorphism */}
         <div className="flex items-center gap-6 px-5 py-2.5 bg-carbon-black-2/40 backdrop-blur-md border border-slate-700/50 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.45)] relative">
-          {/* Clickable Line Dots with sliding layout backdrop */}
+          {/* Clickable Line Dots */}
           <div className="flex gap-2 items-center relative px-2">
             {games.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => handleDotClick(idx)}
-                className="relative py-2 focus:outline-none"
+                className="relative py-2 focus:outline-none cursor-pointer"
                 title={`Go to game ${idx + 1}`}
               >
                 <motion.div
@@ -514,13 +516,6 @@ function KineticSpinStream({ games }: { games: Game[] }) {
                   }}
                   className="h-1.5 rounded-full relative z-10"
                 />
-                {idx === activeIndex && (
-                  <motion.div
-                    layoutId="magneticPillMain"
-                    className="absolute inset-0 bg-slate-violet/20 border border-slate-violet-light/30 rounded-lg z-0"
-                    transition={{ type: 'spring', stiffness: 220, damping: 18 }}
-                  />
-                )}
               </button>
             ))}
           </div>
