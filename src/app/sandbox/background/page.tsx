@@ -6,17 +6,18 @@ import Careers from "@/components/Careers";
 import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
 import BackgroundGrid from "@/components/BackgroundGrid";
-import { getGames, getJobs } from "@/utils/db";
+import { getGames, getJobs, getSettings } from "@/utils/db";
 import styles from "./SandboxBackground.module.css";
 
 // Force dynamic so that database edits are read live, matching the homepage behavior
 export const dynamic = 'force-dynamic';
 
 export default async function SandboxBackgroundPage() {
-  // Fetch games and jobs from the database in parallel, exactly like the homepage
-  const [games, jobs] = await Promise.all([
+  // Fetch games, jobs, and settings from the database in parallel
+  const [games, jobs, settings] = await Promise.all([
     getGames(),
-    getJobs()
+    getJobs(),
+    getSettings()
   ]);
 
   return (
@@ -31,7 +32,7 @@ export default async function SandboxBackgroundPage() {
           <GamesShowcase initialGames={games} />
           <About />
           <Careers initialJobs={jobs} />
-          <ContactForm />
+          <ContactForm jobs={jobs} settings={settings} />
         </main>
         <Footer />
       </div>

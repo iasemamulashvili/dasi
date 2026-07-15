@@ -46,11 +46,11 @@ export default async function Home() {
       <Header />
       <main className="flex-1">
         <Hero />
-        <WebGLFeaturedSlider featuredGames={featuredGames} />
+        <WebGLFeaturedSlider featuredGames={featuredGames} showStatsBox={settings.showStatsBox} />
         <GamesShowcase initialGames={remainingGames} />
         <About />
         <Careers initialJobs={jobs} />
-        <ContactForm />
+        <ContactForm jobs={jobs} settings={settings} />
       </main>
       <Footer />
     </>

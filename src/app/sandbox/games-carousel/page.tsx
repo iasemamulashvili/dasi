@@ -212,8 +212,27 @@ const mockGames: Game[] = [
   }
 ];
 
+const FACTS_MOCK = [
+  { value: "5M+ Downloads", title: "Worldwide Impact", desc: "A colossal player base downloading and playing our original titles across Google Play and App Store." },
+  { value: "99.9% Uptime", title: "Backend Scalability", desc: "Robust and resilient gaming servers ensuring smooth multiplayer connectivity and real-time operations." },
+  { value: "3 Studios", title: "Global Cooperative", desc: "Collaborating teams across Yerevan and Tbilisi design pipelines, creating premium gaming products." },
+  { value: "4.8 Star Rating", title: "Player Satisfaction", desc: "Top-notch user reviews testifying to our deep commitment to gameplay feel, aesthetics, and user fun." }
+];
+
 export default function GamesCarouselSandbox() {
   const [activeTab, setActiveTab] = useState<'kinetic' | 'glide' | 'scrub'>('kinetic');
+  const [activeCursorType, setActiveCursorType] = useState<'classic' | 'cyberpunk' | 'minimal' | null>(null);
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+  const [factsLayout, setFactsLayout] = useState<'grid' | 'timeline' | 'spotlight'>('grid');
+  const [mockNavIndex, setMockNavIndex] = useState(0);
+
+  const handleCursorAreaMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setCursorPos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+  };
 
   return (
     <div className="min-h-screen bg-carbon-black text-alabaster-grey relative overflow-x-hidden select-none">
@@ -352,6 +371,296 @@ export default function GamesCarouselSandbox() {
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+
+        {/* Horizontal Separator */}
+        <hr className="border-graphite-light/25 my-12" />
+
+        {/* SANDBOX EXTENSIONS SHOWCASE SECTION */}
+        <div className="flex flex-col gap-12 pb-24">
+          
+          {/* Extension 1: 3 Buzzsaw Cursor Variations */}
+          <div className="flex flex-col gap-5">
+            <div>
+              <h2 className="text-xl font-bold tracking-wider font-russo-one text-bright-snow uppercase">
+                1. Buzzsaw Cursor Variations
+              </h2>
+              <p className="text-xs text-alabaster-grey/60 mt-1 uppercase tracking-wider">
+                Hover over the cards below to preview different industrial and cyberpunk custom cursors
+              </p>
+            </div>
+
+            <div 
+              onMouseMove={handleCursorAreaMouseMove}
+              onMouseLeave={() => setActiveCursorType(null)}
+              className={`grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl relative ${activeCursorType ? 'cursor-none' : ''}`}
+            >
+              {/* Custom Cursor Overlay */}
+              {activeCursorType && (
+                <div 
+                  className="absolute pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2"
+                  style={{ left: cursorPos.x, top: cursorPos.y }}
+                >
+                  {activeCursorType === 'classic' && (
+                    <svg viewBox="0 0 100 100" className="w-12 h-12 animate-spin text-platinum-silver" style={{ animationDuration: '0.6s' }}>
+                      <circle cx="50" cy="50" r="10" fill="currentColor" />
+                      <path d="M50 20 L53 30 L63 23 L61 34 L73 31 L67 40 L78 42 L69 49 L77 54 L67 57 L73 66 L61 64 L63 75 L53 68 L50 78 L47 68 L37 75 L39 64 L27 66 L33 57 L23 54 L31 49 L22 42 L33 40 L27 31 L39 34 L37 23 L47 30 Z" fill="none" stroke="currentColor" strokeWidth="4" />
+                    </svg>
+                  )}
+                  {activeCursorType === 'cyberpunk' && (
+                    <svg viewBox="0 0 100 100" className="w-14 h-14 animate-spin" style={{ animationDuration: '0.3s' }}>
+                      <defs>
+                        <radialGradient id="plasmaGlow" cx="50%" cy="50%" r="50%">
+                          <stop offset="0%" stopColor="#00ffff" stopOpacity="0.9" />
+                          <stop offset="50%" stopColor="#a855f7" stopOpacity="0.6" />
+                          <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
+                        </radialGradient>
+                      </defs>
+                      <circle cx="50" cy="50" r="40" fill="url(#plasmaGlow)" className="blur-[1px]" />
+                      <circle cx="50" cy="50" r="24" fill="none" stroke="#00ffff" strokeWidth="2.5" strokeDasharray="6 12" />
+                      <circle cx="50" cy="50" r="32" fill="none" stroke="#a855f7" strokeWidth="1.5" strokeDasharray="18 8" />
+                      <path d="M50 10 L54 22 M50 90 L46 78 M10 50 L22 54 M90 50 L78 46" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+                    </svg>
+                  )}
+                  {activeCursorType === 'minimal' && (
+                    <svg viewBox="0 0 100 100" className="w-10 h-10 relative">
+                      <circle cx="50" cy="50" r="32" fill="none" stroke="#e4e4e7" strokeWidth="2.5" strokeDasharray="30 20" className="animate-spin" style={{ animationDuration: '1.2s' }} />
+                      <circle cx="50" cy="50" r="22" fill="none" stroke="#a1a1aa" strokeWidth="1.5" strokeDasharray="10 25" className="animate-spin" style={{ animationDuration: '0.8s', animationDirection: 'reverse' }} />
+                      <circle cx="50" cy="50" r="12" fill="none" stroke="#ffffff" strokeWidth="3" strokeDasharray="4 8" className="animate-spin" style={{ animationDuration: '0.5s' }} />
+                    </svg>
+                  )}
+                </div>
+              )}
+
+              {/* Card 1: Classic Saw */}
+              <div 
+                onMouseEnter={() => setActiveCursorType('classic')}
+                className="p-8 bg-carbon-black border border-graphite-light hover:border-platinum-silver/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
+              >
+                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-platinum-silver transition-all duration-300">
+                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                    <circle cx="50" cy="50" r="10" fill="currentColor" />
+                    <path d="M50 20 L53 30 L63 23 L61 34 L73 31 L67 40 L78 42 L69 49 L77 54 L67 57 L73 66 L61 64 L63 75 L53 68 L50 78 L47 68 L37 75 L39 64 L27 66 L33 57 L23 54 L31 49 L22 42 L33 40 L27 31 L39 34 L37 23 L47 30 Z" fill="none" stroke="currentColor" strokeWidth="4" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-bright-snow font-russo-one uppercase tracking-wider">Classic Industrial Saw</h3>
+                  <p className="text-[10px] text-alabaster-grey/60 mt-1 uppercase font-mono">Metallic grey / Fast spin</p>
+                </div>
+              </div>
+
+              {/* Card 2: Cyberpunk Plasma Saw */}
+              <div 
+                onMouseEnter={() => setActiveCursorType('cyberpunk')}
+                className="p-8 bg-carbon-black border border-graphite-light hover:border-slate-violet/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
+              >
+                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-slate-violet-light transition-all duration-300">
+                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                    <circle cx="50" cy="50" r="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="6 12" />
+                    <circle cx="50" cy="50" r="32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18 8" />
+                    <path d="M50 10 L54 22 M50 90 L46 78 M10 50 L22 54 M90 50 L78 46" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-bright-snow font-russo-one uppercase tracking-wider">Cyberpunk Plasma Saw</h3>
+                  <p className="text-[10px] text-alabaster-grey/60 mt-1 uppercase font-mono">Cyan-Violet / Glow trail</p>
+                </div>
+              </div>
+
+              {/* Card 3: Minimal Tech Segmented Disc */}
+              <div 
+                onMouseEnter={() => setActiveCursorType('minimal')}
+                className="p-8 bg-carbon-black border border-graphite-light hover:border-bright-snow/20 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
+              >
+                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-bright-snow transition-all duration-300">
+                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                    <circle cx="50" cy="50" r="32" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="30 20" />
+                    <circle cx="50" cy="50" r="22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="10 25" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-bright-snow font-russo-one uppercase tracking-wider">Minimal Tech Disc</h3>
+                  <p className="text-[10px] text-alabaster-grey/60 mt-1 uppercase font-mono">Concentric / Split segments</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Extension 2: 3 Layout Options for 4-Facts */}
+          <div className="flex flex-col gap-5 mt-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold tracking-wider font-russo-one text-bright-snow uppercase">
+                  2. 4-Facts Layout Variations
+                </h2>
+                <p className="text-xs text-alabaster-grey/60 mt-1 uppercase tracking-wider">
+                  Test three layout alignments for the key facts highlight matrix
+                </p>
+              </div>
+
+              {/* Layout Switcher Buttons */}
+              <div className="flex items-center bg-carbon-black border border-graphite-light p-1 rounded-xl gap-1 shrink-0">
+                {(['grid', 'timeline', 'spotlight'] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setFactsLayout(mode)}
+                    className={`px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase rounded-lg transition-all cursor-pointer ${
+                      factsLayout === mode
+                        ? 'bg-slate-violet text-bright-snow'
+                        : 'text-alabaster-grey/50 hover:text-bright-snow hover:bg-graphite/40'
+                    }`}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Layout Rendering Area */}
+            <div className="p-8 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl min-h-[300px] flex items-center justify-center">
+              
+              {/* Option A: Symmetrical 2x2 Grid */}
+              {factsLayout === 'grid' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-3xl">
+                  {FACTS_MOCK.map((fact, idx) => (
+                    <div key={idx} className="p-6 bg-carbon-black border border-graphite-light rounded-xl hover:border-slate-violet/40 transition-colors duration-300">
+                      <div className="text-2xl font-bold text-bright-snow font-russo-one">{fact.value}</div>
+                      <div className="text-xs font-silkscreen text-slate-violet-light mt-1.5 uppercase tracking-wider">{fact.title}</div>
+                      <p className="text-xs text-alabaster-grey/60 mt-2 font-outfit font-light">{fact.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Option B: Chronological Timeline Flow */}
+              {factsLayout === 'timeline' && (
+                <div className="flex flex-col md:flex-row items-stretch justify-between gap-6 w-full max-w-4xl relative">
+                  {/* Timeline track line connecting items */}
+                  <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-graphite-light/30 -translate-y-1/2 hidden md:block z-0" />
+                  
+                  {FACTS_MOCK.map((fact, idx) => (
+                    <div key={idx} className="flex-1 bg-carbon-black border border-graphite-light p-5 rounded-xl flex flex-col gap-3 relative z-10 hover:border-slate-violet/40 transition-colors duration-300">
+                      <div className="w-8 h-8 rounded-full bg-slate-violet text-bright-snow font-bold flex items-center justify-center text-xs border-2 border-carbon-black shadow-lg">
+                        {idx + 1}
+                      </div>
+                      <div>
+                        <div className="text-xl font-bold text-bright-snow font-russo-one">{fact.value}</div>
+                        <div className="text-[10px] font-silkscreen text-slate-violet-light mt-1 uppercase tracking-wider">{fact.title}</div>
+                        <p className="text-xs text-alabaster-grey/60 mt-2 font-outfit font-light">{fact.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Option C: Asymmetrical Spotlight Layout */}
+              {factsLayout === 'spotlight' && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
+                  {/* Large Spotlight Card */}
+                  <div className="md:col-span-1 p-8 bg-gradient-to-br from-carbon-black to-slate-violet/10 border-2 border-slate-violet rounded-xl flex flex-col justify-between min-h-[260px] shadow-lg shadow-slate-violet/10">
+                    <span className="text-[9px] font-silkscreen text-slate-violet-light tracking-widest uppercase">Global Spotlight</span>
+                    <div>
+                      <div className="text-4xl font-bold text-bright-snow font-russo-one">{FACTS_MOCK[0].value}</div>
+                      <div className="text-xs font-silkscreen text-slate-violet-light mt-2 uppercase tracking-wider">{FACTS_MOCK[0].title}</div>
+                    </div>
+                    <p className="text-xs text-alabaster-grey/70 font-outfit leading-relaxed font-light mt-4">{FACTS_MOCK[0].desc}</p>
+                  </div>
+
+                  {/* Standard cards stacked on side */}
+                  <div className="md:col-span-2 flex flex-col gap-4">
+                    {FACTS_MOCK.slice(1).map((fact, idx) => (
+                      <div key={idx} className="p-5 bg-carbon-black border border-graphite-light rounded-xl hover:border-slate-violet/30 transition-all flex items-start gap-4">
+                        <div className="p-3 bg-carbon-black-2 border border-graphite-light rounded-lg text-slate-violet-light shrink-0">
+                          <Sparkles size={16} />
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-bright-snow font-russo-one">{fact.value}</div>
+                          <div className="text-[10px] font-silkscreen text-slate-violet-light uppercase tracking-wider">{fact.title}</div>
+                          <p className="text-xs text-alabaster-grey/60 mt-1 font-outfit font-light">{fact.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+
+          {/* Extension 3: Centered Carousel Navigation Block */}
+          <div className="flex flex-col gap-5 mt-4">
+            <div>
+              <h2 className="text-xl font-bold tracking-wider font-russo-one text-bright-snow uppercase">
+                3. Centered Carousel Navigation Showcase
+              </h2>
+              <p className="text-xs text-alabaster-grey/60 mt-1 uppercase tracking-wider">
+                Isolated showcase of the redesigned glassmorphic carousel control console
+              </p>
+            </div>
+
+            <div className="p-8 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl flex flex-col items-center justify-center gap-6">
+              
+              {/* Mock Carousel Slide indicator viewport */}
+              <div className="w-full max-w-sm h-28 bg-carbon-black border border-graphite-light/60 rounded-xl relative overflow-hidden flex items-center justify-center p-4">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={mockNavIndex}
+                    initial={{ opacity: 0, scale: 0.9, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, x: -20 }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                    className="flex flex-col items-center text-center gap-1.5"
+                  >
+                    <span className="text-[9px] font-mono text-slate-violet-light tracking-widest uppercase">Carousel Active Slot {mockNavIndex + 1}</span>
+                    <span className="text-sm font-bold text-bright-snow uppercase font-russo-one">{mockGames[mockNavIndex % mockGames.length]?.title}</span>
+                    <span className="text-[10px] text-alabaster-grey/50 max-w-[240px] truncate">{mockGames[mockNavIndex % mockGames.length]?.description}</span>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {/* Centered Navigation Controls Pill with Glassmorphism */}
+              <div className="flex items-center gap-6 px-5 py-2.5 bg-carbon-black-2/50 backdrop-blur-md border border-graphite-light/50 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.45)]">
+                {/* Prev Button */}
+                <button
+                  onClick={() => setMockNavIndex((prev) => (prev - 1 + mockGames.length) % mockGames.length)}
+                  className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+                  title="Previous Slide"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+
+                {/* Clickable Line Dots */}
+                <div className="flex gap-2 items-center">
+                  {mockGames.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setMockNavIndex(idx)}
+                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                        idx === mockNavIndex
+                          ? 'w-6 bg-platinum-silver shadow-[0_0_8px_var(--color-platinum-silver)]'
+                          : 'w-1.5 bg-graphite-light/60 hover:bg-alabaster-grey/50'
+                      }`}
+                      title={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={() => setMockNavIndex((prev) => (prev + 1) % mockGames.length)}
+                  className="p-2 text-alabaster-grey hover:text-bright-snow hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+                  title="Next Slide"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+
+              <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/40 uppercase">
+                Redesigned dot active indicator glows with box-shadow settings
+              </div>
+            </div>
+          </div>
+
         </div>
       </main>
     </div>

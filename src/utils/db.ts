@@ -48,6 +48,13 @@ export interface FeaturedGameSelection {
 export interface Settings {
   contactEmail: string;
   featuredGames?: FeaturedGameSelection[];
+  showStatsBox?: boolean;
+  uploadRequirements?: {
+    [subjectKey: string]: {
+      allowed: string[];
+      required: string[];
+    };
+  };
 }
 
 // Memory cache for serverless environments when DB env is not fully configured yet

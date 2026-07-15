@@ -9,15 +9,46 @@ export async function POST(request: Request) {
     const email = data.get('email') as string;
     const subject = data.get('subject') as string;
     const message = data.get('message') as string;
-    const file = data.get('file') as File | null;
+    // Collect all attachments from form data
+    const attachments = [];
+    const legacyFile = data.get('file') as File | null;
+    if (legacyFile) {
+      const arrayBuffer = await legacyFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      attachments.push({
+        filename: legacyFile.name,
+        content: buffer,
+      });
+    }
+
+    // Dynamic multi-uploads
+    const uploadLabels: { [key: string]: string } = {
+      cv: 'CV',
+      portfolio: 'Portfolio',
+      art3d: '3D_Art',
+      pitchdeck: 'Pitch_Deck'
+    };
+
+    for (const [key, value] of data.entries()) {
+      if (key.startsWith('file_') && value instanceof File && value.size > 0) {
+        const arrayBuffer = await value.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const typeKey = key.replace('file_', '');
+        const fileLabel = uploadLabels[typeKey] || typeKey.toUpperCase();
+        attachments.push({
+          filename: `${fileLabel}_${value.name}`,
+          content: buffer,
+        });
+      }
+    }
 
     console.log('Contact form submission received:', {
       name,
       email,
       subject,
       message,
-      fileAttached: file ? file.name : 'none',
-      fileSize: file ? `${(file.size / 1024).toFixed(1)} KB` : '0 KB',
+      attachmentsCount: attachments.length,
+      attachedFiles: attachments.map(a => a.filename).join(', ') || 'none'
     });
 
     const resendApiKey = process.env.RESEND_API_KEY;
@@ -26,16 +57,6 @@ export async function POST(request: Request) {
 
     if (resendApiKey) {
       const resend = new Resend(resendApiKey);
-      const attachments = [];
-
-      if (file) {
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        attachments.push({
-          filename: file.name,
-          content: buffer,
-        });
-      }
 
       // Send the email
       await resend.emails.send({

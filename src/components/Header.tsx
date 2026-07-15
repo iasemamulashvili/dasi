@@ -398,9 +398,9 @@ export default function Header() {
             isSlashing ? 'animate-arcade-swing' : ''
           }`}
           style={{
-            left: `${mousePos.x - 22}px`,
-            top: `${mousePos.y - 22}px`,
-            transformOrigin: '22px 22px',
+            left: `${mousePos.x}px`,
+            top: `${mousePos.y}px`,
+            transformOrigin: '33px 33px',
             transition: isSlashing ? 'none' : 'transform 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
           }}
         >

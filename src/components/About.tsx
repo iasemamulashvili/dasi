@@ -92,48 +92,54 @@ export default function About() {
         {/* Studio Stat Badges */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mb-16 z-10">
           {/* Card 1: 100+ Games */}
-          <div className="flex flex-col items-center justify-center p-8 inset-pixel-card inset-pixel-card-interactive text-center about-fade-in transition-all group">
-            <div className="p-4 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver mb-4">
+          <div className="flex flex-col items-center justify-center p-8 inset-pixel-card text-center about-fade-in transition-all duration-500 ease-out group hover:border-slate-violet-light/30">
+            <div className="p-4 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver mb-4 transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105">
               <Rocket size={28} />
             </div>
-            <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one">
-              <span className="sr-only">100+</span>
-              <span aria-hidden="true">
-                <span ref={count1Ref}>100</span>+
-              </span>
-            </p>
-            <p className="text-xs font-silkscreen tracking-wider text-alabaster-grey mt-2.5 uppercase">
-              Released Games
-            </p>
+            <div className="transition-transform duration-500 ease-out group-hover:translate-y-1">
+              <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one">
+                <span className="sr-only">100+</span>
+                <span aria-hidden="true">
+                  <span ref={count1Ref}>100</span>+
+                </span>
+              </p>
+              <p className="text-xs font-silkscreen tracking-wider text-alabaster-grey mt-2.5 uppercase">
+                Released Games
+              </p>
+            </div>
           </div>
 
           {/* Card 2: Based in Tbilisi */}
-          <div className="flex flex-col items-center justify-center p-8 inset-pixel-card inset-pixel-card-interactive text-center about-fade-in transition-all group">
-            <div className="p-4 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver mb-4">
+          <div className="flex flex-col items-center justify-center p-8 inset-pixel-card text-center about-fade-in transition-all duration-500 ease-out group hover:border-slate-violet-light/30">
+            <div className="p-4 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver mb-4 transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105">
               <MapPin size={28} />
             </div>
-            <p className="text-3xl md:text-4xl font-normal text-bright-snow tracking-tight uppercase font-russo-one">
-              Tbilisi
-            </p>
-            <p className="text-xs font-silkscreen tracking-wider text-alabaster-grey mt-2.5 uppercase">
-              Based in Georgia
-            </p>
+            <div className="transition-transform duration-500 ease-out group-hover:translate-y-1">
+              <p className="text-3xl md:text-4xl font-normal text-bright-snow tracking-tight uppercase font-russo-one">
+                Tbilisi
+              </p>
+              <p className="text-xs font-silkscreen tracking-wider text-alabaster-grey mt-2.5 uppercase">
+                Based in Georgia
+              </p>
+            </div>
           </div>
 
           {/* Card 3: Founded 2021 */}
-          <div className="flex flex-col items-center justify-center p-8 inset-pixel-card inset-pixel-card-interactive text-center about-fade-in transition-all group">
-            <div className="p-4 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver mb-4">
+          <div className="flex flex-col items-center justify-center p-8 inset-pixel-card text-center about-fade-in transition-all duration-500 ease-out group hover:border-slate-violet-light/30">
+            <div className="p-4 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver mb-4 transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105">
               <Sparkles size={28} />
             </div>
-            <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one">
-              <span className="sr-only">2021</span>
-              <span aria-hidden="true">
-                <span ref={count2Ref}>2021</span>
-              </span>
-            </p>
-            <p className="text-xs font-silkscreen tracking-wider text-alabaster-grey mt-2.5 uppercase">
-              Founded Year
-            </p>
+            <div className="transition-transform duration-500 ease-out group-hover:translate-y-1">
+              <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one">
+                <span className="sr-only">2021</span>
+                <span aria-hidden="true">
+                  <span ref={count2Ref}>2021</span>
+                </span>
+              </p>
+              <p className="text-xs font-silkscreen tracking-wider text-alabaster-grey mt-2.5 uppercase">
+                Founded Year
+              </p>
+            </div>
           </div>
         </div>
 

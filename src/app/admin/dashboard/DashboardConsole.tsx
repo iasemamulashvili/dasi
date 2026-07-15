@@ -43,6 +43,13 @@ const PlayStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) =>
   </svg>
 );
 
+const UPLOAD_TYPES = [
+  { id: 'cv', label: 'CV / Resume' },
+  { id: 'portfolio', label: 'Portfolio Document' },
+  { id: 'art3d', label: '3D Artwork / Demo' },
+  { id: 'pitchdeck', label: 'Pitch Deck / GDD' }
+];
+
 interface ConsoleProps {
   games: Game[];
   jobs: Job[];
@@ -214,6 +221,43 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
   const showMessage = (text: string, type: 'success' | 'error') => {
     setMessage({ text, type });
     setTimeout(() => setMessage(null), 5000);
+  };
+
+  const handleCheckboxChange = (category: string, type: 'allowed' | 'required', fieldId: string, checked: boolean) => {
+    setSettingsForm((prev) => {
+      const uploadRequirements = { ...(prev.uploadRequirements || {}) };
+      const config = { ...(uploadRequirements[category] || { allowed: [], required: [] }) };
+      
+      if (type === 'allowed') {
+        const allowed = [...config.allowed];
+        if (checked) {
+          if (!allowed.includes(fieldId)) allowed.push(fieldId);
+        } else {
+          const idx = allowed.indexOf(fieldId);
+          if (idx > -1) allowed.splice(idx, 1);
+          // If allowed becomes false, it cannot be required either
+          const reqIdx = config.required.indexOf(fieldId);
+          if (reqIdx > -1) {
+            const required = [...config.required];
+            required.splice(reqIdx, 1);
+            config.required = required;
+          }
+        }
+        config.allowed = allowed;
+      } else {
+        const required = [...config.required];
+        if (checked) {
+          if (!required.includes(fieldId)) required.push(fieldId);
+        } else {
+          const idx = required.indexOf(fieldId);
+          if (idx > -1) required.splice(idx, 1);
+        }
+        config.required = required;
+      }
+      
+      uploadRequirements[category] = config;
+      return { ...prev, uploadRequirements };
+    });
   };
 
   const handleSaveSettings = async () => {
@@ -861,28 +905,119 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
         )}
 
         {/* Tab Content: Settings */}
-        {activeTab === 'settings' && (
-          <div className="bg-carbon-black-2 border border-graphite-light p-6 rounded-2xl max-w-lg">
-            <h3 className="text-base font-semibold text-bright-snow mb-4">Contact Form Configuration</h3>
-            <div className="flex flex-col gap-2 mb-4">
-              <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">Destination Email</label>
-              <input 
-                type="email" 
-                value={settingsForm.contactEmail} 
-                onChange={(e) => setSettingsForm({ contactEmail: e.target.value })}
-                className="px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow focus:outline-none focus:border-slate-violet-light"
-                placeholder="info@dasigames.com"
-              />
+        {activeTab === 'settings' && (() => {
+          const categoriesList = [
+            'General Inquiry',
+            'Business Partnership',
+            'Job Application - Other',
+            ...jobs.map((j) => `Job Application - ${j.title}`)
+          ];
+          return (
+            <div className="bg-carbon-black-2 border border-graphite-light p-6 rounded-2xl max-w-xl">
+              <h3 className="text-base font-semibold text-bright-snow mb-4">Contact Form Configuration</h3>
+              
+              {/* Destination Email */}
+              <div className="flex flex-col gap-2 mb-4">
+                <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">Destination Email</label>
+                <input 
+                  type="email" 
+                  value={settingsForm.contactEmail} 
+                  onChange={(e) => setSettingsForm({ ...settingsForm, contactEmail: e.target.value })}
+                  className="px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                  placeholder="info@dasigames.com"
+                />
+              </div>
+
+              {/* Toggle showStatsBox */}
+              <div className="flex items-center gap-3 mb-6 bg-carbon-black border border-graphite-light/50 p-4 rounded-xl">
+                <input
+                  type="checkbox"
+                  id="showStatsBox"
+                  checked={!!settingsForm.showStatsBox}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, showStatsBox: e.target.checked })}
+                  className="w-4 h-4 rounded bg-carbon-black-2 border-graphite-light text-slate-violet focus:ring-slate-violet cursor-pointer"
+                />
+                <div className="flex flex-col animate-none">
+                  <label htmlFor="showStatsBox" className="text-xs font-bold text-bright-snow uppercase cursor-pointer">
+                    Show Specs HUD Stats Box
+                  </label>
+                  <span className="text-[10px] text-alabaster-grey/60 uppercase mt-0.5">
+                    Toggle whether statistics cards are displayed on the WebGL displacement slider
+                  </span>
+                </div>
+              </div>
+
+              {/* Conditional Multi-Uploads Configuration */}
+              <div className="flex flex-col gap-4 mt-6">
+                <h4 className="text-sm font-semibold text-bright-snow uppercase font-russo-one">File Upload Configuration</h4>
+                <p className="text-xs text-alabaster-grey/60 uppercase tracking-wide">Select allowed and required file uploads per contact category</p>
+                
+                <div className="flex flex-col gap-4 max-h-[380px] overflow-y-auto pr-2 scrollbar-thin">
+                  {categoriesList.map((catName) => {
+                    const config = settingsForm.uploadRequirements?.[catName] || { allowed: [], required: [] };
+                    return (
+                      <div key={catName} className="p-4 bg-carbon-black border border-graphite-light/50 rounded-xl flex flex-col gap-3">
+                        <div className="text-xs font-bold text-bright-snow uppercase">{catName}</div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Allowed Uploads */}
+                          <div className="flex flex-col gap-1.5">
+                            <span className="text-[10px] font-bold text-alabaster-grey/50 uppercase">Allowed Files</span>
+                            {UPLOAD_TYPES.map((type) => {
+                              const isAllowed = config.allowed.includes(type.id);
+                              return (
+                                <label key={type.id} className="flex items-center gap-2 text-xs text-alabaster-grey cursor-pointer hover:text-bright-snow transition-colors">
+                                  <input
+                                    type="checkbox"
+                                    checked={isAllowed}
+                                    onChange={(e) => handleCheckboxChange(catName, 'allowed', type.id, e.target.checked)}
+                                    className="rounded bg-carbon-black-2 border-graphite-light text-slate-violet focus:ring-slate-violet"
+                                  />
+                                  <span>{type.label}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+
+                          {/* Required Uploads */}
+                          <div className="flex flex-col gap-1.5">
+                            <span className="text-[10px] font-bold text-alabaster-grey/50 uppercase">Required Files</span>
+                            {UPLOAD_TYPES.map((type) => {
+                              const isAllowed = config.allowed.includes(type.id);
+                              const isRequired = config.required.includes(type.id);
+                              return (
+                                <label key={type.id} className={`flex items-center gap-2 text-xs transition-colors ${isAllowed ? 'text-alabaster-grey cursor-pointer hover:text-bright-snow' : 'text-alabaster-grey/30 pointer-events-none'}`}>
+                                  <input
+                                    type="checkbox"
+                                    checked={isRequired && isAllowed}
+                                    disabled={!isAllowed}
+                                    onChange={(e) => handleCheckboxChange(catName, 'required', type.id, e.target.checked)}
+                                    className="rounded bg-carbon-black-2 border-graphite-light text-slate-violet focus:ring-slate-violet disabled:opacity-30"
+                                  />
+                                  <span>{type.label}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-6 border-t border-graphite-light/20 pt-4 flex justify-end">
+                <button 
+                  onClick={handleSaveSettings} 
+                  disabled={isSavingSettings}
+                  className="bg-slate-violet hover:bg-slate-violet-light text-bright-snow font-semibold px-5 py-2.5 rounded-xl transition-all text-xs cursor-pointer disabled:opacity-50"
+                >
+                  {isSavingSettings ? 'SAVING...' : 'SAVE SETTINGS'}
+                </button>
+              </div>
             </div>
-            <button 
-              onClick={handleSaveSettings} 
-              disabled={isSavingSettings}
-              className="bg-slate-violet hover:bg-slate-violet-light text-bright-snow font-semibold px-5 py-2.5 rounded-xl transition-all text-xs cursor-pointer disabled:opacity-50"
-            >
-              {isSavingSettings ? 'SAVING...' : 'SAVE SETTINGS'}
-            </button>
-          </div>
-        )}
+          );
+        })()}
       </main>
 
       {/* Game Modal Dialog Form */}

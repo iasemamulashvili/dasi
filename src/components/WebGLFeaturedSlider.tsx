@@ -6,16 +6,59 @@ import gsap from 'gsap';
 import { Play, ArrowRight, Trophy, Volume2, VolumeX, X, Cpu } from 'lucide-react';
 import { Game } from '@/utils/db';
 
-// Official App Store & Google Play Store SVG Icons
-const AppStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
-  <svg viewBox="0 0 384 512" fill="currentColor" className={className}>
-    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-48.7-22.9-76.9-22.4-36.6.6-70.3 21.6-89.2 54.2-38 65.9-9.8 162.8 27.3 216.3 18.2 26.2 39.8 55.3 68.2 54.2 27.2-1.1 37.5-17.6 68.5-17.6 31.1 0 40.4 17.6 68.8 17.1 29-1 48.2-26.4 66.2-52.7 21-30.7 29.7-60.4 30.2-62-1-1-65.2-25.1-65.7-100zM281.2 81.7c15.2-18.3 25.4-43.9 22.6-69.5-22 1-48.8 14.8-64.6 33.2-13.8 15.9-25.9 41.7-22.7 67 24.5 2 49.7-12.4 64.7-30.7z" />
+// Official App Store & Google Play Store SVG Badges
+const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 120 40"
+    className={`${className} group cursor-pointer`}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect
+      x="0.5"
+      y="0.5"
+      width="119"
+      height="39"
+      rx="6"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#a1a1aa] transition-colors duration-300"
+      strokeWidth={1}
+    />
+    <g transform="translate(10, 10) scale(0.035)" fill="#ffffff">
+      <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-48.7-22.9-76.9-22.4-36.6.6-70.3 21.6-89.2 54.2-38 65.9-9.8 162.8 27.3 216.3 18.2 26.2 39.8 55.3 68.2 54.2 27.2-1.1 37.5-17.6 68.5-17.6 31.1 0 40.4 17.6 68.8 17.1 29-1 48.2-26.4 66.2-52.7 21-30.7 29.7-60.4 30.2-62-1-1-65.2-25.1-65.7-100zM281.2 81.7c15.2-18.3 25.4-43.9 22.6-69.5-22 1-48.8 14.8-64.6 33.2-13.8 15.9-25.9 41.7-22.7 67 24.5 2 49.7-12.4 64.7-30.7z" />
+    </g>
+    <text x="32" y="16" fill="#A1A1AA" fontSize="5.5" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="500">Download on the</text>
+    <text x="32" y="27" fill="#ffffff" fontSize="11" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700">App Store</text>
   </svg>
 );
 
-const PlayStoreIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
-  <svg viewBox="0 0 512 512" fill="currentColor" className={className}>
-    <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58 33.3 60.1 60.1L512 288c0-22-13.7-47.8-40-62.4zM325.3 277.7l60.1 60.1L104.6 499l220.7-221.3z" />
+const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 120 40"
+    className={`${className} group cursor-pointer`}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect
+      x="0.5"
+      y="0.5"
+      width="119"
+      height="39"
+      rx="6"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#a1a1aa] transition-colors duration-300"
+      strokeWidth={1}
+    />
+    <g transform="translate(10, 11) scale(0.035)">
+      {/* Left triangle (Cyan) */}
+      <path d="M47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0z" fill="#00E6FF" />
+      {/* Top triangle (Red) */}
+      <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="#FF3A44" />
+      {/* Right triangle (Yellow) */}
+      <path d="M472.2 225.6l-58 33.3 60.1 60.1L512 288c0-22-13.7-47.8-40-62.4z" fill="#FFC700" />
+      {/* Bottom triangle (Green) */}
+      <path d="M325.3 277.7l60.1 60.1L104.6 499l220.7-221.3z" fill="#00F076" />
+    </g>
+    <text x="32" y="16" fill="#A1A1AA" fontSize="5.5" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="500">GET IT ON</text>
+    <text x="32" y="27" fill="#ffffff" fontSize="11" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700">Google Play</text>
   </svg>
 );
 
@@ -97,6 +140,7 @@ interface WebGLFeaturedSliderProps {
     featuredSubtitle?: string;
     featuredImage?: string;
   })[];
+  showStatsBox?: boolean;
 }
 
 interface Ripple {
@@ -108,7 +152,7 @@ interface Ripple {
   speed: number;
 }
 
-export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSliderProps) {
+export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = false }: WebGLFeaturedSliderProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const customCursorRef = useRef<HTMLDivElement>(null);
@@ -124,6 +168,17 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
   const [isModalPlaying, setIsModalPlaying] = useState(true);
   const modalVideoRef = useRef<HTMLVideoElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Helper for circular text HUD
+  const getCirclingLetters = (title: string) => {
+    let displayTitle = title.toUpperCase();
+    if (displayTitle.length < 12) {
+      displayTitle = `${displayTitle} • ${displayTitle} •`;
+    } else {
+      displayTitle = `${displayTitle} • `;
+    }
+    return displayTitle.split('');
+  };
 
   // EMP Shockwave Ripple states
   const ripplesRef = useRef<Ripple[]>([]);
@@ -473,6 +528,10 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   };
 
+  const handleDotClick = (targetIdx: number) => {
+    transitionTo(targetIdx);
+  }
+
   const transitionTo = (targetIdx: number) => {
     if (targetIdx === activeIndex || transitionRef.current.active) return;
     transitionRef.current.active = true;
@@ -483,9 +542,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
 
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const maxScale = isMobile ? 30 : 75;
-    const scaleUpDuration = isMobile ? 0.45 : 0.35;
-    const scaleDownDuration = isMobile ? 0.9 : 0.8;
-
+    
     const animationObj = { progress: 0 };
 
     gsap.to(animationObj, {
@@ -712,10 +769,11 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
     return () => cancelAnimationFrame(animationId);
   }, [rippleTrigger, activeIndex, prevIndex, fadeProgress, webglSupported]);
 
-  // Keyboard and Focus Management for Modal
+  // Keyboard, Focus and Scroll Lock Management for Modal
   useEffect(() => {
     if (isModalOpen) {
       closeBtnRef.current?.focus();
+      document.body.style.overflow = 'hidden';
       
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
@@ -723,7 +781,12 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
         }
       };
       window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = '';
+      };
+    } else {
+      document.body.style.overflow = '';
     }
   }, [isModalOpen]);
 
@@ -757,7 +820,12 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
   const activeGame = gamesData[activeIndex];
 
   return (
-    <section id="featured" className="w-full max-w-7xl mx-auto px-6 py-12 relative z-20">
+    <section 
+      id="featured" 
+      className={`w-full max-w-7xl mx-auto px-6 py-12 relative transition-all duration-300 ${
+        isModalOpen ? 'z-[100]' : 'z-20'
+      }`}
+    >
       {/* Section Header */}
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
@@ -769,9 +837,12 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
             Featured Releases
           </h2>
         </div>
-        <div className="hidden md:flex items-center gap-2 font-silkscreen text-[9px] text-slate-violet-light border border-slate-violet/20 bg-carbon-black-2 px-3 py-1.5 rounded-lg select-none">
-          <span className="w-1.5 h-1.5 bg-muted-green rounded-full animate-ping" />
-          DASI GAMES // SERVERS ONLINE
+        <div className="hidden md:flex items-center gap-2 font-outfit text-[10px] tracking-wider text-alabaster-grey/85 border border-graphite-light/50 bg-carbon-black-2/80 px-3 py-1.5 rounded-xl select-none backdrop-blur-sm">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-violet-light opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-slate-violet"></span>
+          </span>
+          <span>Servers online</span>
         </div>
       </div>
 
@@ -785,6 +856,13 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
         className={`relative w-full h-[500px] md:h-[600px] bg-carbon-black border border-graphite-light rounded-2xl overflow-hidden flex flex-col justify-end p-8 md:p-12 select-none slider-glow ${isModalOpen ? 'cursor-default' : 'cursor-none'}`}
       >
         <style>{`
+          @keyframes rotate-ccw {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+          }
+          .animate-rotate-ccw {
+            animation: rotate-ccw 15s linear infinite;
+          }
           @keyframes crt-flicker {
             0% { opacity: 0.98; }
             50% { opacity: 1; }
@@ -859,7 +937,7 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
         {/* Custom Option C Minimal Tech Scope Crosshair Cursor Overlay */}
         <div 
           ref={customCursorRef}
-          className="absolute pointer-events-none z-40 hidden md:flex items-center justify-center"
+          className="absolute pointer-events-none z-40 hidden md:flex items-center justify-center animate-[crt-flicker_0.15s_infinite]"
           style={{ 
             top: 0,
             left: 0,
@@ -869,35 +947,54 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
             transition: 'opacity 0.2s ease, scale 0.2s ease'
           }}
         >
-          <div className="relative w-16 h-16 flex items-center justify-center">
+          <div className="relative w-20 h-20 flex items-center justify-center">
             {/* Primary thin circular reticle with pronounced slate-violet glow */}
             <div 
-              className="absolute w-10 h-10 rounded-full border border-slate-violet-light/95"
+              className="absolute w-12 h-12 rounded-full border border-slate-violet-light/90"
               style={{ 
-                boxShadow: `0 0 10px rgba(168, 85, 247, 0.7)` 
+                boxShadow: `0 0 12px var(--color-slate-violet)` 
               }}
             />
             
             {/* Precision Technical Brackets framing the scope */}
-            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-slate-violet-light/90" />
-            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-slate-violet-light/90" />
-            <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-slate-violet-light/90" />
-            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-slate-violet-light/90" />
+            <div className="absolute top-1.5 left-1.5 w-3.5 h-3.5 border-t-2 border-l-2 border-slate-violet-light/90" />
+            <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 border-t-2 border-r-2 border-slate-violet-light/90" />
+            <div className="absolute bottom-1.5 left-1.5 w-3.5 h-3.5 border-b-2 border-l-2 border-slate-violet-light/90" />
+            <div className="absolute bottom-1.5 right-1.5 w-3.5 h-3.5 border-b-2 border-r-2 border-slate-violet-light/90" />
 
             {/* Crosshair pointer needles */}
-            <div className="absolute w-[8px] h-[1.5px] bg-slate-violet-light/95 -translate-x-6" />
-            <div className="absolute w-[8px] h-[1.5px] bg-slate-violet-light/95 translate-x-6" />
-            <div className="absolute h-[8px] w-[1.5px] bg-slate-violet-light/95 -translate-y-6" />
-            <div className="absolute h-[8px] w-[1.5px] bg-slate-violet-light/95 translate-y-6" />
+            <div className="absolute w-[8px] h-[1px] bg-slate-violet-light/90 -translate-x-8" />
+            <div className="absolute w-[8px] h-[1px] bg-slate-violet-light/90 translate-x-8" />
+            <div className="absolute h-[8px] w-[1px] bg-slate-violet-light/90 -translate-y-8" />
+            <div className="absolute h-[8px] w-[1px] bg-slate-violet-light/90 translate-y-8" />
 
             {/* Center target dot */}
             <div className="absolute w-1.5 h-1.5 rounded-full bg-bright-snow shadow-[0_0_6px_#ffffff]" />
 
-            {/* Precision Technical Readouts */}
+            {/* Circling letters of the game name counter-clockwise */}
+            <div className="absolute w-14 h-14 animate-rotate-ccw pointer-events-none flex items-center justify-center">
+              {getCirclingLetters(activeGame.title).map((char, charIdx, arr) => {
+                const angle = charIdx * (360 / arr.length);
+                return (
+                  <span
+                    key={charIdx}
+                    className="absolute font-mono text-[7px] text-bright-snow font-bold select-none"
+                    style={{
+                      transform: `rotate(${angle}deg) translateY(-22px)`,
+                      transformOrigin: 'center center',
+                    }}
+                  >
+                    {char}
+                  </span>
+                );
+              })}
+            </div>
+
+            {/* Shortened HUD Target readout text (only game name) */}
             <span 
-              className="absolute top-11 font-mono text-[7px] bg-carbon-black/95 px-2 py-0.5 border border-slate-violet-light/30 rounded text-bright-snow tracking-widest whitespace-nowrap"
+              className="absolute top-13 font-mono text-[7px] bg-carbon-black/95 px-2 py-0.5 border border-slate-violet-light/40 rounded text-bright-snow tracking-widest whitespace-nowrap shadow-lg shadow-black/80"
             >
-              EMP // LOCK: {activeGame.title.toUpperCase()}
+              {activeGame.title.toUpperCase()}
             </span>
           </div>
         </div>
@@ -920,24 +1017,26 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
           </div>
           
           {/* Modern Specs HUD Panel with Real Game Stats */}
-          <div className="slider-hud-element font-mono text-[9px] text-alabaster-grey/85 border border-graphite-light/60 bg-carbon-black-2/95 p-4 rounded-xl space-y-1.5 mt-4 mb-6 max-w-[280px] relative backdrop-blur-md shadow-lg">
-            <div className="flex justify-between">
-              <span>Engine:</span>
-              <span className="text-platinum-silver font-bold">{activeGame.stats.engine}</span>
+          {showStatsBox && (
+            <div className="slider-hud-element font-mono text-[9px] text-alabaster-grey/85 border border-graphite-light/60 bg-carbon-black-2/95 p-4 rounded-xl space-y-1.5 mt-4 mb-6 max-w-[280px] relative backdrop-blur-md shadow-lg">
+              <div className="flex justify-between">
+                <span>Engine:</span>
+                <span className="text-platinum-silver font-bold">{activeGame.stats.engine}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Total Downloads:</span>
+                <span className="text-platinum-silver font-bold">{activeGame.stats.downloads}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Active Players:</span>
+                <span className="text-platinum-silver font-bold">{activeGame.stats.activePlayers}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Rating:</span>
+                <span className="text-muted-green font-bold">{activeGame.stats.rating} ★</span>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span>Total Downloads:</span>
-              <span className="text-platinum-silver font-bold">{activeGame.stats.downloads}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Active Players:</span>
-              <span className="text-platinum-silver font-bold">{activeGame.stats.activePlayers}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Rating:</span>
-              <span className="text-muted-green font-bold">{activeGame.stats.rating} ★</span>
-            </div>
-          </div>
+          )}
 
           <div className="slider-hud-element pointer-events-auto flex flex-wrap items-center gap-4">
             {activeGame.videoSrc && (
@@ -947,23 +1046,22 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
                   setIsModalOpen(true);
                   setIsModalPlaying(true);
                 }}
-                className="inset-pixel-btn-primary group/btn inline-flex items-center py-2 px-4 cursor-pointer"
+                className="inset-pixel-btn-primary group/btn inline-flex items-center py-2 px-4 cursor-pointer text-xs"
               >
-                <Play size={10} className="mr-2 fill-current" /> GAMEPLAY PREVIEW <ArrowRight size={10} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                <Play size={10} className="mr-2 fill-current" /> PREVIEW <ArrowRight size={10} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
               </button>
             )}
             
             {/* App Store and Google Play Download Links (Aligned directly next to single preview button) */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {activeGame.appstoreLink && (
                 <a 
                   href={activeGame.appstoreLink} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="p-2.5 bg-carbon-black/80 border border-graphite-light/60 hover:border-platinum-silver/80 rounded-md text-alabaster-grey hover:text-bright-snow transition-all hover:scale-105"
-                  title="Download on the App Store"
+                  className="hover:scale-105 transition-transform"
                 >
-                  <AppStoreIcon className="w-3.5 h-3.5" />
+                  <AppStoreBadge className="h-8 w-auto" />
                 </a>
               )}
               {activeGame.playstoreLink && (
@@ -971,10 +1069,9 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
                   href={activeGame.playstoreLink} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="p-2.5 bg-carbon-black/80 border border-graphite-light/60 hover:border-platinum-silver/80 rounded-md text-alabaster-grey hover:text-bright-snow transition-all hover:scale-105"
-                  title="Get it on Google Play"
+                  className="hover:scale-105 transition-transform"
                 >
-                  <PlayStoreIcon className="w-3.5 h-3.5" />
+                  <PlayStoreBadge className="h-8 w-auto" />
                 </a>
               )}
             </div>
@@ -986,25 +1083,22 @@ export default function WebGLFeaturedSlider({ featuredGames }: WebGLFeaturedSlid
           {gamesData.map((game, idx) => (
             <button
               key={game.id}
-              onClick={() => transitionTo(idx)}
-              className="group relative flex items-center justify-center w-12 h-12 rounded-full focus:outline-none cursor-pointer"
+              onClick={() => handleDotClick(idx)}
+              className={`group relative flex items-center justify-center w-12 h-12 rounded-full focus:outline-none cursor-pointer transition-all duration-300 ${
+                activeIndex === idx
+                  ? 'bg-carbon-black-2/65 border border-platinum-silver/80 shadow-[0_0_15px_rgba(255,255,255,0.08)] scale-110'
+                  : 'bg-carbon-black-2/35 hover:bg-carbon-black-2/50 border border-graphite-light/50 hover:border-alabaster-grey/40 shadow-md hover:scale-105'
+              } backdrop-blur-md`}
             >
               <span className="absolute right-full mr-4 bg-carbon-black border border-graphite-light px-3 py-1.5 rounded-lg text-[8px] font-sans text-alabaster-grey uppercase tracking-widest opacity-0 scale-75 origin-right transition-all group-hover:opacity-100 group-hover:scale-100 shadow-lg pointer-events-none">
                 {game.title}
               </span>
               
               <span className={`text-[10px] font-sans ${
-                activeIndex === idx ? 'text-bright-snow scale-125' : 'text-alabaster-grey group-hover:text-bright-snow transition-colors'
+                activeIndex === idx ? 'text-bright-snow scale-125 font-bold' : 'text-alabaster-grey group-hover:text-bright-snow transition-colors'
               }`}>
                 0{idx + 1}
               </span>
-
-              <span className={`absolute bottom-0 right-0 w-full h-full rounded-full border transition-all ${
-                activeIndex === idx 
-                  ? 'border-platinum-silver scale-110' 
-                  : 'scale-90 opacity-0 group-hover:opacity-100 group-hover:scale-95 border-graphite-light'
-              }`} 
-              />
             </button>
           ))}
         </div>
