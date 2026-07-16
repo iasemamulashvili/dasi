@@ -40,7 +40,7 @@ function createSparks(clientX: number, clientY: number, currentSparkIdx: number)
       color: (i % 6 === 0)
         ? 'oklch(0.88 0.04 45.0)' // very subtle, light peach/amber orange spark
         : 'oklch(0.96 0.005 240.0)', // premium slate-white hot spark
-      size: isDebris ? (4 + Math.random() * 3) : (1.5 + Math.random() * 2),
+      size: isDebris ? (1.5 + Math.random() * 1.2) : (0.8 + Math.random() * 0.8),
       opacity: 1.0,
       rotation: Math.random() * 360,
       vrot: (Math.random() - 0.5) * 12
@@ -218,7 +218,7 @@ export default function Header() {
         
         @keyframes sawSpinSlow {
           from { transform: perspective(250px) rotateX(35deg) rotateY(25deg) rotate(60deg); }
-          to { transform: perspective(250px) rotateX(35deg) rotateY(25deg) rotate(420deg); }
+          to { transform: perspective(250px) rotateX(35deg) rotateY(25deg) rotate(-300deg); }
         }
         .animate-saw-slow {
           animation: sawSpinSlow 12s linear infinite;
@@ -451,7 +451,7 @@ export default function Header() {
             style={{
               left: `${spark.x}px`,
               top: `${spark.y}px`,
-              width: `${spark.size * 3.8}px`,
+              width: `${spark.size * 2.8}px`,
               height: `${spark.size}px`,
               borderRadius: '9999px',
               backgroundColor: spark.color,
