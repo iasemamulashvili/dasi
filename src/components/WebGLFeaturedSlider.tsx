@@ -162,6 +162,16 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
   const [cursorHovered, setCursorHovered] = useState(false);
   const [webglSupported, setWebglSupported] = useState(true);
   const transitionRef = useRef({ active: false });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Gameplay Preview Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -857,7 +867,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
         onClick={handleSliderClick}
         onMouseEnter={() => setCursorHovered(true)}
         onMouseLeave={() => setCursorHovered(false)}
-        className={`relative w-full h-[500px] md:h-[600px] bg-carbon-black border border-graphite-light rounded-2xl overflow-hidden flex flex-col justify-end p-8 md:p-12 select-none slider-glow ${isModalOpen ? 'cursor-default' : 'cursor-none'}`}
+        className={`relative w-full h-[500px] md:h-[600px] bg-carbon-black border border-graphite-light rounded-2xl overflow-hidden flex flex-col justify-end p-8 md:p-12 select-none slider-glow ${isModalOpen || isMobile ? 'cursor-default' : 'cursor-none'}`}
       >
         <style>{`
           @keyframes rotate-ccw {
@@ -945,11 +955,11 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
           style={{ 
             top: 0,
             left: 0,
-            display: (cursorHovered && !isModalOpen) ? 'flex' : 'none',
-            opacity: (cursorHovered && !isModalOpen) ? 1 : 0,
+            display: (!isMobile && cursorHovered && !isModalOpen) ? 'flex' : 'none',
+            opacity: (!isMobile && cursorHovered && !isModalOpen) ? 1 : 0,
             transform: `translate3d(0px, 0px, 0) translate(-50%, -50%)`,
             scale: cursorHovered ? '1' : '0.2',
-            transition: (cursorHovered && !isModalOpen) ? 'opacity 0.2s ease, scale 0.2s ease' : 'none'
+            transition: (!isMobile && cursorHovered && !isModalOpen) ? 'opacity 0.2s ease, scale 0.2s ease' : 'none'
           }}
         >
           <div className="relative w-20 h-20 flex items-center justify-center">

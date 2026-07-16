@@ -373,9 +373,11 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   useEffect(() => {
     const unsubscribe = trackX.on("change", (latestTrackX) => {
       if (isDraggingHandle) return;
-      let normalizedX = -latestTrackX;
+      const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+      const offset = isMobile ? (viewportWidth - cardWidth) / 2 : 0;
+      
+      let normalizedX = -latestTrackX + offset;
       const minVal = repeatInterval * 0.5;
-      const maxVal = repeatInterval * 1.5;
       const range = repeatInterval;
       
       let diff = ((normalizedX - minVal) % range + range) % range;
@@ -384,26 +386,30 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       handleX.set(ratio * trackWidth);
     });
     return () => unsubscribe();
-  }, [trackX, repeatInterval, isDraggingHandle]);
+  }, [trackX, repeatInterval, isDraggingHandle, isMobile, cardWidth]);
 
   // Sync trackX from handleX when dragging the handle
   useEffect(() => {
     const unsubscribe = handleX.on("change", (latestHandleX) => {
       if (!isDraggingHandle) return;
-      const ratio = latestHandleX / trackWidth;
-      const targetTrackX = -(repeatInterval * 0.5 + ratio * repeatInterval);
+      // Clamp the ratio to stay strictly within [0, 0.9999] so it doesn't wrap around and trigger jumpy UI
+      const clampedX = Math.max(0, Math.min(trackWidth, latestHandleX));
+      const ratio = Math.max(0, Math.min(0.9999, clampedX / trackWidth));
+      const targetTrackX = -(repeatInterval * 0.5 + ratio * repeatInterval) + (isMobile ? (window.innerWidth - cardWidth) / 2 : 0);
       trackX.set(targetTrackX);
     });
     return () => unsubscribe();
-  }, [handleX, repeatInterval, isDraggingHandle]);
+  }, [handleX, repeatInterval, isDraggingHandle, isMobile, cardWidth]);
 
   useEffect(() => {
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const offset = isMobile ? (viewportWidth - cardWidth) / 2 : 0;
     setDragConstraints({
-      left: -repeatInterval * 2,
-      right: 0
+      left: -repeatInterval * 2 + offset,
+      right: 0 + offset
     });
-    trackX.set(-repeatInterval);
-  }, [repeatInterval, trackX]);
+    trackX.set(-repeatInterval + offset);
+  }, [repeatInterval, trackX, isMobile, cardWidth]);
 
   useAnimationFrame((time, delta) => {
     const currentX = trackX.get();
@@ -433,10 +439,11 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     const speed = currentSpeed.current * frameFactor;
     let nextX = currentX + speed;
 
-    // Continuous loop wrapping
-    if (nextX < -repeatInterval * 1.5) {
+    const offset = isMobile ? (viewportWidth - cardWidth) / 2 : 0;
+    // Continuous loop wrapping with offset adjustment
+    if (nextX < -repeatInterval * 1.5 + offset) {
       nextX += repeatInterval;
-    } else if (nextX > -repeatInterval * 0.5) {
+    } else if (nextX > -repeatInterval * 0.5 + offset) {
       nextX -= repeatInterval;
     }
     trackX.set(nextX);
@@ -467,17 +474,20 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     currentSpeed.current = defaultSpeed;
 
     let currentX = trackX.get();
-    if (currentX < -repeatInterval * 1.5) {
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const offset = isMobile ? (viewportWidth - cardWidth) / 2 : 0;
+
+    if (currentX < -repeatInterval * 1.5 + offset) {
       currentX += repeatInterval;
       trackX.set(currentX);
-    } else if (currentX > -repeatInterval * 0.5) {
+    } else if (currentX > -repeatInterval * 0.5 + offset) {
       currentX -= repeatInterval;
       trackX.set(currentX);
     }
 
     if (isMobile) {
-      const targetIdx = Math.round(-trackX.get() / spacing);
-      const snapX = -targetIdx * spacing;
+      const targetIdx = Math.round(((viewportWidth - cardWidth) / 2 - trackX.get()) / spacing);
+      const snapX = (viewportWidth - cardWidth) / 2 - targetIdx * spacing;
       setIsSnapping(true);
       animate(trackX, snapX, {
         type: 'spring',
@@ -500,7 +510,9 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
   const handleDotClick = (idx: number) => {
     currentSpeed.current = defaultSpeed;
-    const targetX = -(games.length + idx) * spacing;
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const offset = isMobile ? (viewportWidth - cardWidth) / 2 : 0;
+    const targetX = offset - (games.length + idx) * spacing;
     animateTo(targetX);
     setActiveIndex(idx);
   };
@@ -582,7 +594,22 @@ function KineticSpinStream({ games }: { games: Game[] }) {
                 onDragEnd={(e, info) => {
                   setIsDraggingHandle(false);
                   setIsDragging(false);
-                  handleDragEnd(e, info);
+                  currentSpeed.current = defaultSpeed;
+                  
+                  if (isMobile) {
+                    const viewportWidth = window.innerWidth;
+                    const targetIdx = Math.round(((viewportWidth - cardWidth) / 2 - trackX.get()) / spacing);
+                    const snapX = (viewportWidth - cardWidth) / 2 - targetIdx * spacing;
+                    setIsSnapping(true);
+                    animate(trackX, snapX, {
+                      type: 'spring',
+                      stiffness: 120,
+                      damping: 20,
+                      onComplete: () => {
+                        setIsSnapping(false);
+                      }
+                    });
+                  }
                 }}
                 className="absolute top-1/2 -translate-y-1/2 w-8 h-3.5 bg-bright-snow rounded-full shadow-[0_0_12px_rgba(255,255,255,0.8)] border border-white/20 cursor-grab active:cursor-grabbing hover:scale-105 active:scale-95 pointer-events-auto z-20"
               />
