@@ -221,7 +221,7 @@ const FACTS_MOCK = [
 
 export default function GamesCarouselSandbox() {
   const [activeTab, setActiveTab] = useState<'kinetic' | 'glide' | 'scrub'>('kinetic');
-  const [activeCursorType, setActiveCursorType] = useState<'classic' | 'precision' | 'hollow' | 'obsidian' | 'turbine' | 'quantum' | null>(null);
+  const [activeCursorType, setActiveCursorType] = useState<'v1' | 'v2' | 'v3' | null>(null);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [isClicked, setIsClicked] = useState(false);
   const [factsLayout, setFactsLayout] = useState<'grid' | 'timeline' | 'spotlight'>('grid');
@@ -483,210 +483,116 @@ export default function GamesCarouselSandbox() {
               onMouseLeave={() => { setActiveCursorType(null); setIsClicked(false); }}
               onMouseDown={() => setIsClicked(true)}
               onMouseUp={() => setIsClicked(false)}
-              className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl relative ${activeCursorType ? 'cursor-none' : ''}`}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl relative cursor-none"
             >
-              {/* Custom Cursor Overlay */}
-              {activeCursorType && (
-                <div 
-                  className="absolute pointer-events-none z-50"
-                  style={{
-                    left: cursorPos.x,
-                    top: cursorPos.y,
-                    transform: `translate(-50%, -50%) perspective(250px) rotateX(35deg) rotateY(25deg) ${isClicked ? 'rotate(-1020deg)' : 'rotate(60deg)'}`,
-                    transition: isClicked ? 'transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1)' : 'transform 0.3s ease',
-                    transformOrigin: 'center center'
-                  }}
-                >
-                  {activeCursorType === 'classic' && (
-                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-platinum-silver">
-                      <circle cx="50" cy="50" r="10" fill="currentColor" />
-                      <circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" strokeWidth="1" />
-                      {Array.from({ length: 24 }).map((_, i) => (
-                        <path
-                          key={i}
-                          d="M50 9 L54 18 L46 16 Z"
-                          fill="currentColor"
-                          transform={`rotate(${i * 15} 50 50)`}
-                        />
-                      ))}
-                    </svg>
-                  )}
-                  {activeCursorType === 'precision' && (
-                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-bright-snow">
-                      <circle cx="50" cy="50" r="4" fill="currentColor" />
-                      <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="1" />
-                      <path d="M50 15 L50 25 M50 85 L50 75 M15 50 L25 50 M85 50 L75 50" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-                      {Array.from({ length: 36 }).map((_, i) => (
-                        <path
-                          key={i}
-                          d="M50 8 L52 13 L48 12 Z"
-                          fill="currentColor"
-                          transform={`rotate(${i * 10} 50 50)`}
-                        />
-                      ))}
-                    </svg>
-                  )}
-                  {activeCursorType === 'hollow' && (
-                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-slate-violet-light">
-                      <circle cx="50" cy="50" r="2" fill="currentColor" />
-                      <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                      <path d="M50 6 L50 44 M50 94 L50 56 M6 50 L44 50 M94 50 L56 50" stroke="currentColor" strokeWidth="0.8" />
-                      {Array.from({ length: 32 }).map((_, i) => (
-                        <path
-                          key={i}
-                          d="M50 6 L53 11 L48 11 Z"
-                          fill="currentColor"
-                          transform={`rotate(${i * 11.25} 50 50)`}
-                        />
-                      ))}
-                    </svg>
-                  )}
-                  {activeCursorType === 'obsidian' && (
-                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-bright-snow">
-                      <circle cx="50" cy="50" r="8" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                      <circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" strokeWidth="1" />
-                      {Array.from({ length: 16 }).map((_, i) => (
-                        <path
-                          key={i}
-                          d="M50 9 Q54 13 56 19 L44 17 Z"
-                          fill="currentColor"
-                          transform={`rotate(${i * 22.5} 50 50)`}
-                        />
-                      ))}
-                    </svg>
-                  )}
-                  {activeCursorType === 'turbine' && (
-                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-platinum-silver">
-                      <circle cx="50" cy="50" r="7" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                      <circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" strokeWidth="1" />
-                      {Array.from({ length: 12 }).map((_, i) => (
-                        <g key={i} transform={`rotate(${i * 30} 50 50)`}>
-                          <path d="M48 9 L51 17 L46 16 Z" fill="currentColor" />
-                          <path d="M52 9 L55 17 L50 16 Z" fill="currentColor" />
-                        </g>
-                      ))}
-                    </svg>
-                  )}
-                  {activeCursorType === 'quantum' && (
-                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-slate-violet-light">
-                      <circle cx="50" cy="50" r="5" fill="currentColor" />
-                      <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="1" />
-                      {Array.from({ length: 8 }).map((_, i) => (
-                        <g key={i} transform={`rotate(${i * 45} 50 50)`}>
-                          <path d="M45 6 L55 6 L54 11 L46 11 Z" fill="currentColor" />
-                          <circle cx="50" cy="18" r="1.5" fill="currentColor" />
-                          <line x1="50" y1="11" x2="50" y2="18" stroke="currentColor" strokeWidth="1" />
-                        </g>
-                      ))}
-                    </svg>
-                  )}
-                </div>
-              )}
+              {/* Define teeth path constant locally inside the container */}
+              {(() => {
+                const MAIN_TEETH_PATH = "M50 20 L53 30 L63 23 L61 34 L73 31 L67 40 L78 42 L69 49 L77 54 L67 57 L73 66 L61 64 L63 75 L53 68 L50 78 L47 68 L37 75 L39 64 L27 66 L33 57 L23 54 L31 49 L22 42 L33 40 L27 31 L39 34 L37 23 L47 30 Z";
+                
+                return (
+                  <>
+                    {/* Custom Cursor Overlay */}
+                    {activeCursorType && (
+                      <div 
+                        className="absolute pointer-events-none z-50"
+                        style={{
+                          left: cursorPos.x,
+                          top: cursorPos.y,
+                          transform: `translate(-50%, -50%) perspective(250px) rotateX(35deg) rotateY(25deg) ${isClicked ? 'rotate(-1020deg)' : 'rotate(60deg)'}`,
+                          transition: isClicked ? 'transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1)' : 'transform 0.3s ease',
+                          transformOrigin: 'center center'
+                        }}
+                      >
+                        {activeCursorType === 'v1' && (
+                          <svg viewBox="0 0 100 100" className="w-12 h-12 text-platinum-silver">
+                            <circle cx="50" cy="50" r="5" fill="currentColor" />
+                            <path d={MAIN_TEETH_PATH} fill="none" stroke="currentColor" strokeWidth="4" />
+                          </svg>
+                        )}
+                        {activeCursorType === 'v2' && (
+                          <svg viewBox="0 0 100 100" className="w-12 h-12 text-bright-snow">
+                            <circle cx="50" cy="50" r="2" fill="currentColor" />
+                            <circle cx="50" cy="50" r="7" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                            <path d="M50 41 L50 43 M50 59 L50 57 M41 50 L43 50 M59 50 L57 50" stroke="currentColor" strokeWidth="1.5" />
+                            <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="4 8" className="opacity-60" />
+                            <path d={MAIN_TEETH_PATH} fill="none" stroke="currentColor" strokeWidth="4" />
+                          </svg>
+                        )}
+                        {activeCursorType === 'v3' && (
+                          <svg viewBox="0 0 100 100" className="w-12 h-12 text-slate-violet-light">
+                            <circle cx="50" cy="50" r="5" fill="currentColor" />
+                            <circle cx="50" cy="50" r="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="16 10" className="opacity-70" />
+                            <circle cx="50" cy="34" r="2.5" fill="currentColor" />
+                            <circle cx="50" cy="66" r="2.5" fill="currentColor" />
+                            <circle cx="34" cy="50" r="2.5" fill="currentColor" />
+                            <circle cx="66" cy="50" r="2.5" fill="currentColor" />
+                            <path d={MAIN_TEETH_PATH} fill="none" stroke="currentColor" strokeWidth="4" />
+                          </svg>
+                        )}
+                      </div>
+                    )}
 
-              {/* Card 1: Classic Heavy Saw */}
-              <div 
-                onMouseEnter={() => setActiveCursorType('classic')}
-                className="p-8 bg-carbon-black border border-graphite-light hover:border-platinum-silver/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
-              >
-                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-platinum-silver transition-all duration-300">
-                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
-                    <circle cx="50" cy="50" r="10" fill="currentColor" />
-                    <circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" strokeWidth="1" />
-                    <path d="M50 9 L54 18 L46 16 Z" fill="currentColor" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Classic Heavy</h3>
-                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">24 bold teeth / Standard arbor</p>
-                </div>
-              </div>
+                    {/* Card 1: Classic Refined (Reduced Arbor) */}
+                    <div 
+                      onMouseEnter={() => setActiveCursorType('v1')}
+                      className="p-8 bg-carbon-black border border-graphite-light hover:border-platinum-silver/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
+                    >
+                      <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-platinum-silver transition-all duration-300">
+                        <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                          <circle cx="50" cy="50" r="5" fill="currentColor" />
+                          <path d={MAIN_TEETH_PATH} fill="none" stroke="currentColor" strokeWidth="4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Classic Refined</h3>
+                        <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">Original teeth / Reduced 5px arbor dot</p>
+                      </div>
+                    </div>
 
-              {/* Card 2: Fine-Tooth Slasher */}
-              <div 
-                onMouseEnter={() => setActiveCursorType('precision')}
-                className="p-8 bg-carbon-black border border-graphite-light hover:border-platinum-silver/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
-              >
-                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-platinum-silver transition-all duration-300">
-                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
-                    <circle cx="50" cy="50" r="4" fill="currentColor" />
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="1" />
-                    <path d="M50 8 L52 13 L48 12 Z" fill="currentColor" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Fine-Tooth Slasher</h3>
-                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">36 fine teeth / Reduced dot</p>
-                </div>
-              </div>
+                    {/* Card 2: Inner-Glow Laser Core */}
+                    <div 
+                      onMouseEnter={() => setActiveCursorType('v2')}
+                      className="p-8 bg-carbon-black border border-graphite-light hover:border-platinum-silver/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
+                    >
+                      <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-platinum-silver transition-all duration-300">
+                        <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                          <circle cx="50" cy="50" r="2" fill="currentColor" />
+                          <circle cx="50" cy="50" r="7" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                          <path d="M50 41 L50 43 M50 59 L50 57 M41 50 L43 50 M59 50 L57 50" stroke="currentColor" strokeWidth="1.5" />
+                          <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="4 8" className="opacity-60" />
+                          <path d={MAIN_TEETH_PATH} fill="none" stroke="currentColor" strokeWidth="4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Laser Crosshair Core</h3>
+                        <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">Hollow ring / Ticks / Circular subtrack</p>
+                      </div>
+                    </div>
 
-              {/* Card 3: Split-Segment Saw */}
-              <div 
-                onMouseEnter={() => setActiveCursorType('hollow')}
-                className="p-8 bg-carbon-black border border-graphite-light hover:border-slate-violet/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
-              >
-                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-slate-violet-light transition-all duration-300">
-                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
-                    <circle cx="50" cy="50" r="2" fill="currentColor" />
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                    <path d="M50 6 L53 11 L48 11 Z" fill="currentColor" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Split-Segment</h3>
-                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">Segment slots / Micro arbor dot</p>
-                </div>
-              </div>
-
-              {/* Card 4: Aggressive Ripper */}
-              <div 
-                onMouseEnter={() => setActiveCursorType('obsidian')}
-                className="p-8 bg-carbon-black border border-graphite-light hover:border-bright-snow/30 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
-              >
-                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-bright-snow transition-all duration-300">
-                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
-                    <circle cx="50" cy="50" r="8" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                    <path d="M50 9 Q54 13 56 19 L44 17 Z" fill="currentColor" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Aggressive Ripper</h3>
-                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">16 hook teeth / Empty center hole</p>
-                </div>
-              </div>
-
-              {/* Card 5: Double-Tooth Slicer */}
-              <div 
-                onMouseEnter={() => setActiveCursorType('turbine')}
-                className="p-8 bg-carbon-black border border-graphite-light hover:border-platinum-silver/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
-              >
-                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-platinum-silver transition-all duration-300">
-                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
-                    <circle cx="50" cy="50" r="7" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                    <path d="M48 9 L51 17 L46 16 Z" fill="currentColor" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Double-Tooth Slicer</h3>
-                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">Paired spike teeth / Hollow collar</p>
-                </div>
-              </div>
-
-              {/* Card 6: Masonry Diamond Wheel */}
-              <div 
-                onMouseEnter={() => setActiveCursorType('quantum')}
-                className="p-8 bg-carbon-black border border-graphite-light hover:border-slate-violet/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
-              >
-                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-slate-violet-light transition-all duration-300">
-                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
-                    <circle cx="50" cy="50" r="5" fill="currentColor" />
-                    <path d="M45 6 L55 6 L54 11 L46 11 Z" fill="currentColor" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Masonry Diamond</h3>
-                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">8 segment blades / Flat collar disk</p>
-                </div>
-              </div>
+                    {/* Card 3: Slotted Speed-Ring */}
+                    <div 
+                      onMouseEnter={() => setActiveCursorType('v3')}
+                      className="p-8 bg-carbon-black border border-graphite-light hover:border-slate-violet/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
+                    >
+                      <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-slate-violet-light transition-all duration-300">
+                        <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                          <circle cx="50" cy="50" r="5" fill="currentColor" />
+                          <circle cx="50" cy="50" r="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="16 10" className="opacity-70" />
+                          <circle cx="50" cy="34" r="2.5" fill="currentColor" />
+                          <circle cx="50" cy="66" r="2.5" fill="currentColor" />
+                          <circle cx="34" cy="50" r="2.5" fill="currentColor" />
+                          <circle cx="66" cy="50" r="2.5" fill="currentColor" />
+                          <path d={MAIN_TEETH_PATH} fill="none" stroke="currentColor" strokeWidth="4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Slotted Speed-Ring</h3>
+                        <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">Concentric slots / 4 balance vents</p>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
 
