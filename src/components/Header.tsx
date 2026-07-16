@@ -37,9 +37,9 @@ function createSparks(clientX: number, clientY: number, currentSparkIdx: number)
       y: clientY,
       vx: Math.cos(pAngle) * speed,
       vy: Math.sin(pAngle) * speed - 0.6,
-      color: isDebris 
-        ? 'oklch(0.42 0.12 38.0)' // dark coppery orange debris
-        : 'oklch(0.76 0.18 45.0)', // glowing hot neon orange sparks
+      color: (i % 6 === 0)
+        ? 'oklch(0.88 0.04 45.0)' // very subtle, light peach/amber orange spark
+        : 'oklch(0.96 0.005 240.0)', // premium slate-white hot spark
       size: isDebris ? (4 + Math.random() * 3) : (1.5 + Math.random() * 2),
       opacity: 1.0,
       rotation: Math.random() * 360,
@@ -218,7 +218,7 @@ export default function Header() {
         
         @keyframes sawSpinSlow {
           from { transform: perspective(250px) rotateX(35deg) rotateY(25deg) rotate(60deg); }
-          to { transform: perspective(250px) rotateX(35deg) rotateY(25deg) rotate(-300deg); }
+          to { transform: perspective(250px) rotateX(35deg) rotateY(25deg) rotate(420deg); }
         }
         .animate-saw-slow {
           animation: sawSpinSlow 12s linear infinite;
