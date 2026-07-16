@@ -218,7 +218,7 @@ export default function Header() {
         
         @keyframes sawSpinSlow {
           from { transform: perspective(250px) rotateX(35deg) rotateY(25deg) rotate(60deg); }
-          to { transform: perspective(250px) rotateX(35deg) rotateY(25deg) rotate(-300deg); }
+          to { transform: perspective(250px) rotateX(35deg) rotateY(25deg) rotate(420deg); }
         }
         .animate-saw-slow {
           animation: sawSpinSlow 12s linear infinite;
