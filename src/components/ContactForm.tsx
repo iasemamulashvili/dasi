@@ -487,95 +487,91 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
             <motion.div
               animate={{
                 height: isUploadsVisible ? 'auto' : 0,
-                paddingTop: isUploadsVisible ? '1rem' : '0px',
-                paddingBottom: isUploadsVisible ? '1rem' : '0px',
-                marginTop: isUploadsVisible ? '0px' : '-1.5rem',
-                borderWidth: isUploadsVisible ? 1 : 0,
                 opacity: isUploadsVisible ? 1 : 0,
               }}
               transition={{
-                height: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-                marginTop: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-                opacity: { duration: isUploadsVisible ? 0.35 : 0.15, ease: 'linear' },
-                borderWidth: { duration: 0.15 }
+                height: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+                opacity: { duration: isUploadsVisible ? 0.3 : 0.15, ease: 'linear' }
               }}
-              className="flex flex-col gap-4 bg-carbon-black/50 border-solid border-graphite-light/35 overflow-hidden px-4"
+              className="overflow-hidden w-full"
               style={{ originY: 0 }}
             >
-              <AnimatePresence initial={false}>
-                {activeUploadFields.length > 0 && (
-                  <motion.div
-                    key="dropzones-content"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex flex-col gap-4 w-full"
-                  >
-                    <span className="text-[10px] font-silkscreen tracking-wider text-platinum-silver uppercase">
-                      Required Documents
-                    </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {activeUploadFields.map((field) => {
-                        const isRequired = field.isRequired;
-                        const currentFile = uploadedFiles[field.id];
-                        const isUploaded = !!currentFile;
-                        
-                        return (
-                          <div
-                            key={field.id}
-                            className="flex flex-col gap-1.5"
-                          >
-                            <span className="text-[9px] font-silkscreen tracking-wider text-alabaster-grey uppercase flex items-center gap-1">
-                              <span>{field.label}</span>
-                              {isRequired && <span className="text-rose-500">*</span>}
-                            </span>
-                            <motion.label
-                              whileHover={{ scale: 1.01 }}
-                              whileTap={{ scale: 0.99 }}
-                              className={`w-full flex flex-col items-center justify-center border border-dashed rounded-none px-3 py-4 cursor-pointer transition-all duration-300 focus-within:ring-2 focus-within:ring-slate-violet-light/50 focus-within:outline-none ${
-                                isUploaded
-                                  ? 'border-muted-green bg-muted-green/5 hover:border-muted-green-light hover:bg-muted-green/10'
-                                  : 'border-graphite-light bg-carbon-black hover:border-platinum-silver hover:bg-carbon-black-2'
-                              }`}
+              <div className="bg-carbon-black/50 border border-solid border-graphite-light/35 p-4 mt-4 flex flex-col gap-4">
+                <AnimatePresence initial={false}>
+                  {activeUploadFields.length > 0 && (
+                    <motion.div
+                      key="dropzones-content"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex flex-col gap-4 w-full"
+                    >
+                      <span className="text-[10px] font-silkscreen tracking-wider text-platinum-silver uppercase">
+                        Required Documents
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {activeUploadFields.map((field) => {
+                          const isRequired = field.isRequired;
+                          const currentFile = uploadedFiles[field.id];
+                          const isUploaded = !!currentFile;
+                          
+                          return (
+                            <div
+                              key={field.id}
+                              className="flex flex-col gap-1.5"
                             >
-                              <Upload
-                                size={14}
-                                className={`mb-1.5 transition-colors duration-300 ${
-                                  isUploaded ? 'text-muted-green' : 'text-alabaster-grey/40'
-                                }`}
-                              />
-                              <span
-                                className={`text-[10px] text-center truncate max-w-full px-2 font-light font-outfit transition-colors duration-300 ${
-                                  isUploaded ? 'text-muted-green-light font-medium' : 'text-alabaster-grey'
+                              <span className="text-[9px] font-silkscreen tracking-wider text-alabaster-grey uppercase flex items-center gap-1">
+                                <span>{field.label}</span>
+                                {isRequired && <span className="text-rose-500">*</span>}
+                              </span>
+                              <motion.label
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.99 }}
+                                className={`w-full flex flex-col items-center justify-center border border-dashed rounded-none px-3 py-4 cursor-pointer transition-all duration-300 focus-within:ring-2 focus-within:ring-slate-violet-light/50 focus-within:outline-none ${
+                                  isUploaded
+                                    ? 'border-muted-green bg-muted-green/5 hover:border-muted-green-light hover:bg-muted-green/10'
+                                    : 'border-graphite-light bg-carbon-black hover:border-platinum-silver hover:bg-carbon-black-2'
                                 }`}
                               >
-                                {currentFile ? currentFile.name : field.placeholder}
-                              </span>
-                              <span className="text-[8px] text-alabaster-grey/40 font-outfit mt-0.5">
-                                Allowed formats: {field.accept}
-                              </span>
-                              <input
-                                type="file"
-                                id={`file-${field.id}`}
-                                accept={field.accept}
-                                onChange={(e) => {
-                                  if (e.target.files && e.target.files.length > 0) {
-                                    handleFileChange(field.id, e.target.files[0]);
-                                  } else {
-                                    handleFileChange(field.id, null);
-                                  }
-                                }}
-                                className="sr-only"
-                              />
-                            </motion.label>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                                <Upload
+                                  size={14}
+                                  className={`mb-1.5 transition-colors duration-300 ${
+                                    isUploaded ? 'text-muted-green' : 'text-alabaster-grey/40'
+                                  }`}
+                                />
+                                <span
+                                  className={`text-[10px] text-center truncate max-w-full px-2 font-light font-outfit transition-colors duration-300 ${
+                                    isUploaded ? 'text-muted-green-light font-medium' : 'text-alabaster-grey'
+                                  }`}
+                                >
+                                  {currentFile ? currentFile.name : field.placeholder}
+                                </span>
+                                <span className="text-[8px] text-alabaster-grey/40 font-outfit mt-0.5">
+                                  Allowed formats: {field.accept}
+                                </span>
+                                <input
+                                  type="file"
+                                  id={`file-${field.id}`}
+                                  accept={field.accept}
+                                  onChange={(e) => {
+                                    if (e.target.files && e.target.files.length > 0) {
+                                      handleFileChange(field.id, e.target.files[0]);
+                                    } else {
+                                      handleFileChange(field.id, null);
+                                    }
+                                  }}
+                                  className="sr-only"
+                                />
+                              </motion.label>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
 
             {/* Message */}
