@@ -339,6 +339,14 @@ export default function GamesCarouselSandbox() {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 12s linear infinite;
+          transform-origin: center;
+        }
       ` }} />
       {/* Decorative Grids */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0" />
@@ -504,13 +512,13 @@ export default function GamesCarouselSandbox() {
                         }}
                       >
                         {activeCursorType === 'v1' && (
-                          <svg viewBox="0 0 100 100" className="w-12 h-12 text-platinum-silver">
+                          <svg viewBox="0 0 100 100" className="w-12 h-12 text-platinum-silver animate-spin-slow">
                             <circle cx="50" cy="50" r="5" fill="currentColor" />
                             <path d={MAIN_TEETH_PATH} fill="none" stroke="currentColor" strokeWidth="4" />
                           </svg>
                         )}
                         {activeCursorType === 'v2' && (
-                          <svg viewBox="0 0 100 100" className="w-12 h-12 text-bright-snow">
+                          <svg viewBox="0 0 100 100" className="w-12 h-12 text-bright-snow animate-spin-slow">
                             <circle cx="50" cy="50" r="2" fill="currentColor" />
                             <circle cx="50" cy="50" r="7" fill="none" stroke="currentColor" strokeWidth="1.5" />
                             <path d="M50 41 L50 43 M50 59 L50 57 M41 50 L43 50 M59 50 L57 50" stroke="currentColor" strokeWidth="1.5" />
@@ -519,7 +527,7 @@ export default function GamesCarouselSandbox() {
                           </svg>
                         )}
                         {activeCursorType === 'v3' && (
-                          <svg viewBox="0 0 100 100" className="w-12 h-12 text-slate-violet-light">
+                          <svg viewBox="0 0 100 100" className="w-12 h-12 text-platinum-silver animate-spin-slow">
                             <circle cx="50" cy="50" r="5" fill="currentColor" />
                             <circle cx="50" cy="50" r="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="16 10" className="opacity-70" />
                             <circle cx="50" cy="34" r="2.5" fill="currentColor" />
@@ -538,7 +546,7 @@ export default function GamesCarouselSandbox() {
                       className="p-8 bg-carbon-black border border-graphite-light hover:border-platinum-silver/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
                     >
                       <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-platinum-silver transition-all duration-300">
-                        <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                        <svg viewBox="0 0 100 100" className="w-12 h-12 text-current animate-spin-slow">
                           <circle cx="50" cy="50" r="5" fill="currentColor" />
                           <path d={MAIN_TEETH_PATH} fill="none" stroke="currentColor" strokeWidth="4" />
                         </svg>
@@ -555,7 +563,7 @@ export default function GamesCarouselSandbox() {
                       className="p-8 bg-carbon-black border border-graphite-light hover:border-platinum-silver/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
                     >
                       <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-platinum-silver transition-all duration-300">
-                        <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                        <svg viewBox="0 0 100 100" className="w-12 h-12 text-current animate-spin-slow">
                           <circle cx="50" cy="50" r="2" fill="currentColor" />
                           <circle cx="50" cy="50" r="7" fill="none" stroke="currentColor" strokeWidth="1.5" />
                           <path d="M50 41 L50 43 M50 59 L50 57 M41 50 L43 50 M59 50 L57 50" stroke="currentColor" strokeWidth="1.5" />
@@ -572,10 +580,10 @@ export default function GamesCarouselSandbox() {
                     {/* Card 3: Slotted Speed-Ring */}
                     <div 
                       onMouseEnter={() => setActiveCursorType('v3')}
-                      className="p-8 bg-carbon-black border border-graphite-light hover:border-slate-violet/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
+                      className="p-8 bg-carbon-black border border-graphite-light hover:border-platinum-silver/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
                     >
-                      <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-slate-violet-light transition-all duration-300">
-                        <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                      <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-platinum-silver transition-all duration-300">
+                        <svg viewBox="0 0 100 100" className="w-12 h-12 text-current animate-spin-slow">
                           <circle cx="50" cy="50" r="5" fill="currentColor" />
                           <circle cx="50" cy="50" r="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="16 10" className="opacity-70" />
                           <circle cx="50" cy="34" r="2.5" fill="currentColor" />

@@ -424,7 +424,12 @@ export default function Header() {
               height="44"
               className="text-bright-snow filter drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"
             >
-              <circle cx="50" cy="50" r="10" fill="currentColor" />
+              <circle cx="50" cy="50" r="5" fill="currentColor" />
+              <circle cx="50" cy="50" r="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="16 10" className="opacity-70" />
+              <circle cx="50" cy="34" r="2.5" fill="currentColor" />
+              <circle cx="50" cy="66" r="2.5" fill="currentColor" />
+              <circle cx="34" cy="50" r="2.5" fill="currentColor" />
+              <circle cx="66" cy="50" r="2.5" fill="currentColor" />
               <path
                 d="M50 20 L53 30 L63 23 L61 34 L73 31 L67 40 L78 42 L69 49 L77 54 L67 57 L73 66 L61 64 L63 75 L53 68 L50 78 L47 68 L37 75 L39 64 L27 66 L33 57 L23 54 L31 49 L22 42 L33 40 L27 31 L39 34 L37 23 L47 30 Z"
                 fill="none"
