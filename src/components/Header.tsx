@@ -38,8 +38,8 @@ function createSparks(clientX: number, clientY: number, currentSparkIdx: number)
       vx: Math.cos(pAngle) * speed,
       vy: Math.sin(pAngle) * speed - 0.6,
       color: isDebris 
-        ? 'oklch(0.35 0.01 285.0)' // dark graphite debris
-        : 'oklch(0.9 0.08 240.0)', // glowing cyan/white hot sparks
+        ? 'oklch(0.42 0.12 38.0)' // dark coppery orange debris
+        : 'oklch(0.76 0.18 45.0)', // glowing hot neon orange sparks
       size: isDebris ? (4 + Math.random() * 3) : (1.5 + Math.random() * 2),
       opacity: 1.0,
       rotation: Math.random() * 360,
@@ -217,19 +217,19 @@ export default function Header() {
         }
         
         @keyframes sawSpinSlow {
-          from { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-35deg); }
-          to { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-395deg); }
+          from { transform: perspective(250px) rotateX(35deg) rotateY(-25deg) rotate(-30deg); }
+          to { transform: perspective(250px) rotateX(35deg) rotateY(-25deg) rotate(-390deg); }
         }
         .animate-saw-slow {
           animation: sawSpinSlow 12s linear infinite;
         }
 
         @keyframes sawSlash {
-          0% { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-35deg); opacity: 1; }
-          10% { transform: perspective(200px) rotateX(20deg) rotateY(-20deg) rotate(-80deg); }
-          30% { transform: perspective(200px) rotateX(65deg) rotateY(-5deg) rotate(-575deg); }
-          70% { transform: perspective(200px) rotateX(65deg) rotateY(-5deg) rotate(-1115deg); }
-          100% { transform: perspective(200px) rotateX(15deg) rotateY(-15deg) rotate(-1115deg); }
+          0% { transform: perspective(250px) rotateX(35deg) rotateY(-25deg) rotate(-30deg); opacity: 1; }
+          10% { transform: perspective(250px) rotateX(40deg) rotateY(-30deg) rotate(-90deg); }
+          30% { transform: perspective(250px) rotateX(55deg) rotateY(-15deg) rotate(-570deg); }
+          70% { transform: perspective(250px) rotateX(55deg) rotateY(-15deg) rotate(-1110deg); }
+          100% { transform: perspective(250px) rotateX(35deg) rotateY(-25deg) rotate(-1110deg); }
         }
         .animate-saw-slash {
           animation: sawSlash 0.45s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
@@ -437,22 +437,26 @@ export default function Header() {
       )}
 
       {/* Dynamic Sparks Rendering */}
-      {sparks.map((spark) => (
-        <div
-          key={spark.id}
-          className="fixed rounded-full pointer-events-none z-[9999]"
-          style={{
-            left: `${spark.x}px`,
-            top: `${spark.y}px`,
-            width: `${spark.size}px`,
-            height: `${spark.size}px`,
-            backgroundColor: spark.color,
-            opacity: spark.opacity,
-            boxShadow: `0 0 8px ${spark.color}`,
-            transform: `translate(-50%, -50%) rotate(${spark.rotation}deg)`,
-          }}
-        />
-      ))}
+      {sparks.map((spark) => {
+        const travelAngle = Math.atan2(spark.vy, spark.vx) * (180 / Math.PI);
+        return (
+          <div
+            key={spark.id}
+            className="fixed pointer-events-none z-[9999]"
+            style={{
+              left: `${spark.x}px`,
+              top: `${spark.y}px`,
+              width: `${spark.size * 3.8}px`,
+              height: `${spark.size}px`,
+              borderRadius: '9999px',
+              backgroundColor: spark.color,
+              opacity: spark.opacity,
+              boxShadow: `0 0 8px ${spark.color}`,
+              transform: `translate(-50%, -50%) rotate(${travelAngle}deg)`,
+            }}
+          />
+        );
+      })}
     </header>
   );
 }

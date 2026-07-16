@@ -221,8 +221,9 @@ const FACTS_MOCK = [
 
 export default function GamesCarouselSandbox() {
   const [activeTab, setActiveTab] = useState<'kinetic' | 'glide' | 'scrub'>('kinetic');
-  const [activeCursorType, setActiveCursorType] = useState<'classic' | 'cyberpunk' | 'minimal' | null>(null);
+  const [activeCursorType, setActiveCursorType] = useState<'classic' | 'precision' | 'hollow' | 'obsidian' | 'turbine' | 'quantum' | null>(null);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+  const [isClicked, setIsClicked] = useState(false);
   const [factsLayout, setFactsLayout] = useState<'grid' | 'timeline' | 'spotlight'>('grid');
   const [mockNavIndex, setMockNavIndex] = useState(0);
 
@@ -479,41 +480,88 @@ export default function GamesCarouselSandbox() {
 
             <div 
               onMouseMove={handleCursorAreaMouseMove}
-              onMouseLeave={() => setActiveCursorType(null)}
-              className={`grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl relative ${activeCursorType ? 'cursor-none' : ''}`}
+              onMouseLeave={() => { setActiveCursorType(null); setIsClicked(false); }}
+              onMouseDown={() => setIsClicked(true)}
+              onMouseUp={() => setIsClicked(false)}
+              className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6 bg-carbon-black-2 border border-graphite-light/50 rounded-2xl relative ${activeCursorType ? 'cursor-none' : ''}`}
             >
               {/* Custom Cursor Overlay */}
               {activeCursorType && (
                 <div 
-                  className="absolute pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2"
-                  style={{ left: cursorPos.x, top: cursorPos.y }}
+                  className="absolute pointer-events-none z-50"
+                  style={{
+                    left: cursorPos.x,
+                    top: cursorPos.y,
+                    transform: `translate(-50%, -50%) perspective(250px) rotateX(35deg) rotateY(-25deg) ${isClicked ? 'rotate(-750deg)' : 'rotate(-30deg)'}`,
+                    transition: isClicked ? 'transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1)' : 'transform 0.3s ease',
+                    transformOrigin: 'center center'
+                  }}
                 >
                   {activeCursorType === 'classic' && (
-                    <svg viewBox="0 0 100 100" className="w-12 h-12 animate-spin text-platinum-silver" style={{ animationDuration: '0.6s' }}>
+                    <svg viewBox="0 0 100 100" className="w-12 h-12 animate-spin text-platinum-silver" style={{ animationDuration: '4s', animationTimingFunction: 'linear' }}>
                       <circle cx="50" cy="50" r="10" fill="currentColor" />
                       <path d="M50 20 L53 30 L63 23 L61 34 L73 31 L67 40 L78 42 L69 49 L77 54 L67 57 L73 66 L61 64 L63 75 L53 68 L50 78 L47 68 L37 75 L39 64 L27 66 L33 57 L23 54 L31 49 L22 42 L33 40 L27 31 L39 34 L37 23 L47 30 Z" fill="none" stroke="currentColor" strokeWidth="4" />
                     </svg>
                   )}
-                  {activeCursorType === 'cyberpunk' && (
-                    <svg viewBox="0 0 100 100" className="w-14 h-14 animate-spin" style={{ animationDuration: '0.3s' }}>
-                      <defs>
-                        <radialGradient id="plasmaGlow" cx="50%" cy="50%" r="50%">
-                          <stop offset="0%" stopColor="#00ffff" stopOpacity="0.9" />
-                          <stop offset="50%" stopColor="#a855f7" stopOpacity="0.6" />
-                          <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
-                        </radialGradient>
-                      </defs>
-                      <circle cx="50" cy="50" r="40" fill="url(#plasmaGlow)" className="blur-[1px]" />
-                      <circle cx="50" cy="50" r="24" fill="none" stroke="#00ffff" strokeWidth="2.5" strokeDasharray="6 12" />
-                      <circle cx="50" cy="50" r="32" fill="none" stroke="#a855f7" strokeWidth="1.5" strokeDasharray="18 8" />
-                      <path d="M50 10 L54 22 M50 90 L46 78 M10 50 L22 54 M90 50 L78 46" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+                  {activeCursorType === 'precision' && (
+                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-bright-snow" style={{ transformOrigin: 'center center' }}>
+                      <circle cx="50" cy="50" r="6" fill="none" stroke="currentColor" strokeWidth="2" />
+                      <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                      <path d="M50 8 L50 22 M50 92 L50 78 M8 50 L22 50 M92 50 L78 50" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                      <path d="M50 6 L53 10 L50 14 L47 10 Z" fill="currentColor" transform="rotate(0 50 50)" />
+                      <path d="M50 6 L53 10 L50 14 L47 10 Z" fill="currentColor" transform="rotate(45 50 50)" />
+                      <path d="M50 6 L53 10 L50 14 L47 10 Z" fill="currentColor" transform="rotate(90 50 50)" />
+                      <path d="M50 6 L53 10 L50 14 L47 10 Z" fill="currentColor" transform="rotate(135 50 50)" />
+                      <path d="M50 6 L53 10 L50 14 L47 10 Z" fill="currentColor" transform="rotate(180 50 50)" />
+                      <path d="M50 6 L53 10 L50 14 L47 10 Z" fill="currentColor" transform="rotate(225 50 50)" />
+                      <path d="M50 6 L53 10 L50 14 L47 10 Z" fill="currentColor" transform="rotate(270 50 50)" />
+                      <path d="M50 6 L53 10 L50 14 L47 10 Z" fill="currentColor" transform="rotate(315 50 50)" />
                     </svg>
                   )}
-                  {activeCursorType === 'minimal' && (
-                    <svg viewBox="0 0 100 100" className="w-10 h-10 relative">
-                      <circle cx="50" cy="50" r="32" fill="none" stroke="#e4e4e7" strokeWidth="2.5" strokeDasharray="30 20" className="animate-spin" style={{ animationDuration: '1.2s' }} />
-                      <circle cx="50" cy="50" r="22" fill="none" stroke="#a1a1aa" strokeWidth="1.5" strokeDasharray="10 25" className="animate-spin" style={{ animationDuration: '0.8s', animationDirection: 'reverse' }} />
-                      <circle cx="50" cy="50" r="12" fill="none" stroke="#ffffff" strokeWidth="3" strokeDasharray="4 8" className="animate-spin" style={{ animationDuration: '0.5s' }} />
+                  {activeCursorType === 'hollow' && (
+                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-slate-violet-light" style={{ transformOrigin: 'center center' }}>
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="2.5" />
+                      <circle cx="50" cy="50" r="32" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 6" />
+                      <path d="M50 8 L50 28 M50 92 L50 72 M8 50 L28 50 M92 50 L72 50" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                      <path d="M50 5 L55 10 L50 8 Z" fill="currentColor" transform="rotate(15 50 50)" />
+                      <path d="M50 5 L55 10 L50 8 Z" fill="currentColor" transform="rotate(60 50 50)" />
+                      <path d="M50 5 L55 10 L50 8 Z" fill="currentColor" transform="rotate(105 50 50)" />
+                      <path d="M50 5 L55 10 L50 8 Z" fill="currentColor" transform="rotate(150 50 50)" />
+                      <path d="M50 5 L55 10 L50 8 Z" fill="currentColor" transform="rotate(195 50 50)" />
+                      <path d="M50 5 L55 10 L50 8 Z" fill="currentColor" transform="rotate(240 50 50)" />
+                      <path d="M50 5 L55 10 L50 8 Z" fill="currentColor" transform="rotate(285 50 50)" />
+                      <path d="M50 5 L55 10 L50 8 Z" fill="currentColor" transform="rotate(330 50 50)" />
+                    </svg>
+                  )}
+                  {activeCursorType === 'obsidian' && (
+                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-bright-snow" style={{ transformOrigin: 'center center' }}>
+                      <polygon points="50,42 57,46 57,54 50,58 43,54 43,46" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                      <circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                      <path d="M50 18 A 32 32 0 0 1 82 50" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="8 12" strokeLinecap="round" />
+                      <path d="M50 82 A 32 32 0 0 1 18 50" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="8 12" strokeLinecap="round" />
+                      <path d="M50 6 L52 13 L48 13 Z" fill="currentColor" transform="rotate(30 50 50)" />
+                      <path d="M50 6 L52 13 L48 13 Z" fill="currentColor" transform="rotate(90 50 50)" />
+                      <path d="M50 6 L52 13 L48 13 Z" fill="currentColor" transform="rotate(150 50 50)" />
+                      <path d="M50 6 L52 13 L48 13 Z" fill="currentColor" transform="rotate(210 50 50)" />
+                      <path d="M50 6 L52 13 L48 13 Z" fill="currentColor" transform="rotate(270 50 50)" />
+                      <path d="M50 6 L52 13 L48 13 Z" fill="currentColor" transform="rotate(330 50 50)" />
+                    </svg>
+                  )}
+                  {activeCursorType === 'turbine' && (
+                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-platinum-silver animate-spin" style={{ animationDuration: '4s', animationTimingFunction: 'linear' }}>
+                      <circle cx="50" cy="50" r="14" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M50 36 C55 25, 65 20, 75 25 C62 33, 58 42, 50 50" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M64 50 C75 55, 80 65, 75 75 C67 62, 58 58, 50 50" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M50 64 C45 75, 35 80, 25 75 C38 67, 42 58, 50 50" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M36 50 C25 45, 20 35, 25 25 C33 38, 42 42, 50 50" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                      <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
+                    </svg>
+                  )}
+                  {activeCursorType === 'quantum' && (
+                    <svg viewBox="0 0 100 100" className="w-12 h-12 text-slate-violet-light">
+                      <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeDasharray="12 8" className="animate-spin" style={{ animationDuration: '4s', animationTimingFunction: 'linear' }} />
+                      <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="18 12" className="animate-spin" style={{ animationDuration: '3s', animationTimingFunction: 'linear', animationDirection: 'reverse' }} />
+                      <circle cx="50" cy="50" r="6" fill="currentColor" />
                     </svg>
                   )}
                 </div>
@@ -531,43 +579,97 @@ export default function GamesCarouselSandbox() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-bright-snow font-russo-one uppercase tracking-wider">Classic Industrial Saw</h3>
-                  <p className="text-[10px] text-alabaster-grey/60 mt-1 uppercase font-mono">Metallic grey / Fast spin</p>
+                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Classic Industrial</h3>
+                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">24-Tooth Classic / Standard pitch</p>
                 </div>
               </div>
 
-              {/* Card 2: Cyberpunk Plasma Saw */}
+              {/* Card 2: Precision Slicer */}
               <div 
-                onMouseEnter={() => setActiveCursorType('cyberpunk')}
+                onMouseEnter={() => setActiveCursorType('precision')}
+                className="p-8 bg-carbon-black border border-graphite-light hover:border-platinum-silver/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
+              >
+                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-platinum-silver transition-all duration-300">
+                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                    <circle cx="50" cy="50" r="6" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="1" />
+                    <path d="M50 8 L50 22 M50 92 L50 78 M8 50 L22 50 M92 50 L78 50" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    <path d="M50 6 L53 10 L50 14 L47 10 Z" fill="currentColor" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Precision Diamond</h3>
+                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">Fine Teeth / Expansion slots</p>
+                </div>
+              </div>
+
+              {/* Card 3: Hollow Ring Cyberblade */}
+              <div 
+                onMouseEnter={() => setActiveCursorType('hollow')}
                 className="p-8 bg-carbon-black border border-graphite-light hover:border-slate-violet/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
               >
                 <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-slate-violet-light transition-all duration-300">
                   <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
-                    <circle cx="50" cy="50" r="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="6 12" />
-                    <circle cx="50" cy="50" r="32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18 8" />
-                    <path d="M50 10 L54 22 M50 90 L46 78 M10 50 L22 54 M90 50 L78 46" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="2.5" />
+                    <circle cx="50" cy="50" r="32" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 6" />
+                    <path d="M50 8 L50 28 M50 92 L50 72 M8 50 L28 50 M92 50 L72 50" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-bright-snow font-russo-one uppercase tracking-wider">Cyberpunk Plasma Saw</h3>
-                  <p className="text-[10px] text-alabaster-grey/60 mt-1 uppercase font-mono">Cyan-Violet / Glow trail</p>
+                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Hollow Cyberblade</h3>
+                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">Hollow center / Swept teeth</p>
                 </div>
               </div>
 
-              {/* Card 3: Minimal Tech Segmented Disc */}
+              {/* Card 4: Obsidian Laser Disk */}
               <div 
-                onMouseEnter={() => setActiveCursorType('minimal')}
-                className="p-8 bg-carbon-black border border-graphite-light hover:border-bright-snow/20 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
+                onMouseEnter={() => setActiveCursorType('obsidian')}
+                className="p-8 bg-carbon-black border border-graphite-light hover:border-bright-snow/30 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
               >
                 <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-bright-snow transition-all duration-300">
                   <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
-                    <circle cx="50" cy="50" r="32" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="30 20" />
-                    <circle cx="50" cy="50" r="22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="10 25" />
+                    <polygon points="50,42 57,46 57,54 50,58 43,54 43,46" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                    <circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                    <path d="M50 18 A 32 32 0 0 1 82 50" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="8 12" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-bright-snow font-russo-one uppercase tracking-wider">Minimal Tech Disc</h3>
-                  <p className="text-[10px] text-alabaster-grey/60 mt-1 uppercase font-mono">Concentric / Split segments</p>
+                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Obsidian Laser Disk</h3>
+                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">Hex mount / Laser channels</p>
+                </div>
+              </div>
+
+              {/* Card 5: Aero-Dynamic Turbine Fan */}
+              <div 
+                onMouseEnter={() => setActiveCursorType('turbine')}
+                className="p-8 bg-carbon-black border border-graphite-light hover:border-platinum-silver/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
+              >
+                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-platinum-silver transition-all duration-300">
+                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                    <circle cx="50" cy="50" r="14" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M50 36 C55 25, 65 20, 75 25 C62 33, 58 42, 50 50" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Turbine Slicer</h3>
+                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">Airflow curve / Outer micro-saws</p>
+                </div>
+              </div>
+
+              {/* Card 6: Orbital Quantum Slicer */}
+              <div 
+                onMouseEnter={() => setActiveCursorType('quantum')}
+                className="p-8 bg-carbon-black border border-graphite-light hover:border-slate-violet/40 rounded-xl flex flex-col items-center justify-center gap-4 text-center group transition-colors duration-300"
+              >
+                <div className="p-4 bg-carbon-black-2 rounded-2xl border border-graphite-light/60 text-alabaster-grey group-hover:text-slate-violet-light transition-all duration-300">
+                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-current">
+                    <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="8 6" />
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="12 8" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-bright-snow font-silkscreen uppercase tracking-wider">Quantum Slicer</h3>
+                  <p className="text-[9px] text-alabaster-grey/60 mt-1 uppercase font-mono">Concentric / Counter-rotating</p>
                 </div>
               </div>
             </div>
