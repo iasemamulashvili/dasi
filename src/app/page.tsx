@@ -27,14 +27,15 @@ export default async function Home() {
       return {
         ...game,
         featuredSubtitle: selection.featuredSubtitle || game.title,
-        featuredImage: selection.featuredImage || game.iconSrc
+        featuredImage: selection.featuredImage || game.iconSrc,
+        showStatsBox: selection.showStatsBox
       };
     })
     .filter(Boolean) as any[];
 
   // Fallback if no games are configured or matching
   if (featuredGames.length === 0) {
-    featuredGames.push(...games.slice(0, 3));
+    featuredGames.push(...games.slice(0, 3).map(g => ({ ...g, showStatsBox: false })));
   }
 
   // Filter out featured games from the portfolio showcase
@@ -46,7 +47,7 @@ export default async function Home() {
       <Header />
       <main className="flex-1">
         <Hero />
-        <WebGLFeaturedSlider featuredGames={featuredGames} showStatsBox={settings.showStatsBox} />
+        <WebGLFeaturedSlider featuredGames={featuredGames} />
         <GamesShowcase initialGames={remainingGames} />
         <About />
         <Careers initialJobs={jobs} />

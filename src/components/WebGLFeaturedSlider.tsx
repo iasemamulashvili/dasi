@@ -139,6 +139,7 @@ interface WebGLFeaturedSliderProps {
   featuredGames: (Game & {
     featuredSubtitle?: string;
     featuredImage?: string;
+    showStatsBox?: boolean;
   })[];
   showStatsBox?: boolean;
 }
@@ -203,7 +204,8 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
           rating: g.rating || '4.5',
           downloads: g.downloads || '1M+',
           engine: g.engine || 'Unity'
-        }
+        },
+        showStatsBox: !!g.showStatsBox
       }))
     : defaultMockGames.map(g => ({
         ...g,
@@ -216,7 +218,8 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
         isIOS: true,
         isPoki: false,
         videoSrc: getVideoFallback(g.id),
-        isFeatured: true
+        isFeatured: true,
+        showStatsBox: true
       }));
 
   // WebGL Context References
@@ -942,10 +945,11 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
           style={{ 
             top: 0,
             left: 0,
+            display: (cursorHovered && !isModalOpen) ? 'flex' : 'none',
             opacity: (cursorHovered && !isModalOpen) ? 1 : 0,
             transform: `translate3d(0px, 0px, 0) translate(-50%, -50%)`,
             scale: cursorHovered ? '1' : '0.2',
-            transition: 'opacity 0.2s ease, scale 0.2s ease'
+            transition: (cursorHovered && !isModalOpen) ? 'opacity 0.2s ease, scale 0.2s ease' : 'none'
           }}
         >
           <div className="relative w-20 h-20 flex items-center justify-center">
@@ -1018,7 +1022,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
           </div>
           
           {/* Modern Specs HUD Panel with Real Game Stats */}
-          {showStatsBox && (
+          {activeGame.showStatsBox && (
             <div className="slider-hud-element font-mono text-[9px] text-alabaster-grey/85 border border-graphite-light/60 bg-carbon-black-2/95 p-4 rounded-xl space-y-1.5 mt-4 mb-6 max-w-[280px] relative backdrop-blur-md shadow-lg">
               <div className="flex justify-between">
                 <span>Engine:</span>

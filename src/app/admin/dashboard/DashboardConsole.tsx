@@ -20,7 +20,7 @@ import {
   Tv,
   Upload
 } from 'lucide-react';
-import { Game, Job, Settings } from '@/utils/db';
+import { Game, Job, Settings, JobUploadField } from '@/utils/db';
 import {
   saveGameAction,
   deleteGameAction,
@@ -99,13 +99,15 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
     description: string;
     requirements: string;
     responsibilities: string;
+    customUploads: JobUploadField[];
   }>({
     id: '',
     title: '',
     location: '',
     description: '',
     requirements: '',
-    responsibilities: ''
+    responsibilities: '',
+    customUploads: []
   });
 
   const router = useRouter();
@@ -376,7 +378,8 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
         location: job.location,
         description: job.description,
         requirements: job.requirements ? job.requirements.join('\n') : '',
-        responsibilities: job.responsibilities ? job.responsibilities.join('\n') : ''
+        responsibilities: job.responsibilities ? job.responsibilities.join('\n') : '',
+        customUploads: job.customUploads || []
       });
     } else {
       setEditingJob(null);
@@ -386,7 +389,8 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
         location: '',
         description: '',
         requirements: '',
-        responsibilities: ''
+        responsibilities: '',
+        customUploads: []
       });
     }
     setIsJobFormOpen(true);
@@ -408,7 +412,8 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
       location: jobFormData.location,
       description: jobFormData.description,
       requirements: jobFormData.requirements.split('\n').map((l) => l.trim()).filter(Boolean),
-      responsibilities: jobFormData.responsibilities.split('\n').map((l) => l.trim()).filter(Boolean)
+      responsibilities: jobFormData.responsibilities.split('\n').map((l) => l.trim()).filter(Boolean),
+      customUploads: jobFormData.customUploads
     };
 
     try {
@@ -694,9 +699,27 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
 
                       {/* Select Game */}
                       <div className="flex flex-col gap-1.5 mt-2">
-                        <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                          Select Featured Game
-                        </label>
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                            Select Featured Game
+                          </label>
+                          <label className="flex items-center gap-1.5 text-[9px] font-bold tracking-widest text-alabaster-grey/60 uppercase cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={!!slot.showStatsBox}
+                              onChange={(e) => {
+                                setSettingsForm((prev) => {
+                                  const featuredGames = [...(prev.featuredGames || [])];
+                                  while (featuredGames.length <= slotIdx) featuredGames.push({ gameId: '' });
+                                  featuredGames[slotIdx] = { ...featuredGames[slotIdx], showStatsBox: e.target.checked };
+                                  return { ...prev, featuredGames };
+                                });
+                              }}
+                              className="rounded bg-carbon-black-2 border-graphite-light text-slate-violet focus:ring-0 w-3 h-3 cursor-pointer"
+                            />
+                            <span>Show Stats Box</span>
+                          </label>
+                        </div>
                         <select
                           value={slot.gameId}
                           onChange={(e) => {
@@ -928,83 +951,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                 />
               </div>
 
-              {/* Toggle showStatsBox */}
-              <div className="flex items-center gap-3 mb-6 bg-carbon-black border border-graphite-light/50 p-4 rounded-xl">
-                <input
-                  type="checkbox"
-                  id="showStatsBox"
-                  checked={!!settingsForm.showStatsBox}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, showStatsBox: e.target.checked })}
-                  className="w-4 h-4 rounded bg-carbon-black-2 border-graphite-light text-slate-violet focus:ring-slate-violet cursor-pointer"
-                />
-                <div className="flex flex-col animate-none">
-                  <label htmlFor="showStatsBox" className="text-xs font-bold text-bright-snow uppercase cursor-pointer">
-                    Show Specs HUD Stats Box
-                  </label>
-                  <span className="text-[10px] text-alabaster-grey/60 uppercase mt-0.5">
-                    Toggle whether statistics cards are displayed on the WebGL displacement slider
-                  </span>
-                </div>
-              </div>
 
-              {/* Conditional Multi-Uploads Configuration */}
-              <div className="flex flex-col gap-4 mt-6">
-                <h4 className="text-sm font-semibold text-bright-snow uppercase font-russo-one">File Upload Configuration</h4>
-                <p className="text-xs text-alabaster-grey/60 uppercase tracking-wide">Select allowed and required file uploads per contact category</p>
-                
-                <div className="flex flex-col gap-4 max-h-[380px] overflow-y-auto pr-2 scrollbar-thin">
-                  {categoriesList.map((catName) => {
-                    const config = settingsForm.uploadRequirements?.[catName] || { allowed: [], required: [] };
-                    return (
-                      <div key={catName} className="p-4 bg-carbon-black border border-graphite-light/50 rounded-xl flex flex-col gap-3">
-                        <div className="text-xs font-bold text-bright-snow uppercase">{catName}</div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          {/* Allowed Uploads */}
-                          <div className="flex flex-col gap-1.5">
-                            <span className="text-[10px] font-bold text-alabaster-grey/50 uppercase">Allowed Files</span>
-                            {UPLOAD_TYPES.map((type) => {
-                              const isAllowed = config.allowed.includes(type.id);
-                              return (
-                                <label key={type.id} className="flex items-center gap-2 text-xs text-alabaster-grey cursor-pointer hover:text-bright-snow transition-colors">
-                                  <input
-                                    type="checkbox"
-                                    checked={isAllowed}
-                                    onChange={(e) => handleCheckboxChange(catName, 'allowed', type.id, e.target.checked)}
-                                    className="rounded bg-carbon-black-2 border-graphite-light text-slate-violet focus:ring-slate-violet"
-                                  />
-                                  <span>{type.label}</span>
-                                </label>
-                              );
-                            })}
-                          </div>
-
-                          {/* Required Uploads */}
-                          <div className="flex flex-col gap-1.5">
-                            <span className="text-[10px] font-bold text-alabaster-grey/50 uppercase">Required Files</span>
-                            {UPLOAD_TYPES.map((type) => {
-                              const isAllowed = config.allowed.includes(type.id);
-                              const isRequired = config.required.includes(type.id);
-                              return (
-                                <label key={type.id} className={`flex items-center gap-2 text-xs transition-colors ${isAllowed ? 'text-alabaster-grey cursor-pointer hover:text-bright-snow' : 'text-alabaster-grey/30 pointer-events-none'}`}>
-                                  <input
-                                    type="checkbox"
-                                    checked={isRequired && isAllowed}
-                                    disabled={!isAllowed}
-                                    onChange={(e) => handleCheckboxChange(catName, 'required', type.id, e.target.checked)}
-                                    className="rounded bg-carbon-black-2 border-graphite-light text-slate-violet focus:ring-slate-violet disabled:opacity-30"
-                                  />
-                                  <span>{type.label}</span>
-                                </label>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
 
               <div className="mt-6 border-t border-graphite-light/20 pt-4 flex justify-end">
                 <button 
@@ -1397,6 +1344,142 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                   placeholder="- Write clean C# code&#10;- Optimize mobile graphics"
                   className="w-full px-4 py-2.5 bg-carbon-black border border-graphite-light rounded-xl text-sm text-bright-snow placeholder-alabaster-grey/40 focus:outline-none focus:border-slate-violet-light resize-none"
                 />
+              </div>
+
+              {/* Document Upload Fields */}
+              <div className="flex flex-col gap-4 border-t border-graphite-light/40 pt-6 mt-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col">
+                    <h4 className="text-sm font-bold text-bright-snow uppercase tracking-wide">
+                      Document Upload Fields
+                    </h4>
+                    <span className="text-[10px] text-alabaster-grey/60 uppercase mt-0.5">
+                      Configure custom document requirements for candidates applying to this role
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setJobFormData((prev) => ({
+                        ...prev,
+                        customUploads: [
+                          ...prev.customUploads,
+                          { id: `field-${Date.now()}`, label: '', placeholder: '', accept: '', isRequired: false }
+                        ]
+                      }));
+                    }}
+                    className="px-3 py-1.5 bg-slate-violet/20 hover:bg-slate-violet/40 border border-slate-violet/30 hover:border-slate-violet/50 text-slate-violet-light text-xs font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer"
+                  >
+                    <Plus size={12} />
+                    ADD FIELD
+                  </button>
+                </div>
+
+                {jobFormData.customUploads.length === 0 ? (
+                  <div className="text-center py-6 border border-dashed border-graphite-light rounded-xl bg-carbon-black/20">
+                    <p className="text-xs text-alabaster-grey/40 uppercase">No custom upload fields configured. CV and cover letter default uploads will be used.</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {jobFormData.customUploads.map((field, idx) => (
+                      <div key={field.id} className="p-4 bg-carbon-black border border-graphite-light rounded-xl flex flex-col gap-3 relative group">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setJobFormData((prev) => ({
+                              ...prev,
+                              customUploads: prev.customUploads.filter((_, i) => i !== idx)
+                            }));
+                          }}
+                          className="absolute top-2 right-2 text-alabaster-grey/40 hover:text-rose-400 p-1 hover:bg-rose-950/20 border border-transparent hover:border-rose-500/20 rounded-md transition-all cursor-pointer"
+                          title="Delete Field"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Field ID (Unique Slug)</label>
+                            <input
+                              type="text"
+                              required
+                              value={field.id}
+                              onChange={(e) => {
+                                const updated = [...jobFormData.customUploads];
+                                updated[idx] = { ...updated[idx], id: e.target.value };
+                                setJobFormData((prev) => ({ ...prev, customUploads: updated }));
+                              }}
+                              placeholder="portfolio_url"
+                              className="px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-lg text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Field Label</label>
+                            <input
+                              type="text"
+                              required
+                              value={field.label}
+                              onChange={(e) => {
+                                const updated = [...jobFormData.customUploads];
+                                updated[idx] = { ...updated[idx], label: e.target.value };
+                                setJobFormData((prev) => ({ ...prev, customUploads: updated }));
+                              }}
+                              placeholder="Portfolio Link or PDF"
+                              className="px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-lg text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Placeholder</label>
+                            <input
+                              type="text"
+                              value={field.placeholder}
+                              onChange={(e) => {
+                                const updated = [...jobFormData.customUploads];
+                                updated[idx] = { ...updated[idx], placeholder: e.target.value };
+                                setJobFormData((prev) => ({ ...prev, customUploads: updated }));
+                              }}
+                              placeholder="Link to ArtStation / PDF up to 5MB"
+                              className="px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-lg text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Accept File Types / Extensions</label>
+                            <input
+                              type="text"
+                              value={field.accept}
+                              onChange={(e) => {
+                                const updated = [...jobFormData.customUploads];
+                                updated[idx] = { ...updated[idx], accept: e.target.value };
+                                setJobFormData((prev) => ({ ...prev, customUploads: updated }));
+                              }}
+                              placeholder=".pdf,.zip,.png,.jpg"
+                              className="px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-lg text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                            />
+                          </div>
+                          <div className="flex items-center gap-2 mt-4 select-none">
+                            <input
+                              type="checkbox"
+                              id={`req-${field.id}`}
+                              checked={field.isRequired}
+                              onChange={(e) => {
+                                const updated = [...jobFormData.customUploads];
+                                updated[idx] = { ...updated[idx], isRequired: e.target.checked };
+                                setJobFormData((prev) => ({ ...prev, customUploads: updated }));
+                              }}
+                              className="rounded bg-carbon-black-2 border-graphite-light text-slate-violet focus:ring-0"
+                            />
+                            <label htmlFor={`req-${field.id}`} className="text-[10px] font-bold text-bright-snow uppercase cursor-pointer">
+                              Is Required
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Submit panel */}

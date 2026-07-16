@@ -907,6 +907,7 @@ function WebGLMorphSlider() {
   const [cursorHovered, setCursorHovered] = useState(false);
   const [webglSupported, setWebglSupported] = useState(true);
   const transitionRef = useRef({ active: false });
+  const [activeCrosshair, setActiveCrosshair] = useState<'reticle' | 'vortex' | 'minimal'>('reticle');
 
   // WebGL Context References
   const glRef = useRef<WebGLRenderingContext | null>(null);
@@ -1218,6 +1219,17 @@ function WebGLMorphSlider() {
     });
   };
 
+  // Helper for circular text HUD
+  const getCirclingLetters = (title: string) => {
+    let displayTitle = title.toUpperCase();
+    if (displayTitle.length < 12) {
+      displayTitle = `${displayTitle} • ${displayTitle} •`;
+    } else {
+      displayTitle = `${displayTitle} • `;
+    }
+    return displayTitle.split('');
+  };
+
   const activeGame = gamesData[activeIndex];
 
   return (
@@ -1233,8 +1245,26 @@ function WebGLMorphSlider() {
             A premium full-screen slider utilizing a custom WebGL fragment shader. Clicking navigation buttons triggers a displacement morphing shader transition that liquifies and disperses pixels. A custom mouse-follower badge creates organic magnetic interactions.
           </p>
         </div>
-        <div className="shrink-0 flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-xs font-semibold">
-          <span>GLSL Fragment Shader + GSAP</span>
+        <div className="shrink-0 flex flex-col gap-2 items-end">
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-xs font-semibold">
+            <span>GLSL Fragment Shader + GSAP</span>
+          </div>
+          {/* Crosshair Selector */}
+          <div className="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5 mt-1 pointer-events-auto">
+            {(['reticle', 'vortex', 'minimal'] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setActiveCrosshair(mode)}
+                className={`px-2.5 py-1 text-[10px] font-bold uppercase rounded-md transition-all ${
+                  activeCrosshair === mode
+                    ? 'bg-blue-500 text-white shadow-[0_0_8px_rgba(59,130,246,0.5)]'
+                    : 'text-[#8596ad] hover:text-white'
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -1297,22 +1327,129 @@ function WebGLMorphSlider() {
           }}
         >
           <div className="relative w-16 h-16 flex items-center justify-center">
-            {/* Outer dotted spinning wireframe ring */}
-            <div 
-              className="absolute inset-0 rounded-full border border-dashed animate-[spin_10s_linear_infinite]"
-              style={{ 
-                borderColor: activeGame.accent, 
-                boxShadow: `0 0 12px ${activeGame.accent}44` 
-              }}
-            />
-            {/* Inner solid ring */}
-            <div 
-              className="absolute w-8 h-8 rounded-full border border-double"
-              style={{ borderColor: activeGame.accent }}
-            />
-            {/* Crosshair target lines */}
-            <div className="absolute w-5 h-[1px]" style={{ backgroundColor: activeGame.accent }} />
-            <div className="absolute h-5 w-[1px]" style={{ backgroundColor: activeGame.accent }} />
+            {activeCrosshair === 'reticle' && (
+              <>
+                {/* Circular reticle */}
+                <div 
+                  className="absolute w-12 h-12 rounded-full border border-double"
+                  style={{ 
+                    borderColor: activeGame.accent, 
+                    boxShadow: `0 0 12px ${activeGame.accent}44` 
+                  }}
+                />
+                {/* Bracket corners */}
+                <div className="absolute top-1 left-1 w-3 h-3 border-t border-l" style={{ borderColor: activeGame.accent }} />
+                <div className="absolute top-1 right-1 w-3 h-3 border-t border-r" style={{ borderColor: activeGame.accent }} />
+                <div className="absolute bottom-1 left-1 w-3 h-3 border-b border-l" style={{ borderColor: activeGame.accent }} />
+                <div className="absolute bottom-1 right-1 w-3 h-3 border-b border-r" style={{ borderColor: activeGame.accent }} />
+                {/* Crosshair needles */}
+                <div className="absolute w-[8px] h-[1px]" style={{ backgroundColor: activeGame.accent, transform: 'translateX(-26px)' }} />
+                <div className="absolute w-[8px] h-[1px]" style={{ backgroundColor: activeGame.accent, transform: 'translateX(26px)' }} />
+                <div className="absolute h-[8px] w-[1px]" style={{ backgroundColor: activeGame.accent, transform: 'translateY(-26px)' }} />
+                <div className="absolute h-[8px] w-[1px]" style={{ backgroundColor: activeGame.accent, transform: 'translateY(26px)' }} />
+                {/* Center target dot */}
+                <div className="absolute w-1 h-1 rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.8)]" />
+                {/* Circling letters counter-clockwise */}
+                <div className="absolute w-14 h-14 animate-[spin_15s_linear_infinite_reverse] pointer-events-none flex items-center justify-center">
+                  {getCirclingLetters(activeGame.title).map((char, charIdx, arr) => {
+                    const angle = charIdx * (360 / arr.length);
+                    return (
+                      <span
+                        key={charIdx}
+                        className="absolute font-mono text-[7px] font-bold select-none text-white"
+                        style={{
+                          transform: `rotate(${angle}deg) translateY(-22px)`,
+                          transformOrigin: 'center center',
+                          textShadow: `0 0 4px ${activeGame.accent}`,
+                        }}
+                      >
+                        {char}
+                      </span>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {activeCrosshair === 'vortex' && (
+              <>
+                {/* Double concentric spinning rings */}
+                <div 
+                  className="absolute w-14 h-14 rounded-full border border-dashed animate-[spin_10s_linear_infinite]"
+                  style={{ 
+                    borderColor: activeGame.accent,
+                    boxShadow: `0 0 10px ${activeGame.accent}33`
+                  }}
+                />
+                <div 
+                  className="absolute w-9 h-9 rounded-full border border-dotted animate-[spin_6s_linear_infinite_reverse]"
+                  style={{ borderColor: activeGame.accent }}
+                />
+                {/* 45-degree corner ticks */}
+                <div className="absolute w-12 h-12 rotate-45 pointer-events-none">
+                  <div className="absolute top-0 left-0 w-2 h-[1px]" style={{ backgroundColor: activeGame.accent }} />
+                  <div className="absolute top-0 left-0 w-[1px] h-2" style={{ backgroundColor: activeGame.accent }} />
+                  <div className="absolute top-0 right-0 w-2 h-[1px]" style={{ backgroundColor: activeGame.accent }} />
+                  <div className="absolute top-0 right-0 w-[1px] h-2" style={{ backgroundColor: activeGame.accent }} />
+                  <div className="absolute bottom-0 left-0 w-2 h-[1px]" style={{ backgroundColor: activeGame.accent }} />
+                  <div className="absolute bottom-0 left-0 w-[1px] h-2" style={{ backgroundColor: activeGame.accent }} />
+                  <div className="absolute bottom-0 right-0 w-2 h-[1px]" style={{ backgroundColor: activeGame.accent }} />
+                  <div className="absolute bottom-0 right-0 w-[1px] h-2" style={{ backgroundColor: activeGame.accent }} />
+                </div>
+                {/* Center target dot */}
+                <div className="absolute w-1.5 h-1.5 rounded-full" style={{ backgroundColor: activeGame.accent, boxShadow: `0 0 6px ${activeGame.accent}` }} />
+                {/* Opposite-direction circling letters clockwise */}
+                <div className="absolute w-14 h-14 animate-[spin_12s_linear_infinite] pointer-events-none flex items-center justify-center">
+                  {getCirclingLetters(activeGame.title).map((char, charIdx, arr) => {
+                    const angle = charIdx * (360 / arr.length);
+                    return (
+                      <span
+                        key={charIdx}
+                        className="absolute font-mono text-[7px] font-bold select-none text-white"
+                        style={{
+                          transform: `rotate(${angle}deg) translateY(-22px)`,
+                          transformOrigin: 'center center',
+                          textShadow: `0 0 4px ${activeGame.accent}`,
+                        }}
+                      >
+                        {char}
+                      </span>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {activeCrosshair === 'minimal' && (
+              <>
+                {/* Center target dot */}
+                <div className="absolute w-2 h-2 rounded-full" style={{ backgroundColor: activeGame.accent, boxShadow: `0 0 8px ${activeGame.accent}` }} />
+                {/* 3 curved outer arcs at 120-degree intervals */}
+                <svg viewBox="0 0 100 100" className="absolute w-12 h-12 animate-[spin_8s_linear_infinite]" style={{ color: activeGame.accent }}>
+                  <circle cx="50" cy="50" r="36" stroke="currentColor" strokeWidth="2" fill="none" strokeDasharray="37.7 37.7" />
+                </svg>
+                {/* Close circling letters */}
+                <div className="absolute w-10 h-10 animate-[spin_10s_linear_infinite_reverse] pointer-events-none flex items-center justify-center">
+                  {getCirclingLetters(activeGame.title).map((char, charIdx, arr) => {
+                    const angle = charIdx * (360 / arr.length);
+                    return (
+                      <span
+                        key={charIdx}
+                        className="absolute font-mono text-[6px] font-bold select-none text-white/90"
+                        style={{
+                          transform: `rotate(${angle}deg) translateY(-14px)`,
+                          transformOrigin: 'center center',
+                          textShadow: `0 0 3px ${activeGame.accent}`,
+                        }}
+                      >
+                        {char}
+                      </span>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
             {/* HUD Target readout text */}
             <span 
               className="absolute top-10 font-mono text-[7px] bg-black/85 px-1.5 py-0.5 rounded border border-white/10 text-white tracking-widest whitespace-nowrap"

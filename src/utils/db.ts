@@ -26,6 +26,14 @@ export interface Game {
   rating?: string;
 }
 
+export interface JobUploadField {
+  id: string;
+  label: string;
+  placeholder: string;
+  accept: string;
+  isRequired: boolean;
+}
+
 export interface Job {
   id: string;
   title: string;
@@ -33,6 +41,7 @@ export interface Job {
   description: string;
   requirements: string[];
   responsibilities: string[];
+  customUploads?: JobUploadField[];
 }
 
 const GAMES_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'games.json');
@@ -43,6 +52,7 @@ export interface FeaturedGameSelection {
   gameId: string;
   featuredSubtitle?: string;
   featuredImage?: string;
+  showStatsBox?: boolean;
 }
 
 export interface Settings {

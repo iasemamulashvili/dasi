@@ -481,10 +481,15 @@ export default function Hero() {
         {/* Cyberpunk HUD Game-style Alert Pill */}
         {collectedCount > 0 && (
           <div className="flex items-center gap-3 px-4 py-2 bg-carbon-black-2/80 backdrop-blur-md border border-slate-violet/30 rounded-xl text-xs font-silkscreen text-bright-snow shadow-[0_8px_32px_rgba(0,0,0,0.6)] transition-all duration-300 animate-fadeIn select-none border-l-4 border-l-slate-violet-light">
-            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="8" className="w-4 h-4 text-slate-violet-light animate-pulse filter drop-shadow-[0_0_4px_rgba(168,85,247,0.5)]">
-              <path d="M 20 20 L 80 20 L 80 50 C 80 72 65 88 50 95 C 35 88 20 72 20 50 Z" />
-              <polygon points="44,30 56,30 50,42" fill="currentColor" stroke="none" />
-            </svg>
+            <img
+              src="https://dasigames.com/Images/low_res_images/dasigames_logo(transparent).png"
+              alt="Dasi Logo"
+              className="w-4 h-4 object-contain filter drop-shadow-[0_0_4px_rgba(168,85,247,0.5)]"
+              style={{
+                transform: `rotate(${collectedCount * 180}deg)`,
+                transition: 'transform 500ms ease'
+              }}
+            />
             <span className="tracking-wider text-slate-violet-light font-bold">
               Carrying {collectedCount} {collectedCount === 1 ? 'letter' : 'letters'} • Hover RELEASE to launch!
             </span>

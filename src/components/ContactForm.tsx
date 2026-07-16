@@ -1,8 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Send, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Send, Upload, CheckCircle2, AlertCircle, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+interface JobUploadField {
+  id: string;
+  label: string;
+  placeholder: string;
+  accept: string;
+  isRequired: boolean;
+}
 
 interface Job {
   id: string;
@@ -11,6 +19,7 @@ interface Job {
   description: string;
   requirements: string[];
   responsibilities: string[];
+  customUploads?: JobUploadField[];
 }
 
 interface Settings {
@@ -67,6 +76,113 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // States for custom dropdown
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic dropdown subjects list
+  const subjectsList = [
+    'General Inquiry',
+    'Business Partnership',
+    'Job Application - Other',
+    ...jobs.map((job) => `Job Application - ${job.title}`)
+  ];
+
+  // Helper to determine active upload fields based on selected subject
+  const getUploadFields = (): JobUploadField[] => {
+    const subject = formData.subject;
+    if (!subject) return [];
+
+    // Check if the subject corresponds to a job application
+    if (subject.startsWith('Job Application - ')) {
+      const jobTitle = subject.substring('Job Application - '.length);
+      const matchingJob = jobs.find((job) => job.title === jobTitle);
+      
+      // If a matching job has customUploads configured, use them
+      if (matchingJob?.customUploads && matchingJob.customUploads.length > 0) {
+        return matchingJob.customUploads.map((field) => ({
+          id: field.id,
+          label: field.label,
+          placeholder: field.placeholder,
+          accept: field.accept,
+          isRequired: field.isRequired,
+        }));
+      }
+    }
+
+    // Settings overrides
+    if (settings?.uploadRequirements?.[subject]) {
+      const reqs = settings.uploadRequirements[subject];
+      return reqs.allowed.map((typeId) => {
+        const spec = UPLOAD_LABELS[typeId] || {
+          label: typeId.toUpperCase(),
+          placeholder: 'Upload file',
+          accept: '*/*',
+        };
+        return {
+          id: typeId,
+          label: spec.label,
+          placeholder: spec.placeholder,
+          accept: spec.accept,
+          isRequired: reqs.required.includes(typeId),
+        };
+      });
+    }
+
+    // Default fallback rules for any Job Application
+    if (subject.startsWith('Job Application')) {
+      return [
+        {
+          id: 'cv',
+          label: UPLOAD_LABELS.cv.label,
+          placeholder: UPLOAD_LABELS.cv.placeholder,
+          accept: UPLOAD_LABELS.cv.accept,
+          isRequired: true,
+        },
+        {
+          id: 'portfolio',
+          label: UPLOAD_LABELS.portfolio.label,
+          placeholder: UPLOAD_LABELS.portfolio.placeholder,
+          accept: UPLOAD_LABELS.portfolio.accept,
+          isRequired: false,
+        },
+      ];
+    }
+
+    return [];
+  };
+
+  const uploadFields = getUploadFields();
+  const [activeUploadFields, setActiveUploadFields] = useState<JobUploadField[]>(uploadFields);
+  const [isUploadsVisible, setIsUploadsVisible] = useState(uploadFields.length > 0);
+
+  // Sync active upload fields when subject, jobs, or settings change
+  useEffect(() => {
+    if (uploadFields.length > 0) {
+      setActiveUploadFields(uploadFields);
+      setIsUploadsVisible(true);
+    } else {
+      setIsUploadsVisible(false);
+      // Wait for collapse transition (500ms) before clearing the active configuration
+      const timer = setTimeout(() => {
+        setActiveUploadFields([]);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [formData.subject, jobs, settings]);
+
+  // Click outside listener for custom dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   // Native input event listener to capture subject change triggered by other components (e.g. Careers 'Apply Now')
   useEffect(() => {
     const subjectInput = document.getElementById('subject');
@@ -98,43 +214,47 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
     setUploadedFiles((prev) => ({ ...prev, [fieldId]: file }));
   };
 
-  // Helper to determine active upload rules based on subject configuration
-  const getUploadConfig = () => {
-    const subject = formData.subject;
-    if (!subject) return { allowed: [], required: [] };
-
-    if (settings?.uploadRequirements?.[subject]) {
-      return settings.uploadRequirements[subject];
-    }
-
-    // Default fallback rules
-    if (subject.startsWith('Job Application')) {
-      return {
-        allowed: ['cv', 'portfolio'],
-        required: ['cv']
-      };
-    }
-    return { allowed: [], required: [] };
+  const selectOption = (sub: string) => {
+    setFormData((prev) => ({ ...prev, subject: sub }));
+    setUploadedFiles({});
+    setDropdownOpen(false);
   };
 
-  const uploadConfig = getUploadConfig();
-
-  const [activeUploadConfig, setActiveUploadConfig] = useState(uploadConfig);
-  const [isUploadsVisible, setIsUploadsVisible] = useState(uploadConfig.allowed.length > 0);
-
-  useEffect(() => {
-    if (uploadConfig.allowed.length > 0) {
-      setActiveUploadConfig(uploadConfig);
-      setIsUploadsVisible(true);
-    } else {
-      setIsUploadsVisible(false);
-      // Wait for collapse transition (500ms) before clearing the active configuration
-      const timer = setTimeout(() => {
-        setActiveUploadConfig(uploadConfig);
-      }, 500);
-      return () => clearTimeout(timer);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!dropdownOpen) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        setDropdownOpen(true);
+        const currentIndex = subjectsList.indexOf(formData.subject);
+        setHighlightedIndex(currentIndex >= 0 ? currentIndex : 0);
+      }
+      return;
     }
-  }, [uploadConfig]);
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex((prev) => (prev + 1) % subjectsList.length);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex((prev) => (prev - 1 + subjectsList.length) % subjectsList.length);
+        break;
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        if (highlightedIndex >= 0 && highlightedIndex < subjectsList.length) {
+          selectOption(subjectsList[highlightedIndex]);
+        }
+        break;
+      case 'Escape':
+      case 'Tab':
+        setDropdownOpen(false);
+        break;
+      default:
+        break;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,10 +262,10 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
     setSubmitStatus('idle');
 
     // Client-side validation for required file fields
-    const missingFields = uploadConfig.required.filter((typeId) => !uploadedFiles[typeId]);
+    const missingFields = uploadFields.filter((f) => f.isRequired && !uploadedFiles[f.id]);
     if (missingFields.length > 0) {
       setSubmitStatus('error');
-      setErrorMessage(`Please upload the required file(s): ${missingFields.map((f) => UPLOAD_LABELS[f]?.label || f.toUpperCase()).join(', ')}`);
+      setErrorMessage(`Please upload the required file(s): ${missingFields.map((f) => f.label).join(', ')}`);
       setIsSubmitting(false);
       return;
     }
@@ -158,10 +278,10 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
       data.append('message', formData.message);
 
       // Append all configured files
-      uploadConfig.allowed.forEach((typeId) => {
-        const file = uploadedFiles[typeId];
+      uploadFields.forEach((field) => {
+        const file = uploadedFiles[field.id];
         if (file) {
-          data.append(`file_${typeId}`, file);
+          data.append(`file_${field.id}`, file);
         }
       });
 
@@ -187,13 +307,7 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
     }
   };
 
-  // Dynamic dropdown subjects list
-  const subjectsList = [
-    'General Inquiry',
-    'Business Partnership',
-    'Job Application - Other',
-    ...jobs.map((job) => `Job Application - ${job.title}`)
-  ];
+
 
   return (
     <section id="contact" className="bg-transparent border-t border-graphite-light py-24 px-6 relative">
@@ -275,28 +389,97 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
               />
             </div>
 
-            {/* Subject Dropdown */}
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="subject" className="text-xs font-silkscreen tracking-wider text-alabaster-grey uppercase">
+            {/* Subject Custom Dropdown */}
+            <div className="flex flex-col gap-1.5" ref={dropdownRef}>
+              <label className="text-xs font-silkscreen tracking-wider text-alabaster-grey uppercase">
                 Subject
               </label>
+              
+              {/* Hidden select for form submission and native change listeners compatibility */}
+              <select
+                id="subject"
+                name="subject"
+                required
+                value={formData.subject}
+                onChange={(e) => {
+                  setFormData((prev) => ({ ...prev, subject: e.target.value }));
+                  setUploadedFiles({});
+                }}
+                className="sr-only"
+                tabIndex={-1}
+                aria-hidden="true"
+              >
+                <option value="" disabled>Select a subject</option>
+                {subjectsList.map((sub) => (
+                  <option key={sub} value={sub}>{sub}</option>
+                ))}
+              </select>
+
               <div className="relative">
-                <select
-                  id="subject"
-                  name="subject"
-                  required
-                  value={formData.subject}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-carbon-black border border-graphite-light rounded-none text-sm text-bright-snow focus:outline-none focus:border-platinum-silver transition-colors font-outfit cursor-pointer appearance-none"
+                {/* Trigger Button */}
+                <button
+                  type="button"
+                  aria-haspopup="listbox"
+                  aria-expanded={dropdownOpen}
+                  onKeyDown={handleKeyDown}
+                  onClick={() => {
+                    setDropdownOpen(!dropdownOpen);
+                    const currentIndex = subjectsList.indexOf(formData.subject);
+                    setHighlightedIndex(currentIndex >= 0 ? currentIndex : 0);
+                  }}
+                  className="w-full px-4 py-3 bg-carbon-black border border-graphite-light rounded-none text-sm text-left text-bright-snow focus:outline-none focus:border-platinum-silver transition-all duration-200 font-outfit cursor-pointer flex items-center justify-between"
                 >
-                  <option value="" disabled>Select a subject</option>
-                  {subjectsList.map((sub) => (
-                    <option key={sub} value={sub}>{sub}</option>
-                  ))}
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-alabaster-grey/70">
-                  ▼
-                </div>
+                  <span className={formData.subject ? 'text-bright-snow' : 'text-alabaster-grey/40'}>
+                    {formData.subject || 'Select a subject'}
+                  </span>
+                  <motion.span
+                    animate={{ rotate: dropdownOpen ? 180 : 0 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="text-alabaster-grey/70 text-xs"
+                  >
+                    ▼
+                  </motion.span>
+                </button>
+
+                {/* Floating Glassmorphic Options List */}
+                <AnimatePresence>
+                  {dropdownOpen && (
+                    <motion.ul
+                      initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                      role="listbox"
+                      className="absolute left-0 right-0 mt-1 z-50 max-h-60 overflow-y-auto bg-carbon-black-2/95 backdrop-blur-xl border border-graphite-light rounded-none shadow-2xl py-1"
+                    >
+                      {subjectsList.map((sub, index) => {
+                        const isSelected = formData.subject === sub;
+                        const isHighlighted = highlightedIndex === index;
+                        return (
+                          <li
+                            key={sub}
+                            role="option"
+                            aria-selected={isSelected}
+                            onClick={() => selectOption(sub)}
+                            onMouseEnter={() => setHighlightedIndex(index)}
+                            className={`px-4 py-2.5 text-sm font-outfit cursor-pointer transition-all duration-150 border-l-2 flex items-center justify-between ${
+                              isSelected
+                                ? 'bg-slate-violet/40 text-bright-snow border-slate-violet-light font-medium'
+                                : isHighlighted
+                                ? 'bg-slate-violet/20 text-bright-snow border-slate-violet/50'
+                                : 'bg-transparent text-alabaster-grey/80 border-transparent hover:text-bright-snow'
+                            }`}
+                          >
+                            <span>{sub}</span>
+                            {isSelected && (
+                              <Check size={14} className="text-slate-violet-light" />
+                            )}
+                          </li>
+                        );
+                      })}
+                    </motion.ul>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
@@ -311,16 +494,16 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
                 opacity: isUploadsVisible ? 1 : 0,
               }}
               transition={{
-                height: { type: 'spring' as const, stiffness: 220, damping: 28 },
-                opacity: { duration: 0.2 },
-                marginTop: { type: 'spring' as const, stiffness: 220, damping: 28 },
+                height: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+                marginTop: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+                opacity: { duration: isUploadsVisible ? 0.35 : 0.15, ease: 'linear' },
                 borderWidth: { duration: 0.15 }
               }}
               className="flex flex-col gap-4 bg-carbon-black/50 border-solid border-graphite-light/35 overflow-hidden px-4"
               style={{ originY: 0 }}
             >
               <AnimatePresence initial={false}>
-                {activeUploadConfig.allowed.length > 0 && (
+                {activeUploadFields.length > 0 && (
                   <motion.div
                     key="dropzones-content"
                     initial={{ opacity: 0, y: 10 }}
@@ -333,19 +516,18 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
                       Required Documents
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {activeUploadConfig.allowed.map((typeId) => {
-                        const spec = UPLOAD_LABELS[typeId] || { label: typeId.toUpperCase(), placeholder: 'Upload file', accept: '*/*' };
-                        const isRequired = activeUploadConfig.required.includes(typeId);
-                        const currentFile = uploadedFiles[typeId];
+                      {activeUploadFields.map((field) => {
+                        const isRequired = field.isRequired;
+                        const currentFile = uploadedFiles[field.id];
                         const isUploaded = !!currentFile;
                         
                         return (
                           <div
-                            key={typeId}
+                            key={field.id}
                             className="flex flex-col gap-1.5"
                           >
                             <span className="text-[9px] font-silkscreen tracking-wider text-alabaster-grey uppercase flex items-center gap-1">
-                              <span>{spec.label}</span>
+                              <span>{field.label}</span>
                               {isRequired && <span className="text-rose-500">*</span>}
                             </span>
                             <motion.label
@@ -368,20 +550,20 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
                                   isUploaded ? 'text-muted-green-light font-medium' : 'text-alabaster-grey'
                                 }`}
                               >
-                                {currentFile ? currentFile.name : spec.placeholder}
+                                {currentFile ? currentFile.name : field.placeholder}
                               </span>
                               <span className="text-[8px] text-alabaster-grey/40 font-outfit mt-0.5">
-                                Allowed formats: {spec.accept}
+                                Allowed formats: {field.accept}
                               </span>
                               <input
                                 type="file"
-                                id={`file-${typeId}`}
-                                accept={spec.accept}
+                                id={`file-${field.id}`}
+                                accept={field.accept}
                                 onChange={(e) => {
                                   if (e.target.files && e.target.files.length > 0) {
-                                    handleFileChange(typeId, e.target.files[0]);
+                                    handleFileChange(field.id, e.target.files[0]);
                                   } else {
-                                    handleFileChange(typeId, null);
+                                    handleFileChange(field.id, null);
                                   }
                                 }}
                                 className="sr-only"

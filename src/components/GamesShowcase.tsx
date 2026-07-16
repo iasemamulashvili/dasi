@@ -14,7 +14,7 @@ import { Game } from '@/utils/db';
 const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={`${className} group cursor-pointer`}
+    className={`${className} group cursor-pointer transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_0_12px_rgba(255,255,255,0.25)] rounded-[6px]`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -24,7 +24,7 @@ const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#a1a1aa] transition-colors duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#202023] group-hover:stroke-white transition-all duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 10) scale(0.035)" fill="#ffffff">
@@ -38,7 +38,7 @@ const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
 const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={`${className} group cursor-pointer`}
+    className={`${className} group cursor-pointer transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_0_12px_rgba(255,255,255,0.25)] rounded-[6px]`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -48,7 +48,7 @@ const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#a1a1aa] transition-colors duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#202023] group-hover:stroke-white transition-all duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 11) scale(0.035)">
@@ -69,7 +69,7 @@ const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
 const PokiPlayBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={`${className} group cursor-pointer`}
+    className={`${className} group cursor-pointer transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_0_12px_rgba(255,255,255,0.25)] rounded-[6px]`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -79,7 +79,7 @@ const PokiPlayBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#27272A] group-hover:stroke-[#a1a1aa] transition-colors duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#202023] group-hover:stroke-white transition-all duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 12)" fill="#BF5AF2">
@@ -101,7 +101,8 @@ function KineticCard({
   onCardMouseMove,
   onCardMouseLeave,
   cardWidth,
-  cardSpacing
+  cardSpacing,
+  centeredIdx
 }: { 
   game: Game; 
   index: number; 
@@ -113,8 +114,10 @@ function KineticCard({
   onCardMouseLeave: () => void;
   cardWidth: number;
   cardSpacing: number;
+  centeredIdx: number;
 }) {
   const isHovered = !isMobile && hoveredIdx === index;
+  const isFocused = isMobile ? (centeredIdx === index) : (hoveredIdx === index);
 
   const activeStores = [
     ...(game.isIOS && game.appstoreLink ? [{ id: 'ios', href: game.appstoreLink, component: <AppStoreBadge className="h-[28px] w-auto" />, label: 'App Store' }] : []),
@@ -219,17 +222,21 @@ function KineticCard({
             className="w-full h-full object-cover"
           />
           {/* Subtle grid pattern overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] opacity-25" />
+          {isFocused && (
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] opacity-25" />
+          )}
         </motion.div>
 
         {/* CRT Scanline Overlay */}
-        <div className="absolute inset-0 pointer-events-none z-30 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.03)_50%,rgba(0,0,0,0.12)_50%)] bg-[size:100%_4px]" />
+        {isFocused && (
+          <div className="absolute inset-0 pointer-events-none z-30 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.03)_50%,rgba(0,0,0,0.12)_50%)] bg-[size:100%_4px]" />
+        )}
         
         {/* Bezel inner shadow */}
         <div className="absolute inset-0 pointer-events-none z-30 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.45)_100%)]" />
         
         {/* Scanning horizontal line */}
-        {isHovered && (
+        {isFocused && !game.videoSrc && (
           <div className="absolute inset-x-0 h-[1.5px] bg-white/20 pointer-events-none z-35 animate-scan-line" />
         )}
       </div>
@@ -262,10 +269,7 @@ function KineticCard({
           )}
           
           {isMobile ? (
-            <div className="flex items-center justify-between w-full pointer-events-auto">
-              <span className="text-[10px] font-mono text-alabaster-grey/70">
-                {game.downloads || 'FREE'}
-              </span>
+            <div className="flex items-center justify-end w-full pointer-events-auto">
               <div className="flex items-center gap-2">
                 {activeStores.map((store) => (
                   <a
@@ -364,6 +368,40 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   const defaultSpeed = -0.85;
   const currentSpeed = useRef(defaultSpeed);
 
+  const trackWidth = 148;
+  const handleX = useMotionValue(0);
+  const [isDraggingHandle, setIsDraggingHandle] = useState(false);
+  const [isSnapping, setIsSnapping] = useState(false);
+  const [centeredIdx, setCenteredIdx] = useState<number>(games.length);
+
+  // Sync handleX from trackX when not dragging the handle
+  useEffect(() => {
+    const unsubscribe = trackX.on("change", (latestTrackX) => {
+      if (isDraggingHandle) return;
+      let normalizedX = -latestTrackX;
+      const minVal = repeatInterval * 0.5;
+      const maxVal = repeatInterval * 1.5;
+      const range = repeatInterval;
+      
+      let diff = ((normalizedX - minVal) % range + range) % range;
+      let ratio = diff / range;
+      
+      handleX.set(ratio * trackWidth);
+    });
+    return () => unsubscribe();
+  }, [trackX, repeatInterval, isDraggingHandle]);
+
+  // Sync trackX from handleX when dragging the handle
+  useEffect(() => {
+    const unsubscribe = handleX.on("change", (latestHandleX) => {
+      if (!isDraggingHandle) return;
+      const ratio = latestHandleX / trackWidth;
+      const targetTrackX = -(repeatInterval * 0.5 + ratio * repeatInterval);
+      trackX.set(targetTrackX);
+    });
+    return () => unsubscribe();
+  }, [handleX, repeatInterval, isDraggingHandle]);
+
   useEffect(() => {
     setDragConstraints({
       left: -repeatInterval * 2,
@@ -374,13 +412,19 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
   useAnimationFrame((time, delta) => {
     const currentX = trackX.get();
-    const nearestCardIdx = Math.round(-currentX / spacing);
-    const mappedActive = ((nearestCardIdx % games.length) + games.length) % games.length;
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const targetIdx = Math.round(((viewportWidth - cardWidth) / 2 - currentX) / spacing);
+    
+    if (targetIdx !== centeredIdx) {
+      setCenteredIdx(targetIdx);
+    }
+    
+    const mappedActive = ((targetIdx % games.length) + games.length) % games.length;
     if (mappedActive !== activeIndex) {
       setActiveIndex(mappedActive);
     }
 
-    if (isDragging) return;
+    if (isDragging || isSnapping) return;
 
     const frameFactor = delta / 16.6;
 
@@ -435,6 +479,20 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       currentX -= repeatInterval;
       trackX.set(currentX);
     }
+
+    if (isMobile) {
+      const targetIdx = Math.round(-trackX.get() / spacing);
+      const snapX = -targetIdx * spacing;
+      setIsSnapping(true);
+      animate(trackX, snapX, {
+        type: 'spring',
+        stiffness: 120,
+        damping: 20,
+        onComplete: () => {
+          setIsSnapping(false);
+        }
+      });
+    }
   };
 
   const animateTo = (targetX: number) => {
@@ -484,6 +542,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
                 onCardMouseLeave={handleCardMouseLeave}
                 cardWidth={cardWidth}
                 cardSpacing={spacing}
+                centeredIdx={centeredIdx}
               />
             ))}
           </motion.div>
@@ -492,32 +551,47 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
       {/* Centered Glassmorphic Navigation controls & tech indicator */}
       <div className="flex flex-col items-center justify-center gap-3 w-full mt-4 z-30 px-6">
-        {/* Navigation Bar wrapper with Glassmorphism */}
-        <div className="flex items-center gap-6 px-5 py-2.5 bg-carbon-black-2/40 backdrop-blur-md border border-slate-700/50 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.45)] relative">
-          {/* Clickable Line Dots */}
-          <div className="flex gap-2 items-center relative px-2">
-            {games.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleDotClick(idx)}
-                className="relative py-2 focus:outline-none cursor-pointer"
-                title={`Go to game ${idx + 1}`}
-              >
-                <motion.div
-                  animate={{
-                    width: idx === activeIndex ? 24 : 6,
-                    backgroundColor: idx === activeIndex ? '#ffffff' : '#3f3f46',
-                    opacity: idx === activeIndex ? 1.0 : 0.6
-                  }}
-                  transition={{
-                    type: 'spring',
-                    stiffness: 280,
-                    damping: 20
-                  }}
-                  className="h-1.5 rounded-full relative z-10"
-                />
-              </button>
-            ))}
+        {/* Overhauled Navigation Bar wrapper with a borderless design */}
+        <div className="flex items-center gap-6 px-5 py-2.5 relative">
+          {/* Draggable Indicator Track */}
+          <div className="relative w-[180px] h-6 flex items-center select-none justify-center">
+            {/* The Track Line / Groove */}
+            <div className="absolute left-[16px] right-[16px] h-1 bg-zinc-800 rounded-full border border-white/5" />
+
+            {/* Faint indicator dots as guides under the handle */}
+            <div className="absolute left-[16px] right-[16px] flex justify-between pointer-events-auto">
+              {games.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleDotClick(idx)}
+                  className="w-4 h-4 -m-1.5 flex items-center justify-center focus:outline-none cursor-pointer z-10"
+                  title={`Go to game ${idx + 1}`}
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-600/60 hover:bg-zinc-400 transition-colors" />
+                </button>
+              ))}
+            </div>
+
+            {/* Draggable Handle */}
+            <div className="absolute left-[16px] right-[16px] top-0 bottom-0 pointer-events-none">
+              <motion.div
+                drag="x"
+                dragConstraints={{ left: 0, right: trackWidth }}
+                dragElastic={0.05}
+                dragMomentum={false}
+                style={{ x: handleX }}
+                onDragStart={() => {
+                  setIsDraggingHandle(true);
+                  setIsDragging(true);
+                }}
+                onDragEnd={(e, info) => {
+                  setIsDraggingHandle(false);
+                  setIsDragging(false);
+                  handleDragEnd(e, info);
+                }}
+                className="absolute top-1/2 -translate-y-1/2 w-8 h-3.5 bg-bright-snow rounded-full shadow-[0_0_12px_rgba(255,255,255,0.8)] border border-white/20 cursor-grab active:cursor-grabbing hover:scale-105 active:scale-95 pointer-events-auto z-20"
+              />
+            </div>
           </div>
         </div>
 
