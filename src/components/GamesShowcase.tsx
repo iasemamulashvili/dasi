@@ -10,11 +10,11 @@ import {
 } from 'lucide-react';
 import { Game } from '@/utils/db';
 
-// Official Store Badges (charcoal-grey bg, silver/zinc outline on hover)
+// Official Store Badges — clean style matching featured section
 const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={`${className} group cursor-pointer transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_0_12px_rgba(255,255,255,0.25)] rounded-[6px]`}
+    className={`${className} group/badge cursor-pointer`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -24,7 +24,7 @@ const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#202023] group-hover:stroke-white transition-all duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover/badge:fill-[#27272A] group-hover/badge:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 10) scale(0.035)" fill="#ffffff">
@@ -38,7 +38,7 @@ const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
 const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={`${className} group cursor-pointer transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_0_12px_rgba(255,255,255,0.25)] rounded-[6px]`}
+    className={`${className} group/badge cursor-pointer`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -48,7 +48,7 @@ const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#202023] group-hover:stroke-white transition-all duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover/badge:fill-[#27272A] group-hover/badge:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 11) scale(0.035)">
@@ -69,7 +69,7 @@ const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
 const PokiPlayBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={`${className} group cursor-pointer transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_0_12px_rgba(255,255,255,0.25)] rounded-[6px]`}
+    className={`${className} group/badge cursor-pointer`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -79,7 +79,7 @@ const PokiPlayBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#202023] group-hover:stroke-white transition-all duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover/badge:fill-[#27272A] group-hover/badge:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 12)" fill="#BF5AF2">
