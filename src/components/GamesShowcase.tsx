@@ -4,17 +4,16 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useAnimationFrame, animate } from 'framer-motion';
 import { 
   ExternalLink,
-  ChevronRight,
-  ChevronLeft,
-  MousePointer
+  ChevronRight
 } from 'lucide-react';
 import { Game } from '@/utils/db';
 
-// Official Store Badges (charcoal-grey bg, silver/zinc outline on hover)
+// Official Store Badges — clean style matching featured section
+// No border glow on card hover; subtle fill/stroke change only on individual badge hover
 const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={`${className} group cursor-pointer transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_0_12px_rgba(255,255,255,0.25)] rounded-[6px]`}
+    className={`${className} group/badge cursor-pointer`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -24,7 +23,7 @@ const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#202023] group-hover:stroke-white transition-all duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover/badge:fill-[#27272A] group-hover/badge:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 10) scale(0.035)" fill="#ffffff">
@@ -38,7 +37,7 @@ const AppStoreBadge = ({ className = "h-8" }: { className?: string }) => (
 const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={`${className} group cursor-pointer transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_0_12px_rgba(255,255,255,0.25)] rounded-[6px]`}
+    className={`${className} group/badge cursor-pointer`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -48,7 +47,7 @@ const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#202023] group-hover:stroke-white transition-all duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover/badge:fill-[#27272A] group-hover/badge:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 11) scale(0.035)">
@@ -69,7 +68,7 @@ const PlayStoreBadge = ({ className = "h-8" }: { className?: string }) => (
 const PokiPlayBadge = ({ className = "h-8" }: { className?: string }) => (
   <svg
     viewBox="0 0 120 40"
-    className={`${className} group cursor-pointer transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_0_12px_rgba(255,255,255,0.25)] rounded-[6px]`}
+    className={`${className} group/badge cursor-pointer`}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -79,7 +78,7 @@ const PokiPlayBadge = ({ className = "h-8" }: { className?: string }) => (
       width="119"
       height="39"
       rx="6"
-      className="fill-[#18181B] stroke-[#27272A] group-hover:fill-[#202023] group-hover:stroke-white transition-all duration-300"
+      className="fill-[#18181B] stroke-[#27272A] group-hover/badge:fill-[#27272A] group-hover/badge:stroke-[#a1a1aa] transition-colors duration-300"
       strokeWidth={1}
     />
     <g transform="translate(10, 12)" fill="#BF5AF2">
@@ -152,11 +151,10 @@ function KineticCard({
         borderColor: isHovered ? 'var(--color-platinum-silver)' : 'rgba(55, 65, 81, 0.4)'
       }}
       transition={{
-        type: 'spring',
-        stiffness: 145,
-        damping: 20
+        width: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+        borderColor: { duration: 0.2 }
       }}
-      style={{ opacity, willChange: 'width, transform' }}
+      style={{ opacity }}
       className="h-[310px] md:h-[360px] bg-carbon-black-2 border border-graphite-light p-4 rounded-2xl flex flex-col justify-between hover:shadow-2xl hover:shadow-white/5 relative group shrink-0 overflow-hidden select-none"
     >
       <div className="absolute inset-px rounded-2xl border border-white/5 pointer-events-none z-25" />
@@ -261,23 +259,18 @@ function KineticCard({
           </p>
         </div>
 
-        <div className="flex items-center justify-between border-t border-graphite-light/20 pt-2.5 mt-2 relative">
-          {!isMobile && (
-            <span className="text-[10px] font-mono text-alabaster-grey/70">
-              {game.downloads || 'FREE'}
-            </span>
-          )}
+        <div className="flex items-center justify-end border-t border-graphite-light/20 pt-2.5 mt-2 relative">
           
           {isMobile ? (
             <div className="flex items-center justify-end w-full pointer-events-auto">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 {activeStores.map((store) => (
                   <a
                     key={store.id}
                     href={store.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="cursor-pointer flex shrink-0 py-2 px-1 -my-2 -mx-1"
+                    className="cursor-pointer flex shrink-0 hover:scale-105 transition-transform"
                     title={store.label}
                   >
                     {store.id === 'ios' ? <AppStoreBadge className="h-[24px] w-auto" /> : 
@@ -288,10 +281,10 @@ function KineticCard({
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2 relative h-[30px] min-w-[120px] justify-end pointer-events-auto">
+            <div className="flex items-center gap-1.5 relative h-[30px] min-w-[120px] justify-end pointer-events-auto">
               <motion.span
                 animate={{ x: isHovered && activeStores.length > 0 ? -(activeStores.length * 94 + 6) : 0 }}
-                transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                 className="text-[10px] font-bold text-bright-snow flex items-center gap-1 font-outfit uppercase pointer-events-none absolute right-0"
               >
                 Play Game <ChevronRight size={12} />
@@ -309,12 +302,11 @@ function KineticCard({
                       animate={{ opacity: 1, scale: 1, x: 0 }}
                       exit={{ opacity: 0, scale: 0, x: 15 }}
                       transition={{
-                        type: 'spring',
-                        stiffness: 260,
-                        damping: 20,
-                        delay: isHovered ? sIdx * 0.08 : 0
+                        duration: 0.25,
+                        ease: [0.16, 1, 0.3, 1],
+                        delay: isHovered ? sIdx * 0.06 : 0
                       }}
-                      className="cursor-pointer flex shrink-0"
+                      className="cursor-pointer flex shrink-0 hover:scale-105 transition-transform"
                       title={store.label}
                     >
                       {store.component}
@@ -368,39 +360,8 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   const defaultSpeed = -0.85;
   const currentSpeed = useRef(defaultSpeed);
 
-  const trackWidth = 148;
-  const handleX = useMotionValue(0);
-  const [isDraggingHandle, setIsDraggingHandle] = useState(false);
   const [isSnapping, setIsSnapping] = useState(false);
   const [centeredIdx, setCenteredIdx] = useState<number>(games.length);
-
-  // Sync handleX from trackX when not dragging the handle
-  useEffect(() => {
-    const unsubscribe = trackX.on("change", (latestTrackX) => {
-      if (isDraggingHandle) return;
-      let normalizedX = -latestTrackX;
-      const minVal = repeatInterval * 0.5;
-      const maxVal = repeatInterval * 1.5;
-      const range = repeatInterval;
-      
-      let diff = ((normalizedX - minVal) % range + range) % range;
-      let ratio = diff / range;
-      
-      handleX.set(ratio * trackWidth);
-    });
-    return () => unsubscribe();
-  }, [trackX, repeatInterval, isDraggingHandle]);
-
-  // Sync trackX from handleX when dragging the handle
-  useEffect(() => {
-    const unsubscribe = handleX.on("change", (latestHandleX) => {
-      if (!isDraggingHandle) return;
-      const ratio = latestHandleX / trackWidth;
-      const targetTrackX = -(repeatInterval * 0.5 + ratio * repeatInterval);
-      trackX.set(targetTrackX);
-    });
-    return () => unsubscribe();
-  }, [handleX, repeatInterval, isDraggingHandle]);
 
   useEffect(() => {
     setDragConstraints({
@@ -549,50 +510,26 @@ function KineticSpinStream({ games }: { games: Game[] }) {
         </motion.div>
       </div>
 
-      {/* Centered Glassmorphic Navigation controls & tech indicator */}
+      {/* Minimal Segmented Dash Navigation */}
       <div className="flex flex-col items-center justify-center gap-3 w-full mt-4 z-30 px-6">
-        {/* Overhauled Navigation Bar wrapper with a borderless design */}
-        <div className="flex items-center gap-6 px-5 py-2.5 relative">
-          {/* Draggable Indicator Track */}
-          <div className="relative w-[180px] h-6 flex items-center select-none justify-center">
-            {/* The Track Line / Groove */}
-            <div className="absolute left-[16px] right-[16px] h-1 bg-zinc-800 rounded-full border border-white/5" />
-
-            {/* Faint indicator dots as guides under the handle */}
-            <div className="absolute left-[16px] right-[16px] flex justify-between pointer-events-auto">
-              {games.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleDotClick(idx)}
-                  className="w-4 h-4 -m-1.5 flex items-center justify-center focus:outline-none cursor-pointer z-10"
-                  title={`Go to game ${idx + 1}`}
-                >
-                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-600/60 hover:bg-zinc-400 transition-colors" />
-                </button>
-              ))}
-            </div>
-
-            {/* Draggable Handle */}
-            <div className="absolute left-[16px] right-[16px] top-0 bottom-0 pointer-events-none">
+        <div className="flex items-center gap-1.5">
+          {games.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleDotClick(idx)}
+              className="relative flex items-center justify-center py-2 px-0.5 focus:outline-none cursor-pointer"
+              title={`Go to game ${idx + 1}`}
+            >
               <motion.div
-                drag="x"
-                dragConstraints={{ left: 0, right: trackWidth }}
-                dragElastic={0.05}
-                dragMomentum={false}
-                style={{ x: handleX }}
-                onDragStart={() => {
-                  setIsDraggingHandle(true);
-                  setIsDragging(true);
+                animate={{
+                  width: activeIndex === idx ? 40 : 24,
+                  opacity: activeIndex === idx ? 1 : 0.35
                 }}
-                onDragEnd={(e, info) => {
-                  setIsDraggingHandle(false);
-                  setIsDragging(false);
-                  handleDragEnd(e, info);
-                }}
-                className="absolute top-1/2 -translate-y-1/2 w-8 h-3.5 bg-bright-snow rounded-full shadow-[0_0_12px_rgba(255,255,255,0.8)] border border-white/20 cursor-grab active:cursor-grabbing hover:scale-105 active:scale-95 pointer-events-auto z-20"
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="h-[2px] rounded-full bg-bright-snow"
               />
-            </div>
-          </div>
+            </button>
+          ))}
         </div>
 
         {/* Shortened helper caption below navigation bar */}

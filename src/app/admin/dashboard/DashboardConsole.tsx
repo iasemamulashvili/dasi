@@ -699,27 +699,9 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
 
                       {/* Select Game */}
                       <div className="flex flex-col gap-1.5 mt-2">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
-                            Select Featured Game
-                          </label>
-                          <label className="flex items-center gap-1.5 text-[9px] font-bold tracking-widest text-alabaster-grey/60 uppercase cursor-pointer select-none">
-                            <input
-                              type="checkbox"
-                              checked={!!slot.showStatsBox}
-                              onChange={(e) => {
-                                setSettingsForm((prev) => {
-                                  const featuredGames = [...(prev.featuredGames || [])];
-                                  while (featuredGames.length <= slotIdx) featuredGames.push({ gameId: '' });
-                                  featuredGames[slotIdx] = { ...featuredGames[slotIdx], showStatsBox: e.target.checked };
-                                  return { ...prev, featuredGames };
-                                });
-                              }}
-                              className="rounded bg-carbon-black-2 border-graphite-light text-slate-violet focus:ring-0 w-3 h-3 cursor-pointer"
-                            />
-                            <span>Show Stats Box</span>
-                          </label>
-                        </div>
+                        <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
+                          Select Featured Game
+                        </label>
                         <select
                           value={slot.gameId}
                           onChange={(e) => {
@@ -813,6 +795,26 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                           />
                         </div>
                       )}
+
+                      {/* Show Stats HUD Toggle — positioned at card bottom */}
+                      <div className="border-t border-graphite-light/30 pt-3 mt-auto">
+                        <label className="flex items-center gap-2 text-[9px] font-bold tracking-widest text-alabaster-grey/60 uppercase cursor-pointer select-none hover:text-alabaster-grey transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={!!slot.showStatsBox}
+                            onChange={(e) => {
+                              setSettingsForm((prev) => {
+                                const featuredGames = [...(prev.featuredGames || [])];
+                                while (featuredGames.length <= slotIdx) featuredGames.push({ gameId: '' });
+                                featuredGames[slotIdx] = { ...featuredGames[slotIdx], showStatsBox: e.target.checked };
+                                return { ...prev, featuredGames };
+                              });
+                            }}
+                            className="rounded bg-carbon-black-2 border-graphite-light text-slate-violet focus:ring-0 w-3.5 h-3.5 cursor-pointer"
+                          />
+                          <span>Show Specs HUD Stats Box</span>
+                        </label>
+                      </div>
                     </div>
                   );
                 })}
