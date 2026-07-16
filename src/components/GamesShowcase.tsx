@@ -261,12 +261,7 @@ function KineticCard({
           </p>
         </div>
 
-        <div className="flex items-center justify-between border-t border-graphite-light/20 pt-2.5 mt-2 relative">
-          {!isMobile && (
-            <span className="text-[10px] font-mono text-alabaster-grey/70">
-              {game.downloads || 'FREE'}
-            </span>
-          )}
+        <div className="flex items-center justify-end border-t border-graphite-light/20 pt-2.5 mt-2 relative">
           
           {isMobile ? (
             <div className="flex items-center justify-end w-full pointer-events-auto">
