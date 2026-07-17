@@ -290,9 +290,9 @@ function KineticCard({
                     className="cursor-pointer flex shrink-0 py-2 px-1 -my-2 -mx-1"
                     title={store.label}
                   >
-                    {store.id === 'ios' ? <AppStoreBadge className="h-[30px] w-auto" /> : 
-                     store.id === 'android' ? <PlayStoreBadge className="h-[30px] w-auto" /> : 
-                     <PokiPlayBadge className="h-[30px] w-auto" />}
+                    {store.id === 'ios' ? <AppStoreBadge className="h-[22px] w-auto" /> : 
+                     store.id === 'android' ? <PlayStoreBadge className="h-[22px] w-auto" /> : 
+                     <PokiPlayBadge className="h-[22px] w-auto" />}
                   </a>
                 ))}
               </div>
@@ -427,7 +427,11 @@ function KineticSpinStream({ games }: { games: Game[] }) {
       setActiveIndex(mappedActive);
     }
 
-    if (isDragging || isSnapping) return;
+    if (isDragging) {
+      if (isSnapping) setIsSnapping(false);
+      return;
+    }
+    if (isSnapping) return;
 
     const frameFactor = delta / 16.6;
 
@@ -473,6 +477,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
   const handleDragStart = () => {
     setIsDragging(true);
+    setIsSnapping(false);
     driftSnappingActive.current = false;
   };
 

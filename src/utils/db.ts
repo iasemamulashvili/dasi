@@ -441,7 +441,22 @@ export async function getAboutSettings(): Promise<AboutSettings> {
     try {
       const kvAboutStr = await fetchKV('get/dasi_about');
       if (kvAboutStr) {
-        return typeof kvAboutStr === 'string' ? JSON.parse(kvAboutStr) : kvAboutStr;
+        const loaded = typeof kvAboutStr === 'string' ? JSON.parse(kvAboutStr) : kvAboutStr;
+        if (loaded && Array.isArray(loaded.cards)) {
+          loaded.cards = loaded.cards.map((card: any) => {
+            const defCard = defaultAbout.cards.find(c => c.id === card.id);
+            if (defCard) {
+              return {
+                ...defCard,
+                ...card,
+                subtitle: card.subtitle && card.subtitle.trim() !== '' ? card.subtitle : defCard.subtitle,
+                metricLabel: card.metricLabel && card.metricLabel.trim() !== '' ? card.metricLabel : defCard.metricLabel,
+              };
+            }
+            return card;
+          });
+        }
+        return loaded;
       }
     } catch (e) {
       console.error('Error fetching about settings from Vercel KV, falling back to local files:', e);
@@ -456,6 +471,20 @@ export async function getAboutSettings(): Promise<AboutSettings> {
     if (fs.existsSync(ABOUT_FILE_PATH)) {
       const content = fs.readFileSync(ABOUT_FILE_PATH, 'utf-8');
       const about = JSON.parse(content);
+      if (about && Array.isArray(about.cards)) {
+        about.cards = about.cards.map((card: any) => {
+          const defCard = defaultAbout.cards.find(c => c.id === card.id);
+          if (defCard) {
+            return {
+              ...defCard,
+              ...card,
+              subtitle: card.subtitle && card.subtitle.trim() !== '' ? card.subtitle : defCard.subtitle,
+              metricLabel: card.metricLabel && card.metricLabel.trim() !== '' ? card.metricLabel : defCard.metricLabel,
+            };
+          }
+          return card;
+        });
+      }
       if (!isLocalFileSystemWritable()) {
         inMemoryAbout = about;
       }
