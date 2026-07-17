@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { upload } from '@vercel/blob/client';
 import {
   Gamepad2,
@@ -33,7 +34,10 @@ import {
   Terminal,
   Cpu,
   TrendingUp,
-  Link2
+  Link2,
+  Rocket,
+  MapPin,
+  Sparkles
 } from 'lucide-react';
 import { Game, Job, Settings, JobUploadField, AboutSettings, AboutCard } from '@/utils/db';
 import {
@@ -65,6 +69,45 @@ const UPLOAD_TYPES = [
   { id: 'art3d', label: '3D Artwork / Demo' },
   { id: 'pitchdeck', label: 'Pitch Deck / GDD' }
 ];
+
+const getJobIconPreview = (key: string, iconType: 'default' | 'custom' = 'default') => {
+  if (iconType === 'custom' && key) {
+    return <img src={key} alt="Custom Job Icon" className="w-5 h-5 object-contain" />;
+  }
+  const size = 20;
+  switch (key) {
+    case 'Briefcase': return <Briefcase size={size} />;
+    case 'Code2': return <Code2 size={size} />;
+    case 'Palette': return <Palette size={size} />;
+    case 'Gamepad2': return <Gamepad2 size={size} />;
+    case 'Layers': return <Layers size={size} />;
+    case 'Music': return <Music size={size} />;
+    case 'Terminal': return <Terminal size={size} />;
+    case 'Cpu': return <Cpu size={size} />;
+    case 'TrendingUp': return <TrendingUp size={size} />;
+    default: return <Briefcase size={size} />;
+  }
+};
+
+const getAboutIconPreview = (key: string, iconType: 'default' | 'custom' = 'default', customUrl?: string) => {
+  if (iconType === 'custom' && customUrl) {
+    return <img src={customUrl} alt="Custom About Icon" className="w-5 h-5 object-contain" />;
+  }
+  const size = 20;
+  switch (key) {
+    case 'Globe': return <Globe size={size} />;
+    case 'Rocket': return <Rocket size={size} />;
+    case 'MapPin': return <MapPin size={size} />;
+    case 'Sparkles': return <Sparkles size={size} />;
+    case 'Heart': return <Heart size={size} />;
+    case 'Trophy': return <Trophy size={size} />;
+    case 'Users': return <Users size={size} />;
+    case 'Zap': return <Zap size={size} />;
+    case 'Flame': return <Flame size={size} />;
+    case 'Gamepad': return <Gamepad size={size} />;
+    default: return <Globe size={size} />;
+  }
+};
 
 interface ConsoleProps {
   games: Game[];
@@ -534,13 +577,22 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             </span>
           </div>
 
-          <button
-            onClick={() => logoutAction()}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-bold tracking-widest text-rose-400 hover:text-rose-300 border border-rose-500/10 hover:border-rose-500/30 rounded-xl hover:bg-rose-950/20 transition-all cursor-pointer"
-          >
-            <LogOut size={14} />
-            <span className="hidden sm:inline">LOGOUT</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex items-center gap-2 px-4 py-2 text-xs font-bold tracking-widest text-bright-snow hover:text-slate-violet-light border border-graphite-light hover:border-slate-violet/30 rounded-xl hover:bg-carbon-black-2 transition-all cursor-pointer"
+            >
+              <Globe size={14} />
+              <span>LIVE SITE</span>
+            </Link>
+            <button
+              onClick={() => logoutAction()}
+              className="flex items-center gap-2 px-4 py-2 text-xs font-bold tracking-widest text-rose-400 hover:text-rose-300 border border-rose-500/10 hover:border-rose-500/30 rounded-xl hover:bg-rose-950/20 transition-all cursor-pointer"
+            >
+              <LogOut size={14} />
+              <span className="hidden sm:inline">LOGOUT</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -1157,64 +1209,62 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                               CUSTOM UPLOAD
                             </button>
                           </div>
-                        </div>
-
-                        {card.iconType === 'default' ? (
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-[9px] font-semibold text-bright-snow uppercase">Select Default Icon</label>
-                            <select
-                              value={card.defaultIconKey}
-                              onChange={(e) => {
-                                const updated = [...aboutForm.cards];
-                                updated[idx] = { ...card, defaultIconKey: e.target.value };
-                                setAboutForm({ ...aboutForm, cards: updated });
-                              }}
-                              className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:border-slate-violet outline-none"
-                            >
-                              {['Globe', 'Rocket', 'MapPin', 'Sparkles', 'Heart', 'Trophy', 'Users', 'Zap', 'Flame', 'Gamepad'].map((key) => (
-                                <option key={key} value={key}>{key}</option>
-                              ))}
-                            </select>
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-[9px] font-semibold text-bright-snow uppercase">Icon Image URL</label>
-                              <div className="flex gap-2">
-                                <input
-                                  type="text"
-                                  value={card.customIconUrl || ''}
-                                  onChange={(e) => {
-                                    const updated = [...aboutForm.cards];
-                                    updated[idx] = { ...card, customIconUrl: e.target.value };
-                                    setAboutForm({ ...aboutForm, cards: updated });
-                                  }}
-                                  className="flex-1 bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:border-slate-violet outline-none"
-                                  placeholder="https://example.com/icon.png or upload below"
-                                />
+                        </div>                        <div className="flex items-center gap-4">
+                          {card.iconType === 'default' ? (
+                            <div className="flex-1 flex flex-col gap-1.5">
+                              <label className="text-[9px] font-semibold text-bright-snow uppercase">Select Default Icon</label>
+                              <select
+                                value={card.defaultIconKey}
+                                onChange={(e) => {
+                                  const updated = [...aboutForm.cards];
+                                  updated[idx] = { ...card, defaultIconKey: e.target.value };
+                                  setAboutForm({ ...aboutForm, cards: updated });
+                                }}
+                                className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:border-slate-violet outline-none cursor-pointer"
+                              >
+                                {['Globe', 'Rocket', 'MapPin', 'Sparkles', 'Heart', 'Trophy', 'Users', 'Zap', 'Flame', 'Gamepad'].map((key) => (
+                                  <option key={key} value={key}>{key}</option>
+                                ))}
+                              </select>
+                            </div>
+                          ) : (
+                            <div className="flex-1 space-y-2">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-[9px] font-semibold text-bright-snow uppercase">Icon Image URL</label>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    value={card.customIconUrl || ''}
+                                    onChange={(e) => {
+                                      const updated = [...aboutForm.cards];
+                                      updated[idx] = { ...card, customIconUrl: e.target.value };
+                                      setAboutForm({ ...aboutForm, cards: updated });
+                                    }}
+                                    className="flex-1 bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:border-slate-violet outline-none"
+                                    placeholder="https://example.com/icon.png or upload below"
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <label className="relative flex items-center justify-center gap-2 bg-graphite hover:bg-graphite-light border border-graphite-light text-bright-snow font-semibold px-4 py-2 rounded-xl transition-all text-xs cursor-pointer">
+                                  <Upload size={12} />
+                                  <span>Upload File</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleAboutCardIconUpload(idx, e)}
+                                    className="hidden"
+                                  />
+                                </label>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                              <label className="relative flex items-center justify-center gap-2 bg-graphite hover:bg-graphite-light border border-graphite-light text-bright-snow font-semibold px-4 py-2 rounded-xl transition-all text-xs cursor-pointer">
-                                <Upload size={12} />
-                                <span>Upload File</span>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => handleAboutCardIconUpload(idx, e)}
-                                  className="hidden"
-                                />
-                              </label>
-                              {card.customIconUrl && (
-                                <img
-                                  src={card.customIconUrl}
-                                  alt="Preview"
-                                  className="w-8 h-8 rounded border border-graphite-light object-contain bg-carbon-black"
-                                />
-                              )}
-                            </div>
+                          )}
+
+                          {/* Live Preview Box */}
+                          <div className="flex flex-col items-center justify-center border border-graphite-light/60 bg-carbon-black rounded-xl text-platinum-silver w-12 h-12 shrink-0 shadow-inner">
+                            {getAboutIconPreview(card.defaultIconKey, card.iconType, card.customIconUrl)}
                           </div>
-                        )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -1648,52 +1698,52 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                   </div>
                 </div>
 
-                {jobFormData.iconType === 'default' ? (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Select Job Icon</label>
-                    <select
-                      value={jobFormData.icon || 'Briefcase'}
-                      onChange={(e) => setJobFormData({ ...jobFormData, icon: e.target.value })}
-                      className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light"
-                    >
-                      {['Briefcase', 'Code2', 'Palette', 'Gamepad2', 'Layers', 'Music', 'Terminal', 'Cpu', 'TrendingUp'].map((key) => (
-                        <option key={key} value={key}>{key}</option>
-                      ))}
-                    </select>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Custom Icon URL</label>
-                      <input
-                        type="text"
-                        value={jobFormData.icon || ''}
+                <div className="flex items-center gap-4">
+                  {jobFormData.iconType === 'default' ? (
+                    <div className="flex-1 flex flex-col gap-1.5">
+                      <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Select Job Icon</label>
+                      <select
+                        value={jobFormData.icon || 'Briefcase'}
                         onChange={(e) => setJobFormData({ ...jobFormData, icon: e.target.value })}
-                        className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light"
-                        placeholder="https://example.com/icon.png or upload below"
-                      />
+                        className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light cursor-pointer"
+                      >
+                        {['Briefcase', 'Code2', 'Palette', 'Gamepad2', 'Layers', 'Music', 'Terminal', 'Cpu', 'TrendingUp'].map((key) => (
+                          <option key={key} value={key}>{key}</option>
+                        ))}
+                      </select>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <label className="relative flex items-center justify-center gap-2 bg-graphite hover:bg-graphite-light border border-graphite-light text-bright-snow font-semibold px-4 py-2 rounded-xl transition-all text-xs cursor-pointer">
-                        <Upload size={12} />
-                        <span>Upload File</span>
+                  ) : (
+                    <div className="flex-1 space-y-2">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Custom Icon URL</label>
                         <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleJobIconUpload}
-                          className="hidden"
+                          type="text"
+                          value={jobFormData.icon || ''}
+                          onChange={(e) => setJobFormData({ ...jobFormData, icon: e.target.value })}
+                          className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                          placeholder="https://example.com/icon.png or upload below"
                         />
-                      </label>
-                      {jobFormData.iconType === 'custom' && jobFormData.icon && (
-                        <img
-                          src={jobFormData.icon}
-                          alt="Preview"
-                          className="w-8 h-8 rounded border border-graphite-light object-contain bg-carbon-black"
-                        />
-                      )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <label className="relative flex items-center justify-center gap-2 bg-graphite hover:bg-graphite-light border border-graphite-light text-bright-snow font-semibold px-4 py-2 rounded-xl transition-all text-xs cursor-pointer">
+                          <Upload size={12} />
+                          <span>Upload File</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleJobIconUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
                     </div>
+                  )}
+
+                  {/* Icon Live Preview Box */}
+                  <div className="flex flex-col items-center justify-center border border-graphite-light/60 bg-carbon-black rounded-xl text-platinum-silver w-12 h-12 shrink-0 shadow-inner">
+                    {getJobIconPreview(jobFormData.icon || 'Briefcase', jobFormData.iconType)}
                   </div>
-                )}
+                </div>
               </div>
 
               {/* Description */}

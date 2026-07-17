@@ -2,8 +2,8 @@
   "title": "About Us",
   "subtitle": "Our Studio Story",
   "paragraphs": [
-    "Our journey began with a shared love for gaming and a drive to create exceptional experiences. We develop our own original titles, collaborate with publishers, and offer reliable outsourcing services.",
-    "We are based in our cozy office in Tbilisi, Georgia. Our team values creativity, technical precision, and a collaborative spirit, ensuring each game we produce is crafted with care and meets international standards."
+    "Dasi Games started with a simple, hyper-focused mission: build games we lose track of time playing. From cooking up our own original IPs to partnering with global publishers and delivering elite outsourcing, we live and breathe interactive entertainment.",
+    "Operating from our vibrant studio in the heart of Tbilisi, Georgia, we blend artistic imagination with solid technical engineering. We believe in high-energy collaboration, pixel-perfect polish, and crafting games that resonate with players worldwide."
   ],
   "cards": [
     {
@@ -25,7 +25,7 @@
     {
       "id": "founded",
       "metricValue": "2021",
-      "metricLabel": "Founded Year",
+      "metricLabel": "Founded",
       "description": "Crafting memorable interactive experiences since our studio's establishment in 2021.",
       "iconType": "default",
       "defaultIconKey": "Sparkles"

@@ -127,13 +127,14 @@ export default function About({ aboutData }: AboutProps) {
                   Worldwide Impact
                 </span>
                 <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one mt-2">
-                  <span className="sr-only">{spotlightCard.metricValue}{spotlightCard.metricLabel}</span>
+                  <span className="sr-only">{spotlightCard.metricValue} {spotlightCard.metricLabel}</span>
                   <span aria-hidden="true">
                     {isNaN(parseFloat(spotlightCard.metricValue)) ? (
                       spotlightCard.metricValue
                     ) : (
                       <>
                         <span className="count-number" data-target={spotlightCard.metricValue}>0</span>
+                        {" "}
                         {spotlightCard.metricLabel}
                       </>
                     )}
@@ -166,6 +167,7 @@ export default function About({ aboutData }: AboutProps) {
                       ) : (
                         <>
                           <span className="count-number" data-target={card.metricValue}>0</span>
+                          {" "}
                           {card.metricLabel}
                         </>
                       )}
