@@ -17,7 +17,7 @@ export default function Footer() {
 
     const element = document.getElementById(targetId.replace('#', ''));
     if (element) {
-      const offset = 80;
+      const offset = 30;
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = element.getBoundingClientRect().top;
       const elementPosition = elementRect - bodyRect;

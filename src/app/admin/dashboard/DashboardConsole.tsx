@@ -1153,9 +1153,24 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                             }}
                             className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:border-slate-violet outline-none"
                             placeholder="e.g. M+ Downloads"
-                            required
                           />
                         </div>
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-semibold text-bright-snow uppercase">Card Subtitle / Secondary Title</label>
+                        <input
+                          type="text"
+                          value={card.subtitle || ''}
+                          onChange={(e) => {
+                            const updated = [...aboutForm.cards];
+                            updated[idx] = { ...card, subtitle: e.target.value };
+                            setAboutForm({ ...aboutForm, cards: updated });
+                          }}
+                          className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:border-slate-violet outline-none"
+                          placeholder="e.g. Worldwide Impact or M+ Web Plays"
+                          required
+                        />
                       </div>
 
                       <div className="flex flex-col gap-1.5">
@@ -1209,7 +1224,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                               CUSTOM UPLOAD
                             </button>
                           </div>
-                        </div>                        <div className="flex items-center gap-4">
+                        </div>                        <div className="flex items-end gap-4">
                           {card.iconType === 'default' ? (
                             <div className="flex-1 flex flex-col gap-1.5">
                               <label className="text-[9px] font-semibold text-bright-snow uppercase">Select Default Icon</label>
@@ -1698,7 +1713,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-end gap-4">
                   {jobFormData.iconType === 'default' ? (
                     <div className="flex-1 flex flex-col gap-1.5">
                       <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Select Job Icon</label>

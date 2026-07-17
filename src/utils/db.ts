@@ -51,6 +51,7 @@ export interface AboutCard {
   id: string;
   metricValue: string;
   metricLabel: string;
+  subtitle: string;
   description: string;
   iconType: 'default' | 'custom';
   defaultIconKey: string;
@@ -400,6 +401,7 @@ export async function getAboutSettings(): Promise<AboutSettings> {
         id: 'downloads',
         metricValue: '50',
         metricLabel: 'M+ Downloads',
+        subtitle: 'Worldwide Impact',
         description: 'Mobile downloads exceeding 50 million across Google Play and App Store.',
         iconType: 'default',
         defaultIconKey: 'Globe'
@@ -407,7 +409,8 @@ export async function getAboutSettings(): Promise<AboutSettings> {
       {
         id: 'web-plays',
         metricValue: '28',
-        metricLabel: 'M+ Web Plays',
+        metricLabel: '',
+        subtitle: 'M+ Web Plays',
         description: 'Over 28 million web game plays on Poki and other web platforms.',
         iconType: 'default',
         defaultIconKey: 'Gamepad'
@@ -415,7 +418,8 @@ export async function getAboutSettings(): Promise<AboutSettings> {
       {
         id: 'founded',
         metricValue: '2021',
-        metricLabel: 'Founded Year',
+        metricLabel: '',
+        subtitle: 'Founded',
         description: "Crafting memorable interactive experiences since our studio's establishment in 2021.",
         iconType: 'default',
         defaultIconKey: 'Sparkles'
@@ -423,7 +427,8 @@ export async function getAboutSettings(): Promise<AboutSettings> {
       {
         id: 'headquarters',
         metricValue: 'Tbilisi',
-        metricLabel: 'Georgia Headquarters',
+        metricLabel: '',
+        subtitle: 'Georgia Headquarters',
         description: 'Located in Tbilisi, our creative headquarters serves as our core design and development hub.',
         iconType: 'default',
         defaultIconKey: 'MapPin'

@@ -124,7 +124,7 @@ export default function About({ aboutData }: AboutProps) {
               </div>
               <div className="transition-transform duration-500 ease-out group-hover:translate-y-1 mt-6">
                 <span className="text-[10px] font-silkscreen text-slate-violet-light tracking-widest uppercase">
-                  Worldwide Impact
+                  {spotlightCard.subtitle}
                 </span>
                 <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one mt-2">
                   <span className="sr-only">{spotlightCard.metricValue} {spotlightCard.metricLabel}</span>
@@ -160,21 +160,25 @@ export default function About({ aboutData }: AboutProps) {
                 </div>
                 <div className="transition-transform duration-500 ease-out group-hover:translate-y-1">
                   <p className="text-2xl font-normal text-bright-snow tracking-tight font-russo-one">
-                    <span className="sr-only">{card.metricValue} {card.metricLabel}</span>
+                    <span className="sr-only">{card.metricValue} {card.subtitle}</span>
                     <span aria-hidden="true">
                       {isNaN(parseFloat(card.metricValue)) ? (
                         card.metricValue
                       ) : (
                         <>
                           <span className="count-number" data-target={card.metricValue}>0</span>
-                          {" "}
-                          {card.metricLabel}
+                          {card.metricLabel && (
+                            <>
+                              {" "}
+                              {card.metricLabel}
+                            </>
+                          )}
                         </>
                       )}
                     </span>
                   </p>
                   <p className="text-[10px] font-silkscreen text-slate-violet-light uppercase tracking-wider mt-0.5">
-                    {card.metricLabel}
+                    {card.subtitle}
                   </p>
                   <p className="text-xs text-alabaster-grey/60 mt-2 font-outfit font-light leading-relaxed">
                     {card.description}

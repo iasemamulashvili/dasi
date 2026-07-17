@@ -27,7 +27,7 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
     // Scroll to contact form
     const contactSection = document.getElementById('contact');
     if (contactSection) {
-      const offset = 80;
+      const offset = 30;
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = contactSection.getBoundingClientRect().top;
       const elementPosition = elementRect - bodyRect;

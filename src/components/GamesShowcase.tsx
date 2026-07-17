@@ -377,6 +377,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   // Kinetic speed state management (default autoplay direction is leftwards)
   const defaultSpeed = -0.85;
   const currentSpeed = useRef(defaultSpeed);
+  const driftSnappingActive = useRef(false);
 
   const [isSnapping, setIsSnapping] = useState(false);
   const [centeredIdx, setCenteredIdx] = useState<number>(games.length);
@@ -390,6 +391,25 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     });
     trackX.set(-repeatInterval + offset);
   }, [repeatInterval, trackX, cardWidth]);
+
+  const triggerSnap = () => {
+    setIsSnapping(true);
+    const currentX = trackX.get();
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const offset = (viewportWidth - cardWidth) / 2;
+    const targetIdx = Math.round((offset - currentX) / spacing);
+    const snapX = offset - targetIdx * spacing;
+    
+    animate(trackX, snapX, {
+      type: 'spring',
+      stiffness: 120,
+      damping: 20,
+      onComplete: () => {
+        setIsSnapping(false);
+        currentSpeed.current = defaultSpeed;
+      }
+    });
+  };
 
   useAnimationFrame((time, delta) => {
     const currentX = trackX.get();
@@ -408,18 +428,20 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
     if (isDragging || isSnapping) return;
 
-    // Check track velocity to see if momentum physics is still active
-    const velocity = trackX.getVelocity();
-    if (Math.abs(velocity) > 0.5) {
-      currentSpeed.current = 0;
-      return;
-    }
-
     const frameFactor = delta / 16.6;
 
-    // Decay current speed smoothly towards target speed (0 if hovered, defaultSpeed otherwise)
     const targetSpeed = hoveredIdx !== null ? 0 : defaultSpeed;
-    currentSpeed.current += (targetSpeed - currentSpeed.current) * 0.05 * frameFactor;
+    
+    if (driftSnappingActive.current) {
+      currentSpeed.current += (targetSpeed - currentSpeed.current) * 0.05 * frameFactor;
+      if (Math.abs(currentSpeed.current - targetSpeed) < 1.0) {
+        driftSnappingActive.current = false;
+        triggerSnap();
+        return;
+      }
+    } else {
+      currentSpeed.current += (targetSpeed - currentSpeed.current) * 0.05 * frameFactor;
+    }
 
     const speed = currentSpeed.current * frameFactor;
     let nextX = currentX + speed;
@@ -427,13 +449,10 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     // Continuous loop wrapping with offset adjustment
     if (nextX < -repeatInterval * 1.5 + offset) {
       nextX += repeatInterval;
-      trackX.set(nextX);
     } else if (nextX > -repeatInterval * 0.5 + offset) {
       nextX -= repeatInterval;
-      trackX.set(nextX);
-    } else {
-      trackX.set(nextX);
     }
+    trackX.set(nextX);
   });
 
   const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -453,10 +472,36 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
   const handleDragStart = () => {
     setIsDragging(true);
+    driftSnappingActive.current = false;
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (e: any, info: any) => {
     setIsDragging(false);
+
+    // Capture release velocity and scale it down to a safe, controlled maximum
+    const releaseVelocity = info.velocity.x;
+    const maxVelocity = 15;
+    const minVelocity = -15;
+    const clampedVelocity = Math.max(minVelocity, Math.min(maxVelocity, releaseVelocity * 0.015));
+    currentSpeed.current = clampedVelocity;
+
+    let currentX = trackX.get();
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const offset = (viewportWidth - cardWidth) / 2;
+
+    if (currentX < -repeatInterval * 1.5 + offset) {
+      currentX += repeatInterval;
+      trackX.set(currentX);
+    } else if (currentX > -repeatInterval * 0.5 + offset) {
+      currentX -= repeatInterval;
+      trackX.set(currentX);
+    }
+
+    if (Math.abs(releaseVelocity) < 250) {
+      triggerSnap();
+    } else {
+      driftSnappingActive.current = true;
+    }
   };
 
   const handleDotClick = (idx: number) => {
@@ -464,7 +509,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     setIsSnapping(true);
     
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
-    const offset = (viewportWidth - cardWidth) / 2;
+    const offset = isMobile ? (viewportWidth - cardWidth) / 2 : 0;
     
     // Find current center index from track position
     const currentX = trackX.get();
@@ -509,25 +554,10 @@ function KineticSpinStream({ games }: { games: Game[] }) {
           <motion.div
             ref={trackRef}
             drag="x"
-            dragMomentum={true}
-            dragTransition={{
-              power: 0.15,
-              timeConstant: 200,
-              modifyTarget: (target) => {
-                const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
-                const offset = (viewportWidth - cardWidth) / 2;
-                const targetIdx = Math.round((offset - target) / spacing);
-                const snappedX = offset - targetIdx * spacing;
-                
-                // Clamp target position within our safe looping bounds
-                const minX = -repeatInterval * 1.5 + offset;
-                const maxX = -repeatInterval * 0.5 + offset;
-                return Math.max(minX, Math.min(maxX, snappedX));
-              }
-            }}
+            dragMomentum={false}
             style={{ x: trackX }}
             dragConstraints={dragConstraints}
-            dragElastic={0.15}
+            dragElastic={0.1}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             className="flex gap-4 md:gap-6 w-max px-6 touch-pan-y"

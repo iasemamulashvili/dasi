@@ -144,7 +144,7 @@ export default function Header() {
 
     const element = document.getElementById(targetId.replace('#', ''));
     if (element) {
-      const offset = 80; // Header height offset
+      const offset = 30; // Header height offset
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = element.getBoundingClientRect().top;
       const elementPosition = elementRect - bodyRect;
