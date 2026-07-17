@@ -32,6 +32,7 @@ export interface JobUploadField {
   placeholder: string;
   accept: string;
   isRequired: boolean;
+  type?: 'file' | 'url' | 'both';
 }
 
 export interface Job {
@@ -42,11 +43,31 @@ export interface Job {
   requirements: string[];
   responsibilities: string[];
   customUploads?: JobUploadField[];
+  iconType?: 'default' | 'custom';
+  icon?: string; // name of default or URL/path of custom
+}
+
+export interface AboutCard {
+  id: string;
+  metricValue: string;
+  metricLabel: string;
+  description: string;
+  iconType: 'default' | 'custom';
+  defaultIconKey: string;
+  customIconUrl?: string;
+}
+
+export interface AboutSettings {
+  title: string;
+  subtitle: string;
+  paragraphs: string[];
+  cards: AboutCard[];
 }
 
 const GAMES_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'games.json');
 const JOBS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'jobs.json');
 const SETTINGS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'settings.json');
+const ABOUT_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'about.json');
 
 export interface FeaturedGameSelection {
   gameId: string;
@@ -71,6 +92,7 @@ export interface Settings {
 let inMemoryGames: Game[] | null = null;
 let inMemoryJobs: Job[] | null = null;
 let inMemorySettings: Settings | null = null;
+let inMemoryAbout: AboutSettings | null = null;
 
 // Cache the write check once at startup to avoid blocking the event loop on every request
 const cachedLocalFileSystemWritable = (() => {
@@ -361,3 +383,113 @@ export async function saveSettings(settings: Settings): Promise<void> {
     console.warn('Filesystem is read-only. Data saved in memory only.');
   }
 }
+
+// -------------------------------------------------------------
+// About Us Content Methods
+// -------------------------------------------------------------
+export async function getAboutSettings(): Promise<AboutSettings> {
+  const defaultAbout: AboutSettings = {
+    title: 'About Us',
+    subtitle: 'Our Studio Story',
+    paragraphs: [
+      "Our journey began with a shared love for gaming and a drive to create exceptional experiences. We develop our own original titles, collaborate with publishers, and offer reliable outsourcing services.",
+      "We are based in our cozy office in Tbilisi, Georgia. Our team values creativity, technical precision, and a collaborative spirit, ensuring each game we produce is crafted with care and meets international standards."
+    ],
+    cards: [
+      {
+        id: 'downloads',
+        metricValue: '50',
+        metricLabel: 'M+ Downloads',
+        description: 'Mobile downloads exceeding 50 million across Google Play and App Store.',
+        iconType: 'default',
+        defaultIconKey: 'Globe'
+      },
+      {
+        id: 'web-plays',
+        metricValue: '28',
+        metricLabel: 'M+ Web Plays',
+        description: 'Over 28 million web game plays on Poki and other web platforms.',
+        iconType: 'default',
+        defaultIconKey: 'Gamepad'
+      },
+      {
+        id: 'founded',
+        metricValue: '2021',
+        metricLabel: 'Founded Year',
+        description: "Crafting memorable interactive experiences since our studio's establishment in 2021.",
+        iconType: 'default',
+        defaultIconKey: 'Sparkles'
+      },
+      {
+        id: 'headquarters',
+        metricValue: 'Tbilisi',
+        metricLabel: 'Georgia Headquarters',
+        description: 'Located in Tbilisi, our creative headquarters serves as our core design and development hub.',
+        iconType: 'default',
+        defaultIconKey: 'MapPin'
+      }
+    ]
+  };
+
+  const kv = getKVConfig();
+  if (kv) {
+    try {
+      const kvAboutStr = await fetchKV('get/dasi_about');
+      if (kvAboutStr) {
+        return typeof kvAboutStr === 'string' ? JSON.parse(kvAboutStr) : kvAboutStr;
+      }
+    } catch (e) {
+      console.error('Error fetching about settings from Vercel KV, falling back to local files:', e);
+    }
+  }
+
+  if (!isLocalFileSystemWritable() && inMemoryAbout) {
+    return inMemoryAbout;
+  }
+
+  try {
+    if (fs.existsSync(ABOUT_FILE_PATH)) {
+      const content = fs.readFileSync(ABOUT_FILE_PATH, 'utf-8');
+      const about = JSON.parse(content);
+      if (!isLocalFileSystemWritable()) {
+        inMemoryAbout = about;
+      }
+      return about;
+    }
+  } catch (e) {
+    console.error('Error reading about file:', e);
+  }
+
+  return defaultAbout;
+}
+
+export async function saveAboutSettings(about: AboutSettings): Promise<void> {
+  const kv = getKVConfig();
+  if (kv) {
+    try {
+      await fetchKV('set/dasi_about', about);
+      console.log('Saved about settings to Vercel KV');
+    } catch (e) {
+      console.error('Failed to save about settings to Vercel KV:', e);
+      throw e;
+    }
+  } else {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Database Error: Vercel KV / Upstash Redis is not configured in production. State cannot be saved.');
+    }
+  }
+
+  inMemoryAbout = about;
+
+  if (isLocalFileSystemWritable()) {
+    try {
+      fs.writeFileSync(ABOUT_FILE_PATH, JSON.stringify(about, null, 2), 'utf-8');
+      console.log('Saved about settings to local file');
+    } catch (e) {
+      console.error('Failed to write about settings to local file:', e);
+    }
+  } else {
+    console.warn('Filesystem is read-only. Data saved in memory only.');
+  }
+}
+

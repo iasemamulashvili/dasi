@@ -3,70 +3,54 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Rocket, MapPin, Sparkles, Globe } from 'lucide-react';
+import { 
+  Globe, 
+  Rocket, 
+  MapPin, 
+  Sparkles, 
+  Heart, 
+  Trophy, 
+  Users, 
+  Zap, 
+  Flame, 
+  Gamepad 
+} from 'lucide-react';
+import { AboutSettings } from '@/utils/db';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function About() {
+interface AboutProps {
+  aboutData: AboutSettings;
+}
+
+export default function About({ aboutData }: AboutProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const count1Ref = useRef<HTMLSpanElement>(null);
-  const count2Ref = useRef<HTMLSpanElement>(null);
-  const count3Ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Count animation for "100+ Games"
-      const obj1 = { val: 0 };
-      gsap.to(obj1, {
-        val: 100,
-        duration: 2,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: count1Ref.current,
-          start: 'top 85%',
-        },
-        onUpdate: () => {
-          if (count1Ref.current) {
-            count1Ref.current.innerText = Math.floor(obj1.val).toString();
-          }
-        },
+      // 1. Dynamic count animation for numeric cards
+      const countElements = document.querySelectorAll<HTMLElement>('.count-number');
+      countElements.forEach((el) => {
+        const targetStr = el.getAttribute('data-target') || '0';
+        const target = parseFloat(targetStr);
+        if (isNaN(target)) return;
+
+        const obj = { val: 0 };
+        gsap.to(obj, {
+          val: target,
+          duration: 2,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 85%',
+          },
+          onUpdate: () => {
+            el.innerText = Math.floor(obj.val).toString();
+          },
+        });
       });
 
-      // 2. Count animation for "Founded in 2021"
-      const obj2 = { val: 0 };
-      gsap.to(obj2, {
-        val: 2021,
-        duration: 2.2,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: count2Ref.current,
-          start: 'top 85%',
-        },
-        onUpdate: () => {
-          if (count2Ref.current) {
-            count2Ref.current.innerText = Math.floor(obj2.val).toString();
-          }
-        },
-      });
-
-      // 3. Count animation for "5M+ Downloads"
-      const obj3 = { val: 0 };
-      gsap.to(obj3, {
-        val: 5,
-        duration: 2,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: count3Ref.current,
-          start: 'top 85%',
-        },
-        onUpdate: () => {
-          if (count3Ref.current) {
-            count3Ref.current.innerText = Math.floor(obj3.val).toString();
-          }
-        },
-      });
-
-      // Subtle section entry fade in
+      // 2. Subtle section entry fade in
       gsap.fromTo(
         '.about-fade-in',
         { opacity: 0, y: 45 },
@@ -85,7 +69,26 @@ export default function About() {
     }, containerRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [aboutData]);
+
+  const getIcon = (key: string, size = 24) => {
+    switch (key) {
+      case 'Globe': return <Globe size={size} />;
+      case 'Rocket': return <Rocket size={size} />;
+      case 'MapPin': return <MapPin size={size} />;
+      case 'Sparkles': return <Sparkles size={size} />;
+      case 'Heart': return <Heart size={size} />;
+      case 'Trophy': return <Trophy size={size} />;
+      case 'Users': return <Users size={size} />;
+      case 'Zap': return <Zap size={size} />;
+      case 'Flame': return <Flame size={size} />;
+      case 'Gamepad': return <Gamepad size={size} />;
+      default: return <Globe size={size} />;
+    }
+  };
+
+  const spotlightCard = aboutData.cards[0];
+  const listCards = aboutData.cards.slice(1);
 
   return (
     <section
@@ -100,108 +103,93 @@ export default function About() {
         {/* Title */}
         <div className="text-center mb-16 about-fade-in">
           <span className="text-xs font-silkscreen tracking-widest text-slate-violet-light uppercase flex items-center justify-center gap-2">
-            <span>•</span> Our Studio Story
+            <span>•</span> {aboutData.subtitle}
           </span>
           <h2 className="text-3xl md:text-5xl font-normal text-bright-snow tracking-wide mt-2 uppercase font-russo-one retro-heading-shadow">
-            About Us
+            {aboutData.title}
           </h2>
         </div>
 
         {/* Studio Stat Badges */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mb-16 z-10">
           {/* Left column (1/3 width, md:col-span-1): Large Spotlight Card */}
-          <div className="md:col-span-1 p-8 bg-gradient-to-br from-carbon-black to-slate-violet/10 border-2 border-slate-violet rounded-xl flex flex-col justify-between min-h-[320px] shadow-lg shadow-slate-violet/10 about-fade-in transition-all duration-500 ease-out group hover:border-slate-violet-light/30">
-            <div className="p-4 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver w-fit transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105">
-              <Globe size={28} />
-            </div>
-            <div className="transition-transform duration-500 ease-out group-hover:translate-y-1 mt-6">
-              <span className="text-[10px] font-silkscreen text-slate-violet-light tracking-widest uppercase">
-                Worldwide Impact
-              </span>
-              <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one mt-2">
-                <span className="sr-only">5M+ Downloads</span>
-                <span aria-hidden="true">
-                  <span ref={count3Ref}>5</span>M+ Downloads
+          {spotlightCard && (
+            <div className="md:col-span-1 p-8 bg-gradient-to-br from-carbon-black to-slate-violet/10 border-2 border-slate-violet rounded-xl flex flex-col justify-between min-h-[320px] shadow-lg shadow-slate-violet/10 about-fade-in transition-all duration-500 ease-out group hover:border-slate-violet-light/30">
+              <div className="p-4 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver w-fit transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105">
+                {spotlightCard.iconType === 'custom' && spotlightCard.customIconUrl ? (
+                  <img src={spotlightCard.customIconUrl} alt={spotlightCard.metricLabel} className="w-7 h-7 object-contain" />
+                ) : (
+                  getIcon(spotlightCard.defaultIconKey, 28)
+                )}
+              </div>
+              <div className="transition-transform duration-500 ease-out group-hover:translate-y-1 mt-6">
+                <span className="text-[10px] font-silkscreen text-slate-violet-light tracking-widest uppercase">
+                  Worldwide Impact
                 </span>
-              </p>
-              <p className="text-xs text-alabaster-grey/70 font-outfit leading-relaxed font-light mt-4">
-                A colossal player base downloading and playing our original titles across Google Play and App Store.
-              </p>
+                <p className="text-4xl md:text-5xl font-normal text-bright-snow tracking-tight font-russo-one mt-2">
+                  <span className="sr-only">{spotlightCard.metricValue}{spotlightCard.metricLabel}</span>
+                  <span aria-hidden="true">
+                    {isNaN(parseFloat(spotlightCard.metricValue)) ? (
+                      spotlightCard.metricValue
+                    ) : (
+                      <>
+                        <span className="count-number" data-target={spotlightCard.metricValue}>0</span>
+                        {spotlightCard.metricLabel}
+                      </>
+                    )}
+                  </span>
+                </p>
+                <p className="text-xs text-alabaster-grey/70 font-outfit leading-relaxed font-light mt-4">
+                  {spotlightCard.description}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Right columns (2/3 width, md:col-span-2): Vertical stack of standard facts cards */}
           <div className="md:col-span-2 flex flex-col gap-4">
-            {/* Card 2: 100+ Games */}
-            <div className="flex items-start p-5 bg-carbon-black-2 border border-graphite-light rounded-xl about-fade-in transition-all duration-500 ease-out group hover:border-slate-violet-light/30 gap-5">
-              <div className="p-3.5 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver shrink-0 transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105">
-                <Rocket size={24} />
+            {listCards.map((card) => (
+              <div key={card.id} className="flex items-start p-5 bg-carbon-black-2 border border-graphite-light rounded-xl about-fade-in transition-all duration-500 ease-out group hover:border-slate-violet-light/30 gap-5">
+                <div className="p-3.5 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver shrink-0 transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105">
+                  {card.iconType === 'custom' && card.customIconUrl ? (
+                    <img src={card.customIconUrl} alt={card.metricLabel} className="w-6 h-6 object-contain" />
+                  ) : (
+                    getIcon(card.defaultIconKey, 24)
+                  )}
+                </div>
+                <div className="transition-transform duration-500 ease-out group-hover:translate-y-1">
+                  <p className="text-2xl font-normal text-bright-snow tracking-tight font-russo-one">
+                    <span className="sr-only">{card.metricValue} {card.metricLabel}</span>
+                    <span aria-hidden="true">
+                      {isNaN(parseFloat(card.metricValue)) ? (
+                        card.metricValue
+                      ) : (
+                        <>
+                          <span className="count-number" data-target={card.metricValue}>0</span>
+                          {card.metricLabel}
+                        </>
+                      )}
+                    </span>
+                  </p>
+                  <p className="text-[10px] font-silkscreen text-slate-violet-light uppercase tracking-wider mt-0.5">
+                    {card.metricLabel}
+                  </p>
+                  <p className="text-xs text-alabaster-grey/60 mt-2 font-outfit font-light leading-relaxed">
+                    {card.description}
+                  </p>
+                </div>
               </div>
-              <div className="transition-transform duration-500 ease-out group-hover:translate-y-1">
-                <p className="text-2xl font-normal text-bright-snow tracking-tight font-russo-one">
-                  <span className="sr-only">100+</span>
-                  <span aria-hidden="true">
-                    <span ref={count1Ref}>100</span>+
-                  </span>
-                </p>
-                <p className="text-[10px] font-silkscreen text-slate-violet-light uppercase tracking-wider mt-0.5">
-                  Released Games
-                </p>
-                <p className="text-xs text-alabaster-grey/60 mt-2 font-outfit font-light leading-relaxed">
-                  An extensive portfolio of original titles designed for engagement and replayability.
-                </p>
-              </div>
-            </div>
-
-            {/* Card 3: Based in Tbilisi */}
-            <div className="flex items-start p-5 bg-carbon-black-2 border border-graphite-light rounded-xl about-fade-in transition-all duration-500 ease-out group hover:border-slate-violet-light/30 gap-5">
-              <div className="p-3.5 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver shrink-0 transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105">
-                <MapPin size={24} />
-              </div>
-              <div className="transition-transform duration-500 ease-out group-hover:translate-y-1">
-                <p className="text-2xl font-normal text-bright-snow tracking-tight uppercase font-russo-one">
-                  Tbilisi
-                </p>
-                <p className="text-[10px] font-silkscreen text-slate-violet-light uppercase tracking-wider mt-0.5">
-                  Based in Georgia
-                </p>
-                <p className="text-xs text-alabaster-grey/60 mt-2 font-outfit font-light leading-relaxed">
-                  Located in Tbilisi, our creative headquarters serves as our core design and development hub.
-                </p>
-              </div>
-            </div>
-
-            {/* Card 4: Founded Year */}
-            <div className="flex items-start p-5 bg-carbon-black-2 border border-graphite-light rounded-xl about-fade-in transition-all duration-500 ease-out group hover:border-slate-violet-light/30 gap-5">
-              <div className="p-3.5 bg-carbon-black rounded-xl border border-graphite-light/60 text-platinum-silver shrink-0 transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105">
-                <Sparkles size={24} />
-              </div>
-              <div className="transition-transform duration-500 ease-out group-hover:translate-y-1">
-                <p className="text-2xl font-normal text-bright-snow tracking-tight font-russo-one">
-                  <span className="sr-only">2021</span>
-                  <span aria-hidden="true">
-                    <span ref={count2Ref}>2021</span>
-                  </span>
-                </p>
-                <p className="text-[10px] font-silkscreen text-slate-violet-light uppercase tracking-wider mt-0.5">
-                  Founded Year
-                </p>
-                <p className="text-xs text-alabaster-grey/60 mt-2 font-outfit font-light leading-relaxed">
-                  Crafting memorable interactive experiences since our studio's establishment in 2021.
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
         {/* Narrative Description */}
         <div className="max-w-3xl text-center z-10 about-fade-in">
-          <p className="text-base md:text-lg text-alabaster-grey leading-relaxed font-outfit font-light">
-            Our journey began with a shared love for gaming and a drive to create exceptional experiences. We develop our own original titles, collaborate with publishers, and offer reliable outsourcing services.
-          </p>
-          <p className="text-base md:text-lg text-alabaster-grey leading-relaxed font-outfit font-light mt-6">
-            We are based in our cozy office in Tbilisi, Georgia. Our team values creativity, technical precision, and a collaborative spirit, ensuring each game we produce is crafted with care and meets international standards.
-          </p>
+          {aboutData.paragraphs.map((para, pIdx) => (
+            <p key={pIdx} className={`text-base md:text-lg text-alabaster-grey leading-relaxed font-outfit font-light ${pIdx > 0 ? 'mt-6' : ''}`}>
+              {para}
+            </p>
+          ))}
         </div>
       </div>
     </section>

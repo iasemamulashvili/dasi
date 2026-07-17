@@ -1,0 +1,42 @@
+{
+  "title": "About Us",
+  "subtitle": "Our Studio Story",
+  "paragraphs": [
+    "Our journey began with a shared love for gaming and a drive to create exceptional experiences. We develop our own original titles, collaborate with publishers, and offer reliable outsourcing services.",
+    "We are based in our cozy office in Tbilisi, Georgia. Our team values creativity, technical precision, and a collaborative spirit, ensuring each game we produce is crafted with care and meets international standards."
+  ],
+  "cards": [
+    {
+      "id": "downloads",
+      "metricValue": "50",
+      "metricLabel": "M+ Downloads",
+      "description": "Mobile downloads exceeding 50 million across Google Play and App Store.",
+      "iconType": "default",
+      "defaultIconKey": "Globe"
+    },
+    {
+      "id": "web-plays",
+      "metricValue": "28",
+      "metricLabel": "M+ Web Plays",
+      "description": "Over 28 million web game plays on Poki and other web platforms.",
+      "iconType": "default",
+      "defaultIconKey": "Gamepad"
+    },
+    {
+      "id": "founded",
+      "metricValue": "2021",
+      "metricLabel": "Founded Year",
+      "description": "Crafting memorable interactive experiences since our studio's establishment in 2021.",
+      "iconType": "default",
+      "defaultIconKey": "Sparkles"
+    },
+    {
+      "id": "headquarters",
+      "metricValue": "Tbilisi",
+      "metricLabel": "Georgia Headquarters",
+      "description": "Located in Tbilisi, our creative headquarters serves as our core design and development hub.",
+      "iconType": "default",
+      "defaultIconKey": "MapPin"
+    }
+  ]
+}

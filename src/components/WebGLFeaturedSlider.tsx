@@ -1061,9 +1061,9 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
                   setIsModalOpen(true);
                   setIsModalPlaying(true);
                 }}
-                className="inset-pixel-btn-primary group/btn inline-flex items-center py-2 px-4 cursor-pointer text-xs"
+                className="inset-pixel-btn-primary group/btn inline-flex items-center justify-center !h-[38px] md:!h-[48px] !py-0 px-5 md:px-7 cursor-pointer text-xs md:text-sm font-bold font-outfit"
               >
-                <Play size={10} className="mr-2 fill-current" /> PREVIEW <ArrowRight size={10} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                <Play size={12} className="mr-2 fill-current shrink-0" /> PREVIEW <ArrowRight size={12} className="ml-2 group-hover/btn:translate-x-1 transition-transform shrink-0" />
               </button>
             )}
             
@@ -1076,7 +1076,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
                   rel="noopener noreferrer"
                   className="hover:scale-105 transition-transform"
                 >
-                  <AppStoreBadge className="h-8 w-auto" />
+                  <AppStoreBadge className="h-[38px] md:h-[48px] w-auto" />
                 </a>
               )}
               {activeGame.playstoreLink && (
@@ -1086,7 +1086,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
                   rel="noopener noreferrer"
                   className="hover:scale-105 transition-transform"
                 >
-                  <PlayStoreBadge className="h-8 w-auto" />
+                  <PlayStoreBadge className="h-[38px] md:h-[48px] w-auto" />
                 </a>
               )}
             </div>

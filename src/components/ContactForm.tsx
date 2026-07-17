@@ -10,6 +10,7 @@ interface JobUploadField {
   placeholder: string;
   accept: string;
   isRequired: boolean;
+  type?: 'file' | 'url' | 'both';
 }
 
 interface Job {
@@ -20,6 +21,8 @@ interface Job {
   requirements: string[];
   responsibilities: string[];
   customUploads?: JobUploadField[];
+  iconType?: 'default' | 'custom';
+  icon?: string;
 }
 
 interface Settings {
@@ -74,6 +77,8 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
   const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File | null }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [uploadedUrls, setUploadedUrls] = useState<{ [key: string]: string }>({});
+  const [activeUploadModes, setActiveUploadModes] = useState<{ [key: string]: 'file' | 'url' }>({});
   const [errorMessage, setErrorMessage] = useState('');
 
   // States for custom dropdown
@@ -192,6 +197,8 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
       const target = e.target as HTMLSelectElement;
       setFormData((prev) => ({ ...prev, subject: target.value }));
       setUploadedFiles({}); // Reset files when subject changes
+      setUploadedUrls({});
+      setActiveUploadModes({});
     };
 
     subjectInput.addEventListener('input', handleNativeInput);
@@ -207,6 +214,8 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (name === 'subject') {
       setUploadedFiles({}); // Reset uploaded files on subject change
+      setUploadedUrls({});
+      setActiveUploadModes({});
     }
   };
 
@@ -261,11 +270,24 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
-    // Client-side validation for required file fields
-    const missingFields = uploadFields.filter((f) => f.isRequired && !uploadedFiles[f.id]);
+    // Client-side validation for required fields (handling both file uploads and URL inputs)
+    const missingFields = uploadFields.filter((f) => {
+      if (!f.isRequired) return false;
+      const mode = activeUploadModes[f.id] || (f.type === 'url' ? 'url' : 'file');
+      if (mode === 'url') {
+        return !uploadedUrls[f.id] || !uploadedUrls[f.id].trim();
+      } else {
+        return !uploadedFiles[f.id];
+      }
+    });
+
     if (missingFields.length > 0) {
       setSubmitStatus('error');
-      setErrorMessage(`Please upload the required file(s): ${missingFields.map((f) => f.label).join(', ')}`);
+      const fieldNames = missingFields.map((f) => {
+        const mode = activeUploadModes[f.id] || (f.type === 'url' ? 'url' : 'file');
+        return `${f.label} (${mode === 'url' ? 'URL Link' : 'File Upload'})`;
+      }).join(', ');
+      setErrorMessage(`Please provide the required fields: ${fieldNames}`);
       setIsSubmitting(false);
       return;
     }
@@ -277,11 +299,19 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
       data.append('subject', formData.subject);
       data.append('message', formData.message);
 
-      // Append all configured files
+      // Append all configured files & URLs
       uploadFields.forEach((field) => {
-        const file = uploadedFiles[field.id];
-        if (file) {
-          data.append(`file_${field.id}`, file);
+        const mode = activeUploadModes[field.id] || (field.type === 'url' ? 'url' : 'file');
+        if (mode === 'url') {
+          const urlVal = uploadedUrls[field.id];
+          if (urlVal && urlVal.trim()) {
+            data.append(`url_${field.id}`, urlVal.trim());
+          }
+        } else {
+          const file = uploadedFiles[field.id];
+          if (file) {
+            data.append(`file_${field.id}`, file);
+          }
         }
       });
 
@@ -298,6 +328,8 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
       setSubmitStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '' });
       setUploadedFiles({});
+      setUploadedUrls({});
+      setActiveUploadModes({});
     } catch (err: any) {
       console.error(err);
       setSubmitStatus('error');
@@ -515,55 +547,96 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
                           const isRequired = field.isRequired;
                           const currentFile = uploadedFiles[field.id];
                           const isUploaded = !!currentFile;
+                          const mode = activeUploadModes[field.id] || (field.type === 'url' ? 'url' : 'file');
                           
                           return (
                             <div
                               key={field.id}
                               className="flex flex-col gap-1.5"
                             >
-                              <span className="text-[9px] font-silkscreen tracking-wider text-alabaster-grey uppercase flex items-center gap-1">
-                                <span>{field.label}</span>
-                                {isRequired && <span className="text-rose-500">*</span>}
-                              </span>
-                              <motion.label
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.99 }}
-                                className={`w-full flex flex-col items-center justify-center border border-dashed rounded-none px-3 py-4 cursor-pointer transition-all duration-300 focus-within:ring-2 focus-within:ring-slate-violet-light/50 focus-within:outline-none ${
-                                  isUploaded
-                                    ? 'border-muted-green bg-muted-green/5 hover:border-muted-green-light hover:bg-muted-green/10'
-                                    : 'border-graphite-light bg-carbon-black hover:border-platinum-silver hover:bg-carbon-black-2'
-                                }`}
-                              >
-                                <Upload
-                                  size={14}
-                                  className={`mb-1.5 transition-colors duration-300 ${
-                                    isUploaded ? 'text-muted-green' : 'text-alabaster-grey/40'
-                                  }`}
+                              <div className="flex items-center justify-between">
+                                <span className="text-[9px] font-silkscreen tracking-wider text-alabaster-grey uppercase flex items-center gap-1">
+                                  <span>{field.label}</span>
+                                  {isRequired && <span className="text-rose-500">*</span>}
+                                </span>
+                                
+                                {field.type === 'both' && (
+                                  <div className="flex gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => setActiveUploadModes({ ...activeUploadModes, [field.id]: 'file' })}
+                                      className={`px-2 py-0.5 text-[8px] font-semibold border uppercase tracking-wider cursor-pointer rounded-none ${
+                                        mode === 'file'
+                                          ? 'bg-slate-violet border-slate-violet text-bright-snow'
+                                          : 'bg-carbon-black border-graphite-light text-alabaster-grey/50 hover:text-bright-snow'
+                                      }`}
+                                    >
+                                      File
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setActiveUploadModes({ ...activeUploadModes, [field.id]: 'url' })}
+                                      className={`px-2 py-0.5 text-[8px] font-semibold border uppercase tracking-wider cursor-pointer rounded-none ${
+                                        mode === 'url'
+                                          ? 'bg-slate-violet border-slate-violet text-bright-snow'
+                                          : 'bg-carbon-black border-graphite-light text-alabaster-grey/50 hover:text-bright-snow'
+                                      }`}
+                                    >
+                                      Link
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+
+                              {mode === 'url' ? (
+                                <input
+                                  type="url"
+                                  value={uploadedUrls[field.id] || ''}
+                                  onChange={(e) => setUploadedUrls({ ...uploadedUrls, [field.id]: e.target.value })}
+                                  placeholder={field.placeholder || 'https://example.com/link'}
+                                  className="w-full px-3 py-4 bg-carbon-black border border-graphite-light rounded-none text-[10px] text-bright-snow placeholder-alabaster-grey/30 focus:outline-none focus:border-slate-violet font-outfit"
                                 />
-                                <span
-                                  className={`text-[10px] text-center truncate max-w-full px-2 font-light font-outfit transition-colors duration-300 ${
-                                    isUploaded ? 'text-muted-green-light font-medium' : 'text-alabaster-grey'
+                              ) : (
+                                <motion.label
+                                  whileHover={{ scale: 1.01 }}
+                                  whileTap={{ scale: 0.99 }}
+                                  className={`w-full flex flex-col items-center justify-center border border-dashed rounded-none px-3 py-4 cursor-pointer transition-all duration-300 focus-within:ring-2 focus-within:ring-slate-violet-light/50 focus-within:outline-none ${
+                                    isUploaded
+                                      ? 'border-muted-green bg-muted-green/5 hover:border-muted-green-light hover:bg-muted-green/10'
+                                      : 'border-graphite-light bg-carbon-black hover:border-platinum-silver hover:bg-carbon-black-2'
                                   }`}
                                 >
-                                  {currentFile ? currentFile.name : field.placeholder}
-                                </span>
-                                <span className="text-[8px] text-alabaster-grey/40 font-outfit mt-0.5">
-                                  Allowed formats: {field.accept}
-                                </span>
-                                <input
-                                  type="file"
-                                  id={`file-${field.id}`}
-                                  accept={field.accept}
-                                  onChange={(e) => {
-                                    if (e.target.files && e.target.files.length > 0) {
-                                      handleFileChange(field.id, e.target.files[0]);
-                                    } else {
-                                      handleFileChange(field.id, null);
-                                    }
-                                  }}
-                                  className="sr-only"
-                                />
-                              </motion.label>
+                                  <Upload
+                                    size={14}
+                                    className={`mb-1.5 transition-colors duration-300 ${
+                                      isUploaded ? 'text-muted-green' : 'text-alabaster-grey/40'
+                                    }`}
+                                  />
+                                  <span
+                                    className={`text-[10px] text-center truncate max-w-full px-2 font-light font-outfit transition-colors duration-300 ${
+                                      isUploaded ? 'text-muted-green-light font-medium' : 'text-alabaster-grey'
+                                    }`}
+                                  >
+                                    {currentFile ? currentFile.name : field.placeholder}
+                                  </span>
+                                  <span className="text-[8px] text-alabaster-grey/40 font-outfit mt-0.5">
+                                    Allowed formats: {field.accept}
+                                  </span>
+                                  <input
+                                    type="file"
+                                    id={`file-${field.id}`}
+                                    accept={field.accept}
+                                    onChange={(e) => {
+                                      if (e.target.files && e.target.files.length > 0) {
+                                        handleFileChange(field.id, e.target.files[0]);
+                                      } else {
+                                        handleFileChange(field.id, null);
+                                      }
+                                    }}
+                                    className="sr-only"
+                                  />
+                                </motion.label>
+                              )}
                             </div>
                           );
                         })}

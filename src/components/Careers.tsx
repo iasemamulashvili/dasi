@@ -1,7 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, Briefcase, MapPin } from 'lucide-react';
+import { 
+  ChevronDown, 
+  Briefcase, 
+  MapPin,
+  Code2,
+  Palette,
+  Gamepad2,
+  Layers,
+  Music,
+  Terminal,
+  Cpu,
+  TrendingUp
+} from 'lucide-react';
 import { Job } from '@/utils/db';
 
 export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
@@ -26,19 +38,34 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
         behavior: 'smooth',
       });
 
-      // Pre-fill subject field if it exists
+      // Select category on contact form with a slight delay
       setTimeout(() => {
-        const subjectInput = document.getElementById('subject') as HTMLInputElement;
-        const messageInput = document.getElementById('message') as HTMLTextAreaElement;
-        if (subjectInput) {
-          subjectInput.value = `Job Application - ${jobTitle}`;
-          // Dispatch input event to ensure React state updates if there is one
-          subjectInput.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-        if (messageInput) {
-          messageInput.focus();
+        const categorySelect = document.getElementById('category') as HTMLSelectElement;
+        if (categorySelect) {
+          categorySelect.value = `Job Application - ${jobTitle}`;
+          // Dispatch change event so React form registers it
+          categorySelect.dispatchEvent(new Event('change', { bubbles: true }));
         }
       }, 800);
+    }
+  };
+
+  const getJobIcon = (job: Job, size = 20) => {
+    if (job.iconType === 'custom' && job.icon) {
+      return <img src={job.icon} alt="" className="w-5 h-5 object-contain" />;
+    }
+    const key = job.icon || 'Briefcase';
+    switch (key) {
+      case 'Briefcase': return <Briefcase size={size} />;
+      case 'Code2': return <Code2 size={size} />;
+      case 'Palette': return <Palette size={size} />;
+      case 'Gamepad2': return <Gamepad2 size={size} />;
+      case 'Layers': return <Layers size={size} />;
+      case 'Music': return <Music size={size} />;
+      case 'Terminal': return <Terminal size={size} />;
+      case 'Cpu': return <Cpu size={size} />;
+      case 'TrendingUp': return <TrendingUp size={size} />;
+      default: return <Briefcase size={size} />;
     }
   };
 
@@ -53,7 +80,7 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
             <span>•</span> Career Opportunities
           </span>
           <h2 className="text-3xl md:text-5xl font-normal text-bright-snow tracking-wide mt-2 uppercase font-russo-one retro-heading-shadow">
-            Join Our Team
+            Join Our Quest
           </h2>
           <p className="text-sm text-alabaster-grey mt-4 max-w-lg mx-auto font-outfit font-light">
             Join us in our adventure, push your limits, and let's create something extraordinary together in our Tbilisi studio.
@@ -80,7 +107,7 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
                     <div className={`p-3 rounded-lg border transition-colors ${
                       isOpen ? 'bg-carbon-black border-slate-violet text-platinum-silver' : 'bg-carbon-black-2 border-graphite-light text-alabaster-grey'
                     }`}>
-                      <Briefcase size={20} />
+                      {getJobIcon(job)}
                     </div>
                     <div>
                       <h3 className="text-lg font-silkscreen text-bright-snow tracking-wide uppercase">{job.title}</h3>

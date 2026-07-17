@@ -18,16 +18,32 @@ import {
   AlertCircle,
   Cog,
   Tv,
-  Upload
+  Upload,
+  Info,
+  Heart,
+  Trophy,
+  Users,
+  Zap,
+  Flame,
+  Gamepad,
+  Code2,
+  Palette,
+  Layers,
+  Music,
+  Terminal,
+  Cpu,
+  TrendingUp,
+  Link2
 } from 'lucide-react';
-import { Game, Job, Settings, JobUploadField } from '@/utils/db';
+import { Game, Job, Settings, JobUploadField, AboutSettings, AboutCard } from '@/utils/db';
 import {
   saveGameAction,
   deleteGameAction,
   saveJobAction,
   deleteJobAction,
   logoutAction,
-  saveSettingsAction
+  saveSettingsAction,
+  saveAboutAction
 } from '../actions';
 
 // Official App Store & Google Play Store SVG Icons
@@ -54,14 +70,17 @@ interface ConsoleProps {
   games: Game[];
   jobs: Job[];
   initialSettings: Settings;
+  initialAbout: AboutSettings;
 }
 
-export default function DashboardConsole({ games: initialGames, jobs: initialJobs, initialSettings }: ConsoleProps) {
+export default function DashboardConsole({ games: initialGames, jobs: initialJobs, initialSettings, initialAbout }: ConsoleProps) {
   const [games, setGames] = useState<Game[]>(initialGames);
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [settingsForm, setSettingsForm] = useState<Settings>(initialSettings);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
-  const [activeTab, setActiveTab] = useState<'games' | 'showcase' | 'jobs' | 'settings'>('games');
+  const [aboutForm, setAboutForm] = useState<AboutSettings>(initialAbout);
+  const [isSavingAbout, setIsSavingAbout] = useState(false);
+  const [activeTab, setActiveTab] = useState<'games' | 'showcase' | 'jobs' | 'settings' | 'about'>('games');
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   // Modal / Form state for Games
@@ -100,6 +119,8 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
     requirements: string;
     responsibilities: string;
     customUploads: JobUploadField[];
+    iconType?: 'default' | 'custom';
+    icon?: string;
   }>({
     id: '',
     title: '',
@@ -107,7 +128,9 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
     description: '',
     requirements: '',
     responsibilities: '',
-    customUploads: []
+    customUploads: [],
+    iconType: 'default',
+    icon: 'Briefcase'
   });
 
   const router = useRouter();
@@ -379,7 +402,9 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
         description: job.description,
         requirements: job.requirements ? job.requirements.join('\n') : '',
         responsibilities: job.responsibilities ? job.responsibilities.join('\n') : '',
-        customUploads: job.customUploads || []
+        customUploads: job.customUploads || [],
+        iconType: job.iconType || 'default',
+        icon: job.icon || 'Briefcase'
       });
     } else {
       setEditingJob(null);
@@ -390,7 +415,9 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
         description: '',
         requirements: '',
         responsibilities: '',
-        customUploads: []
+        customUploads: [],
+        iconType: 'default',
+        icon: 'Briefcase'
       });
     }
     setIsJobFormOpen(true);
@@ -413,7 +440,9 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
       description: jobFormData.description,
       requirements: jobFormData.requirements.split('\n').map((l) => l.trim()).filter(Boolean),
       responsibilities: jobFormData.responsibilities.split('\n').map((l) => l.trim()).filter(Boolean),
-      customUploads: jobFormData.customUploads
+      customUploads: jobFormData.customUploads,
+      iconType: jobFormData.iconType,
+      icon: jobFormData.icon
     };
 
     try {
@@ -443,6 +472,49 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
       showMessage('Job posting removed successfully.', 'success');
     } catch (err) {
       showMessage('Failed to delete job.', 'error');
+    }
+  };
+
+  const handleAboutSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingAbout(true);
+    try {
+      await saveAboutAction(aboutForm);
+      showMessage('About Us page details saved successfully.', 'success');
+    } catch (err) {
+      showMessage('Failed to save About settings.', 'error');
+    } finally {
+      setIsSavingAbout(false);
+    }
+  };
+
+  const handleAboutCardIconUpload = async (cardIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      try {
+        showMessage('Uploading custom icon...', 'success');
+        const url = await handleFileUpload(file);
+        const updatedCards = [...aboutForm.cards];
+        updatedCards[cardIdx] = { ...updatedCards[cardIdx], customIconUrl: url, iconType: 'custom' };
+        setAboutForm({ ...aboutForm, cards: updatedCards });
+        showMessage('Custom icon uploaded successfully.', 'success');
+      } catch (err: any) {
+        showMessage(err.message || 'Failed to upload custom icon.', 'error');
+      }
+    }
+  };
+
+  const handleJobIconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      try {
+        showMessage('Uploading custom job icon...', 'success');
+        const url = await handleFileUpload(file);
+        setJobFormData((prev) => ({ ...prev, icon: url, iconType: 'custom' }));
+        showMessage('Job icon uploaded successfully.', 'success');
+      } catch (err: any) {
+        showMessage(err.message || 'Failed to upload job icon.', 'error');
+      }
     }
   };
 
@@ -521,6 +593,17 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
             >
               <Briefcase size={14} />
               CAREERS LIST
+            </button>
+            <button
+              onClick={() => setActiveTab('about')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all duration-200 cursor-pointer shrink-0 ${
+                activeTab === 'about'
+                  ? 'bg-graphite text-bright-snow'
+                  : 'text-alabaster-grey/60 hover:text-bright-snow'
+              }`}
+            >
+              <Info size={14} />
+              ABOUT US
             </button>
             <button
               onClick={() => setActiveTab('settings')}
@@ -929,7 +1012,237 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
           </div>
         )}
 
-        {/* Tab Content: Settings */}
+        {/* Tab Content: About Us */}
+        {activeTab === 'about' && (
+          <form onSubmit={handleAboutSubmit} className="space-y-8 max-w-4xl">
+            <div className="bg-carbon-black-2 border border-graphite-light p-6 rounded-2xl space-y-6">
+              <h3 className="text-base font-semibold text-bright-snow border-b border-graphite-light/40 pb-3">About Us Text Content</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-bright-snow">SECTION TITLE</label>
+                  <input
+                    type="text"
+                    value={aboutForm.title}
+                    onChange={(e) => setAboutForm({ ...aboutForm, title: e.target.value })}
+                    className="w-full bg-carbon-black border border-graphite-light rounded-xl px-4 py-2.5 text-xs text-bright-snow focus:border-slate-violet outline-none"
+                    placeholder="About Us"
+                    required
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-bright-snow">SECTION SUBTITLE</label>
+                  <input
+                    type="text"
+                    value={aboutForm.subtitle}
+                    onChange={(e) => setAboutForm({ ...aboutForm, subtitle: e.target.value })}
+                    className="w-full bg-carbon-black border border-graphite-light rounded-xl px-4 py-2.5 text-xs text-bright-snow focus:border-slate-violet outline-none"
+                    placeholder="Our Studio Story"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-semibold text-bright-snow">BODY PARAGRAPHS (ONE PER LINE)</label>
+                <textarea
+                  value={aboutForm.paragraphs.join('\n')}
+                  onChange={(e) => setAboutForm({ ...aboutForm, paragraphs: e.target.value.split('\n') })}
+                  rows={5}
+                  className="w-full bg-carbon-black border border-graphite-light rounded-xl px-4 py-2.5 text-xs text-bright-snow focus:border-slate-violet outline-none font-outfit"
+                  placeholder="Enter studio story paragraphs, one per line..."
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <h3 className="text-base font-semibold text-bright-snow">Fact & Metric Cards</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {aboutForm.cards.map((card, idx) => {
+                  const isSpotlight = idx === 0;
+                  return (
+                    <div key={card.id} className="bg-carbon-black-2 border border-graphite-light p-6 rounded-2xl space-y-4">
+                      <div className="flex items-center justify-between border-b border-graphite-light/40 pb-2">
+                        <span className="text-xs font-silkscreen text-slate-violet-light tracking-wider uppercase">
+                          {isSpotlight ? 'Card 1 (Spotlight Card)' : `Card ${idx + 1}`}
+                        </span>
+                        <span className="text-[10px] bg-graphite border border-graphite-light text-alabaster-grey/80 px-2 py-0.5 rounded-full font-outfit">
+                          ID: {card.id}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[10px] font-semibold text-bright-snow uppercase">Metric Value</label>
+                          <input
+                            type="text"
+                            value={card.metricValue}
+                            onChange={(e) => {
+                              const updated = [...aboutForm.cards];
+                              updated[idx] = { ...card, metricValue: e.target.value };
+                              setAboutForm({ ...aboutForm, cards: updated });
+                            }}
+                            className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:border-slate-violet outline-none"
+                            placeholder="e.g. 50 or Tbilisi"
+                            required
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[10px] font-semibold text-bright-snow uppercase">Metric Label</label>
+                          <input
+                            type="text"
+                            value={card.metricLabel}
+                            onChange={(e) => {
+                              const updated = [...aboutForm.cards];
+                              updated[idx] = { ...card, metricLabel: e.target.value };
+                              setAboutForm({ ...aboutForm, cards: updated });
+                            }}
+                            className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:border-slate-violet outline-none"
+                            placeholder="e.g. M+ Downloads"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-semibold text-bright-snow uppercase">Card Description</label>
+                        <textarea
+                          value={card.description}
+                          onChange={(e) => {
+                            const updated = [...aboutForm.cards];
+                            updated[idx] = { ...card, description: e.target.value };
+                            setAboutForm({ ...aboutForm, cards: updated });
+                          }}
+                          rows={2}
+                          className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:border-slate-violet outline-none"
+                          placeholder="Brief description of this stat..."
+                          required
+                        />
+                      </div>
+
+                      <div className="border-t border-graphite-light/30 pt-3 space-y-3">
+                        <div className="flex items-center gap-4">
+                          <label className="text-[10px] font-semibold text-bright-snow uppercase shrink-0">Icon Source</label>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = [...aboutForm.cards];
+                                updated[idx] = { ...card, iconType: 'default' };
+                                setAboutForm({ ...aboutForm, cards: updated });
+                              }}
+                              className={`px-3 py-1 rounded-lg text-[10px] font-semibold tracking-wider cursor-pointer border ${
+                                card.iconType === 'default'
+                                  ? 'bg-slate-violet border-slate-violet text-bright-snow'
+                                  : 'bg-graphite border-graphite-light text-alabaster-grey/60 hover:text-bright-snow'
+                              }`}
+                            >
+                              DEFAULT LIST
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = [...aboutForm.cards];
+                                updated[idx] = { ...card, iconType: 'custom' };
+                                setAboutForm({ ...aboutForm, cards: updated });
+                              }}
+                              className={`px-3 py-1 rounded-lg text-[10px] font-semibold tracking-wider cursor-pointer border ${
+                                card.iconType === 'custom'
+                                  ? 'bg-slate-violet border-slate-violet text-bright-snow'
+                                  : 'bg-graphite border-graphite-light text-alabaster-grey/60 hover:text-bright-snow'
+                              }`}
+                            >
+                              CUSTOM UPLOAD
+                            </button>
+                          </div>
+                        </div>
+
+                        {card.iconType === 'default' ? (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[9px] font-semibold text-bright-snow uppercase">Select Default Icon</label>
+                            <select
+                              value={card.defaultIconKey}
+                              onChange={(e) => {
+                                const updated = [...aboutForm.cards];
+                                updated[idx] = { ...card, defaultIconKey: e.target.value };
+                                setAboutForm({ ...aboutForm, cards: updated });
+                              }}
+                              className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:border-slate-violet outline-none"
+                            >
+                              {['Globe', 'Rocket', 'MapPin', 'Sparkles', 'Heart', 'Trophy', 'Users', 'Zap', 'Flame', 'Gamepad'].map((key) => (
+                                <option key={key} value={key}>{key}</option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-[9px] font-semibold text-bright-snow uppercase">Icon Image URL</label>
+                              <div className="flex gap-2">
+                                <input
+                                  type="text"
+                                  value={card.customIconUrl || ''}
+                                  onChange={(e) => {
+                                    const updated = [...aboutForm.cards];
+                                    updated[idx] = { ...card, customIconUrl: e.target.value };
+                                    setAboutForm({ ...aboutForm, cards: updated });
+                                  }}
+                                  className="flex-1 bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:border-slate-violet outline-none"
+                                  placeholder="https://example.com/icon.png or upload below"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <label className="relative flex items-center justify-center gap-2 bg-graphite hover:bg-graphite-light border border-graphite-light text-bright-snow font-semibold px-4 py-2 rounded-xl transition-all text-xs cursor-pointer">
+                                <Upload size={12} />
+                                <span>Upload File</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handleAboutCardIconUpload(idx, e)}
+                                  className="hidden"
+                                />
+                              </label>
+                              {card.customIconUrl && (
+                                <img
+                                  src={card.customIconUrl}
+                                  alt="Preview"
+                                  className="w-8 h-8 rounded border border-graphite-light object-contain bg-carbon-black"
+                                />
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-graphite-light/40">
+              <button
+                type="submit"
+                disabled={isSavingAbout}
+                className="bg-slate-violet hover:bg-slate-violet-light disabled:opacity-50 text-bright-snow font-semibold px-6 py-3 rounded-xl transition-all text-xs flex items-center justify-center gap-2 cursor-pointer uppercase shadow-lg shadow-slate-violet/20"
+              >
+                {isSavingAbout ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>SAVING UPDATES...</span>
+                  </>
+                ) : (
+                  <span>SAVE ABOUT US CHANGES</span>
+                )}
+              </button>
+            </div>
+          </form>
+        )}
         {activeTab === 'settings' && (() => {
           const categoriesList = [
             'General Inquiry',
@@ -1305,6 +1618,84 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                 </div>
               </div>
 
+              {/* Job Icon Selection */}
+              <div className="bg-carbon-black/30 border border-graphite-light/60 p-4 rounded-xl space-y-3">
+                <div className="flex items-center gap-4">
+                  <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase shrink-0 font-silkscreen text-slate-violet-light">Job Icon Type</label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setJobFormData({ ...jobFormData, iconType: 'default', icon: 'Briefcase' })}
+                      className={`px-3 py-1 rounded-lg text-[10px] font-semibold tracking-wider cursor-pointer border ${
+                        jobFormData.iconType === 'default'
+                          ? 'bg-slate-violet border-slate-violet text-bright-snow'
+                          : 'bg-graphite border-graphite-light text-alabaster-grey/60 hover:text-bright-snow'
+                      }`}
+                    >
+                      DEFAULT LIST
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setJobFormData({ ...jobFormData, iconType: 'custom', icon: '' })}
+                      className={`px-3 py-1 rounded-lg text-[10px] font-semibold tracking-wider cursor-pointer border ${
+                        jobFormData.iconType === 'custom'
+                          ? 'bg-slate-violet border-slate-violet text-bright-snow'
+                          : 'bg-graphite border-graphite-light text-alabaster-grey/60 hover:text-bright-snow'
+                      }`}
+                    >
+                      CUSTOM UPLOAD
+                    </button>
+                  </div>
+                </div>
+
+                {jobFormData.iconType === 'default' ? (
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Select Job Icon</label>
+                    <select
+                      value={jobFormData.icon || 'Briefcase'}
+                      onChange={(e) => setJobFormData({ ...jobFormData, icon: e.target.value })}
+                      className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                    >
+                      {['Briefcase', 'Code2', 'Palette', 'Gamepad2', 'Layers', 'Music', 'Terminal', 'Cpu', 'TrendingUp'].map((key) => (
+                        <option key={key} value={key}>{key}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Custom Icon URL</label>
+                      <input
+                        type="text"
+                        value={jobFormData.icon || ''}
+                        onChange={(e) => setJobFormData({ ...jobFormData, icon: e.target.value })}
+                        className="w-full bg-carbon-black border border-graphite-light rounded-xl px-3 py-2 text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                        placeholder="https://example.com/icon.png or upload below"
+                      />
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <label className="relative flex items-center justify-center gap-2 bg-graphite hover:bg-graphite-light border border-graphite-light text-bright-snow font-semibold px-4 py-2 rounded-xl transition-all text-xs cursor-pointer">
+                        <Upload size={12} />
+                        <span>Upload File</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleJobIconUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      {jobFormData.iconType === 'custom' && jobFormData.icon && (
+                        <img
+                          src={jobFormData.icon}
+                          alt="Preview"
+                          className="w-8 h-8 rounded border border-graphite-light object-contain bg-carbon-black"
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Description */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold tracking-widest text-alabaster-grey/60 uppercase">
@@ -1366,7 +1757,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                         ...prev,
                         customUploads: [
                           ...prev.customUploads,
-                          { id: `field-${Date.now()}`, label: '', placeholder: '', accept: '', isRequired: false }
+                          { id: `field-${Date.now()}`, label: '', placeholder: '', accept: '', isRequired: false, type: 'file' }
                         ]
                       }));
                     }}
@@ -1432,7 +1823,23 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Field Input Type</label>
+                            <select
+                              value={field.type || 'file'}
+                              onChange={(e) => {
+                                const updated = [...jobFormData.customUploads];
+                                updated[idx] = { ...updated[idx], type: e.target.value as any };
+                                setJobFormData((prev) => ({ ...prev, customUploads: updated }));
+                              }}
+                              className="px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-lg text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light cursor-pointer"
+                            >
+                              <option value="file">File Upload Only</option>
+                              <option value="url">URL Input Only</option>
+                              <option value="both">Both (File or URL)</option>
+                            </select>
+                          </div>
                           <div className="flex flex-col gap-1">
                             <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Placeholder</label>
                             <input
@@ -1443,22 +1850,29 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                                 updated[idx] = { ...updated[idx], placeholder: e.target.value };
                                 setJobFormData((prev) => ({ ...prev, customUploads: updated }));
                               }}
-                              placeholder="Link to ArtStation / PDF up to 5MB"
+                              placeholder={field.type === 'url' ? 'https://artstation.com/artist' : 'Link or PDF up to 5MB'}
                               className="px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-lg text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light"
                             />
                           </div>
                           <div className="flex flex-col gap-1">
-                            <label className="text-[9px] font-bold tracking-widest text-alabaster-grey/50 uppercase">Accept File Types / Extensions</label>
+                            <label className={`text-[9px] font-bold tracking-widest uppercase transition-opacity ${field.type === 'url' ? 'text-alabaster-grey/30' : 'text-alabaster-grey/50'}`}>
+                              Accept File Types
+                            </label>
                             <input
                               type="text"
-                              value={field.accept}
+                              disabled={field.type === 'url'}
+                              value={field.type === 'url' ? '' : field.accept}
                               onChange={(e) => {
                                 const updated = [...jobFormData.customUploads];
                                 updated[idx] = { ...updated[idx], accept: e.target.value };
                                 setJobFormData((prev) => ({ ...prev, customUploads: updated }));
                               }}
-                              placeholder=".pdf,.zip,.png,.jpg"
-                              className="px-3 py-2 bg-carbon-black-2 border border-graphite-light rounded-lg text-xs text-bright-snow focus:outline-none focus:border-slate-violet-light"
+                              placeholder={field.type === 'url' ? 'N/A (URL Only)' : '.pdf,.zip,.png'}
+                              className={`px-3 py-2 border rounded-lg text-xs transition-colors focus:outline-none ${
+                                field.type === 'url'
+                                  ? 'bg-carbon-black/10 border-graphite-light/40 text-alabaster-grey/30'
+                                  : 'bg-carbon-black-2 border-graphite-light text-bright-snow focus:border-slate-violet-light'
+                              }`}
                             />
                           </div>
                           <div className="flex items-center gap-2 mt-4 select-none">

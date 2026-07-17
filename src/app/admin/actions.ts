@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createSession, deleteSession, getSession } from '@/utils/auth';
-import { getGames, saveGames, getJobs, saveJobs, Game, Job, saveSettings, Settings } from '@/utils/db';
+import { getGames, saveGames, getJobs, saveJobs, Game, Job, saveSettings, Settings, getAboutSettings, saveAboutSettings, AboutSettings } from '@/utils/db';
 
 const DEFAULT_ADMIN_USER = process.env.ADMIN_USERNAME || 'admin';
 const DEFAULT_ADMIN_PASS = process.env.ADMIN_PASSWORD || 'dasigames2026';
@@ -106,6 +106,17 @@ export async function deleteJobAction(jobId: string) {
 export async function saveSettingsAction(settingsData: Settings) {
   await assertAuthorized();
   await saveSettings(settingsData);
+  revalidatePath('/admin/dashboard');
+  return { success: true };
+}
+
+// -------------------------------------------------------------
+// About Actions
+// -------------------------------------------------------------
+export async function saveAboutAction(aboutData: AboutSettings) {
+  await assertAuthorized();
+  await saveAboutSettings(aboutData);
+  revalidatePath('/');
   revalidatePath('/admin/dashboard');
   return { success: true };
 }

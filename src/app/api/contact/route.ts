@@ -41,6 +41,15 @@ export async function POST(request: Request) {
         });
       }
     }
+    // Collect all URL inputs from form data
+    const urls: { label: string; value: string }[] = [];
+    for (const [key, value] of data.entries()) {
+      if (key.startsWith('url_') && typeof value === 'string' && value.trim()) {
+        const typeKey = key.replace('url_', '');
+        const urlLabel = uploadLabels[typeKey] || typeKey.toUpperCase();
+        urls.push({ label: urlLabel, value });
+      }
+    }
 
     console.log('Contact form submission received:', {
       name,
@@ -48,7 +57,8 @@ export async function POST(request: Request) {
       subject,
       message,
       attachmentsCount: attachments.length,
-      attachedFiles: attachments.map(a => a.filename).join(', ') || 'none'
+      attachedFiles: attachments.map(a => a.filename).join(', '),
+      urlsSubmitted: urls.map(u => `${u.label}: ${u.value}`).join(', ') || 'none'
     });
 
     const resendApiKey = process.env.RESEND_API_KEY;
@@ -70,6 +80,12 @@ export async function POST(request: Request) {
             <p><strong>Name:</strong> ${name}</p>
             <p><strong>Email:</strong> ${email}</p>
             <p><strong>Subject:</strong> ${subject}</p>
+            ${urls.length > 0 ? `
+            <p><strong>Custom Links:</strong></p>
+            <ul style="background-color: #f7f9fc; padding: 15px; border-radius: 8px; border: 1px solid #e1e8ed; list-style-type: none; margin: 0 0 15px 0; padding-left: 15px;">
+              ${urls.map(u => `<li><strong>${u.label}:</strong> <a href="${u.value}" target="_blank">${u.value}</a></li>`).join('')}
+            </ul>
+            ` : ''}
             <p><strong>Message:</strong></p>
             <p style="white-space: pre-line; background-color: #f7f9fc; padding: 15px; border-radius: 8px; border: 1px solid #e1e8ed;">${message}</p>
           </div>
