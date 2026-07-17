@@ -131,7 +131,7 @@ function KineticCard({
   ];
 
   // Dynamic Opacity calculation: fades cards as they approach the left/right boundaries of the screen
-  const cardCenterInTrack = index * cardSpacing + cardWidth / 2;
+  const cardCenterInTrack = index * cardSpacing + cardWidth / 2 + 24;
 
   const opacity = useTransform(trackX, (latestX: number) => {
     if (typeof window === 'undefined') return 1;
@@ -366,6 +366,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   const cardGap = isMobile ? 16 : 24;
   const spacing = cardWidth + cardGap;
   const repeatInterval = games.length * spacing;
+  const trackPadding = 24;
 
   const trackX = useMotionValue(0);
   const hoverOffset = useMotionValue(0);
@@ -384,21 +385,21 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
   useEffect(() => {
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
-    const offset = (viewportWidth - cardWidth) / 2;
+    const centerOffset = (viewportWidth - cardWidth) / 2 - 24;
     setDragConstraints({
-      left: -repeatInterval * 1.5 + offset,
-      right: -repeatInterval * 0.5 + offset
+      left: -repeatInterval * 1.5 + centerOffset,
+      right: -repeatInterval * 0.5 + centerOffset
     });
-    trackX.set(-repeatInterval + offset);
+    trackX.set(-repeatInterval + centerOffset);
   }, [repeatInterval, trackX, cardWidth]);
 
   const triggerSnap = () => {
     setIsSnapping(true);
     const currentX = trackX.get();
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
-    const offset = (viewportWidth - cardWidth) / 2;
-    const targetIdx = Math.round((offset - currentX) / spacing);
-    const snapX = offset - targetIdx * spacing;
+    const centerOffset = (viewportWidth - cardWidth) / 2 - 24;
+    const targetIdx = Math.round((centerOffset - currentX) / spacing);
+    const snapX = centerOffset - targetIdx * spacing;
     
     animate(trackX, snapX, {
       type: 'spring',
@@ -414,8 +415,8 @@ function KineticSpinStream({ games }: { games: Game[] }) {
   useAnimationFrame((time, delta) => {
     const currentX = trackX.get();
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
-    const offset = (viewportWidth - cardWidth) / 2;
-    const targetIdx = Math.round((offset - currentX) / spacing);
+    const centerOffset = (viewportWidth - cardWidth) / 2 - 24;
+    const targetIdx = Math.round((centerOffset - currentX) / spacing);
     
     if (targetIdx !== centeredIdx) {
       setCenteredIdx(targetIdx);
@@ -447,9 +448,9 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     let nextX = currentX + speed;
 
     // Continuous loop wrapping with offset adjustment
-    if (nextX < -repeatInterval * 1.5 + offset) {
+    if (nextX < -repeatInterval * 1.5 + centerOffset) {
       nextX += repeatInterval;
-    } else if (nextX > -repeatInterval * 0.5 + offset) {
+    } else if (nextX > -repeatInterval * 0.5 + centerOffset) {
       nextX -= repeatInterval;
     }
     trackX.set(nextX);
@@ -487,12 +488,12 @@ function KineticSpinStream({ games }: { games: Game[] }) {
 
     let currentX = trackX.get();
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
-    const offset = (viewportWidth - cardWidth) / 2;
+    const centerOffset = (viewportWidth - cardWidth) / 2 - trackPadding;
 
-    if (currentX < -repeatInterval * 1.5 + offset) {
+    if (currentX < -repeatInterval * 1.5 + centerOffset) {
       currentX += repeatInterval;
       trackX.set(currentX);
-    } else if (currentX > -repeatInterval * 0.5 + offset) {
+    } else if (currentX > -repeatInterval * 0.5 + centerOffset) {
       currentX -= repeatInterval;
       trackX.set(currentX);
     }
@@ -509,11 +510,11 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     setIsSnapping(true);
     
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
-    const offset = isMobile ? (viewportWidth - cardWidth) / 2 : 0;
+    const centerOffset = (viewportWidth - cardWidth) / 2 - trackPadding;
     
     // Find current center index from track position
     const currentX = trackX.get();
-    const currentCenteredIdx = Math.round((offset - currentX) / spacing);
+    const currentCenteredIdx = Math.round((centerOffset - currentX) / spacing);
     
     // Find closest target index that maps to the clicked game index
     const mappedCurrent = ((currentCenteredIdx % games.length) + games.length) % games.length;
@@ -528,7 +529,7 @@ function KineticSpinStream({ games }: { games: Game[] }) {
     }
     
     const targetCenteredIdx = currentCenteredIdx + indexDiff;
-    const targetX = offset - targetCenteredIdx * spacing;
+    const targetX = centerOffset - targetCenteredIdx * spacing;
     
     animate(trackX, targetX, {
       type: 'spring',

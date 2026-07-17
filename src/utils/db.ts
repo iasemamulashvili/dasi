@@ -409,7 +409,7 @@ export async function getAboutSettings(): Promise<AboutSettings> {
       {
         id: 'web-plays',
         metricValue: '28',
-        metricLabel: '',
+        metricLabel: 'M+ Web Plays',
         subtitle: 'M+ Web Plays',
         description: 'Over 28 million web game plays on Poki and other web platforms.',
         iconType: 'default',
@@ -418,8 +418,8 @@ export async function getAboutSettings(): Promise<AboutSettings> {
       {
         id: 'founded',
         metricValue: '2021',
-        metricLabel: '',
-        subtitle: 'Founded',
+        metricLabel: 'Founded Year',
+        subtitle: 'Founded Year',
         description: "Crafting memorable interactive experiences since our studio's establishment in 2021.",
         iconType: 'default',
         defaultIconKey: 'Sparkles'
@@ -427,7 +427,7 @@ export async function getAboutSettings(): Promise<AboutSettings> {
       {
         id: 'headquarters',
         metricValue: 'Tbilisi',
-        metricLabel: '',
+        metricLabel: 'Georgia Headquarters',
         subtitle: 'Georgia Headquarters',
         description: 'Located in Tbilisi, our creative headquarters serves as our core design and development hub.',
         iconType: 'default',
