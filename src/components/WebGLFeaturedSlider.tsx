@@ -72,7 +72,7 @@ const defaultMockGames = [
     accentMuted: 'var(--color-slate-violet)',
     themeColor: 'rgba(226, 232, 240, 0.7)',
     bgGradient: 'from-graphite/30 via-carbon-black-2/40 to-[#181818]',
-    image: '/crown-quest.png',
+    image: '/crown-quest.webp',
     playstoreLink: 'https://play.google.com/store/apps/details?id=dasi.arpg.crownquest',
     appstoreLink: 'https://apps.apple.com/us/app/crown-quest-action-rpg/id6477858164',
     stats: {
@@ -91,7 +91,7 @@ const defaultMockGames = [
     accentMuted: 'var(--color-slate-violet)',
     themeColor: 'rgba(82, 122, 105, 0.7)',
     bgGradient: 'from-muted-green/20 via-carbon-black-2/40 to-[#181818]',
-    image: '/lumber-chopper.png',
+    image: '/lumber-chopper.webp',
     playstoreLink: 'https://play.google.com/store/apps/details?id=dasi.prs2.lumberchopper',
     appstoreLink: 'https://apps.apple.com/us/app/lumber-chopper-harvest-empire/id6738272884',
     stats: {
@@ -110,7 +110,7 @@ const defaultMockGames = [
     accentMuted: 'var(--color-slate-violet)',
     themeColor: 'rgba(146, 146, 166, 0.7)',
     bgGradient: 'from-slate-violet/20 via-carbon-black-2/40 to-[#181818]',
-    image: '/hotel-manager.png',
+    image: '/hotel-manager.webp',
     playstoreLink: 'https://play.google.com/store/apps/details?id=dasi.prs3.hotelmanager',
     appstoreLink: 'https://apps.apple.com/us/app/hotel-manager-resort-empire/id6748454899',
     stats: {
@@ -205,7 +205,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
         accentMuted: 'var(--color-slate-violet)',
         themeColor: g.id === 'lumber-chopper' ? 'rgba(82, 122, 105, 0.7)' : (g.id === 'hotel-manager' ? 'rgba(146, 146, 166, 0.7)' : 'rgba(226, 232, 240, 0.7)'),
         bgGradient: g.id === 'lumber-chopper' ? 'from-muted-green/20 via-carbon-black-2/40 to-[#181818]' : (g.id === 'hotel-manager' ? 'from-slate-violet/20 via-carbon-black-2/40 to-[#181818]' : 'from-graphite/30 via-carbon-black-2/40 to-[#181818]'),
-        image: g.featuredImage || g.iconSrc || '/crown-quest.png',
+        image: g.featuredImage || g.iconSrc || '/crown-quest.webp',
         playstoreLink: g.playstoreLink,
         appstoreLink: g.appstoreLink,
         videoSrc: g.videoSrc || getVideoFallback(g.id),

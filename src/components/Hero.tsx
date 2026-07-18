@@ -21,6 +21,7 @@ export default function Hero() {
   // Letter Collector state
   const [collectedCount, setCollectedCount] = useState(0);
   const [isBlowing, setIsBlowing] = useState(false);
+  const [isEntrancing, setIsEntrancing] = useState(true);
   const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const parentRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const carriedLetters = useRef<number[]>([]);
@@ -73,6 +74,9 @@ export default function Hero() {
           stagger: 0.03,
           duration: 1.2,
           ease: 'power4.out',
+          onComplete: () => {
+            setIsEntrancing(false);
+          }
         }
       );
 
@@ -226,7 +230,7 @@ export default function Hero() {
   }, []);
 
   const handleLetterClick = (index: number) => {
-    if (isBlowing) return; // Block collection while letters are returning to home
+    if (isEntrancing || isBlowing) return; // Block collection while letters are returning to home
     const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
     if (!isMobile) return;
 
@@ -281,7 +285,7 @@ export default function Hero() {
   };
 
   const handleContainerMouseMove = (e: React.MouseEvent) => {
-    if (isBlowing) return; // Block interaction while letters are returning to home
+    if (isEntrancing || isBlowing) return; // Block interaction while letters are returning to home
     if (window.innerWidth < 768 || ('ontouchstart' in window)) return;
     
     // Bulletproof Release: Check if the mouse is inside the RELEASE box bounding box
@@ -555,6 +559,7 @@ export default function Hero() {
                     }}
                     onClick={() => handleLetterClick(index)}
                     onMouseEnter={(e) => {
+                      if (isEntrancing || isBlowing) return;
                       if (collectedCount === 0 || !carriedLetters.current.includes(index)) {
                         gsap.to(e.currentTarget, {
                           '--letter-l': 0.88,
@@ -565,6 +570,7 @@ export default function Hero() {
                       }
                     }}
                     onMouseLeave={(e) => {
+                      if (isEntrancing || isBlowing) return;
                       if (collectedCount === 0 || !carriedLetters.current.includes(index)) {
                         gsap.to(e.currentTarget, {
                           '--letter-l': 0.95,
@@ -575,11 +581,11 @@ export default function Hero() {
                       }
                     }}
                     className={`absolute inset-0 cursor-grab active:cursor-grabbing interactive-letter select-none entrance-char ${
-                      (isCarried || isBlowing) ? 'pointer-events-none' : ''
+                      (isEntrancing || isCarried || isBlowing) ? 'pointer-events-none' : ''
                     }`}
                     style={{ 
                       transformStyle: 'preserve-3d',
-                      pointerEvents: (isCarried || isBlowing) ? 'none' : 'auto'
+                      pointerEvents: (isEntrancing || isCarried || isBlowing) ? 'none' : 'auto'
                     }}
                   >
                     {char}

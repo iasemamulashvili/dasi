@@ -304,9 +304,9 @@ export async function saveJobs(jobs: Job[]): Promise<void> {
 // -------------------------------------------------------------
 export async function getSettings(): Promise<Settings> {
   const defaultFeaturedGames = [
-    { gameId: 'crown-quest', featuredSubtitle: 'Epic Action RPG Adventure', featuredImage: '/crown-quest.png' },
-    { gameId: 'lumber-chopper', featuredSubtitle: 'Idle Wood Empire Tycoon', featuredImage: '/lumber-chopper.png' },
-    { gameId: 'hotel-manager', featuredSubtitle: '5-Star Luxury Resort Simulator', featuredImage: '/hotel-manager.png' }
+    { gameId: 'crown-quest', featuredSubtitle: 'Epic Action RPG Adventure', featuredImage: '/crown-quest.webp' },
+    { gameId: 'lumber-chopper', featuredSubtitle: 'Idle Wood Empire Tycoon', featuredImage: '/lumber-chopper.webp' },
+    { gameId: 'hotel-manager', featuredSubtitle: '5-Star Luxury Resort Simulator', featuredImage: '/hotel-manager.webp' }
   ];
 
   const kv = getKVConfig();
