@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import ScrollLogoCanvas from './ScrollLogoCanvas';
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -483,26 +484,13 @@ export default function Hero() {
         className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(109,109,128,0.2)_0%,rgba(24,24,24,1)_80%)] opacity-80"
       />
 
-      {/* Parallax Layer 2: Midground Game Art */}
-      <div
-        ref={layerMidRef}
-        className="absolute right-0 bottom-0 top-0 w-full md:w-[60%] opacity-25 pointer-events-none select-none z-10 flex items-end justify-end"
-      >
-        <Image
-          src="/Images/banner_image.webp"
-          alt="Game Characters Banner"
-          width={1200}
-          height={800}
-          priority
-          className="h-[80%] max-h-[700px] w-auto object-contain object-bottom select-none pointer-events-none filter drop-shadow-[0_0_50px_rgba(109,109,128,0.15)]"
-        />
-      </div>
-
       {/* Parallax Layer 3: Tagline & Interactive content */}
       <div
         ref={layerForeRef}
-        className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col items-start justify-center gap-6"
+        className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 pt-24 md:pt-0"
       >
+        {/* Left Column: Interactive letters and branding texts */}
+        <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full">
         {/* Cyberpunk HUD Game-style Alert Pill */}
         {collectedCount > 0 && (
           <div className="flex items-center gap-3 px-4 py-2 bg-carbon-black-2/80 backdrop-blur-md border border-slate-violet/30 rounded-xl text-xs font-silkscreen text-bright-snow shadow-[0_8px_32px_rgba(0,0,0,0.6)] transition-all duration-300 animate-fadeIn select-none border-l-4 border-l-slate-violet-light">
@@ -698,6 +686,15 @@ export default function Hero() {
             LET'S TALK
             <ArrowRight size={18} />
           </button>
+        </div>
+        </div>
+
+        {/* Right Column: Dynamic Scroll-driven Canvas with Midground Parallax Ref */}
+        <div
+          ref={layerMidRef}
+          className="w-full md:w-[45%] lg:w-[50%] flex items-center justify-center order-first md:order-last"
+        >
+          <ScrollLogoCanvas heroContainerRef={containerRef} />
         </div>
       </div>
 
