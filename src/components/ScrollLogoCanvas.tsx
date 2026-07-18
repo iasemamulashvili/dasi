@@ -174,16 +174,10 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
           </div>
         </div>
       ) : (
-        // Transparent display wrapper via screen blending operation
-        <div 
-          className="w-full h-full relative"
-          style={{ mixBlendMode: 'screen' }}
-        >
-          <canvas 
-            ref={canvasRef} 
-            className="block w-full h-full pointer-events-none"
-          />
-        </div>
+        <canvas 
+          ref={canvasRef} 
+          className="block w-full h-full pointer-events-none"
+        />
       )}
     </div>
   );

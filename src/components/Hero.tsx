@@ -487,10 +487,10 @@ export default function Hero() {
       {/* Parallax Layer 3: Tagline & Interactive content */}
       <div
         ref={layerForeRef}
-        className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 pt-24 md:pt-0"
+        className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col justify-center min-h-[calc(100vh-80px)] pt-24 md:pt-0"
       >
-        {/* Left Column: Interactive letters and branding texts */}
-        <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full">
+        {/* Left Column Content Wrapper (constrained to max-w-3xl to allow absolute canvas on the right) */}
+        <div className="max-w-3xl flex flex-col items-start justify-center gap-6 w-full">
         {/* Cyberpunk HUD Game-style Alert Pill */}
         {collectedCount > 0 && (
           <div className="flex items-center gap-3 px-4 py-2 bg-carbon-black-2/80 backdrop-blur-md border border-slate-violet/30 rounded-xl text-xs font-silkscreen text-bright-snow shadow-[0_8px_32px_rgba(0,0,0,0.6)] transition-all duration-300 animate-fadeIn select-none border-l-4 border-l-slate-violet-light">
@@ -692,7 +692,7 @@ export default function Hero() {
         {/* Right Column: Dynamic Scroll-driven Canvas with Midground Parallax Ref */}
         <div
           ref={layerMidRef}
-          className="w-full md:w-[45%] lg:w-[50%] flex items-center justify-center order-first md:order-last"
+          className="relative md:absolute w-full max-w-[280px] md:max-w-none md:right-6 md:top-1/2 md:-translate-y-1/2 md:w-[45%] lg:md:w-[50%] order-first md:order-none mb-8 md:mb-0 flex items-center justify-center pointer-events-none select-none z-10"
         >
           <ScrollLogoCanvas heroContainerRef={containerRef} />
         </div>
