@@ -17,52 +17,159 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRefs = useRef<HTMLImageElement[]>([]);
+  const lastRenderedFrame = useRef<number>(-1);
   
   const [loading, setLoading] = useState(true);
   const [loadProgress, setLoadProgress] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
   const totalFrames = 144;
+  const initialFrameIndex = totalFrames - 1; // Assembled logo frame index
 
-  // Detect mobile viewports to adjust pinning and layouts
+  // Detect mobile viewports to adjust pinning and layouts (strict desktop view is >= 1024px)
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches);
+      setIsMobile(window.innerWidth < 1024);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Preload all WebP frames on mount
-  useEffect(() => {
-    let loadedCount = 0;
-    const preloadedImages: HTMLImageElement[] = [];
+  // Shared frame drawing logic
+  const drawFrameToCanvas = (canvas: HTMLCanvasElement, img: HTMLImageElement, isMobileView: boolean) => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const handleImageLoad = () => {
-      loadedCount++;
-      setLoadProgress(Math.round((loadedCount / totalFrames) * 100));
+    const dpr = window.devicePixelRatio || 1;
+    
+    // Set buffer dimensions dynamically to maintain crisp high-DPI scaling
+    const rectWidth = canvas.clientWidth;
+    const rectHeight = canvas.clientHeight;
+    if (rectWidth > 0 && rectHeight > 0) {
+      const targetWidth = Math.round(rectWidth * dpr);
+      const targetHeight = Math.round(rectHeight * dpr);
+      if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        ctx.resetTransform();
+        ctx.scale(dpr, dpr);
+      }
+    }
+
+    const w = canvas.width / dpr;
+    const h = canvas.height / dpr;
+    ctx.clearRect(0, 0, w, h);
+
+    const imageWidth = img.width;
+    const imageHeight = img.height;
+    let drawWidth = w;
+    let drawHeight = h;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (isMobileView) {
+      // Safe, contained fitting for mobile layout to avoid horizontal cuts
+      const marginScale = 0.85;
+      const canvasRatio = w / h;
+      const imageRatio = imageWidth / imageHeight;
+
+      if (canvasRatio > imageRatio) {
+        drawHeight = h * marginScale;
+        drawWidth = drawHeight * imageRatio;
+        offsetX = (w - drawWidth) / 2;
+        offsetY = (h - drawHeight) / 2;
+      } else {
+        drawWidth = w * marginScale;
+        drawHeight = drawWidth / imageRatio;
+        offsetX = (w - drawWidth) / 2;
+        offsetY = (h - drawHeight) / 2;
+      }
+    } else {
+      // Desktop: Full-viewport height scaling to push top/bottom clipping lines off-screen
+      drawHeight = h * 1.08;
+      drawWidth = drawHeight * (imageWidth / imageHeight);
+      offsetX = (w - drawWidth) / 2;
+      offsetY = (h - drawHeight) / 2;
+    }
+
+    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+  };
+
+  // Preload initial frame for instant display, then load remainder in the background
+  useEffect(() => {
+    let isMounted = true;
+    const preloadedImages: HTMLImageElement[] = [];
+    let loadedCount = 0;
+
+    // 1. Load initial frame (assembled state)
+    const initialImg = new Image();
+    const initialFrameNum = String(initialFrameIndex).padStart(3, '0');
+    initialImg.src = `/Images/logo-sequence/frame_${initialFrameNum}.webp`;
+
+    initialImg.onload = () => {
+      if (!isMounted) return;
+      preloadedImages[initialFrameIndex] = initialImg;
       
-      if (loadedCount === totalFrames) {
-        imageRefs.current = preloadedImages;
-        setLoading(false);
+      // Draw immediately on mount
+      const canvas = canvasRef.current;
+      if (canvas) {
+        drawFrameToCanvas(canvas, initialImg, window.innerWidth < 1024);
+      }
+
+      // 2. Load the remaining frames in the background
+      loadedCount = 1;
+      setLoadProgress(Math.round((loadedCount / totalFrames) * 100));
+
+      for (let i = 0; i < totalFrames; i++) {
+        if (i === initialFrameIndex) continue;
+
+        const img = new Image();
+        const frameNum = String(i).padStart(3, '0');
+        img.src = `/Images/logo-sequence/frame_${frameNum}.webp`;
+
+        img.onload = () => {
+          if (!isMounted) return;
+          preloadedImages[i] = img;
+          loadedCount++;
+          setLoadProgress(Math.round((loadedCount / totalFrames) * 100));
+
+          if (loadedCount === totalFrames) {
+            imageRefs.current = preloadedImages;
+            setLoading(false);
+          }
+        };
+
+        img.onerror = () => {
+          if (!isMounted) return;
+          console.warn(`Failed to preload frame ${i}, falling back to default`);
+          preloadedImages[i] = initialImg; // Fallback to initial frame
+          loadedCount++;
+          setLoadProgress(Math.round((loadedCount / totalFrames) * 100));
+
+          if (loadedCount === totalFrames) {
+            imageRefs.current = preloadedImages;
+            setLoading(false);
+          }
+        };
       }
     };
 
-    const handleImageError = (e: any) => {
-      console.error("Failed to load frame:", e);
-      // Still increment to allow loader to bypass broken frames if any
-      handleImageLoad();
+    initialImg.onerror = () => {
+      if (!isMounted) return;
+      console.error("Critical: Failed to load initial assembled frame");
+      setLoading(false);
     };
 
-    for (let i = 0; i < totalFrames; i++) {
-      const img = new Image();
-      const frameNum = String(i).padStart(3, '0');
-      img.src = `/Images/logo-sequence/frame_${frameNum}.webp`;
-      img.onload = handleImageLoad;
-      img.onerror = handleImageError;
-      preloadedImages.push(img);
-    }
+    return () => {
+      isMounted = false;
+      preloadedImages.forEach(img => {
+        if (img) {
+          img.onload = null;
+          img.onerror = null;
+        }
+      });
+    };
   }, []);
 
   // Set up GSAP ScrollTrigger and canvas rendering once loading completes
@@ -70,74 +177,32 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
     if (loading || !canvasRef.current || !heroContainerRef.current) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Set high-DPI backing store size for sharp rendering
-    const resizeCanvas = () => {
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
-      ctx.scale(dpr, dpr);
-      
-      // Draw initial frame after resizing
-      renderFrame(Math.floor(playhead.frame));
-    };
+    const playhead = { frame: totalFrames - 1 };
 
     const renderFrame = (frameIndex: number) => {
+      // Prevent redundant canvas redraws
+      if (frameIndex === lastRenderedFrame.current) return;
+      
       const img = imageRefs.current[frameIndex];
-      if (!img || !img.complete) return;
-
-      const dpr = window.devicePixelRatio || 1;
-      const w = canvas.width / dpr;
-      const h = canvas.height / dpr;
-
-      // Clear the canvas
-      ctx.clearRect(0, 0, w, h);
-
-      const imageWidth = img.width;
-      const imageHeight = img.height;
-      let drawWidth = w;
-      let drawHeight = h;
-      let offsetX = 0;
-      let offsetY = 0;
-
-      if (isMobile) {
-        // Safe, contained fitting for mobile layout
-        const marginScale = 0.85;
-        const canvasRatio = w / h;
-        const imageRatio = imageWidth / imageHeight;
-
-        if (canvasRatio > imageRatio) {
-          drawHeight = h * marginScale;
-          drawWidth = drawHeight * imageRatio;
-          offsetX = (w - drawWidth) / 2;
-          offsetY = (h - drawHeight) / 2;
-        } else {
-          drawWidth = w * marginScale;
-          drawHeight = drawWidth / imageRatio;
-          offsetX = (w - drawWidth) / 2;
-          offsetY = (h - drawHeight) / 2;
-        }
-      } else {
-        // Desktop: Full-viewport height scaling to push top/bottom clipping lines off-screen
-        drawHeight = h * 1.08;
-        drawWidth = drawHeight * (imageWidth / imageHeight);
-        offsetX = (w - drawWidth) / 2;
-        offsetY = (h - drawHeight) / 2;
+      if (img && img.complete) {
+        drawFrameToCanvas(canvas, img, isMobile);
+        lastRenderedFrame.current = frameIndex;
       }
-
-      ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
     };
 
-    // Initialize playhead to final frame (assembled logo) for reverse scroll flow
-    const playhead = { frame: totalFrames - 1 };
-    
-    // Initial size setup
+    // Debounced resize handler to prevent layout thrashing
+    let resizeTimeout: number;
+    const resizeCanvas = () => {
+      cancelAnimationFrame(resizeTimeout);
+      resizeTimeout = requestAnimationFrame(() => {
+        const frameIndex = Math.floor(playhead.frame);
+        const img = imageRefs.current[frameIndex];
+        if (img) {
+          drawFrameToCanvas(canvas, img, isMobile);
+        }
+      });
+    };
+
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
@@ -176,6 +241,7 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(resizeTimeout);
       if (tl.scrollTrigger) tl.scrollTrigger.kill();
       if (canvasFade.scrollTrigger) canvasFade.scrollTrigger.kill();
       tl.kill();
@@ -188,26 +254,19 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
       ref={containerRef}
       className="relative w-full aspect-square md:aspect-auto md:w-full md:h-full flex items-center justify-center select-none pointer-events-none"
     >
-      {loading ? (
-        // Premium glassmorphic loading HUD loader
-        <div className="flex flex-col items-center justify-center gap-4 p-8 border border-white/5 bg-carbon-black-2/40 rounded-2xl backdrop-blur-md select-none pointer-events-none">
-          <div className="relative w-16 h-16 flex items-center justify-center">
-            {/* Spinning tech circle outer ring */}
-            <div className="absolute inset-0 border-2 border-slate-violet/20 rounded-full" />
-            <div className="absolute inset-0 border-2 border-t-slate-violet-light rounded-full animate-spin" />
-            <span className="text-[10px] font-mono text-bright-snow font-bold">
-              {loadProgress}%
-            </span>
-          </div>
-          <div className="text-[8px] font-silkscreen tracking-widest text-alabaster-grey/60 uppercase animate-pulse">
-            Hydrating 3D Assets
-          </div>
+      <canvas 
+        ref={canvasRef} 
+        className="block w-full h-full pointer-events-none"
+      />
+
+      {/* Glassmorphic progress hud in the bottom corner */}
+      {loading && (
+        <div className="absolute bottom-6 right-6 flex items-center gap-3 px-4 py-2 border border-white/5 bg-carbon-black-2/60 rounded-xl backdrop-blur-md transition-opacity duration-500 pointer-events-none select-none">
+          <div className="w-4 h-4 border-2 border-slate-violet/20 border-t-slate-violet-light rounded-full animate-spin" />
+          <span className="text-[9px] font-mono tracking-wider text-alabaster-grey/80">
+            HYDRATING 3D ASSETS: {loadProgress}%
+          </span>
         </div>
-      ) : (
-        <canvas 
-          ref={canvasRef} 
-          className="block w-full h-full pointer-events-none"
-        />
       )}
     </div>
   );

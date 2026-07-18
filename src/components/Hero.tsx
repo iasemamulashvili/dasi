@@ -513,74 +513,77 @@ export default function Hero() {
         <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-8 flex-wrap w-full">
           <h1
             ref={titleRef}
+            aria-label="DASI GAMES"
             className="text-5xl md:text-8xl font-normal tracking-wider select-none flex flex-wrap font-russo-one"
             style={{ transformStyle: 'preserve-3d' }}
           >
-            {titleText.split('').map((char, index) => {
-              if (char === ' ') return <span key={index} className="w-6 md:w-10">&nbsp;</span>;
-              const isCarried = collectedCount > 0 && carriedLetters.current.includes(index);
-              return (
-                <span
-                  key={index}
-                  ref={(el) => {
-                    parentRefs.current[index] = el;
-                  }}
-                  className="relative inline-block"
-                  style={{ transformStyle: 'preserve-3d' }}
-                >
-                  {/* Holographic Outline Placeholder (Ghost Layer) - Normal Document Flow */}
+            <span aria-hidden="true" className="flex flex-wrap w-full">
+              {titleText.split('').map((char, index) => {
+                if (char === ' ') return <span key={index} className="w-6 md:w-10">&nbsp;</span>;
+                const isCarried = collectedCount > 0 && carriedLetters.current.includes(index);
+                return (
                   <span
-                    className={`letter-placeholder-${index} inline-block select-none transition-all duration-500 ease-out pointer-events-none`}
-                    style={{
-                      opacity: 0,
-                      color: 'oklch(0.12 0.01 0)', // Slightly less black recess
-                      textShadow: '0 1px 1px oklch(0.95 0.01 0 / 0.15), 0 -1px 1.5px oklch(0 0 0 / 0.8)', // 3D engraved bevel
-                    }}
-                  >
-                    {char}
-                  </span>
-
-                  {/* Interactive Carried Letter - Absolute Overlay */}
-                  <span
+                    key={index}
                     ref={(el) => {
-                      letterRefs.current[index] = el;
+                      parentRefs.current[index] = el;
                     }}
-                    onClick={() => handleLetterClick(index)}
-                    onMouseEnter={(e) => {
-                      if (isEntrancing || isBlowing) return;
-                      if (collectedCount === 0 || !carriedLetters.current.includes(index)) {
-                        gsap.to(e.currentTarget, {
-                          '--letter-l': 0.88,
-                          '--letter-c': 0.01,
-                          '--letter-h': 0,
-                          duration: 0.2,
-                        });
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (isEntrancing || isBlowing) return;
-                      if (collectedCount === 0 || !carriedLetters.current.includes(index)) {
-                        gsap.to(e.currentTarget, {
-                          '--letter-l': 0.95,
-                          '--letter-c': 0.01,
-                          '--letter-h': 0,
-                          duration: 0.25,
-                        });
-                      }
-                    }}
-                    className={`absolute inset-0 cursor-grab active:cursor-grabbing interactive-letter select-none entrance-char ${
-                      (isEntrancing || isCarried || isBlowing) ? 'pointer-events-none' : ''
-                    }`}
-                    style={{ 
-                      transformStyle: 'preserve-3d',
-                      pointerEvents: (isEntrancing || isCarried || isBlowing) ? 'none' : 'auto'
-                    }}
+                    className="relative inline-block"
+                    style={{ transformStyle: 'preserve-3d' }}
                   >
-                    {char}
+                    {/* Holographic Outline Placeholder (Ghost Layer) - Normal Document Flow */}
+                    <span
+                      className={`letter-placeholder-${index} inline-block select-none transition-all duration-500 ease-out pointer-events-none`}
+                      style={{
+                        opacity: 0,
+                        color: 'oklch(0.12 0.01 0)', // Slightly less black recess
+                        textShadow: '0 1px 1px oklch(0.95 0.01 0 / 0.15), 0 -1px 1.5px oklch(0 0 0 / 0.8)', // 3D engraved bevel
+                      }}
+                    >
+                      {char}
+                    </span>
+
+                    {/* Interactive Carried Letter - Absolute Overlay */}
+                    <span
+                      ref={(el) => {
+                        letterRefs.current[index] = el;
+                      }}
+                      onClick={() => handleLetterClick(index)}
+                      onMouseEnter={(e) => {
+                        if (isEntrancing || isBlowing) return;
+                        if (collectedCount === 0 || !carriedLetters.current.includes(index)) {
+                          gsap.to(e.currentTarget, {
+                            '--letter-l': 0.88,
+                            '--letter-c': 0.01,
+                            '--letter-h': 0,
+                            duration: 0.2,
+                          });
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (isEntrancing || isBlowing) return;
+                        if (collectedCount === 0 || !carriedLetters.current.includes(index)) {
+                          gsap.to(e.currentTarget, {
+                            '--letter-l': 0.95,
+                            '--letter-c': 0.01,
+                            '--letter-h': 0,
+                            duration: 0.25,
+                          });
+                        }
+                      }}
+                      className={`absolute inset-0 cursor-grab active:cursor-grabbing interactive-letter select-none entrance-char ${
+                        (isEntrancing || isCarried || isBlowing) ? 'pointer-events-none' : ''
+                      }`}
+                      style={{ 
+                        transformStyle: 'preserve-3d',
+                        pointerEvents: (isEntrancing || isCarried || isBlowing) ? 'none' : 'auto'
+                      }}
+                    >
+                      {char}
+                    </span>
                   </span>
-                </span>
-              );
-            })}
+                );
+              })}
+            </span>
           </h1>
           
           {/* Release Box Container with collapsing spacing on mobile */}
@@ -655,16 +658,21 @@ export default function Hero() {
 
         {/* Kinetic Entrance Tagline */}
         <div className="overflow-hidden">
-          <p className="text-xl md:text-3xl font-light tracking-wide text-bright-snow/90 flex flex-wrap gap-x-2">
-            {"Crafting unique gaming experiences".split(' ').map((word, wIdx) => (
-              <span key={wIdx} className="inline-block overflow-hidden">
-                {word.split('').map((char, cIdx) => (
-                  <span key={cIdx} className="entrance-char inline-block origin-bottom-left">
-                    {char}
-                  </span>
-                ))}
-              </span>
-            ))}
+          <p 
+            aria-label="Crafting unique gaming experiences"
+            className="text-xl md:text-3xl font-light tracking-wide text-bright-snow/90 flex flex-wrap gap-x-2"
+          >
+            <span aria-hidden="true" className="flex flex-wrap gap-x-2">
+              {"Crafting unique gaming experiences".split(' ').map((word, wIdx) => (
+                <span key={wIdx} className="inline-block overflow-hidden">
+                  {word.split('').map((char, cIdx) => (
+                    <span key={cIdx} className="entrance-char inline-block origin-bottom-left">
+                      {char}
+                    </span>
+                  ))}
+                </span>
+              ))}
+            </span>
           </p>
         </div>
 
