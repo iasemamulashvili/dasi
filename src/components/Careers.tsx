@@ -19,28 +19,6 @@ import { Job } from '@/utils/db';
 export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
   const [openJobId, setOpenJobId] = useState<string | null>(null);
 
-  // Smooth scroll push viewport down when listing expands
-  useEffect(() => {
-    if (!openJobId) return;
-
-    requestAnimationFrame(() => {
-      const expandedItem = document.getElementById(`job-card-${openJobId}`);
-      if (expandedItem) {
-        setTimeout(() => {
-          const rect = expandedItem.getBoundingClientRect();
-          const targetScrollY = window.scrollY + rect.bottom - window.innerHeight + 24; // 24px bottom buffer padding
-          
-          if (rect.bottom > window.innerHeight - 24) {
-            window.scrollTo({
-              top: targetScrollY,
-              behavior: 'smooth'
-            });
-          }
-        }, 150);
-      }
-    });
-  }, [openJobId]);
-
   const toggleJob = (id: string) => {
     setOpenJobId(openJobId === id ? null : id);
   };
@@ -124,7 +102,6 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
             return (
               <div
                 key={job.id}
-                id={`job-card-${job.id}`}
                 className={`inset-pixel-card border transition-all duration-300 group ${
                   isOpen ? 'border-platinum-silver' : 'border-graphite-light hover:border-platinum-silver-light'
                 }`}
