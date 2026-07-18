@@ -46,36 +46,38 @@ export default function Careers({ initialJobs }: { initialJobs: Job[] }) {
   };
 
   const handleApplyClick = (jobTitle: string) => {
-    // Scroll to contact form
-    const contactSection = document.getElementById('contact');
-    if (contactSection) {
-      const offset = 30;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = contactSection.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
+    // 1. Dispatch custom event to select the subject field in ContactForm first
+    window.dispatchEvent(
+      new CustomEvent('dasi-select-subject', {
+        detail: { subject: `Job Application - ${jobTitle}` }
+      })
+    );
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
+    // 2. Select category on contact form with a slight delay (fallback)
+    setTimeout(() => {
+      const categorySelect = document.getElementById('category') as HTMLSelectElement;
+      if (categorySelect) {
+        categorySelect.value = `Job Application - ${jobTitle}`;
+        categorySelect.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }, 50);
 
-      // Dispatch custom event to select the subject field in ContactForm
-      window.dispatchEvent(
-        new CustomEvent('dasi-select-subject', {
-          detail: { subject: `Job Application - ${jobTitle}` }
-        })
-      );
+    // 3. Wait for ContactForm component to dynamically render upload fields (layout shift) before scrolling
+    setTimeout(() => {
+      const contactSection = document.getElementById('contact');
+      if (contactSection) {
+        const offset = 30;
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = contactSection.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
 
-      // Select category on contact form with a slight delay (fallback)
-      setTimeout(() => {
-        const categorySelect = document.getElementById('category') as HTMLSelectElement;
-        if (categorySelect) {
-          categorySelect.value = `Job Application - ${jobTitle}`;
-          categorySelect.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-      }, 800);
-    }
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth',
+        });
+      }
+    }, 150);
   };
 
   const getJobIcon = (job: Job, size = 20) => {

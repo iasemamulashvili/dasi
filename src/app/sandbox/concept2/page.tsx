@@ -28,8 +28,12 @@ export default function Concept2Page() {
           100% { transform: translateY(105dvh) rotate(0deg); }
         }
         @keyframes glitch-aberration {
-          0%, 100% { text-shadow: 1.5px 0 0 rgba(239,68,68,0.7), -1.5px 0 0 rgba(59,130,246,0.7); }
-          50% { text-shadow: -1.5px 0 0 rgba(239,68,68,0.7), 1.5px 0 0 rgba(59,130,246,0.7); }
+          0%, 100% { text-shadow: 1.5px 0 0 rgba(168, 85, 247, 0.4), -1.5px 0 0 rgba(59,130,246,0.4); }
+          50% { text-shadow: -1.5px 0 0 rgba(168, 85, 247, 0.4), 1.5px 0 0 rgba(59,130,246,0.4); }
+        }
+        @keyframes float-falling {
+          0%, 100% { transform: translateY(0px) rotate(-1.5deg) skewX(1deg); }
+          50% { transform: translateY(10px) rotate(-1.5deg) skewX(1deg); }
         }
         .falling-logo-cw {
           animation: fall-down var(--dur) linear infinite;
@@ -40,7 +44,10 @@ export default function Concept2Page() {
           animation-delay: var(--delay);
         }
         .text-chromatic {
-          animation: glitch-aberration 0.3s infinite steps(2);
+          animation: glitch-aberration 0.4s infinite steps(2);
+        }
+        .animate-float-falling {
+          animation: float-falling 6s infinite ease-in-out;
         }
       `}</style>
 
@@ -71,41 +78,42 @@ export default function Concept2Page() {
       {/* Main HUD container */}
       <div className="relative z-10 max-w-lg w-full flex flex-col items-center gap-8">
         
-        {/* Decorative glitched terminal box */}
-        <div className="w-full p-6 md:p-8 bg-zinc-950/85 border-2 border-red-500/30 rounded-lg relative shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-md rotate-[-1.5deg] skew-x-1">
+        {/* Decorative glitched terminal box with slow falling/floating movement */}
+        <div className="w-full p-6 md:p-8 bg-zinc-950/85 border-2 border-slate-violet/30 rounded-lg relative shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-md animate-float-falling">
           {/* Scanline overlay */}
           <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] pointer-events-none opacity-25" />
           
           {/* Terminal Header */}
-          <div className="flex items-center justify-between border-b border-red-500/20 pb-4 mb-6 text-red-500/80">
+          <div className="flex items-center justify-between border-b border-slate-violet/20 pb-4 mb-6 text-slate-violet-light">
             <div className="flex items-center gap-2">
               <TerminalIcon size={14} className="animate-pulse" />
               <span className="text-[10px] font-mono tracking-widest uppercase">
                 CRITICAL: PHYS_STACK_OVERFLOW
               </span>
             </div>
-            <span className="text-[9px] font-mono bg-red-950/50 border border-red-500/30 px-2 py-0.5 rounded text-red-400">
+            <span className="text-[9px] font-mono bg-slate-violet/20 border border-slate-violet/40 px-2 py-0.5 rounded text-slate-violet-light">
               OUT_OF_BOUNDS
             </span>
           </div>
 
           {/* Glitched Header Text */}
-          <h1 className="text-xl md:text-2xl font-mono font-bold leading-relaxed text-red-400 uppercase tracking-wide text-chromatic text-center mb-8">
+          <h1 className="text-xl md:text-2xl font-mono font-bold leading-relaxed text-bright-snow uppercase tracking-wide text-chromatic text-center mb-8">
             Whoops, you fell out of bounds! Sending you back to the start...
           </h1>
 
           {/* Glitch Readout Stats */}
-          <div className="bg-black/60 border border-white/5 rounded p-4 font-mono text-[9px] text-alabaster-grey/60 text-left mb-8 flex flex-col gap-1.5">
-            <div>&gt; EXCEPTION DETECTED: VIEWPORT_COORDINATES_INVALID</div>
+          <div className="bg-black/60 border border-white/5 rounded p-4 font-mono text-[9.5px] text-alabaster-grey/60 text-left mb-8 flex flex-col gap-1.5 leading-relaxed">
+            <div>&gt; PHYS_ENGINE: BOUNDARY_CHECK_FAILED</div>
+            <div>&gt; ERROR_CODE: 404_OUT_OF_BOUNDS</div>
             <div>&gt; VECTOR_Y: +1440.09 (THRESHOLD EXCEEDED)</div>
-            <div>&gt; INITIALIZING SAFETY RESPAWN PROTOCOL...</div>
+            <div>&gt; RESETTING VIEWPORT COORDINATE STACK...</div>
           </div>
 
           {/* Action Button */}
           <div className="flex justify-center">
             <Link
               href="/"
-              className="px-6 py-3 border-2 border-red-500/50 bg-red-950/30 hover:bg-red-500 hover:text-black font-mono text-xs text-red-400 tracking-widest uppercase flex items-center gap-3 transition-all duration-300 shadow-[0_0_15px_rgba(239,68,68,0.2)] active:scale-[0.98]"
+              className="px-6 py-3 border-2 border-slate-violet/50 bg-slate-violet/10 hover:bg-slate-violet hover:text-black font-mono text-xs text-slate-violet-light tracking-widest uppercase flex items-center gap-3 transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.15)] active:scale-[0.98]"
             >
               <RefreshCw size={13} className="animate-spin" style={{ animationDuration: '4s' }} />
               <span>Manual Respawn</span>
