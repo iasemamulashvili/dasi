@@ -24,7 +24,7 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
   const [isMobile, setIsMobile] = useState(false);
 
   const totalFrames = 144;
-  const initialFrameIndex = totalFrames - 1; // Assembled logo frame index
+  const initialFrameIndex = 0; // Start with fully exploded frame on mount
 
   // Detect mobile viewports to adjust pinning and layouts (strict desktop view is >= 1024px)
   useEffect(() => {
@@ -177,16 +177,24 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
     if (loading || !canvasRef.current || !heroContainerRef.current) return;
 
     const canvas = canvasRef.current;
-    const playhead = { frame: totalFrames - 1 };
+    
+    // We add virtual padding frames at the beginning and end of the timeline
+    // This gives the scrub inertia buffer space to compile completely before unpinning
+    const startBuffer = 24;
+    const endBuffer = 24;
+    const playhead = { frame: -startBuffer };
 
     const renderFrame = (frameIndex: number) => {
-      // Prevent redundant canvas redraws
-      if (frameIndex === lastRenderedFrame.current) return;
+      // Clamp virtual frame index to valid image frame range [0, 143]
+      const clampedIndex = Math.max(0, Math.min(totalFrames - 1, frameIndex));
       
-      const img = imageRefs.current[frameIndex];
+      // Prevent redundant canvas redraws
+      if (clampedIndex === lastRenderedFrame.current) return;
+      
+      const img = imageRefs.current[clampedIndex];
       if (img && img.complete) {
         drawFrameToCanvas(canvas, img, isMobile);
-        lastRenderedFrame.current = frameIndex;
+        lastRenderedFrame.current = clampedIndex;
       }
     };
 
@@ -196,20 +204,16 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
       cancelAnimationFrame(resizeTimeout);
       resizeTimeout = requestAnimationFrame(() => {
         const frameIndex = Math.floor(playhead.frame);
-        const img = imageRefs.current[frameIndex];
-        if (img) {
-          drawFrameToCanvas(canvas, img, isMobile);
-        }
+        renderFrame(frameIndex);
       });
     };
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Create GSAP ScrollTrigger timeline (scrubs backwards from totalFrames-1 to 0)
+    // Create GSAP ScrollTrigger timeline (scrubs from exploded state -24 to assembled state 143+24)
     const tl = gsap.to(playhead, {
-      frame: 0,
-      snap: 'frame',
+      frame: totalFrames - 1 + endBuffer,
       ease: 'none',
       scrollTrigger: {
         trigger: heroContainerRef.current,
@@ -223,29 +227,11 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
       }
     });
 
-    // Animate canvas scale & opacity for a smooth transition out of view
-    const canvasFade = gsap.fromTo(canvas,
-      { scale: 1, opacity: 1 },
-      {
-        scale: 0.85,
-        opacity: 0,
-        ease: 'power1.inOut',
-        scrollTrigger: {
-          trigger: heroContainerRef.current,
-          start: 'top top',
-          end: isMobile ? 'bottom top' : '+=130%',
-          scrub: 1
-        }
-      }
-    );
-
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(resizeTimeout);
       if (tl.scrollTrigger) tl.scrollTrigger.kill();
-      if (canvasFade.scrollTrigger) canvasFade.scrollTrigger.kill();
       tl.kill();
-      canvasFade.kill();
     };
   }, [loading, isMobile, heroContainerRef]);
 
