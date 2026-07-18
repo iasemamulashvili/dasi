@@ -99,26 +99,34 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
       // Clear the canvas
       ctx.clearRect(0, 0, w, h);
 
-      // Fit layout centered (contain aspect ratio 16:9) with margin scale to avoid screen border clipping
-      const marginScale = 0.72;
       const imageWidth = img.width;
       const imageHeight = img.height;
-      const canvasRatio = w / h;
-      const imageRatio = imageWidth / imageHeight;
-
-      let drawWidth = w * marginScale;
-      let drawHeight = h * marginScale;
+      let drawWidth = w;
+      let drawHeight = h;
       let offsetX = 0;
       let offsetY = 0;
 
-      if (canvasRatio > imageRatio) {
-        drawHeight = h * marginScale;
-        drawWidth = drawHeight * imageRatio;
-        offsetX = (w - drawWidth) / 2;
-        offsetY = (h - drawHeight) / 2;
+      if (isMobile) {
+        // Safe, contained fitting for mobile layout
+        const marginScale = 0.85;
+        const canvasRatio = w / h;
+        const imageRatio = imageWidth / imageHeight;
+
+        if (canvasRatio > imageRatio) {
+          drawHeight = h * marginScale;
+          drawWidth = drawHeight * imageRatio;
+          offsetX = (w - drawWidth) / 2;
+          offsetY = (h - drawHeight) / 2;
+        } else {
+          drawWidth = w * marginScale;
+          drawHeight = drawWidth / imageRatio;
+          offsetX = (w - drawWidth) / 2;
+          offsetY = (h - drawHeight) / 2;
+        }
       } else {
-        drawWidth = w * marginScale;
-        drawHeight = drawWidth / imageRatio;
+        // Desktop: Full-viewport height scaling to push top/bottom clipping lines off-screen
+        drawHeight = h * 1.08;
+        drawWidth = drawHeight * (imageWidth / imageHeight);
         offsetX = (w - drawWidth) / 2;
         offsetY = (h - drawHeight) / 2;
       }
@@ -178,7 +186,7 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
   return (
     <div 
       ref={containerRef}
-      className="relative w-full aspect-square md:w-[480px] md:h-[480px] lg:w-[550px] lg:h-[550px] flex items-center justify-center select-none pointer-events-none"
+      className="relative w-full aspect-square md:aspect-auto md:w-full md:h-full flex items-center justify-center select-none pointer-events-none"
     >
       {loading ? (
         // Premium glassmorphic loading HUD loader
