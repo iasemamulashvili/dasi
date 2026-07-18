@@ -56,7 +56,7 @@ export default function Concept2Page() {
         {fallingLogos.map((logo) => (
           <img
             key={logo.id}
-            src="https://dasigames.com/Images/low_res_images/dasigames_logo(transparent).png"
+            src="/Images/dasigames_logo.png"
             alt="Falling Dasi Games Logo"
             style={{
               left: logo.left,

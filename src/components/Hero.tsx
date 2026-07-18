@@ -484,7 +484,7 @@ export default function Hero() {
         className="absolute right-0 bottom-0 top-0 w-full md:w-[60%] opacity-25 pointer-events-none select-none z-10 flex items-end justify-end"
       >
         <img
-          src="https://dasigames.com/Images/banner_image.webp"
+          src="/Images/banner_image.webp"
           alt="Game Characters Banner"
           className="h-[80%] max-h-[700px] w-auto object-contain object-bottom select-none pointer-events-none filter drop-shadow-[0_0_50px_rgba(109,109,128,0.15)]"
         />
@@ -499,7 +499,7 @@ export default function Hero() {
         {collectedCount > 0 && (
           <div className="flex items-center gap-3 px-4 py-2 bg-carbon-black-2/80 backdrop-blur-md border border-slate-violet/30 rounded-xl text-xs font-silkscreen text-bright-snow shadow-[0_8px_32px_rgba(0,0,0,0.6)] transition-all duration-300 animate-fadeIn select-none border-l-4 border-l-slate-violet-light">
             <img
-              src="https://dasigames.com/Images/low_res_images/dasigames_logo(transparent).png"
+              src="/Images/dasigames_logo.png"
               alt="Dasi Logo"
               className="w-4 h-4 object-contain filter drop-shadow-[0_0_4px_rgba(168,85,247,0.5)]"
               style={{

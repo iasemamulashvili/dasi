@@ -120,6 +120,28 @@ function KineticCard({
   isDragging: boolean;
   isSnapping: boolean;
 }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isIntersecting, setIsIntersecting] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsIntersecting(entry.isIntersecting);
+      },
+      { rootMargin: '100px' }
+    );
+    const el = cardRef.current;
+    if (el) {
+      observer.observe(el);
+    }
+    return () => {
+      if (el) {
+        observer.unobserve(el);
+      }
+    };
+  }, []);
+
   const isHovered = !isMobile && hoveredIdx === index;
   const isFocused = isMobile ? (centeredIdx === index) : (hoveredIdx === index);
   const showOverlays = !isMobile || isDragging || isSnapping;
@@ -159,6 +181,7 @@ function KineticCard({
 
   return (
     <motion.div
+      ref={cardRef}
       onMouseEnter={() => setHoveredIdx(index)}
       onMouseLeave={onCardMouseLeave}
       onMouseMove={onCardMouseMove}
@@ -189,13 +212,14 @@ function KineticCard({
         </div>
 
         {/* Video plays continuously in background if present */}
-        {game.videoSrc ? (
+        {game.videoSrc && isIntersecting ? (
           <video
             src={game.videoSrc}
             autoPlay
             loop
             muted
             playsInline
+            preload="none"
             className="absolute inset-0 w-full h-full object-cover z-0"
           />
         ) : null}

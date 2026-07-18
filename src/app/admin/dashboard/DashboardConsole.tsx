@@ -568,7 +568,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
-              src="https://dasigames.com/Images/low_res_images/dasigames_logo(transparent).png"
+              src="/Images/dasigames_logo.png"
               alt="Logo"
               className="h-8 w-auto object-contain"
             />
@@ -709,7 +709,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                       <tr key={game.id} className="hover:bg-graphite/10 transition-colors">
                         <td className="p-6">
                           <img
-                            src={game.iconSrc || 'https://dasigames.com/Images/low_res_images/dasigames_logo(transparent).png'}
+                            src={game.iconSrc || '/Images/dasigames_logo.png'}
                             alt={game.title}
                             className="w-12 h-12 rounded-xl object-cover border border-graphite-light"
                           />
@@ -766,7 +766,7 @@ export default function DashboardConsole({ games: initialGames, jobs: initialJob
                 <div key={game.id} className="bg-carbon-black border border-graphite-light p-4 rounded-xl flex flex-col gap-4">
                   <div className="flex gap-3 items-start">
                     <img 
-                      src={game.iconSrc || 'https://dasigames.com/Images/low_res_images/dasigames_logo(transparent).png'} 
+                      src={game.iconSrc || '/Images/dasigames_logo.png'} 
                       alt={game.title} 
                       className="w-12 h-12 rounded-lg object-cover border border-graphite-light shrink-0" 
                     />

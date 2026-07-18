@@ -293,7 +293,7 @@ export default function Header() {
         {/* Logo */}
         <Link href="/" onClick={(e) => handleNavClick(e, '#home')} className="flex items-center gap-2 group">
           <img
-            src="https://dasigames.com/Images/low_res_images/dasigames_logo(transparent).png"
+            src="/Images/dasigames_logo.png"
             alt="Dasi Games Logo"
             className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
           />

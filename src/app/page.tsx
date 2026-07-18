@@ -1,12 +1,14 @@
+import dynamic from "next/dynamic";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import WebGLFeaturedSlider from "@/components/WebGLFeaturedSlider";
-import GamesShowcase from "@/components/GamesShowcase";
-import About from "@/components/About";
-import Careers from "@/components/Careers";
-import ContactForm from "@/components/ContactForm";
-import Footer from "@/components/Footer";
 import { getGames, getJobs, getSettings, getAboutSettings } from "@/utils/db";
+
+const WebGLFeaturedSlider = dynamic(() => import("@/components/WebGLFeaturedSlider"), { ssr: true });
+const GamesShowcase = dynamic(() => import("@/components/GamesShowcase"), { ssr: true });
+const About = dynamic(() => import("@/components/About"), { ssr: true });
+const Careers = dynamic(() => import("@/components/Careers"), { ssr: true });
+const ContactForm = dynamic(() => import("@/components/ContactForm"), { ssr: true });
+const Footer = dynamic(() => import("@/components/Footer"), { ssr: true });
 
 // Cache the landing page for 5 minutes, invalidated immediately in production when admin saves updates
 export const revalidate = 300;

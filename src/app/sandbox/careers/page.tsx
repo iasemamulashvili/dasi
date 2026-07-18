@@ -177,7 +177,7 @@ export default function CareersSandboxPage() {
               </span>
               <div className="p-2 bg-carbon-black rounded-lg border border-graphite-light/80">
                 <img 
-                  src="https://dasigames.com/Images/low_res_images/dasigames_logo(transparent).png" 
+                  src="/Images/dasigames_logo.png" 
                   alt="Dasi Logo Toggle"
                   className={`w-5 h-5 object-contain transition-transform duration-500 ease-out ${
                     isOpen ? 'rotate-[360deg] scale-125 brightness-125' : 'hover:scale-110'
