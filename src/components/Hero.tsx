@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import gsap from 'gsap';
 import { ArrowRight, Sparkles } from 'lucide-react';
 
@@ -483,9 +484,12 @@ export default function Hero() {
         ref={layerMidRef}
         className="absolute right-0 bottom-0 top-0 w-full md:w-[60%] opacity-25 pointer-events-none select-none z-10 flex items-end justify-end"
       >
-        <img
+        <Image
           src="/Images/banner_image.webp"
           alt="Game Characters Banner"
+          width={1200}
+          height={800}
+          priority
           className="h-[80%] max-h-[700px] w-auto object-contain object-bottom select-none pointer-events-none filter drop-shadow-[0_0_50px_rgba(109,109,128,0.15)]"
         />
       </div>
