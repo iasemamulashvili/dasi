@@ -99,39 +99,43 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
       // Clear the canvas
       ctx.clearRect(0, 0, w, h);
 
-      // Fit layout centered (contain aspect ratio 16:9)
+      // Fit layout centered (contain aspect ratio 16:9) with margin scale to avoid screen border clipping
+      const marginScale = 0.72;
       const imageWidth = img.width;
       const imageHeight = img.height;
       const canvasRatio = w / h;
       const imageRatio = imageWidth / imageHeight;
 
-      let drawWidth = w;
-      let drawHeight = h;
+      let drawWidth = w * marginScale;
+      let drawHeight = h * marginScale;
       let offsetX = 0;
       let offsetY = 0;
 
       if (canvasRatio > imageRatio) {
-        drawHeight = h;
+        drawHeight = h * marginScale;
         drawWidth = drawHeight * imageRatio;
         offsetX = (w - drawWidth) / 2;
+        offsetY = (h - drawHeight) / 2;
       } else {
-        drawWidth = w;
+        drawWidth = w * marginScale;
         drawHeight = drawWidth / imageRatio;
+        offsetX = (w - drawWidth) / 2;
         offsetY = (h - drawHeight) / 2;
       }
 
       ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
     };
 
-    const playhead = { frame: 0 };
+    // Initialize playhead to final frame (assembled logo) for reverse scroll flow
+    const playhead = { frame: totalFrames - 1 };
     
     // Initial size setup
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Create GSAP ScrollTrigger timeline
+    // Create GSAP ScrollTrigger timeline (scrubs backwards from totalFrames-1 to 0)
     const tl = gsap.to(playhead, {
-      frame: totalFrames - 1,
+      frame: 0,
       snap: 'frame',
       ease: 'none',
       scrollTrigger: {
@@ -146,17 +150,35 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
       }
     });
 
+    // Animate canvas scale & opacity for a smooth transition out of view
+    const canvasFade = gsap.fromTo(canvas,
+      { scale: 1, opacity: 1 },
+      {
+        scale: 0.85,
+        opacity: 0,
+        ease: 'power1.inOut',
+        scrollTrigger: {
+          trigger: heroContainerRef.current,
+          start: 'top top',
+          end: isMobile ? 'bottom top' : '+=130%',
+          scrub: 1
+        }
+      }
+    );
+
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       if (tl.scrollTrigger) tl.scrollTrigger.kill();
+      if (canvasFade.scrollTrigger) canvasFade.scrollTrigger.kill();
       tl.kill();
+      canvasFade.kill();
     };
   }, [loading, isMobile, heroContainerRef]);
 
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-[320px] md:h-[450px] lg:h-[550px] flex items-center justify-center select-none pointer-events-none"
+      className="relative w-full aspect-square md:w-[480px] md:h-[480px] lg:w-[550px] lg:h-[550px] flex items-center justify-center select-none pointer-events-none"
     >
       {loading ? (
         // Premium glassmorphic loading HUD loader
