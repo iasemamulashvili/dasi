@@ -21,133 +21,108 @@ export default function Concept3Page() {
     return () => clearInterval(timer);
   }, [seconds]);
 
-  // Restart trigger for manual testing convenience
   const handleReset = () => {
     setSeconds(5);
     setIsGlitching(false);
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center min-h-[100dvh] w-full px-6 py-12 relative overflow-hidden select-none bg-zinc-950 text-bright-snow">
+    <div className="flex-1 flex flex-col items-center justify-center min-h-screen w-full px-6 py-12 relative overflow-hidden select-none bg-transparent text-bright-snow">
       <style>{`
         @keyframes border-flash {
           0%, 100% {
             border-color: rgba(239, 68, 68, 0.15);
-            box-shadow: inset 0 0 30px rgba(239, 68, 68, 0.05);
+            box-shadow: inset 0 0 40px rgba(239, 68, 68, 0.05);
           }
           50% {
-            border-color: rgba(239, 68, 68, 0.6);
-            box-shadow: inset 0 0 50px rgba(239, 68, 68, 0.25);
+            border-color: rgba(239, 68, 68, 0.65);
+            box-shadow: inset 0 0 60px rgba(239, 68, 68, 0.3);
           }
         }
         @keyframes pulse-ring {
-          0% { transform: scale(0.95); opacity: 0.2; }
-          50% { transform: scale(1.1); opacity: 0.5; }
-          100% { transform: scale(0.95); opacity: 0.2; }
-        }
-        @keyframes scanline {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
+          0% { transform: scale(0.96); opacity: 0.2; }
+          50% { transform: scale(1.08); opacity: 0.45; }
+          100% { transform: scale(0.96); opacity: 0.2; }
         }
         @keyframes warning-text-glow {
-          0%, 100% { text-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
-          50% { text-shadow: 0 0 16px rgba(239, 68, 68, 0.9); }
+          0%, 100% { text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+          50% { text-shadow: 0 0 20px rgba(239, 68, 68, 0.95); }
         }
         .hud-border-flash {
-          animation: border-flash 1.2s infinite ease-in-out;
+          animation: border-flash 1.0s infinite ease-in-out;
         }
         .animate-pulse-ring {
           animation: pulse-ring 4s infinite ease-in-out;
         }
-        .animate-scan {
-          animation: scanline 10s linear infinite;
-        }
         .warning-glow {
-          animation: warning-text-glow 1.2s infinite ease-in-out;
+          animation: warning-text-glow 1.0s infinite ease-in-out;
+        }
+        .hazard-strip {
+          background: repeating-linear-gradient(
+            -45deg,
+            #000,
+            #000 10px,
+            #ef4444 10px,
+            #ef4444 20px
+          );
         }
       `}</style>
 
       {/* Flashing Red Tactical HUD Border */}
       <div className="absolute inset-0 z-20 border-[8px] md:border-[16px] pointer-events-none rounded-none hud-border-flash" />
 
-      {/* Decorative Radar Circle Backdrop */}
-      <div className="absolute w-[300px] h-[300px] md:w-[400px] md:h-[400px] rounded-full border border-red-500/10 flex items-center justify-center pointer-events-none z-0">
-        <div className="absolute w-[200px] h-[200px] md:w-[280px] md:h-[280px] rounded-full border border-red-500/5 animate-pulse-ring" />
-        <div className="absolute w-[100px] h-[100px] md:w-[140px] md:h-[140px] rounded-full border border-red-500/5" />
-        <div className="absolute h-full w-[1px] bg-red-500/5 rotate-45" />
-        <div className="absolute h-full w-[1px] bg-red-500/5 -rotate-45" />
-      </div>
+      {/* Top and Bottom Warning Hazard Stripes */}
+      <div className="absolute top-0 inset-x-0 h-2 md:h-3 z-30 hazard-strip opacity-90" />
+      <div className="absolute bottom-0 inset-x-0 h-2 md:h-3 z-30 hazard-strip opacity-90" />
 
-      {/* Main HUD container */}
-      <div className="relative z-10 max-w-md w-full text-center flex flex-col items-center gap-8">
+      {/* Center Alarm Icon */}
+      <div className="relative z-10 max-w-xl w-full text-center flex flex-col items-center gap-6">
         
-        {/* Warning Indicator Symbol */}
-        <div className="relative flex items-center justify-center w-28 h-28">
-          <div className="absolute inset-0 rounded-full bg-red-500/10 border border-red-500/30 animate-ping opacity-25" />
-          <div className="absolute w-24 h-24 rounded-full border-2 border-red-500/40 bg-zinc-900/60 backdrop-blur-sm flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.2)]">
-            <ShieldAlert size={36} className="text-red-500 warning-glow" />
-          </div>
-        </div>
-
-        {/* Error Code Bezel Frame - Liquid Glass */}
-        <div className="w-full p-6 bg-zinc-900/70 border border-white/10 rounded-2xl relative shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_15px_30px_rgba(0,0,0,0.4)] backdrop-blur-md">
+        {/* Cockpit Alert Frame */}
+        <div className="w-full p-8 bg-zinc-950/85 border-2 border-red-500 rounded-xl relative shadow-[0_25px_60px_rgba(0,0,0,0.85)] backdrop-blur-md">
           {/* Scanline overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px] pointer-events-none opacity-20" />
-          <div className="absolute inset-x-0 h-[1.5px] bg-red-500/20 pointer-events-none animate-scan" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.2)_50%)] bg-[length:100%_4px] pointer-events-none opacity-20" />
           
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <ShieldAlert size={14} className="text-red-500" />
-            <span className="text-[10px] font-silkscreen text-red-500 tracking-widest uppercase">
-              ERROR_OUT_OF_MISSION_ZONE
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <ShieldAlert size={16} className="text-red-500 animate-bounce" />
+            <span className="text-[11px] font-mono text-red-500 tracking-[0.2em] font-semibold uppercase">
+              SYS_WARNING: MISSION_BOUNDARY_VIOLATION
             </span>
           </div>
 
-          <h1 className="text-xl md:text-2xl font-normal text-bright-snow uppercase tracking-wider font-russo-one mb-4">
-            Leaving Mission Area
+          {/* Punchy COPY */}
+          <h1 className="text-2xl md:text-3xl font-russo-one tracking-wide leading-snug text-bright-snow uppercase mb-8 warning-glow">
+            {isGlitching 
+              ? "Heads up! You've left the mission area."
+              : `Heads up! You're leaving the mission area. Turn around in ${seconds} seconds!`}
           </h1>
 
-          {/* Digital Timer */}
-          <div className="flex items-center justify-center gap-3 my-5">
-            <span className="text-[10px] font-silkscreen text-alabaster-grey/50 uppercase tracking-widest">
-              RETURN IN
-            </span>
-            <span 
+          {/* Large Countdown HUD element */}
+          <div className="flex justify-center mb-8">
+            <div 
               onClick={handleReset}
-              className={`text-4xl font-mono font-bold px-3 py-1 bg-red-950/40 border border-red-500/30 rounded-lg text-red-500 warning-glow cursor-pointer hover:bg-red-950/60 transition-colors ${
-                isGlitching ? 'line-through opacity-75' : ''
+              className={`font-mono text-5xl md:text-6xl font-bold px-6 py-2 bg-red-950/40 border border-red-500/50 rounded-lg text-red-500 warning-glow cursor-pointer hover:bg-red-950/60 transition-all duration-300 ${
+                isGlitching ? 'line-through opacity-50 scale-95' : 'scale-100 hover:scale-105'
               }`}
             >
               0:0{seconds}
-            </span>
+            </div>
           </div>
 
-          <p className="text-xs md:text-sm text-alabaster-grey leading-relaxed font-outfit font-light max-w-xs mx-auto mb-6">
-            {isGlitching 
-              ? "Mission area boundary violated. The browser connection link has timed out. Please fallback to base safety grids."
-              : `Heads up! You're leaving the mission area. Turn around in ${seconds} seconds!`}
-          </p>
-
-          {/* Action Button */}
-          <div className="flex flex-col items-center gap-3">
+          {/* Primary Action Button */}
+          <div className="flex flex-col items-center gap-5">
             <Link
               href="/"
-              className="inset-pixel-btn-primary group inline-flex items-center gap-2 py-3 px-6 text-xs transition-transform duration-200 active:scale-[0.97] !bg-red-950/20 !border-red-500/30 text-red-400 hover:!bg-red-500 hover:text-white"
+              className="group px-8 py-3.5 border border-red-500 bg-red-950/20 text-red-400 hover:bg-red-500 hover:text-black font-mono text-xs tracking-widest uppercase flex items-center gap-3 transition-all duration-300 shadow-[0_0_20px_rgba(239,68,68,0.15)] active:scale-[0.98]"
             >
-              <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" />
-              <span>FALL BACK TO BASE</span>
+              <ArrowLeft size={13} className="group-hover:-translate-x-1.5 transition-transform" />
+              <span>🛡️ Fall Back to Base</span>
             </Link>
 
-            <span className="text-[9px] text-alabaster-grey/40 font-outfit font-light italic max-w-[250px] mt-2 block">
+            <span className="text-[10px] text-alabaster-grey/40 font-outfit font-light italic max-w-sm">
               Don't sweat it, we won't actually crash your browser if the timer hits zero.
             </span>
           </div>
-        </div>
-
-        {/* Technical Footer HUD indicators */}
-        <div className="font-mono text-[7px] text-red-500/40 tracking-widest uppercase flex items-center gap-4 pointer-events-none">
-          <span>SYS_STATUS: BOUNDARY_VIOLATION</span>
-          <span>•</span>
-          <span>COORDINATE: 404_OUT_OF_BOUNDS</span>
         </div>
       </div>
     </div>

@@ -1,48 +1,35 @@
 'use client';
 
 import Link from 'next/link';
-import { RefreshCw, ShieldAlert } from 'lucide-react';
+import { RefreshCw, Terminal as TerminalIcon } from 'lucide-react';
 
 export default function Concept2Page() {
-  // Let's define an array of items to render 12 falling logos
+  // Array of 12 falling logos
   const fallingLogos = Array.from({ length: 12 }).map((_, i) => {
     const left = `${(i * 9) + 4}%`; // Distributed horizontally
     const delay = `${i * -1.8}s`; // Staggered start times
-    const duration = `${12 + (i % 3) * 3}s`; // Dynamic speed
-    const scale = `${0.4 + (i % 4) * 0.15}`; // Varied size depth
+    const duration = `${11 + (i % 3) * 3}s`; // Dynamic speed
+    const scale = `${0.35 + (i % 4) * 0.15}`; // Varied size depth
     const rotateDir = i % 2 === 0 ? 'spin-clockwise' : 'spin-counter';
-    const opacity = 0.08 + (i % 3) * 0.06; // Faint background effect
+    const opacity = 0.08 + (i % 3) * 0.05; // Faint background effect
 
     return { id: i, left, delay, duration, scale, rotateDir, opacity };
   });
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center min-h-[100dvh] w-full px-6 py-12 relative overflow-hidden select-none bg-zinc-950 text-bright-snow">
+    <div className="flex-1 flex flex-col items-center justify-center min-h-screen w-full px-6 py-12 relative overflow-hidden select-none bg-transparent text-bright-snow">
       <style>{`
         @keyframes fall-down {
-          0% {
-            transform: translateY(-120px) rotate(0deg);
-          }
-          100% {
-            transform: translateY(105dvh) rotate(360deg);
-          }
+          0% { transform: translateY(-120px) rotate(0deg); }
+          100% { transform: translateY(105dvh) rotate(360deg); }
         }
         @keyframes fall-down-reverse {
-          0% {
-            transform: translateY(-120px) rotate(360deg);
-          }
-          100% {
-            transform: translateY(105dvh) rotate(0deg);
-          }
+          0% { transform: translateY(-120px) rotate(360deg); }
+          100% { transform: translateY(105dvh) rotate(0deg); }
         }
-        @keyframes pulse-ring {
-          0% { transform: scale(0.95); opacity: 0.2; }
-          50% { transform: scale(1.15); opacity: 0.5; }
-          100% { transform: scale(0.95); opacity: 0.2; }
-        }
-        @keyframes scanline {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
+        @keyframes glitch-aberration {
+          0%, 100% { text-shadow: 1.5px 0 0 rgba(239,68,68,0.7), -1.5px 0 0 rgba(59,130,246,0.7); }
+          50% { text-shadow: -1.5px 0 0 rgba(239,68,68,0.7), 1.5px 0 0 rgba(59,130,246,0.7); }
         }
         .falling-logo-cw {
           animation: fall-down var(--dur) linear infinite;
@@ -52,11 +39,8 @@ export default function Concept2Page() {
           animation: fall-down-reverse var(--dur) linear infinite;
           animation-delay: var(--delay);
         }
-        .animate-pulse-ring {
-          animation: pulse-ring 4s infinite ease-in-out;
-        }
-        .animate-scan {
-          animation: scanline 10s linear infinite;
+        .text-chromatic {
+          animation: glitch-aberration 0.3s infinite steps(2);
         }
       `}</style>
 
@@ -84,63 +68,49 @@ export default function Concept2Page() {
         ))}
       </div>
 
-      {/* Decorative Radar Circle Backdrop */}
-      <div className="absolute w-[300px] h-[300px] md:w-[400px] md:h-[400px] rounded-full border border-slate-violet/20 flex items-center justify-center pointer-events-none z-0">
-        <div className="absolute w-[200px] h-[200px] md:w-[280px] md:h-[280px] rounded-full border border-slate-violet/10 animate-pulse-ring" />
-        <div className="absolute w-[100px] h-[100px] md:w-[140px] md:h-[140px] rounded-full border border-slate-violet/5" />
-        <div className="absolute h-full w-[1px] bg-slate-violet/5 rotate-45" />
-        <div className="absolute h-full w-[1px] bg-slate-violet/5 -rotate-45" />
-      </div>
-
       {/* Main HUD container */}
-      <div className="relative z-10 max-w-md w-full text-center flex flex-col items-center gap-8">
+      <div className="relative z-10 max-w-lg w-full flex flex-col items-center gap-8">
         
-        {/* Falling Indicator Bezel */}
-        <div className="relative flex items-center justify-center w-28 h-28">
-          <div className="absolute inset-0 rounded-full bg-slate-violet/10 border border-slate-violet/30 animate-ping opacity-25" />
-          <div className="absolute w-24 h-24 rounded-full border-2 border-slate-violet/40 bg-zinc-900/60 backdrop-blur-sm flex items-center justify-center shadow-[0_0_25px_rgba(139,92,246,0.2)]">
-            <RefreshCw size={36} className="text-slate-violet-light animate-spin" style={{ animationDuration: '6s' }} />
-          </div>
-        </div>
-
-        {/* Error Code Bezel Frame - Liquid Glass */}
-        <div className="w-full p-6 bg-zinc-900/70 border border-white/10 rounded-2xl relative shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_15px_30px_rgba(0,0,0,0.4)] backdrop-blur-md">
+        {/* Decorative glitched terminal box */}
+        <div className="w-full p-6 md:p-8 bg-zinc-950/85 border-2 border-red-500/30 rounded-lg relative shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-md rotate-[-1.5deg] skew-x-1">
           {/* Scanline overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px] pointer-events-none opacity-20" />
-          <div className="absolute inset-x-0 h-[1.5px] bg-slate-violet-light/35 pointer-events-none animate-scan" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] pointer-events-none opacity-25" />
           
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <ShieldAlert size={14} className="text-slate-violet-light" />
-            <span className="text-[10px] font-silkscreen text-slate-violet-light tracking-widest uppercase">
-              ERROR_OUT_OF_BOUNDS
+          {/* Terminal Header */}
+          <div className="flex items-center justify-between border-b border-red-500/20 pb-4 mb-6 text-red-500/80">
+            <div className="flex items-center gap-2">
+              <TerminalIcon size={14} className="animate-pulse" />
+              <span className="text-[10px] font-mono tracking-widest uppercase">
+                CRITICAL: PHYS_STACK_OVERFLOW
+              </span>
+            </div>
+            <span className="text-[9px] font-mono bg-red-950/50 border border-red-500/30 px-2 py-0.5 rounded text-red-400">
+              OUT_OF_BOUNDS
             </span>
           </div>
 
-          <h1 className="text-xl md:text-2xl font-normal text-bright-snow uppercase tracking-wider font-russo-one mb-4">
-            Fell Out of Bounds
+          {/* Glitched Header Text */}
+          <h1 className="text-xl md:text-2xl font-mono font-bold leading-relaxed text-red-400 uppercase tracking-wide text-chromatic text-center mb-8">
+            Whoops, you fell out of bounds! Sending you back to the start...
           </h1>
 
-          <p className="text-xs md:text-sm text-alabaster-grey leading-relaxed font-outfit font-light max-w-xs mx-auto mb-6">
-            Whoops, you fell out of bounds! Sending you back to the start. The physics engine detected a boundary breach in your current viewport coordinate stack.
-          </p>
+          {/* Glitch Readout Stats */}
+          <div className="bg-black/60 border border-white/5 rounded p-4 font-mono text-[9px] text-alabaster-grey/60 text-left mb-8 flex flex-col gap-1.5">
+            <div>&gt; EXCEPTION DETECTED: VIEWPORT_COORDINATES_INVALID</div>
+            <div>&gt; VECTOR_Y: +1440.09 (THRESHOLD EXCEEDED)</div>
+            <div>&gt; INITIALIZING SAFETY RESPAWN PROTOCOL...</div>
+          </div>
 
           {/* Action Button */}
           <div className="flex justify-center">
             <Link
               href="/"
-              className="inset-pixel-btn-primary group inline-flex items-center gap-2 py-3 px-6 text-xs transition-transform duration-200 active:scale-[0.97]"
+              className="px-6 py-3 border-2 border-red-500/50 bg-red-950/30 hover:bg-red-500 hover:text-black font-mono text-xs text-red-400 tracking-widest uppercase flex items-center gap-3 transition-all duration-300 shadow-[0_0_15px_rgba(239,68,68,0.2)] active:scale-[0.98]"
             >
-              <RefreshCw size={12} className="group-hover:rotate-180 transition-transform duration-500" />
-              <span>MANUAL RESPAWN</span>
+              <RefreshCw size={13} className="animate-spin" style={{ animationDuration: '4s' }} />
+              <span>Manual Respawn</span>
             </Link>
           </div>
-        </div>
-
-        {/* Technical Footer HUD indicators */}
-        <div className="font-mono text-[7px] text-alabaster-grey/40 tracking-widest uppercase flex items-center gap-4 pointer-events-none">
-          <span>SYS_STATUS: BOUNDS_BREACH</span>
-          <span>•</span>
-          <span>COORDINATE: 404_VOID</span>
         </div>
       </div>
     </div>

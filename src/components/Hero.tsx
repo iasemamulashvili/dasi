@@ -178,8 +178,13 @@ export default function Hero() {
           const letter = letterRefs.current[index];
           const target = targets.current[index];
           if (letter && target) {
-            const currentX = gsap.getProperty(letter, 'x') as number || 0;
-            const currentY = gsap.getProperty(letter, 'y') as number || 0;
+            // Read position from our cached property on the DOM node, falling back to GSAP properties for initialization
+            const currentX = (letter as any)._x !== undefined 
+              ? (letter as any)._x 
+              : (gsap.getProperty(letter, 'x') as number || 0);
+            const currentY = (letter as any)._y !== undefined 
+              ? (letter as any)._y 
+              : (gsap.getProperty(letter, 'y') as number || 0);
 
             const targetRot = (i - (carriedLetters.current.length - 1) / 2) * 6;
             const ease = 0.18 - (i * 0.012);
@@ -191,17 +196,21 @@ export default function Hero() {
             const targetChroma = 0.04;                   // Very delicate, high-end tint
             const targetHue = 380 - ratio * 130;         // Rose (20) -> Lavender -> Ice-Blue (250)
 
-            gsap.set(letter, {
-              x: currentX + (target.x - currentX) * ease,
-              y: currentY + (target.y - currentY) * ease,
-              rotation: targetRot,
-              scale: 0.95 - (i * 0.015),
-              zIndex: 100 - i,
-              filter: `drop-shadow(0 ${4 + i * 2}px ${8 + i * 3}px rgba(0, 0, 0, 0.45))`,
-              '--letter-l': targetLightness,
-              '--letter-c': targetChroma,
-              '--letter-h': targetHue,
-            });
+            const nextX = currentX + (target.x - currentX) * ease;
+            const nextY = currentY + (target.y - currentY) * ease;
+
+            // Cache position on the DOM node to prevent style read layout thrashing
+            (letter as any)._x = nextX;
+            (letter as any)._y = nextY;
+
+            // Apply direct DOM style modifications
+            const scale = 0.95 - (i * 0.015);
+            letter.style.transform = `translate3d(${nextX}px, ${nextY}px, 0) scale(${scale}) rotate(${targetRot}deg)`;
+            letter.style.zIndex = `${100 - i}`;
+            letter.style.filter = `drop-shadow(0 ${4 + i * 2}px ${8 + i * 3}px rgba(0, 0, 0, 0.45))`;
+            letter.style.setProperty('--letter-l', `${targetLightness}`);
+            letter.style.setProperty('--letter-c', `${targetChroma}`);
+            letter.style.setProperty('--letter-h', `${targetHue}`);
           }
         });
       }
@@ -363,7 +372,7 @@ export default function Hero() {
     setIsBlowing(true);
     setTimeout(() => {
       setIsBlowing(false);
-    }, 1200);
+    }, 2000); // Extended to cover full return animation sequence safely
 
     gsap.fromTo('.wind-line',
       { scaleX: 0, x: 10, opacity: 0.8 },
@@ -377,6 +386,14 @@ export default function Hero() {
         overwrite: 'auto',
       }
     );
+
+    // Clear coordinates cache so subsequent animations read clean starting locations
+    letterRefs.current.forEach((letter) => {
+      if (letter) {
+        (letter as any)._x = undefined;
+        (letter as any)._y = undefined;
+      }
+    });
 
     letterRefs.current.forEach((letter, index) => {
       if (letter && carriedLetters.current.includes(index)) {
@@ -554,11 +571,11 @@ export default function Hero() {
                       }
                     }}
                     className={`absolute inset-0 cursor-grab active:cursor-grabbing interactive-letter select-none entrance-char ${
-                      isCarried ? 'pointer-events-none' : ''
+                      (isCarried || isBlowing) ? 'pointer-events-none' : ''
                     }`}
                     style={{ 
                       transformStyle: 'preserve-3d',
-                      pointerEvents: isCarried ? 'none' : 'auto'
+                      pointerEvents: (isCarried || isBlowing) ? 'none' : 'auto'
                     }}
                   >
                     {char}

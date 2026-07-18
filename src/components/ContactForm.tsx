@@ -229,6 +229,19 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
     setDropdownOpen(false);
   };
 
+  useEffect(() => {
+    const handleSelectSubject = (e: Event) => {
+      const customEvent = e as CustomEvent<{ subject: string }>;
+      if (customEvent.detail && customEvent.detail.subject) {
+        selectOption(customEvent.detail.subject);
+      }
+    };
+    window.addEventListener('dasi-select-subject', handleSelectSubject);
+    return () => {
+      window.removeEventListener('dasi-select-subject', handleSelectSubject);
+    };
+  }, []);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!dropdownOpen) {
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
