@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Crosshair, Target } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -16,18 +17,18 @@ interface Concept2GlassMonolithProps {
 export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMonolithProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pinContainerRef = useRef<HTMLDivElement>(null);
-  const monolithTopRef = useRef<HTMLDivElement>(null);
-  const monolithBottomRef = useRef<HTMLDivElement>(null);
+  const outerRingRef = useRef<HTMLDivElement>(null);
+  const innerRingRef = useRef<HTMLDivElement>(null);
   const logoMeshRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !monolithTopRef.current || !monolithBottomRef.current) return;
+    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !outerRingRef.current || !innerRingRef.current) return;
 
     const heroSection = containerRef.current;
     const pinContainer = pinContainerRef.current;
     const logoMesh = logoMeshRef.current;
-    const topPanel = monolithTopRef.current;
-    const bottomPanel = monolithBottomRef.current;
+    const outerRing = outerRingRef.current;
+    const innerRing = innerRingRef.current;
 
     const mm = gsap.matchMedia();
 
@@ -44,37 +45,68 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             trigger: heroSection,
             pin: isDesktop ? pinContainer : false,
             start: 'top top',
-            end: isDesktop ? '+=120%' : 'bottom top',
+            end: isDesktop ? '+=140%' : 'bottom top',
             scrub: 1.2,
             anticipatePin: 1,
           },
         });
 
-        // 1. Split top and bottom glass monolith panels apart on scroll
-        tl.to(topPanel, { y: isDesktop ? -120 : -60, opacity: 0.2, ease: 'power2.inOut' }, 0);
-        tl.to(bottomPanel, { y: isDesktop ? 120 : 60, opacity: 0.2, ease: 'power2.inOut' }, 0);
+        // Phase 1: Dual 3D Gimbal Ring Alignment
+        tl.to(outerRing, { rotateZ: 180, rotateX: 45, scale: 1.15, opacity: 0.8, ease: 'power1.inOut' }, 0);
+        tl.to(innerRing, { rotateZ: -270, rotateY: -55, scale: 1.25, opacity: 0.9, ease: 'power1.inOut' }, 0);
+        tl.to(
+          logoMesh,
+          {
+            rotateY: isDesktop ? 180 : 90,
+            rotateX: isDesktop ? -35 : -15,
+            z: isDesktop ? 80 : 30,
+            scale: isDesktop ? 1.1 : 1.05,
+            ease: 'power1.inOut',
+          },
+          0
+        );
 
-        // 2. Drive logo down through the opened seam into Section 2
+        // Phase 2: Cybernetic Target Lock Flip & Gyroscope Alignment
+        tl.to(outerRing, { rotateZ: 360, rotateX: 75, scale: 1.3, opacity: 0.4, ease: 'power1.inOut' }, 0.35);
+        tl.to(innerRing, { rotateZ: -540, rotateY: -85, scale: 1.5, opacity: 0.5, ease: 'power1.inOut' }, 0.35);
         tl.to(
           logoMesh,
           {
             rotateY: isDesktop ? 360 : 180,
-            rotateX: isDesktop ? 30 : 15,
-            scale: isDesktop ? 0.4 : 0.55,
-            z: isDesktop ? -450 : -200,
-            y: isDesktop ? 240 : 130,
-            opacity: 0,
-            ease: 'power2.inOut',
+            rotateX: isDesktop ? 45 : 25,
+            rotateZ: isDesktop ? -30 : -15,
+            scale: isDesktop ? 0.7 : 0.75,
+            z: isDesktop ? -200 : -100,
+            y: isDesktop ? 160 : 90,
+            ease: 'power1.inOut',
           },
-          0
+          0.35
+        );
+
+        // Phase 3: High-velocity Descent BEHIND Section 2 Top Edge Seam
+        tl.to(outerRing, { scale: 1.8, opacity: 0, ease: 'power2.in' }, 0.7);
+        tl.to(innerRing, { scale: 2.1, opacity: 0, ease: 'power2.in' }, 0.7);
+        tl.to(
+          logoMesh,
+          {
+            rotateY: isDesktop ? 540 : 360,
+            rotateX: isDesktop ? 90 : 60,
+            rotateZ: 0,
+            scale: isDesktop ? 0.25 : 0.35,
+            z: isDesktop ? -800 : -400,
+            y: isDesktop ? 440 : 230, // Plunges beneath Section 2 z-30 surface
+            opacity: 0,
+            ease: 'power2.in',
+          },
+          0.7
         );
 
         if (section2Ref && section2Ref.current) {
           tl.fromTo(
             section2Ref.current,
-            { y: 80, opacity: 0.8 },
+            { y: 100, opacity: 0.7 },
             { y: 0, opacity: 1, ease: 'power1.out' },
-            0.4
+            0.5
           );
         }
       }
@@ -89,85 +121,91 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
   return (
     <div
       ref={containerRef}
-      className="relative min-h-[85vh] md:min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0"
+      className="relative min-h-[85vh] md:min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0 z-10"
     >
       <div ref={pinContainerRef} className="w-full h-full flex items-center justify-center">
-      <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
-        {/* Left Column */}
-        <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/30 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-            <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
-            <span className="tracking-widest text-slate-violet-light uppercase">
-              VARIATION 2: CYBER GLASS MONOLITH SPLIT
-            </span>
+        <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
+          {/* Left Column */}
+          <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/30 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+              <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
+              <span className="tracking-widest text-slate-violet-light uppercase">
+                VARIATION 2: CYBERNETIC GIMBAL MATRIX
+              </span>
+            </div>
+
+            <h1 className="text-4xl md:text-7xl font-normal tracking-wider font-russo-one text-bright-snow leading-tight">
+              DASI GAMES
+            </h1>
+
+            <p className="text-lg md:text-2xl font-light tracking-wide text-bright-snow/90 font-outfit">
+              Crafting unique gaming experiences
+            </p>
+
+            <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
+              Precision 3D cybernetic gyroscope matrix. Outer and inner telemetry rings lock target coordinates on scroll, executing a 3D flip as the logo plunges behind Section 2.
+            </p>
+
+            <div className="pt-2">
+              <button className="inset-pixel-btn-primary inline-flex items-center gap-3 px-8 py-4 text-xs tracking-wider">
+                EXPLORE RELEASES
+              </button>
+            </div>
           </div>
 
-          <h1 className="text-4xl md:text-7xl font-normal tracking-wider font-russo-one text-bright-snow leading-tight">
-            DASI GAMES
-          </h1>
-
-          <p className="text-lg md:text-2xl font-light tracking-wide text-bright-snow/90 font-outfit">
-            Crafting unique gaming experiences
-          </p>
-
-          <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-            Ultra-sleek glassmorphic HUD panel with corner reticles. On scroll, the glass monolith splits open horizontally as the logo dives into the seam.
-          </p>
-
-          <div className="pt-2">
-            <button className="inset-pixel-btn-primary inline-flex items-center gap-3 px-8 py-4 text-xs tracking-wider">
-              EXPLORE RELEASES
-            </button>
-          </div>
-        </div>
-
-        {/* Right Column: Split Glass Monolith Frame */}
-        <div
-          className="w-full md:w-[48%] flex items-center justify-center order-first md:order-last py-8 md:py-0 relative"
-          style={{ perspective: 1000 }}
-        >
-          {/* Top Glass Half Panel */}
+          {/* Right Column: Cybernetic 3D Gimbal & Logo Mesh */}
           <div
-            ref={monolithTopRef}
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-36 md:w-96 md:h-44 bg-carbon-black-2/60 border-t border-x border-white/15 rounded-t-3xl backdrop-blur-xl pointer-events-none z-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] flex items-start justify-between p-4"
+            className="w-full md:w-[48%] flex items-center justify-center order-first md:order-last py-8 md:py-0 relative z-10"
+            style={{ perspective: 1200 }}
           >
-            <span className="text-[9px] font-mono text-slate-violet-light">HUD_FRAME_TOP // 01</span>
-            <span className="w-2 h-2 border-t-2 border-r-2 border-slate-violet-light" />
-          </div>
+            {/* Outer Cybernetic Reticle Ring */}
+            <div
+              ref={outerRingRef}
+              className="absolute w-72 h-72 md:w-96 md:h-96 rounded-full border border-slate-violet-light/30 border-dashed flex items-center justify-between p-4 pointer-events-none"
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              <div className="absolute top-2 left-2 flex items-center gap-1 font-mono text-[8px] text-slate-violet-light">
+                <Target size={10} />
+                <span>SYS_ALIGN // 01</span>
+              </div>
+              <div className="absolute bottom-2 right-2 flex items-center gap-1 font-mono text-[8px] text-alabaster-grey/50">
+                <Crosshair size={10} />
+                <span>TARGET_LOCKED</span>
+              </div>
+            </div>
 
-          {/* Center Logo Mesh Plunging Through Seam */}
-          <div
-            ref={logoMeshRef}
-            className="relative z-20 w-64 h-64 md:w-80 md:h-80 flex items-center justify-center p-8"
-            style={{ transformStyle: 'preserve-3d' }}
-          >
-            <Image
-              src="/Images/dasigames_logo.png"
-              alt="Dasi Games Monolith Logo"
-              width={260}
-              height={260}
-              priority
-              className="w-48 h-48 md:w-64 md:h-64 object-contain filter drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] select-none pointer-events-none"
+            {/* Inner Gyroscope Ring */}
+            <div
+              ref={innerRingRef}
+              className="absolute w-56 h-56 md:w-72 md:h-72 rounded-full border-2 border-purple-400/25 border-dotted pointer-events-none"
+              style={{ transformStyle: 'preserve-3d' }}
             />
-          </div>
 
-          {/* Bottom Glass Half Panel */}
-          <div
-            ref={monolithBottomRef}
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-72 h-36 md:w-96 md:h-44 bg-carbon-black-2/60 border-b border-x border-white/15 rounded-b-3xl backdrop-blur-xl pointer-events-none z-10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.15)] flex items-end justify-between p-4"
-          >
-            <span className="w-2 h-2 border-b-2 border-l-2 border-slate-violet-light" />
-            <span className="text-[9px] font-mono text-alabaster-grey/60">SYS_SEAM // SPLIT_READY</span>
+            {/* Center Logo Mesh */}
+            <div
+              ref={logoMeshRef}
+              className="relative z-20 w-64 h-64 md:w-80 md:h-80 flex items-center justify-center p-8"
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              <Image
+                src="/Images/dasigames_logo.png"
+                alt="Dasi Games Gimbal Logo"
+                width={280}
+                height={280}
+                priority
+                className="w-48 h-48 md:w-64 md:h-64 object-contain filter drop-shadow-[0_0_45px_rgba(168,85,247,0.7)] select-none pointer-events-none"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none opacity-60">
-        <span className="text-[9px] tracking-widest text-alabaster-grey/70 font-silkscreen uppercase">
-          SCROLL TO SPLIT MONOLITH SEAM
-        </span>
-        <div className="w-[1.5px] h-8 bg-gradient-to-b from-slate-violet-light to-transparent animate-pulse" />
-      </div>
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none opacity-60">
+          <span className="text-[9px] tracking-widest text-alabaster-grey/70 font-silkscreen uppercase">
+            SCROLL TO LOCK TARGET & PLUNGE BEHIND SECTION 2
+          </span>
+          <div className="w-[1.5px] h-8 bg-gradient-to-b from-slate-violet-light to-transparent animate-pulse" />
+        </div>
       </div>
     </div>
   );

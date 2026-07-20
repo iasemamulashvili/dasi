@@ -31,9 +31,9 @@ export default function HeroConceptsSandboxPage() {
       <section
         ref={section2Ref}
         id="featured-showcase"
-        className="relative z-30 w-full py-24 px-6 max-w-7xl mx-auto border-t border-white/10 mt-12 bg-carbon-black"
+        className="relative z-30 w-full py-24 px-6 border-t border-white/10 mt-12 bg-carbon-black shadow-[0_-20px_50px_rgba(0,0,0,0.9)]"
       >
-        <div className="flex flex-col gap-10">
+        <div className="max-w-7xl mx-auto flex flex-col gap-10">
           {/* Section Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="flex flex-col gap-2">

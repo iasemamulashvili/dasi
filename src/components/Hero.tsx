@@ -700,7 +700,7 @@ export default function Hero() {
         {/* Right Column: Dynamic Scroll-driven Canvas with Midground Parallax Ref */}
         <div
           ref={layerMidRef}
-          className="relative md:absolute w-full max-w-[320px] md:max-w-none md:right-0 md:top-0 md:bottom-0 md:w-[50vw] lg:md:w-[55vw] md:h-full order-first md:order-none mb-8 md:mb-0 flex items-center justify-center pointer-events-none select-none z-10"
+          className="relative md:absolute w-full max-w-[320px] md:max-w-none md:-right-6 md:-bottom-6 md:w-[48vw] lg:w-[52vw] md:h-[92%] order-first md:order-none mb-8 md:mb-0 flex items-center justify-center pointer-events-none select-none z-10"
         >
           <ScrollLogoCanvas heroContainerRef={containerRef} />
         </div>

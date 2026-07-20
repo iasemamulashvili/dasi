@@ -86,11 +86,11 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
         offsetY = (h - drawHeight) / 2;
       }
     } else {
-      // Desktop: Full-viewport height scaling to push top/bottom clipping lines off-screen
-      drawHeight = h * 1.08;
+      // Desktop: Slightly contained height scaling to position logo cleanly down and to the right
+      drawHeight = h * 0.90;
       drawWidth = drawHeight * (imageWidth / imageHeight);
-      offsetX = (w - drawWidth) / 2;
-      offsetY = (h - drawHeight) / 2;
+      offsetX = (w - drawWidth) * 0.75; // Shift slightly towards the right within canvas bounds
+      offsetY = (h - drawHeight) * 0.75; // Shift slightly towards the bottom within canvas bounds
     }
 
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
