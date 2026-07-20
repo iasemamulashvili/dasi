@@ -15,13 +15,15 @@ interface Concept1PureFramelessProps {
 
 export default function Concept1PureFrameless({ section2Ref }: Concept1PureFramelessProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const pinContainerRef = useRef<HTMLDivElement>(null);
   const logoWrapperRef = useRef<HTMLDivElement>(null);
   const logoMeshRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !logoMeshRef.current || !logoWrapperRef.current) return;
+    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !logoWrapperRef.current) return;
 
     const heroSection = containerRef.current;
+    const pinContainer = pinContainerRef.current;
     const logoMesh = logoMeshRef.current;
 
     // Interactive 3D Cursor Parallax Tilt
@@ -64,9 +66,9 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
+            pin: isDesktop ? pinContainer : false,
             start: 'top top',
             end: isDesktop ? '+=120%' : 'bottom top',
-            pin: isDesktop,
             scrub: 1.2,
             anticipatePin: 1,
           },
@@ -101,6 +103,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
       heroSection.removeEventListener('mousemove', handleMouseMove);
       heroSection.removeEventListener('mouseleave', handleMouseLeave);
       mm.revert();
+      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, [section2Ref]);
 
@@ -109,6 +112,8 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
       ref={containerRef}
       className="relative min-h-[85vh] md:min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0"
     >
+      {/* Inner Pin Container so GSAP pin-spacer stays inside React component tree */}
+      <div ref={pinContainerRef} className="w-full h-full flex items-center justify-center">
       {/* Background Volumetric Ambient Radial Glow */}
       <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-slate-violet-light/10 filter blur-[120px] pointer-events-none z-0" />
 
@@ -174,6 +179,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
           SCROLL TO DESCENT INTO SECTION 2
         </span>
         <div className="w-[1.5px] h-8 bg-gradient-to-b from-slate-violet-light to-transparent animate-pulse" />
+      </div>
       </div>
     </div>
   );

@@ -15,14 +15,16 @@ interface Concept2GlassMonolithProps {
 
 export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMonolithProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const pinContainerRef = useRef<HTMLDivElement>(null);
   const monolithTopRef = useRef<HTMLDivElement>(null);
   const monolithBottomRef = useRef<HTMLDivElement>(null);
   const logoMeshRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !logoMeshRef.current || !monolithTopRef.current || !monolithBottomRef.current) return;
+    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !monolithTopRef.current || !monolithBottomRef.current) return;
 
     const heroSection = containerRef.current;
+    const pinContainer = pinContainerRef.current;
     const logoMesh = logoMeshRef.current;
     const topPanel = monolithTopRef.current;
     const bottomPanel = monolithBottomRef.current;
@@ -40,9 +42,9 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
+            pin: isDesktop ? pinContainer : false,
             start: 'top top',
             end: isDesktop ? '+=120%' : 'bottom top',
-            pin: isDesktop,
             scrub: 1.2,
             anticipatePin: 1,
           },
@@ -80,6 +82,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
 
     return () => {
       mm.revert();
+      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, [section2Ref]);
 
@@ -88,6 +91,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
       ref={containerRef}
       className="relative min-h-[85vh] md:min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0"
     >
+      <div ref={pinContainerRef} className="w-full h-full flex items-center justify-center">
       <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
         {/* Left Column */}
         <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
@@ -163,6 +167,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
           SCROLL TO SPLIT MONOLITH SEAM
         </span>
         <div className="w-[1.5px] h-8 bg-gradient-to-b from-slate-violet-light to-transparent animate-pulse" />
+      </div>
       </div>
     </div>
   );
