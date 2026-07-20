@@ -3,10 +3,10 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import HeroConceptSelector, { ConceptId } from '@/components/sandbox/HeroConceptSelector';
-import Concept1ParticleDissolve from '@/components/sandbox/Concept1ParticleDissolve';
-import Concept2FluidSmoke from '@/components/sandbox/Concept2FluidSmoke';
-import Concept3ScrollDescent from '@/components/sandbox/Concept3ScrollDescent';
-import { ArrowUpRight, Flame, Shield, Sparkles } from 'lucide-react';
+import Concept1PureFrameless from '@/components/sandbox/Concept1PureFrameless';
+import Concept2GlassMonolith from '@/components/sandbox/Concept2GlassMonolith';
+import Concept3PortalDescent from '@/components/sandbox/Concept3PortalDescent';
+import { ArrowUpRight, Sparkles } from 'lucide-react';
 
 export default function HeroConceptsSandboxPage() {
   const [activeConcept, setActiveConcept] = useState<ConceptId>('concept1');
@@ -22,9 +22,9 @@ export default function HeroConceptsSandboxPage() {
 
       {/* Hero Section Container */}
       <div className="relative w-full min-h-[90vh] md:min-h-screen flex items-center justify-center">
-        {activeConcept === 'concept1' && <Concept1ParticleDissolve />}
-        {activeConcept === 'concept2' && <Concept2FluidSmoke />}
-        {activeConcept === 'concept3' && <Concept3ScrollDescent section2Ref={section2Ref} />}
+        {activeConcept === 'concept1' && <Concept1PureFrameless section2Ref={section2Ref} />}
+        {activeConcept === 'concept2' && <Concept2GlassMonolith section2Ref={section2Ref} />}
+        {activeConcept === 'concept3' && <Concept3PortalDescent section2Ref={section2Ref} />}
       </div>
 
       {/* Section 2 Seam Preview (Featured Releases) to evaluate scroll story transitions */}
@@ -46,7 +46,7 @@ export default function HeroConceptsSandboxPage() {
               </h2>
             </div>
             <p className="text-sm font-outfit text-alabaster-grey/70 max-w-md">
-              Evaluating how each concept seamlessly ushers visitors into our primary game portfolio showcase.
+              Evaluating how each 3D scroll descent variation seamlessly ushers visitors into our primary game portfolio showcase.
             </p>
           </div>
 
@@ -81,6 +81,7 @@ export default function HeroConceptsSandboxPage() {
                     src={game.img}
                     alt={game.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-carbon-black-2 via-transparent to-transparent" />

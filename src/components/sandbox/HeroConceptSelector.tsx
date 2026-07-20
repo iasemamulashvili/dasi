@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sparkles, Waves, MousePointer, Cpu } from 'lucide-react';
+import { Sparkles, Box, Disc, Cpu } from 'lucide-react';
 
 export type ConceptId = 'concept1' | 'concept2' | 'concept3';
 
@@ -39,27 +39,27 @@ export default function HeroConceptSelector({
   const concepts = [
     {
       id: 'concept1' as ConceptId,
-      name: 'Concept 1: Particle Dissolve',
-      shortName: '1. Particle Dissolve',
+      name: 'Variation 1: Pure Frameless 3D',
+      shortName: '1. Pure Frameless',
       icon: Sparkles,
-      tag: 'GLSL Curl Noise',
-      desc: 'Three.js particle geometry sampled from the Dasi logo. Cursor hover/drag triggers GLSL curl noise displacement, dissipating points in 3D space like ambient light embers.',
+      tag: 'Native 3D Floating Mesh',
+      desc: 'No card or container. Pure logo floating natively in 3D space with ambient volumetric lighting, cursor tilt, and a deep Z-axis descent into Section 2.',
     },
     {
       id: 'concept2' as ConceptId,
-      name: 'Concept 2: WebGL Fluid Smoke',
-      shortName: '2. Fluid Smoke',
-      icon: Waves,
-      tag: 'Shader Velocity Grid',
-      desc: 'WebGL fluid simulation over the logo vector. Dragging the cursor injects velocity turbulence, dissolving logo edges into heavy organic smoke vapor.',
+      name: 'Variation 2: Cyber Glass Monolith',
+      shortName: '2. Glass Monolith',
+      icon: Box,
+      tag: 'Split Seam Transition',
+      desc: 'Ultra-sleek glassmorphic HUD panel with corner reticles. On scroll, the glass monolith splits open horizontally as the logo dives into the seam.',
     },
     {
       id: 'concept3' as ConceptId,
-      name: 'Concept 3: 3D Scroll Descent',
-      shortName: '3. 3D Scroll Descent',
-      icon: MousePointer,
-      tag: 'GSAP ScrollTrigger',
-      desc: 'GSAP ScrollTrigger anchors the 3D logo. As the user scrolls down, the logo tilts on 3D axes, drives deep into screen Z-space, and unlocks the seam to Section 2.',
+      name: 'Variation 3: Volumetric Energy Portal',
+      shortName: '3. Energy Portal',
+      icon: Disc,
+      tag: 'Concentric Ring Mask',
+      desc: 'Concentric glowing 3D energy rings behind the logo. As user scrolls down, the portal rings expand outward while the logo drives through the center into Section 2.',
     },
   ];
 
