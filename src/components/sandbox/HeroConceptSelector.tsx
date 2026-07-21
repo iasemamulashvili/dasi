@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sparkles, Box, Disc, Cpu } from 'lucide-react';
+import { Sparkles, Compass, Zap, Cpu } from 'lucide-react';
 
 export type ConceptId = 'concept1' | 'concept2' | 'concept3';
 
@@ -39,27 +39,27 @@ export default function HeroConceptSelector({
   const concepts = [
     {
       id: 'concept1' as ConceptId,
-      name: 'Variation 1: Pure Frameless 3D',
-      shortName: '1. Pure Frameless',
+      name: 'Variation 1: Cyber-Gimbal Surge',
+      shortName: '1. Gimbal Surge',
       icon: Sparkles,
-      tag: 'Native 3D Floating Mesh',
-      desc: 'No card or container. Pure logo floating natively in 3D space with ambient volumetric lighting, cursor tilt, and a deep Z-axis descent into Section 2.',
+      tag: 'Violet Spotlight Halo',
+      desc: 'Pure 3D logo performing a multi-axis yaw/pitch gimbal surge forward into camera space before plunging steeply behind Section 2.',
     },
     {
       id: 'concept2' as ConceptId,
-      name: 'Variation 2: Cyber Glass Monolith',
-      shortName: '2. Glass Monolith',
-      icon: Box,
-      tag: 'Split Seam Transition',
-      desc: 'Ultra-sleek glassmorphic HUD panel with corner reticles. On scroll, the glass monolith splits open horizontally as the logo dives into the seam.',
+      name: 'Variation 2: Quantum Gimbal Twist',
+      shortName: '2. Quantum Twist',
+      icon: Compass,
+      tag: 'Cyan Rim Spotlight',
+      desc: 'Pure 3D logo executing a rapid dual-axis corkscrew gimbal spin with cyan rim lighting, plunging deep into Z-camera space behind Section 2.',
     },
     {
       id: 'concept3' as ConceptId,
-      name: 'Variation 3: Volumetric Energy Portal',
-      shortName: '3. Energy Portal',
-      icon: Disc,
-      tag: 'Concentric Ring Mask',
-      desc: 'Concentric glowing 3D energy rings behind the logo. As user scrolls down, the portal rings expand outward while the logo drives through the center into Section 2.',
+      name: 'Variation 3: Hyper-Speed Eclipse Warp',
+      shortName: '3. Eclipse Warp',
+      icon: Zap,
+      tag: 'Solar Rose Eclipse Glow',
+      desc: 'Pure 3D logo executing an aggressive camera-forward zoom, 360-degree target-lock flip, and hyper-speed vertical plunge behind Section 2.',
     },
   ];
 
@@ -98,36 +98,23 @@ export default function HeroConceptSelector({
             <div className="flex items-center gap-1.5">
               <Cpu size={12} className="text-slate-violet-light" />
               <span>PERF:</span>
+              <span className="text-emerald-400 font-bold">{fps} FPS</span>
             </div>
-            <div className="flex items-center gap-1">
-              <span className={`font-bold ${fps >= 55 ? 'text-emerald-400' : fps >= 30 ? 'text-amber-400' : 'text-rose-400'}`}>
-                {fps}
-              </span>
-              <span className="text-[8px] text-alabaster-grey/50">FPS</span>
-            </div>
+            <span className="opacity-30">|</span>
+            <span className="text-slate-violet-light font-bold">1.0 OPACITY LOCKED</span>
+          </div>
+        </div>
+
+        {/* Concept Description Sub-Bar */}
+        <div className="pointer-events-auto mt-2 px-4 py-2 bg-carbon-black-2/60 backdrop-blur-md border border-white/5 rounded-xl text-xs font-outfit text-alabaster-grey/90 flex items-center justify-between shadow-lg">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-violet-light font-bold font-mono text-[11px] uppercase">
+              [{currentConcept.tag}]
+            </span>
+            <span className="line-clamp-1">{currentConcept.desc}</span>
           </div>
         </div>
       </header>
-
-      {/* Floating Info Pill at Bottom Left */}
-      <aside className="fixed bottom-6 left-6 z-40 max-w-sm w-[calc(100vw-3rem)] pointer-events-none select-none">
-        <div className="bg-carbon-black-2/85 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl text-xs flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-silkscreen text-slate-violet-light tracking-widest uppercase">
-              {currentConcept.tag}
-            </span>
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-white/5 border border-white/10 text-bright-snow">
-              Interactive Sandbox
-            </span>
-          </div>
-          <h3 className="text-sm font-russo-one text-bright-snow tracking-wide">
-            {currentConcept.name}
-          </h3>
-          <p className="text-alabaster-grey/80 leading-relaxed font-outfit text-[11px]">
-            {currentConcept.desc}
-          </p>
-        </div>
-      </aside>
     </>
   );
 }

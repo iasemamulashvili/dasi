@@ -136,7 +136,7 @@ const getVideoFallback = (id: string) => {
 };
 
 interface WebGLFeaturedSliderProps {
-  featuredGames: (Game & {
+  featuredGames?: (Game & {
     featuredSubtitle?: string;
     featuredImage?: string;
     showStatsBox?: boolean;
@@ -195,7 +195,7 @@ export default function WebGLFeaturedSlider({ featuredGames, showStatsBox = fals
   const ripplesRef = useRef<Ripple[]>([]);
   const [rippleTrigger, setRippleTrigger] = useState(0);
 
-  const gamesData = featuredGames.length > 0 
+  const gamesData = (featuredGames && featuredGames.length > 0)
     ? featuredGames.map(g => ({
         id: g.id,
         title: g.title,

@@ -63,42 +63,43 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
       (context) => {
         const { isDesktop } = context.conditions as { isDesktop: boolean };
 
-        // Scroll-lock pins the hero container while initial scroll exclusively translates the logo
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
             pin: pinContainer,
             start: 'top top',
             end: isDesktop ? '+=160%' : '+=100%',
-            scrub: 1.0, // Tight responsive scrub
+            scrub: 1.0,
             anticipatePin: 1,
           },
         });
 
-        // 3D Motion Timeline maintaining full 1.0 opacity until hidden behind Section 2
+        // Phase 1: Cyber-Gimbal Surge forward into camera space
         tl.to(
           logoMesh,
           {
             rotateY: isDesktop ? 180 : 90,
-            rotateX: isDesktop ? 35 : 20,
-            z: isDesktop ? 80 : 30,
-            scale: isDesktop ? 1.05 : 1.0,
-            y: isDesktop ? 180 : 100,
-            opacity: 1.0, // Retain full opacity
+            rotateX: isDesktop ? 45 : 25,
+            z: isDesktop ? 140 : 50,
+            scale: isDesktop ? 1.15 : 1.05,
+            y: isDesktop ? 140 : 80,
+            opacity: 1.0,
             ease: 'none',
           },
           0
         );
 
+        // Phase 2: Steep angular pitch plunge diving cleanly behind Section 2
         tl.to(
           logoMesh,
           {
-            rotateY: isDesktop ? 360 : 180,
-            rotateX: isDesktop ? 70 : 45,
+            rotateY: isDesktop ? 270 : 180,
+            rotateX: isDesktop ? 70 : 50,
+            rotateZ: isDesktop ? -15 : -5,
             scale: isDesktop ? 0.35 : 0.45,
             z: isDesktop ? -500 : -250,
-            y: isDesktop ? 650 : 380, // Plunges completely behind Section 2 z-30 boundary before lock release
-            opacity: 1.0, // Retain full 1.0 opacity throughout descent
+            y: isDesktop ? 650 : 380,
+            opacity: 1.0,
             ease: 'none',
           },
           0.5
@@ -120,17 +121,17 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
       className="relative min-h-[85vh] md:min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0 z-10"
     >
       <div ref={pinContainerRef} className="w-full h-full flex items-center justify-center">
-        {/* Background Volumetric Ambient Radial Glow */}
-        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[550px] h-[550px] rounded-full bg-slate-violet-light/15 filter blur-[140px] pointer-events-none z-0" />
+        {/* Volumetric Electric Violet Spotlight Glow */}
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.25)_0%,rgba(147,51,234,0.08)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
 
-        {/* Hero Content Grid - Headlines and text copy stay completely stationary */}
+        {/* Hero Content Grid - Headlines stay stationary */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
-          {/* Left Column Fixed Headline Copy */}
+          {/* Left Column Fixed Copy */}
           <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/30 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
               <span className="tracking-widest text-slate-violet-light uppercase">
-                VARIATION 1: PURE FRAMELESS 3D SURGE
+                VARIATION 1: CYBER-GIMBAL SURGE
               </span>
             </div>
 
@@ -143,47 +144,36 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Pure logo performing an intricate 3D multi-axis corkscrew flight, surging into camera space before plunging deep behind Section 2.
+              Pure 3D logo executing a multi-axis yaw/pitch gimbal surge forward into camera space before plunging steeply behind Section 2.
             </p>
 
             <div className="pt-2">
               <button className="inset-pixel-btn-primary inline-flex items-center gap-3 px-8 py-4 text-xs tracking-wider">
-                EXPLORE RELEASES
+                EXPLORE SHOWCASE
               </button>
             </div>
           </div>
 
-          {/* Right Column: 3D Logo (Z-10 so it passes under Section 2 Z-30 surface) */}
+          {/* Right Column: 3D Gimbal Surge Logo */}
           <div
             ref={logoWrapperRef}
-            className="w-full md:w-[48%] flex items-center justify-center order-first md:order-last py-8 md:py-0 z-10"
-            style={{ perspective: 1200 }}
+            className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px]"
           >
             <div
               ref={logoMeshRef}
-              className="relative flex items-center justify-center cursor-grab active:cursor-grabbing p-4"
+              className="relative w-64 h-64 md:w-96 md:h-96 flex items-center justify-center cursor-pointer transition-shadow duration-300"
               style={{ transformStyle: 'preserve-3d' }}
             >
-              <div className="absolute inset-0 rounded-full bg-slate-violet/25 filter blur-3xl scale-125 pointer-events-none" />
-
               <Image
-                src="/Images/dasigames_logo.png"
-                alt="Dasi Games Pure 3D Logo"
-                width={340}
-                height={340}
+                src="/Logo_White_PNG.png"
+                alt="Dasi Games 3D Logo"
+                width={400}
+                height={400}
                 priority
-                className="w-56 h-56 md:w-80 md:h-80 object-contain filter drop-shadow-[0_0_50px_rgba(168,85,247,0.7)] select-none pointer-events-none"
+                className="w-full h-full object-contain filter drop-shadow-[0_0_50px_rgba(168,85,247,0.85)] pointer-events-none select-none"
               />
             </div>
           </div>
-        </div>
-
-        {/* Floating Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none opacity-60">
-          <span className="text-[9px] tracking-widest text-alabaster-grey/70 font-silkscreen uppercase">
-            SCROLL TO DRIVE LOGO BEHIND SECTION 2
-          </span>
-          <div className="w-[1.5px] h-8 bg-gradient-to-b from-slate-violet-light to-transparent animate-pulse" />
         </div>
       </div>
     </div>

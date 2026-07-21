@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Sparkles } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -17,26 +16,43 @@ interface Concept3PortalDescentProps {
 export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDescentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pinContainerRef = useRef<HTMLDivElement>(null);
-  const portalRingsRef = useRef<HTMLDivElement>(null);
-  const coreGlowRef = useRef<HTMLDivElement>(null);
+  const logoWrapperRef = useRef<HTMLDivElement>(null);
   const logoMeshRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (
-      !containerRef.current ||
-      !pinContainerRef.current ||
-      !logoMeshRef.current ||
-      !portalRingsRef.current ||
-      !coreGlowRef.current
-    )
-      return;
+    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !logoWrapperRef.current) return;
 
     const heroSection = containerRef.current;
     const pinContainer = pinContainerRef.current;
     const logoMesh = logoMeshRef.current;
-    const portalRings = portalRingsRef.current;
-    const coreGlow = coreGlowRef.current;
 
+    // Interactive 3D Cursor Parallax Tilt
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = heroSection.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+      gsap.to(logoMesh, {
+        rotateY: x * 45,
+        rotateX: -y * 45,
+        duration: 0.6,
+        ease: 'power2.out',
+      });
+    };
+
+    const handleMouseLeave = () => {
+      gsap.to(logoMesh, {
+        rotateY: 0,
+        rotateX: 0,
+        duration: 0.8,
+        ease: 'power2.out',
+      });
+    };
+
+    heroSection.addEventListener('mousemove', handleMouseMove);
+    heroSection.addEventListener('mouseleave', handleMouseLeave);
+
+    // Responsive GSAP ScrollTrigger Timeline
     const mm = gsap.matchMedia();
 
     mm.add(
@@ -58,16 +74,14 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
           },
         });
 
-        // Phase 1: Portal Energy Activation & 3D Logo Camera Surge
-        tl.to(portalRings, { scale: isDesktop ? 1.4 : 1.2, opacity: 0.9, ease: 'none' }, 0);
-        tl.to(coreGlow, { scale: isDesktop ? 1.6 : 1.3, opacity: 0.6, ease: 'none' }, 0);
+        // Phase 1: Aggressive camera-forward acceleration into camera near-plane
         tl.to(
           logoMesh,
           {
-            rotateY: isDesktop ? -60 : -30,
-            rotateX: isDesktop ? -20 : -10,
-            z: isDesktop ? 140 : 60,
-            scale: isDesktop ? 1.2 : 1.1,
+            rotateY: isDesktop ? 180 : 90,
+            rotateX: isDesktop ? 45 : 30,
+            z: isDesktop ? 180 : 70,
+            scale: isDesktop ? 1.35 : 1.15,
             y: isDesktop ? 120 : 60,
             opacity: 1.0,
             ease: 'none',
@@ -75,19 +89,16 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
           0
         );
 
-        // Phase 2: Quantum Warp Plunge BEHIND Section 2 Boundary
-        tl.to(portalRings, { scale: isDesktop ? 3.2 : 2.0, opacity: 0, ease: 'none' }, 0.5);
-        tl.to(coreGlow, { scale: isDesktop ? 3.8 : 2.2, opacity: 0, ease: 'none' }, 0.5);
+        // Phase 2: 360-degree target-lock spin & hyper-speed warp plunge behind Section 2
         tl.to(
           logoMesh,
           {
-            rotateY: isDesktop ? 540 : 360,
-            rotateX: isDesktop ? 90 : 65,
-            rotateZ: 0,
-            scale: isDesktop ? 0.2 : 0.35,
+            rotateY: isDesktop ? 360 : 180,
+            rotateX: isDesktop ? 90 : 60,
+            scale: isDesktop ? 0.20 : 0.35,
             z: isDesktop ? -900 : -450,
-            y: isDesktop ? 650 : 380, // Plunges cleanly under Section 2 z-30 surface
-            opacity: 1.0, // Retain full 1.0 opacity until hidden behind Section 2
+            y: isDesktop ? 650 : 380,
+            opacity: 1.0,
             ease: 'none',
           },
           0.5
@@ -96,6 +107,8 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
     );
 
     return () => {
+      heroSection.removeEventListener('mousemove', handleMouseMove);
+      heroSection.removeEventListener('mouseleave', handleMouseLeave);
       mm.revert();
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
@@ -107,13 +120,17 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
       className="relative min-h-[85vh] md:min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0 z-10"
     >
       <div ref={pinContainerRef} className="w-full h-full flex items-center justify-center">
+        {/* Volumetric Deep Rose & Solar Gold Volumetric Spotlight Glow */}
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.25)_0%,rgba(245,158,11,0.08)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
+
+        {/* Hero Content Grid */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
-          {/* Left Column Text */}
+          {/* Left Column Fixed Copy */}
           <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/30 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-              <Sparkles size={12} className="text-slate-violet-light animate-spin" />
-              <span className="tracking-widest text-slate-violet-light uppercase">
-                VARIATION 3: QUANTUM ENERGY PORTAL WARP
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-rose-500/30 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+              <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse" />
+              <span className="tracking-widest text-rose-300 uppercase">
+                VARIATION 3: HYPER-SPEED ECLIPSE WARP
               </span>
             </div>
 
@@ -126,71 +143,36 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Multi-tier quantum energy portal. Dynamic 3D camera surge, corkscrew rotation, and a hyper-speed warp plunge through the portal center behind Section 2.
+              Pure 3D logo executing an aggressive camera-forward zoom, 360-degree target-lock flip, and hyper-speed vertical plunge behind Section 2.
             </p>
 
             <div className="pt-2">
               <button className="inset-pixel-btn-primary inline-flex items-center gap-3 px-8 py-4 text-xs tracking-wider">
-                EXPLORE RELEASES
+                EXPLORE SHOWCASE
               </button>
             </div>
           </div>
 
-          {/* Right Column: Multi-Tier Quantum Energy Portal */}
+          {/* Right Column: 3D Hyper-Speed Eclipse Warp Logo */}
           <div
-            className="w-full md:w-[48%] flex items-center justify-center order-first md:order-last py-8 md:py-0 relative z-10"
-            style={{ perspective: 1200 }}
+            ref={logoWrapperRef}
+            className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px]"
           >
-            {/* Core Volumetric Energy Blur Node */}
-            <div
-              ref={coreGlowRef}
-              className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full bg-[radial-gradient(circle_at_center,oklch(0.68_0.26_305_/_0.35)_0%,oklch(0.45_0.22_280_/_0.15)_50%,transparent_100%)] filter blur-3xl pointer-events-none"
-            />
-
-            {/* 3-Tier Multi-Ring Energy Portal */}
-            <div
-              ref={portalRingsRef}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none"
-              style={{ transformStyle: 'preserve-3d' }}
-            >
-              {/* Outer Energy Ring */}
-              <div className="w-72 h-72 md:w-96 md:h-96 rounded-full border-2 border-slate-violet-light/35 border-dashed animate-[spin_24s_linear_infinite]" />
-
-              {/* Middle Gyroscope Counter-Ring */}
-              <div className="absolute w-60 h-60 md:w-76 md:h-76 rounded-full border border-purple-300/30 border-dotted animate-[spin_14s_linear_infinite_reverse]" />
-
-              {/* Inner Focus Telemetry Ring with Orbit Vents */}
-              <div className="absolute w-44 h-44 md:w-56 md:h-56 rounded-full border border-slate-violet-light/40 flex items-center justify-center p-2 animate-[spin_30s_linear_infinite]">
-                <div className="w-full h-full rounded-full border border-white/10 border-dashed" />
-                <div className="absolute top-0 w-2 h-2 rounded-full bg-slate-violet-light shadow-[0_0_10px_#a855f7]" />
-                <div className="absolute bottom-0 w-2 h-2 rounded-full bg-purple-300 shadow-[0_0_10px_#c084fc]" />
-              </div>
-            </div>
-
-            {/* Center Logo Mesh Diving Through Quantum Portal */}
             <div
               ref={logoMeshRef}
-              className="relative z-20 w-64 h-64 md:w-80 md:h-80 flex items-center justify-center p-8"
+              className="relative w-64 h-64 md:w-96 md:h-96 flex items-center justify-center cursor-pointer transition-shadow duration-300"
               style={{ transformStyle: 'preserve-3d' }}
             >
               <Image
-                src="/Images/dasigames_logo.png"
-                alt="Dasi Games Quantum Portal Logo"
-                width={300}
-                height={300}
+                src="/Logo_White_PNG.png"
+                alt="Dasi Games 3D Logo"
+                width={400}
+                height={400}
                 priority
-                className="w-52 h-52 md:w-68 md:h-68 object-contain filter drop-shadow-[0_0_55px_rgba(168,85,247,0.75)] select-none pointer-events-none"
+                className="w-full h-full object-contain filter drop-shadow-[0_0_60px_rgba(244,63,94,0.9)] pointer-events-none select-none"
               />
             </div>
           </div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none opacity-60">
-          <span className="text-[9px] tracking-widest text-alabaster-grey/70 font-silkscreen uppercase">
-            SCROLL TO WARP THROUGH QUANTUM PORTAL
-          </span>
-          <div className="w-[1.5px] h-8 bg-gradient-to-b from-slate-violet-light to-transparent animate-pulse" />
         </div>
       </div>
     </div>
