@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Sparkles, Radio } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -50,17 +50,17 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
-            pin: isDesktop ? pinContainer : false,
+            pin: pinContainer,
             start: 'top top',
-            end: isDesktop ? '+=140%' : 'bottom top',
-            scrub: 1.2,
+            end: isDesktop ? '+=160%' : '+=100%',
+            scrub: 1.0,
             anticipatePin: 1,
           },
         });
 
         // Phase 1: Portal Energy Activation & 3D Logo Camera Surge
-        tl.to(portalRings, { scale: isDesktop ? 1.4 : 1.2, opacity: 0.9, ease: 'power1.inOut' }, 0);
-        tl.to(coreGlow, { scale: isDesktop ? 1.6 : 1.3, opacity: 0.6, ease: 'power1.inOut' }, 0);
+        tl.to(portalRings, { scale: isDesktop ? 1.4 : 1.2, opacity: 0.9, ease: 'none' }, 0);
+        tl.to(coreGlow, { scale: isDesktop ? 1.6 : 1.3, opacity: 0.6, ease: 'none' }, 0);
         tl.to(
           logoMesh,
           {
@@ -68,32 +68,16 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             rotateX: isDesktop ? -20 : -10,
             z: isDesktop ? 140 : 60,
             scale: isDesktop ? 1.2 : 1.1,
-            y: isDesktop ? -15 : -8,
-            ease: 'power1.inOut',
+            y: isDesktop ? 120 : 60,
+            opacity: 1.0,
+            ease: 'none',
           },
           0
         );
 
-        // Phase 2: Quantum Vortex Corkscrew & Ring Dilation
-        tl.to(portalRings, { scale: isDesktop ? 2.4 : 1.7, opacity: 0.5, rotateZ: 180, ease: 'power1.inOut' }, 0.35);
-        tl.to(coreGlow, { scale: isDesktop ? 2.8 : 1.9, opacity: 0.3, ease: 'power1.inOut' }, 0.35);
-        tl.to(
-          logoMesh,
-          {
-            rotateY: isDesktop ? 270 : 180,
-            rotateX: isDesktop ? 60 : 35,
-            rotateZ: isDesktop ? -25 : -12,
-            scale: isDesktop ? 0.65 : 0.75,
-            z: isDesktop ? -250 : -120,
-            y: isDesktop ? 160 : 90,
-            ease: 'power1.inOut',
-          },
-          0.35
-        );
-
-        // Phase 3: Hyper-speed Warp Plunge BEHIND Section 2 Top Edge Seam
-        tl.to(portalRings, { scale: isDesktop ? 3.5 : 2.2, opacity: 0, ease: 'power2.in' }, 0.7);
-        tl.to(coreGlow, { scale: isDesktop ? 4.0 : 2.5, opacity: 0, ease: 'power2.in' }, 0.7);
+        // Phase 2: Quantum Warp Plunge BEHIND Section 2 Boundary
+        tl.to(portalRings, { scale: isDesktop ? 3.2 : 2.0, opacity: 0, ease: 'none' }, 0.5);
+        tl.to(coreGlow, { scale: isDesktop ? 3.8 : 2.2, opacity: 0, ease: 'none' }, 0.5);
         tl.to(
           logoMesh,
           {
@@ -102,21 +86,12 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             rotateZ: 0,
             scale: isDesktop ? 0.2 : 0.35,
             z: isDesktop ? -900 : -450,
-            y: isDesktop ? 440 : 230, // Drives cleanly under Section 2 z-30 surface
-            opacity: 0,
-            ease: 'power2.in',
+            y: isDesktop ? 650 : 380, // Plunges cleanly under Section 2 z-30 surface
+            opacity: 1.0, // Retain full 1.0 opacity until hidden behind Section 2
+            ease: 'none',
           },
-          0.7
+          0.5
         );
-
-        if (section2Ref && section2Ref.current) {
-          tl.fromTo(
-            section2Ref.current,
-            { y: 100, opacity: 0.7 },
-            { y: 0, opacity: 1, ease: 'power1.out' },
-            0.5
-          );
-        }
       }
     );
 

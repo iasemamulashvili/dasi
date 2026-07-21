@@ -33,8 +33,8 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
       const y = (e.clientY - rect.top) / rect.height - 0.5;
 
       gsap.to(logoMesh, {
-        rotateY: x * 40,
-        rotateX: -y * 40,
+        rotateY: x * 35,
+        rotateX: -y * 35,
         duration: 0.6,
         ease: 'power2.out',
       });
@@ -52,7 +52,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
     heroSection.addEventListener('mousemove', handleMouseMove);
     heroSection.addEventListener('mouseleave', handleMouseLeave);
 
-    // Responsive Versatile 3D ScrollTrigger Descent Timeline
+    // Responsive GSAP ScrollTrigger Descent Timeline
     const mm = gsap.matchMedia();
 
     mm.add(
@@ -63,73 +63,46 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
       (context) => {
         const { isDesktop } = context.conditions as { isDesktop: boolean };
 
+        // Scroll-lock pins the hero container while initial scroll exclusively translates the logo
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
-            pin: isDesktop ? pinContainer : false,
+            pin: pinContainer,
             start: 'top top',
-            end: isDesktop ? '+=140%' : 'bottom top',
-            scrub: 1.2,
+            end: isDesktop ? '+=160%' : '+=100%',
+            scrub: 1.0, // Tight responsive scrub
             anticipatePin: 1,
           },
         });
 
-        // Keyframe 1: Initial surge forward in 3D space toward camera with Y-yaw
+        // 3D Motion Timeline maintaining full 1.0 opacity until hidden behind Section 2
         tl.to(
           logoMesh,
           {
-            rotateY: isDesktop ? 120 : 60,
-            rotateX: isDesktop ? -25 : -15,
-            z: isDesktop ? 120 : 50,
-            scale: isDesktop ? 1.15 : 1.05,
-            y: isDesktop ? -20 : -10,
-            ease: 'power1.inOut',
-            duration: 0.35,
+            rotateY: isDesktop ? 180 : 90,
+            rotateX: isDesktop ? 35 : 20,
+            z: isDesktop ? 80 : 30,
+            scale: isDesktop ? 1.05 : 1.0,
+            y: isDesktop ? 180 : 100,
+            opacity: 1.0, // Retain full opacity
+            ease: 'none',
           },
           0
         );
 
-        // Keyframe 2: Multi-axis corkscrew twist & pitch rotation
         tl.to(
           logoMesh,
           {
-            rotateY: isDesktop ? 270 : 180,
-            rotateX: isDesktop ? 55 : 30,
-            rotateZ: isDesktop ? -20 : -10,
-            scale: isDesktop ? 0.75 : 0.8,
-            z: isDesktop ? -150 : -80,
-            y: isDesktop ? 140 : 80,
-            ease: 'power1.inOut',
-            duration: 0.35,
+            rotateY: isDesktop ? 360 : 180,
+            rotateX: isDesktop ? 70 : 45,
+            scale: isDesktop ? 0.35 : 0.45,
+            z: isDesktop ? -500 : -250,
+            y: isDesktop ? 650 : 380, // Plunges completely behind Section 2 z-30 boundary before lock release
+            opacity: 1.0, // Retain full 1.0 opacity throughout descent
+            ease: 'none',
           },
-          0.35
+          0.5
         );
-
-        // Keyframe 3: Deep plunge into Z-depth, diving BEHIND Section 2 border
-        tl.to(
-          logoMesh,
-          {
-            rotateY: isDesktop ? 450 : 270,
-            rotateX: isDesktop ? 75 : 45,
-            rotateZ: 0,
-            scale: isDesktop ? 0.25 : 0.4,
-            z: isDesktop ? -750 : -350,
-            y: isDesktop ? 420 : 220, // Drives down past Section 2's top border under z-30 surface
-            opacity: 0.1,
-            ease: 'power2.in',
-            duration: 0.3,
-          },
-          0.7
-        );
-
-        if (section2Ref && section2Ref.current) {
-          tl.fromTo(
-            section2Ref.current,
-            { y: 100, opacity: 0.7 },
-            { y: 0, opacity: 1, ease: 'power1.out' },
-            0.5
-          );
-        }
       }
     );
 
@@ -150,9 +123,9 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
         {/* Background Volumetric Ambient Radial Glow */}
         <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[550px] h-[550px] rounded-full bg-slate-violet-light/15 filter blur-[140px] pointer-events-none z-0" />
 
-        {/* Hero Content Grid */}
+        {/* Hero Content Grid - Headlines and text copy stay completely stationary */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
-          {/* Left Column Text */}
+          {/* Left Column Fixed Headline Copy */}
           <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/30 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
@@ -180,7 +153,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             </div>
           </div>
 
-          {/* Right Column: Pure 3D Logo (Z-10 so it passes under Section 2 Z-30 surface) */}
+          {/* Right Column: 3D Logo (Z-10 so it passes under Section 2 Z-30 surface) */}
           <div
             ref={logoWrapperRef}
             className="w-full md:w-[48%] flex items-center justify-center order-first md:order-last py-8 md:py-0 z-10"

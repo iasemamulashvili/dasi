@@ -218,9 +218,9 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
       scrollTrigger: {
         trigger: heroContainerRef.current,
         start: 'top top',
-        end: isMobile ? 'bottom top' : '+=130%',
-        pin: !isMobile,
-        scrub: 1, // Momentum inertia scroll
+        end: isMobile ? '+=40%' : '+=130%',
+        pin: !isMobile, // Strictly unpinned on mobile to prevent scroll-lock jank
+        scrub: isMobile ? 0.3 : 1, // Fast responsive scrub on mobile
         onUpdate: () => {
           renderFrame(Math.floor(playhead.frame));
         }

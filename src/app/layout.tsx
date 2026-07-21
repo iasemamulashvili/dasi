@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import BackgroundGrid from "@/components/BackgroundGrid";
+import SmoothScroll from "@/components/SmoothScroll";
 import "./globals.css";
 
 const outfitHeading = Outfit({
@@ -41,9 +42,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col relative bg-carbon-black text-bright-snow">
         <BackgroundGrid />
-        <div className="relative z-10 flex flex-col min-h-full w-full">
-          {children}
-        </div>
+        <SmoothScroll>
+          <div className="relative z-10 flex flex-col min-h-full w-full">
+            {children}
+          </div>
+        </SmoothScroll>
       </body>
     </html>
   );

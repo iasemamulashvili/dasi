@@ -43,17 +43,17 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
-            pin: isDesktop ? pinContainer : false,
+            pin: pinContainer,
             start: 'top top',
-            end: isDesktop ? '+=140%' : 'bottom top',
-            scrub: 1.2,
+            end: isDesktop ? '+=160%' : '+=100%',
+            scrub: 1.0,
             anticipatePin: 1,
           },
         });
 
         // Phase 1: Dual 3D Gimbal Ring Alignment
-        tl.to(outerRing, { rotateZ: 180, rotateX: 45, scale: 1.15, opacity: 0.8, ease: 'power1.inOut' }, 0);
-        tl.to(innerRing, { rotateZ: -270, rotateY: -55, scale: 1.25, opacity: 0.9, ease: 'power1.inOut' }, 0);
+        tl.to(outerRing, { rotateZ: 180, rotateX: 45, scale: 1.15, opacity: 0.9, ease: 'none' }, 0);
+        tl.to(innerRing, { rotateZ: -270, rotateY: -55, scale: 1.25, opacity: 0.9, ease: 'none' }, 0);
         tl.to(
           logoMesh,
           {
@@ -61,31 +61,15 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             rotateX: isDesktop ? -35 : -15,
             z: isDesktop ? 80 : 30,
             scale: isDesktop ? 1.1 : 1.05,
-            ease: 'power1.inOut',
+            opacity: 1.0,
+            ease: 'none',
           },
           0
         );
 
-        // Phase 2: Cybernetic Target Lock Flip & Gyroscope Alignment
-        tl.to(outerRing, { rotateZ: 360, rotateX: 75, scale: 1.3, opacity: 0.4, ease: 'power1.inOut' }, 0.35);
-        tl.to(innerRing, { rotateZ: -540, rotateY: -85, scale: 1.5, opacity: 0.5, ease: 'power1.inOut' }, 0.35);
-        tl.to(
-          logoMesh,
-          {
-            rotateY: isDesktop ? 360 : 180,
-            rotateX: isDesktop ? 45 : 25,
-            rotateZ: isDesktop ? -30 : -15,
-            scale: isDesktop ? 0.7 : 0.75,
-            z: isDesktop ? -200 : -100,
-            y: isDesktop ? 160 : 90,
-            ease: 'power1.inOut',
-          },
-          0.35
-        );
-
-        // Phase 3: High-velocity Descent BEHIND Section 2 Top Edge Seam
-        tl.to(outerRing, { scale: 1.8, opacity: 0, ease: 'power2.in' }, 0.7);
-        tl.to(innerRing, { scale: 2.1, opacity: 0, ease: 'power2.in' }, 0.7);
+        // Phase 2: Cybernetic Target Lock Flip & Plunge BEHIND Section 2 Boundary
+        tl.to(outerRing, { rotateZ: 360, rotateX: 75, scale: 1.3, opacity: 0.2, ease: 'none' }, 0.5);
+        tl.to(innerRing, { rotateZ: -540, rotateY: -85, scale: 1.5, opacity: 0.2, ease: 'none' }, 0.5);
         tl.to(
           logoMesh,
           {
@@ -94,21 +78,12 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             rotateZ: 0,
             scale: isDesktop ? 0.25 : 0.35,
             z: isDesktop ? -800 : -400,
-            y: isDesktop ? 440 : 230, // Plunges beneath Section 2 z-30 surface
-            opacity: 0,
-            ease: 'power2.in',
+            y: isDesktop ? 650 : 380, // Plunges beneath Section 2 z-30 surface
+            opacity: 1.0, // Retain full 1.0 opacity until hidden behind Section 2
+            ease: 'none',
           },
-          0.7
+          0.5
         );
-
-        if (section2Ref && section2Ref.current) {
-          tl.fromTo(
-            section2Ref.current,
-            { y: 100, opacity: 0.7 },
-            { y: 0, opacity: 1, ease: 'power1.out' },
-            0.5
-          );
-        }
       }
     );
 

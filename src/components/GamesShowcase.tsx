@@ -303,20 +303,20 @@ function KineticCard({
         <div className="flex items-center justify-end border-t border-graphite-light/20 pt-2.5 mt-2 relative">
           
           {isMobile ? (
-            <div className="flex items-center justify-end w-full pointer-events-auto">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between w-full pointer-events-auto pt-1">
+              <div className="grid grid-cols-3 gap-1.5 w-full items-center">
                 {activeStores.map((store) => (
                   <a
                     key={store.id}
                     href={store.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="cursor-pointer flex shrink-0 py-2 px-1 -my-2 -mx-1"
+                    className="cursor-pointer flex justify-center items-center w-full min-w-0"
                     title={store.label}
                   >
-                    {store.id === 'ios' ? <AppStoreBadge className="h-[22px] w-auto" /> : 
-                     store.id === 'android' ? <PlayStoreBadge className="h-[22px] w-auto" /> : 
-                     <PokiPlayBadge className="h-[22px] w-auto" />}
+                    {store.id === 'ios' ? <AppStoreBadge className="h-[18px] sm:h-[22px] w-full max-w-[85px] object-contain" /> : 
+                     store.id === 'android' ? <PlayStoreBadge className="h-[18px] sm:h-[22px] w-full max-w-[85px] object-contain" /> : 
+                     <PokiPlayBadge className="h-[18px] sm:h-[22px] w-full max-w-[85px] object-contain" />}
                   </a>
                 ))}
               </div>
@@ -640,11 +640,6 @@ function KineticSpinStream({ games }: { games: Game[] }) {
               </button>
             );
           })}
-        </div>
-
-        {/* Shortened helper caption below navigation bar */}
-        <div className="text-[8px] font-mono tracking-widest text-alabaster-grey/50 uppercase select-none pointer-events-none">
-          CLICK A DOT TO FOCUS • DRAG PORTFOLIO TO EXPLORE
         </div>
       </div>
     </div>
