@@ -85,7 +85,7 @@ export default function SmokeLogoHero() {
     const lastMousePos = new THREE.Vector2(-999, -999);
     const mouseVelocity = new THREE.Vector2(0, 0);
 
-    // GLSL Vertex Shader: GPU 3D Simplex Curl Noise Smoke Fluid Dynamics
+    // GLSL Vertex Shader: GPU 3D Simplex Curl Noise Fluid Dynamics
     const vertexShader = `
       uniform float uTime;
       uniform vec2 uMouse;
@@ -254,18 +254,89 @@ export default function SmokeLogoHero() {
         powerPreference: 'high-performance',
       });
 
-      // Pass updateStyle = false to prevent Three.js from setting inline style.width/height on canvas
+      // Pass updateStyle = false to keep canvas stretched in CSS
       renderer.setSize(width, height, false);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
       uniformsRef.current.uViewportHeight.value = height;
 
-      // Sample Logo Image Pixels
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
+      // Build geometry with exact target centering
+      const createParticleGeometry = (pos: number[], tgt: number[], rnd: number[]) => {
+        // Calculate exact bounding center of targets
+        let sumX = 0, sumY = 0, sumZ = 0;
+        const count = tgt.length / 3;
+        for (let i = 0; i < tgt.length; i += 3) {
+          sumX += tgt[i];
+          sumY += tgt[i + 1];
+          sumZ += tgt[i + 2];
+        }
+        const centerX = sumX / count;
+        const centerY = sumY / count;
+        const centerZ = sumZ / count;
+
+        // Offset all targets and positions to guarantee 100% origin centering at (0, 0, 0)
+        for (let i = 0; i < tgt.length; i += 3) {
+          tgt[i] -= centerX;
+          tgt[i + 1] -= centerY;
+          tgt[i + 2] -= centerZ;
+
+          pos[i] -= centerX;
+          pos[i + 1] -= centerY;
+          pos[i + 2] -= centerZ;
+        }
+
+        setParticleCount(pos.length / 3);
+
+        geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+        geometry.setAttribute('aTarget', new THREE.Float32BufferAttribute(tgt, 3));
+        geometry.setAttribute('aRandom', new THREE.Float32BufferAttribute(rnd, 4));
+
+        material = new THREE.ShaderMaterial({
+          vertexShader,
+          fragmentShader,
+          uniforms: uniformsRef.current,
+          transparent: true,
+          depthWrite: false,
+          depthTest: false,
+          blending: THREE.NormalBlending,
+        });
+
+        particleMesh = new THREE.Points(geometry, material);
+        scene.add(particleMesh);
+        setIsLoaded(true);
+      };
+
+      const generateFallbackGrid = () => {
+        const positions: number[] = [];
+        const targets: number[] = [];
+        const randoms: number[] = [];
+
+        const size = 180;
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const nx = (x / size - 0.5) * 2.0;
+            const ny = (0.5 - y / size) * 2.0;
+
+            const inShield = Math.abs(nx) < (1.0 - Math.pow(Math.abs(ny * 0.5), 1.5));
+            if (inShield) {
+              const wx = nx * 2.2;
+              const wy = ny * 2.2;
+              positions.push(wx, wy, 0);
+              targets.push(wx, wy, 0);
+              randoms.push(
+                (Math.random() - 0.5) * 2.0,
+                (Math.random() - 0.5) * 2.0,
+                (Math.random() - 0.5) * 2.0,
+                Math.random()
+              );
+            }
+          }
+        }
+        createParticleGeometry(positions, targets, randoms);
+      };
 
       const buildParticlesFromImage = (loadedImg: HTMLImageElement) => {
-        // Step 1: Detect non-transparent pixel bounding box
         const tempCanvas = document.createElement('canvas');
         const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
         if (!tempCtx) return;
@@ -302,7 +373,6 @@ export default function SmokeLogoHero() {
         const cropW = maxX - minX;
         const cropH = maxY - minY;
 
-        // Step 2: Sample cropped region into 2D particle grid
         const sampleW = 180;
         const sampleH = Math.round((sampleW * cropH) / cropW);
 
@@ -320,8 +390,7 @@ export default function SmokeLogoHero() {
         const targets: number[] = [];
         const randoms: number[] = [];
 
-        // World size scaling
-        const logoHeight = 3.6; // Units in 3D space
+        const logoHeight = 3.6;
         const logoWidth = logoHeight * (cropW / cropH);
 
         for (let y = 0; y < sampleH; y += 1) {
@@ -349,77 +418,16 @@ export default function SmokeLogoHero() {
         createParticleGeometry(positions, targets, randoms);
       };
 
-      const generateFallbackGrid = () => {
-        // Fallback procedural centered shield logo grid if image loading fails
-        const positions: number[] = [];
-        const targets: number[] = [];
-        const randoms: number[] = [];
-
-        const size = 180;
-        for (let y = 0; y < size; y++) {
-          for (let x = 0; x < size; x++) {
-            const nx = (x / size - 0.5) * 2.0;
-            const ny = (0.5 - y / size) * 2.0;
-
-            // Shield/Dasi Logo outline equation
-            const inShield = Math.abs(nx) < (1.0 - Math.pow(Math.abs(ny * 0.5), 1.5));
-            if (inShield) {
-              const wx = nx * 2.2;
-              const wy = ny * 2.2;
-              positions.push(wx, wy, 0);
-              targets.push(wx, wy, 0);
-              randoms.push(
-                (Math.random() - 0.5) * 2.0,
-                (Math.random() - 0.5) * 2.0,
-                (Math.random() - 0.5) * 2.0,
-                Math.random()
-              );
-            }
-          }
-        }
-        createParticleGeometry(positions, targets, randoms);
-      };
-
-      const createParticleGeometry = (pos: number[], tgt: number[], rnd: number[]) => {
-        setParticleCount(pos.length / 3);
-
-        geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-        geometry.setAttribute('aTarget', new THREE.Float32BufferAttribute(tgt, 3));
-        geometry.setAttribute('aRandom', new THREE.Float32BufferAttribute(rnd, 4));
-
-        // Center geometry at origin (0, 0, 0)
-        geometry.center();
-
-        material = new THREE.ShaderMaterial({
-          vertexShader,
-          fragmentShader,
-          uniforms: uniformsRef.current,
-          transparent: true,
-          depthWrite: false,
-          depthTest: false,
-          blending: THREE.NormalBlending,
-        });
-
-        particleMesh = new THREE.Points(geometry, material);
-        scene.add(particleMesh);
-        setIsLoaded(true);
-      };
-
+      // Load Image cleanly without CORS errors
+      const img = new Image();
       img.onload = () => buildParticlesFromImage(img);
-      img.onerror = () => {
-        const fallbackImg = new Image();
-        fallbackImg.crossOrigin = 'anonymous';
-        fallbackImg.onload = () => buildParticlesFromImage(fallbackImg);
-        fallbackImg.onerror = () => generateFallbackGrid();
-        fallbackImg.src = '/Logo_White_PNG.png';
-      };
-      img.src = '/assets/logo.png';
+      img.onerror = () => generateFallbackGrid();
+      img.src = '/Logo_White_PNG.png';
     };
 
     initWebGL();
 
-    // Window Pointer & Scroll Event Listeners for Seamless Screen-Wide Interaction
+    // Window Pointer & Scroll Event Listeners for Screen-Wide Smoke Interaction
     const updatePointer = (clientX: number, clientY: number) => {
       if (!container || !camera) return;
       const rect = container.getBoundingClientRect();
@@ -472,7 +480,7 @@ export default function SmokeLogoHero() {
     window.addEventListener('wheel', handleWheel, { passive: true });
     window.addEventListener('pointerleave', handlePointerLeave);
 
-    // Resize Observer to update camera and WebGL renderer on viewport changes
+    // Resize Observer
     const handleResize = () => {
       if (!container || !renderer || !camera) return;
       const width = container.clientWidth || window.innerWidth;
@@ -482,7 +490,6 @@ export default function SmokeLogoHero() {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
 
-      // Pass updateStyle = false to keep canvas at width: 100%, height: 100%
       renderer.setSize(width, height, false);
       uniformsRef.current.uViewportHeight.value = height;
     };
@@ -490,7 +497,7 @@ export default function SmokeLogoHero() {
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(container);
 
-    // Render Loop with FPS Diagnostics
+    // Render Loop
     let lastTime = performance.now();
     let frameCounter = 0;
     let fpsTimer = performance.now();
@@ -509,7 +516,6 @@ export default function SmokeLogoHero() {
         fpsTimer = now;
       }
 
-      // Decay velocity inertia smoothly
       mouseVelocity.multiplyScalar(0.92);
 
       uniformsRef.current.uTime.value += delta;
@@ -523,7 +529,6 @@ export default function SmokeLogoHero() {
 
     animate();
 
-    // Cleanup routines on unmount
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('pointermove', handlePointerMove);
