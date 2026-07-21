@@ -256,6 +256,11 @@ export default function SmokeLogoHero() {
       // Sample Logo Image Pixels
       const img = new Image();
       img.crossOrigin = 'anonymous';
+      img.onerror = () => {
+        if (img.src.includes('Logo_White_PNG.png')) {
+          img.src = '/assets/logo.png';
+        }
+      };
       img.src = '/Logo_White_PNG.png';
 
       img.onload = () => {
