@@ -16,17 +16,19 @@ interface Concept3PortalDescentProps {
 export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDescentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pinContainerRef = useRef<HTMLDivElement>(null);
+  const leftContentRef = useRef<HTMLDivElement>(null);
   const logoWrapperRef = useRef<HTMLDivElement>(null);
   const logoMeshRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !logoWrapperRef.current) return;
+    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !logoWrapperRef.current || !leftContentRef.current) return;
 
     const heroSection = containerRef.current;
     const pinContainer = pinContainerRef.current;
+    const leftContent = leftContentRef.current;
     const logoMesh = logoMeshRef.current;
 
-    // Interactive 3D Cursor Parallax Tilt
+    // Interactive 3D Cursor Parallax Tilt (strictly on the 3D logo mesh)
     const handleMouseMove = (e: MouseEvent) => {
       const rect = heroSection.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
@@ -68,40 +70,52 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             trigger: heroSection,
             pin: pinContainer,
             start: 'top top',
-            end: isDesktop ? '+=160%' : '+=100%',
-            scrub: 1.0,
+            end: isDesktop ? '+=180%' : '+=120%',
+            scrub: 0.6,
             anticipatePin: 1,
           },
         });
 
-        // Phase 1: Aggressive camera-forward acceleration into camera near-plane
+        // Ensure left content (Title & Headlines) stays 100% stationary and pinned
         tl.to(
-          logoMesh,
+          leftContent,
           {
-            rotateY: isDesktop ? 180 : 90,
-            rotateX: isDesktop ? 45 : 30,
-            z: isDesktop ? 180 : 70,
-            scale: isDesktop ? 1.35 : 1.15,
-            y: isDesktop ? 120 : 60,
+            y: 0,
             opacity: 1.0,
             ease: 'none',
           },
           0
         );
 
-        // Phase 2: 360-degree target-lock spin & hyper-speed warp plunge behind Section 2
+        // Phase 1 (0% - 60% scroll): Aggressive camera-forward acceleration into camera near-plane
+        tl.to(
+          logoMesh,
+          {
+            rotateY: isDesktop ? 180 : 90,
+            rotateX: isDesktop ? 50 : 30,
+            z: isDesktop ? 200 : 80,
+            scale: isDesktop ? 1.38 : 1.18,
+            y: isDesktop ? 130 : 70,
+            opacity: 1.0,
+            ease: 'power1.inOut',
+          },
+          0
+        );
+
+        // Phase 2 (60% - 100% scroll): 360-degree target-lock spin & hyper-speed warp plunge behind Section 2
         tl.to(
           logoMesh,
           {
             rotateY: isDesktop ? 360 : 180,
-            rotateX: isDesktop ? 90 : 60,
-            scale: isDesktop ? 0.20 : 0.35,
-            z: isDesktop ? -900 : -450,
-            y: isDesktop ? 650 : 380,
-            opacity: 1.0,
-            ease: 'none',
+            rotateX: isDesktop ? 95 : 65,
+            rotateZ: isDesktop ? 15 : 5,
+            scale: isDesktop ? 0.18 : 0.32,
+            z: isDesktop ? -950 : -500,
+            y: isDesktop ? 780 : 450, // Plunges fully behind Section 2's top edge boundary
+            opacity: 1.0, // Retain full 1.0 opacity throughout descent
+            ease: 'power2.in',
           },
-          0.5
+          0.6
         );
       }
     );
@@ -117,16 +131,16 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
   return (
     <div
       ref={containerRef}
-      className="relative min-h-[85vh] md:min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0 z-10"
+      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0 z-10"
     >
-      <div ref={pinContainerRef} className="w-full h-full flex items-center justify-center">
-        {/* Volumetric Deep Rose & Solar Gold Volumetric Spotlight Glow */}
-        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.25)_0%,rgba(245,158,11,0.08)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
+      <div ref={pinContainerRef} className="w-full h-full min-h-screen flex items-center justify-center relative">
+        {/* Volumetric Deep Rose & Solar Gold Spotlight Glow */}
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[650px] h-[650px] rounded-full bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.25)_0%,rgba(245,158,11,0.08)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
 
         {/* Hero Content Grid */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
-          {/* Left Column Fixed Copy */}
-          <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
+          {/* Left Column Fixed Copy - Completely stationary & independent of logo movement */}
+          <div ref={leftContentRef} className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-rose-500/30 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse" />
               <span className="tracking-widest text-rose-300 uppercase">
@@ -143,7 +157,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Pure 3D logo executing an aggressive camera-forward zoom, 360-degree target-lock flip, and hyper-speed vertical plunge behind Section 2.
+              Title stays completely stationary while the 3D logo executes a camera zoom and target-lock flip, diving deep behind Section 2.
             </p>
 
             <div className="pt-2">

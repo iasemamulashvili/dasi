@@ -16,17 +16,19 @@ interface Concept2GlassMonolithProps {
 export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMonolithProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pinContainerRef = useRef<HTMLDivElement>(null);
+  const leftContentRef = useRef<HTMLDivElement>(null);
   const logoWrapperRef = useRef<HTMLDivElement>(null);
   const logoMeshRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !logoWrapperRef.current) return;
+    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !logoWrapperRef.current || !leftContentRef.current) return;
 
     const heroSection = containerRef.current;
     const pinContainer = pinContainerRef.current;
+    const leftContent = leftContentRef.current;
     const logoMesh = logoMeshRef.current;
 
-    // Interactive 3D Cursor Parallax Tilt
+    // Interactive 3D Cursor Parallax Tilt (strictly on the 3D logo mesh)
     const handleMouseMove = (e: MouseEvent) => {
       const rect = heroSection.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
@@ -68,42 +70,53 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             trigger: heroSection,
             pin: pinContainer,
             start: 'top top',
-            end: isDesktop ? '+=160%' : '+=100%',
-            scrub: 1.0,
+            end: isDesktop ? '+=180%' : '+=120%',
+            scrub: 0.6,
             anticipatePin: 1,
           },
         });
 
-        // Phase 1: Rapid dual-axis continuous corkscrew twist with scale surge
+        // Ensure left content (Title & Headlines) stays 100% stationary and pinned
         tl.to(
-          logoMesh,
+          leftContent,
           {
-            rotateY: isDesktop ? 270 : 135,
-            rotateX: isDesktop ? 45 : 30,
-            rotateZ: isDesktop ? 20 : 10,
-            scale: isDesktop ? 1.28 : 1.10,
-            z: isDesktop ? 100 : 40,
-            y: isDesktop ? 100 : 60,
+            y: 0,
             opacity: 1.0,
             ease: 'none',
           },
           0
         );
 
-        // Phase 2: Quantum Gimbal Twist plunging deep into negative Z camera depth behind Section 2
+        // Phase 1 (0% - 60% scroll): Rapid dual-axis continuous corkscrew twist with scale surge
         tl.to(
           logoMesh,
           {
-            rotateY: isDesktop ? 450 : 270,
-            rotateX: isDesktop ? 75 : 55,
-            rotateZ: isDesktop ? 30 : 15,
-            scale: isDesktop ? 0.25 : 0.40,
-            z: isDesktop ? -850 : -400,
-            y: isDesktop ? 650 : 380,
+            rotateY: isDesktop ? 270 : 135,
+            rotateX: isDesktop ? 45 : 30,
+            rotateZ: isDesktop ? 25 : 12,
+            scale: isDesktop ? 1.30 : 1.12,
+            z: isDesktop ? 120 : 45,
+            y: isDesktop ? 120 : 70,
             opacity: 1.0,
-            ease: 'none',
+            ease: 'power1.inOut',
           },
-          0.5
+          0
+        );
+
+        // Phase 2 (60% - 100% scroll): Quantum Gimbal Twist plunging deep into negative Z depth behind Section 2
+        tl.to(
+          logoMesh,
+          {
+            rotateY: isDesktop ? 480 : 290,
+            rotateX: isDesktop ? 80 : 60,
+            rotateZ: isDesktop ? 35 : 18,
+            scale: isDesktop ? 0.22 : 0.38,
+            z: isDesktop ? -900 : -450,
+            y: isDesktop ? 780 : 450, // Plunges fully behind Section 2's top edge boundary
+            opacity: 1.0, // Retain full 1.0 opacity throughout descent
+            ease: 'power2.in',
+          },
+          0.6
         );
       }
     );
@@ -119,16 +132,16 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
   return (
     <div
       ref={containerRef}
-      className="relative min-h-[85vh] md:min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0 z-10"
+      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0 z-10"
     >
-      <div ref={pinContainerRef} className="w-full h-full flex items-center justify-center">
+      <div ref={pinContainerRef} className="w-full h-full min-h-screen flex items-center justify-center relative">
         {/* Volumetric Cyan Cyber Spotlight Glow */}
-        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.25)_0%,rgba(14,165,233,0.08)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[650px] h-[650px] rounded-full bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.25)_0%,rgba(14,165,233,0.08)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
 
         {/* Hero Content Grid */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
-          {/* Left Column Fixed Copy */}
-          <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
+          {/* Left Column Fixed Copy - Completely stationary & independent of logo movement */}
+          <div ref={leftContentRef} className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-cyan-500/30 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
               <span className="tracking-widest text-cyan-300 uppercase">
@@ -145,7 +158,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Pure 3D logo executing a rapid dual-axis corkscrew twist with metallic cyan rim lighting, plunging deep into Z-camera space behind Section 2.
+              Title stays completely stationary while the 3D logo executes a dual-axis corkscrew twist, diving deep behind Section 2.
             </p>
 
             <div className="pt-2">
