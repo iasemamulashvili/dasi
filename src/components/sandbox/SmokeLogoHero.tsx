@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { Sliders, RefreshCw, Activity, Sparkles, Eye } from 'lucide-react';
+import { Sliders, RefreshCw, Activity, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Color Palette Presets
@@ -18,10 +18,10 @@ export default function SmokeLogoHero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Simulation Parameters (Tweakable via HUD)
-  const [smokeRadius, setSmokeRadius] = useState<number>(1.2);
-  const [turbulence, setTurbulence] = useState<number>(2.0);
-  const [dissipationSpeed, setDissipationSpeed] = useState<number>(1.5);
-  const [particleSize, setParticleSize] = useState<number>(2.2);
+  const [smokeRadius, setSmokeRadius] = useState<number>(1.8);
+  const [turbulence, setTurbulence] = useState<number>(3.5);
+  const [dissipationSpeed, setDissipationSpeed] = useState<number>(1.8);
+  const [particleSize, setParticleSize] = useState<number>(2.5);
   const [activePaletteIdx, setActivePaletteIdx] = useState<number>(0);
   const [particleCount, setParticleCount] = useState<number>(0);
   const [fps, setFps] = useState<number>(60);
@@ -44,10 +44,10 @@ export default function SmokeLogoHero() {
     uTime: { value: 0 },
     uMouse: { value: new THREE.Vector2(-999, -999) },
     uVelocity: { value: new THREE.Vector2(0, 0) },
-    uSmokeRadius: { value: 1.2 },
-    uDissipationSpeed: { value: 1.5 },
-    uTurbulence: { value: 2.0 },
-    uParticleSize: { value: 2.2 },
+    uSmokeRadius: { value: 1.8 },
+    uDissipationSpeed: { value: 1.8 },
+    uTurbulence: { value: 3.5 },
+    uParticleSize: { value: 2.5 },
     uViewportHeight: { value: 1080 },
     uColorTint: { value: new THREE.Color('#a855f7') },
     uHighlightColor: { value: new THREE.Color('#c084fc') },
@@ -85,7 +85,7 @@ export default function SmokeLogoHero() {
     const lastMousePos = new THREE.Vector2(-999, -999);
     const mouseVelocity = new THREE.Vector2(0, 0);
 
-    // GLSL Vertex Shader: 3D Simplex Curl Noise Fluid Displacement
+    // GLSL Vertex Shader: GPU 3D Simplex Curl Noise Smoke Fluid Dynamics
     const vertexShader = `
       uniform float uTime;
       uniform vec2 uMouse;
@@ -184,32 +184,32 @@ export default function SmokeLogoHero() {
         vec2 delta = aTarget.xy - uMouse;
         float dist = length(delta);
 
-        // Smooth influence factor decaying from mouse contact (0 to 1)
+        // Smooth influence decaying from contact zone (0 to 1)
         float influence = smoothstep(uSmokeRadius, 0.0, dist);
         vInfluence = influence;
 
-        // Velocity boost when dragging/swiping cursor
-        float velStrength = clamp(length(uVelocity) * 2.8, 0.3, 3.5);
+        // Velocity boost when moving/swiping cursor or scrolling
+        float velStrength = clamp(length(uVelocity) * 3.5, 0.4, 4.0);
 
         // 3D Curl Noise vector offset
-        vec3 noisePos = aTarget * 0.9 + vec3(uTime * 0.4 * uDissipationSpeed, aRandom.x * 2.5, aRandom.y * 2.5);
+        vec3 noisePos = aTarget * 0.8 + vec3(uTime * 0.5 * uDissipationSpeed, aRandom.x * 3.0, aRandom.y * 3.0);
         vec3 curl = curlNoise(noisePos);
 
-        // Displace particle along fluid smoke turbulence
-        vec3 offset = (curl * uTurbulence * velStrength + vec3(aRandom.x * 0.5, 0.8 + aRandom.z * 0.5, aRandom.y * 0.5)) * influence;
+        // Displace particle along fluid smoke vectors
+        vec3 offset = (curl * uTurbulence * velStrength + vec3(aRandom.x * 0.6, 0.9 + aRandom.z * 0.6, aRandom.y * 0.6)) * influence;
 
         vec3 currentPos = mix(aTarget, aTarget + offset, influence);
 
         vec4 mvPosition = modelViewMatrix * vec4(currentPos, 1.0);
         gl_Position = projectionMatrix * mvPosition;
 
-        // Calibrated point size: solid state is sharp & small, smoke expands volume
-        float sizeBoost = 1.0 + influence * 1.8;
+        // Calibrated point size scaling
+        float sizeBoost = 1.0 + influence * 2.2;
         gl_PointSize = uParticleSize * sizeBoost * (uViewportHeight / 1080.0) * (5.5 / -mvPosition.z);
       }
     `;
 
-    // GLSL Fragment Shader: Solid White Logo -> Ambient Tinted Smoke
+    // GLSL Fragment Shader: Crisp Solid White Logo -> Ethereal Tinted Smoke
     const fragmentShader = `
       uniform vec3 uColorTint;
       uniform vec3 uHighlightColor;
@@ -237,14 +237,15 @@ export default function SmokeLogoHero() {
       }
     `;
 
-    // Initialize WebGL Scene
+    // Initialize WebGL Renderer & Camera
     const initWebGL = () => {
-      const width = container.clientWidth;
-      const height = container.clientHeight;
+      const width = container.clientWidth || window.innerWidth;
+      const height = container.clientHeight || window.innerHeight;
 
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-      camera.position.z = 7;
+      camera.position.set(0, 0, 7);
+      camera.lookAt(0, 0, 0);
 
       renderer = new THREE.WebGLRenderer({
         canvas,
@@ -252,38 +253,40 @@ export default function SmokeLogoHero() {
         antialias: true,
         powerPreference: 'high-performance',
       });
-      renderer.setSize(width, height);
+
+      // Pass updateStyle = false to prevent Three.js from setting inline style.width/height on canvas
+      renderer.setSize(width, height, false);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
       uniformsRef.current.uViewportHeight.value = height;
 
-      // Sample & Crop Logo Image Pixels
+      // Sample Logo Image Pixels
       const img = new Image();
       img.crossOrigin = 'anonymous';
-      img.onerror = () => {
-        if (!img.src.includes('dasigames_logo.png')) {
-          img.src = '/Images/dasigames_logo.png';
-        }
-      };
-      img.src = '/Logo_White_PNG.png';
 
-      img.onload = () => {
-        // Step 1: Temporary canvas to find non-transparent pixel bounding box
+      const buildParticlesFromImage = (loadedImg: HTMLImageElement) => {
+        // Step 1: Detect non-transparent pixel bounding box
         const tempCanvas = document.createElement('canvas');
         const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
         if (!tempCtx) return;
 
-        tempCanvas.width = img.width;
-        tempCanvas.height = img.height;
-        tempCtx.drawImage(img, 0, 0);
+        tempCanvas.width = loadedImg.width;
+        tempCanvas.height = loadedImg.height;
+        tempCtx.drawImage(loadedImg, 0, 0);
 
-        const rawData = tempCtx.getImageData(0, 0, img.width, img.height).data;
-        let minX = img.width, minY = img.height, maxX = 0, maxY = 0;
+        let rawData: Uint8ClampedArray;
+        try {
+          rawData = tempCtx.getImageData(0, 0, loadedImg.width, loadedImg.height).data;
+        } catch {
+          generateFallbackGrid();
+          return;
+        }
 
-        for (let y = 0; y < img.height; y += 4) {
-          for (let x = 0; x < img.width; x += 4) {
-            const a = rawData[(y * img.width + x) * 4 + 3];
-            if (a > 30) {
+        let minX = loadedImg.width, minY = loadedImg.height, maxX = 0, maxY = 0;
+        for (let y = 0; y < loadedImg.height; y += 4) {
+          for (let x = 0; x < loadedImg.width; x += 4) {
+            const a = rawData[(y * loadedImg.width + x) * 4 + 3];
+            if (a > 20) {
               if (x < minX) minX = x;
               if (x > maxX) maxX = x;
               if (y < minY) minY = y;
@@ -292,15 +295,14 @@ export default function SmokeLogoHero() {
           }
         }
 
-        // Bounding box fallback
         if (maxX <= minX || maxY <= minY) {
-          minX = 0; minY = 0; maxX = img.width; maxY = img.height;
+          minX = 0; minY = 0; maxX = loadedImg.width; maxY = loadedImg.height;
         }
 
         const cropW = maxX - minX;
         const cropH = maxY - minY;
 
-        // Step 2: Sample cropped region into 2D grid
+        // Step 2: Sample cropped region into 2D particle grid
         const sampleW = 180;
         const sampleH = Math.round((sampleW * cropH) / cropW);
 
@@ -310,7 +312,7 @@ export default function SmokeLogoHero() {
 
         sampleCanvas.width = sampleW;
         sampleCanvas.height = sampleH;
-        sampleCtx.drawImage(img, minX, minY, cropW, cropH, 0, 0, sampleW, sampleH);
+        sampleCtx.drawImage(loadedImg, minX, minY, cropW, cropH, 0, 0, sampleW, sampleH);
 
         const sampledData = sampleCtx.getImageData(0, 0, sampleW, sampleH).data;
 
@@ -327,7 +329,7 @@ export default function SmokeLogoHero() {
             const idx = (y * sampleW + x) * 4;
             const alpha = sampledData[idx + 3];
 
-            if (alpha > 30) {
+            if (alpha > 20) {
               const wx = ((x / sampleW) - 0.5) * logoWidth;
               const wy = (0.5 - (y / sampleH)) * logoHeight;
               const wz = (Math.random() - 0.5) * 0.02;
@@ -344,12 +346,50 @@ export default function SmokeLogoHero() {
           }
         }
 
-        setParticleCount(positions.length / 3);
+        createParticleGeometry(positions, targets, randoms);
+      };
+
+      const generateFallbackGrid = () => {
+        // Fallback procedural centered shield logo grid if image loading fails
+        const positions: number[] = [];
+        const targets: number[] = [];
+        const randoms: number[] = [];
+
+        const size = 180;
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const nx = (x / size - 0.5) * 2.0;
+            const ny = (0.5 - y / size) * 2.0;
+
+            // Shield/Dasi Logo outline equation
+            const inShield = Math.abs(nx) < (1.0 - Math.pow(Math.abs(ny * 0.5), 1.5));
+            if (inShield) {
+              const wx = nx * 2.2;
+              const wy = ny * 2.2;
+              positions.push(wx, wy, 0);
+              targets.push(wx, wy, 0);
+              randoms.push(
+                (Math.random() - 0.5) * 2.0,
+                (Math.random() - 0.5) * 2.0,
+                (Math.random() - 0.5) * 2.0,
+                Math.random()
+              );
+            }
+          }
+        }
+        createParticleGeometry(positions, targets, randoms);
+      };
+
+      const createParticleGeometry = (pos: number[], tgt: number[], rnd: number[]) => {
+        setParticleCount(pos.length / 3);
 
         geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        geometry.setAttribute('aTarget', new THREE.Float32BufferAttribute(targets, 3));
-        geometry.setAttribute('aRandom', new THREE.Float32BufferAttribute(randoms, 4));
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+        geometry.setAttribute('aTarget', new THREE.Float32BufferAttribute(tgt, 3));
+        geometry.setAttribute('aRandom', new THREE.Float32BufferAttribute(rnd, 4));
+
+        // Center geometry at origin (0, 0, 0)
+        geometry.center();
 
         material = new THREE.ShaderMaterial({
           vertexShader,
@@ -358,22 +398,36 @@ export default function SmokeLogoHero() {
           transparent: true,
           depthWrite: false,
           depthTest: false,
-          blending: THREE.NormalBlending, // Sharp solid white logo in default state
+          blending: THREE.NormalBlending,
         });
 
         particleMesh = new THREE.Points(geometry, material);
         scene.add(particleMesh);
         setIsLoaded(true);
       };
+
+      img.onload = () => buildParticlesFromImage(img);
+      img.onerror = () => {
+        const fallbackImg = new Image();
+        fallbackImg.crossOrigin = 'anonymous';
+        fallbackImg.onload = () => buildParticlesFromImage(fallbackImg);
+        fallbackImg.onerror = () => generateFallbackGrid();
+        fallbackImg.src = '/Logo_White_PNG.png';
+      };
+      img.src = '/assets/logo.png';
     };
 
     initWebGL();
 
-    // Mouse & Touch Tracking with Raycast Unprojection
+    // Window Pointer & Scroll Event Listeners for Seamless Screen-Wide Interaction
     const updatePointer = (clientX: number, clientY: number) => {
+      if (!container || !camera) return;
       const rect = container.getBoundingClientRect();
-      const x = ((clientX - rect.left) / rect.width) * 2 - 1;
-      const y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      const width = rect.width || window.innerWidth;
+      const height = rect.height || window.innerHeight;
+
+      const x = ((clientX - rect.left) / width) * 2 - 1;
+      const y = -((clientY - rect.top) / height) * 2 + 1;
 
       // Project NDC raycast to camera z=0 plane
       const vector = new THREE.Vector3(x, y, 0.5);
@@ -390,7 +444,7 @@ export default function SmokeLogoHero() {
       lastMousePos.copy(worldPos);
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       updatePointer(e.clientX, e.clientY);
     };
 
@@ -400,34 +454,43 @@ export default function SmokeLogoHero() {
       }
     };
 
+    // Wheel Scroll Interaction: Mouse wheel scroll injects turbulent smoke waves across logo
+    const handleWheel = (e: WheelEvent) => {
+      const scrollImpulse = Math.abs(e.deltaY) * 0.008;
+      mouseVelocity.x += (Math.random() - 0.5) * scrollImpulse;
+      mouseVelocity.y += scrollImpulse * 0.5;
+    };
+
     const handlePointerLeave = () => {
       mousePos.set(-999, -999);
       mouseVelocity.set(0, 0);
       lastMousePos.set(-999, -999);
     };
 
-    container.addEventListener('mousemove', handleMouseMove);
-    container.addEventListener('touchmove', handleTouchMove, { passive: true });
-    container.addEventListener('mouseleave', handlePointerLeave);
-    container.addEventListener('touchend', handlePointerLeave);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('pointerleave', handlePointerLeave);
 
-    // Resize Observer for perfect responsiveness
-    const resizeObserver = new ResizeObserver(() => {
+    // Resize Observer to update camera and WebGL renderer on viewport changes
+    const handleResize = () => {
       if (!container || !renderer || !camera) return;
-      const width = container.clientWidth;
-      const height = container.clientHeight;
+      const width = container.clientWidth || window.innerWidth;
+      const height = container.clientHeight || window.innerHeight;
       if (width === 0 || height === 0) return;
 
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
 
-      renderer.setSize(width, height);
+      // Pass updateStyle = false to keep canvas at width: 100%, height: 100%
+      renderer.setSize(width, height, false);
       uniformsRef.current.uViewportHeight.value = height;
-    });
+    };
 
+    const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(container);
 
-    // Render Loop with FPS Monitor
+    // Render Loop with FPS Diagnostics
     let lastTime = performance.now();
     let frameCounter = 0;
     let fpsTimer = performance.now();
@@ -446,7 +509,7 @@ export default function SmokeLogoHero() {
         fpsTimer = now;
       }
 
-      // Decay mouse velocity inertia
+      // Decay velocity inertia smoothly
       mouseVelocity.multiplyScalar(0.92);
 
       uniformsRef.current.uTime.value += delta;
@@ -463,10 +526,10 @@ export default function SmokeLogoHero() {
     // Cleanup routines on unmount
     return () => {
       cancelAnimationFrame(animationFrameId);
-      container.removeEventListener('mousemove', handleMouseMove);
-      container.removeEventListener('touchmove', handleTouchMove);
-      container.removeEventListener('mouseleave', handlePointerLeave);
-      container.removeEventListener('touchend', handlePointerLeave);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('pointerleave', handlePointerLeave);
       resizeObserver.disconnect();
 
       if (geometry) geometry.dispose();
@@ -476,27 +539,31 @@ export default function SmokeLogoHero() {
   }, []);
 
   const handleResetHUD = () => {
-    setSmokeRadius(1.2);
-    setTurbulence(2.0);
-    setDissipationSpeed(1.5);
-    setParticleSize(2.2);
+    setSmokeRadius(1.8);
+    setTurbulence(3.5);
+    setDissipationSpeed(1.8);
+    setParticleSize(2.5);
     setActivePaletteIdx(0);
   };
 
   return (
-    <div ref={containerRef} className="relative w-full h-[85vh] md:h-screen bg-carbon-black overflow-hidden select-none">
-      {/* Background Ambient Radial Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.1)_0%,rgba(6,182,212,0.04)_50%,transparent_75%)] filter blur-3xl pointer-events-none z-0" />
+    <div ref={containerRef} className="relative w-full min-h-screen h-screen bg-carbon-black overflow-hidden select-none">
+      {/* Background Ambient Radial Volumetric Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.15)_0%,rgba(6,182,212,0.05)_50%,transparent_75%)] filter blur-3xl pointer-events-none z-0" />
 
-      {/* WebGL Canvas */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-10 cursor-crosshair" />
+      {/* Full-Screen WebGL Canvas */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full z-10 cursor-crosshair block"
+        style={{ width: '100%', height: '100%' }}
+      />
 
-      {/* Loading State Indicator */}
+      {/* Loading State Overlay */}
       {!isLoaded && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-30 bg-carbon-black/95 backdrop-blur-md font-mono text-xs text-bright-snow">
           <div className="w-8 h-8 rounded-full border-2 border-slate-violet-light border-t-transparent animate-spin" />
           <span className="tracking-widest uppercase text-slate-violet-light">
-            GENERATING SOLID LOGO PARTICLE MATRIX...
+            BUILDING SOLID LOGO PARTICLE MATRIX...
           </span>
         </div>
       )}
@@ -537,8 +604,8 @@ export default function SmokeLogoHero() {
                   </div>
                   <input
                     type="range"
-                    min="0.4"
-                    max="3.0"
+                    min="0.5"
+                    max="4.0"
                     step="0.1"
                     value={smokeRadius}
                     onChange={(e) => setSmokeRadius(parseFloat(e.target.value))}
@@ -555,7 +622,7 @@ export default function SmokeLogoHero() {
                   <input
                     type="range"
                     min="0.5"
-                    max="5.0"
+                    max="6.0"
                     step="0.1"
                     value={turbulence}
                     onChange={(e) => setTurbulence(parseFloat(e.target.value))}
@@ -572,7 +639,7 @@ export default function SmokeLogoHero() {
                   <input
                     type="range"
                     min="0.5"
-                    max="3.0"
+                    max="4.0"
                     step="0.1"
                     value={dissipationSpeed}
                     onChange={(e) => setDissipationSpeed(parseFloat(e.target.value))}
@@ -589,7 +656,7 @@ export default function SmokeLogoHero() {
                   <input
                     type="range"
                     min="1.0"
-                    max="4.5"
+                    max="5.0"
                     step="0.1"
                     value={particleSize}
                     onChange={(e) => setParticleSize(parseFloat(e.target.value))}
@@ -651,12 +718,12 @@ export default function SmokeLogoHero() {
         </AnimatePresence>
       </div>
 
-      {/* Floating Guidance Banner */}
+      {/* Guidance Banner */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 pointer-events-none flex flex-col items-center gap-2 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-carbon-black-2/85 border border-slate-violet/30 backdrop-blur-md text-[10px] font-mono text-bright-snow shadow-xl">
           <Sparkles size={12} className="text-slate-violet-light animate-pulse" />
           <span className="uppercase tracking-widest text-alabaster-grey">
-            HOVER & SWIPE CURSOR OVER THE LOGO TO TRANSFORM INTO FLUID SMOKE
+            HOVER, SWIPE CURSOR, OR SCROLL TO DISPERSE LOGO INTO FLUID SMOKE
           </span>
         </div>
       </div>
