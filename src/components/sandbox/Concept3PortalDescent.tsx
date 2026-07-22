@@ -23,6 +23,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
     if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !portalRingsRef.current) return;
 
     const heroSection = containerRef.current;
+    const pinContainer = pinContainerRef.current;
     const logoMesh = logoMeshRef.current;
     const portalRings = portalRingsRef.current;
 
@@ -66,13 +67,15 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
+            pin: pinContainer,
             start: 'top top',
-            end: 'bottom bottom',
+            end: '+=130%',
             scrub: 0.5,
+            anticipatePin: 1,
           },
         });
 
-        // Phase 1 (0% - 50% scroll): Logo expands forward into camera near-plane, portal energy awakens
+        // Phase 1 (0% - 45% scroll): Logo expands forward into camera near-plane, portal energy awakens
         tl.to(
           logoMesh,
           {
@@ -80,7 +83,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             rotateX: isDesktop ? 45 : 25,
             z: isDesktop ? 200 : 80,
             scale: isDesktop ? 1.38 : 1.15,
-            y: isDesktop ? 120 : 60,
+            y: isDesktop ? 100 : 50,
             opacity: 1.0,
             ease: 'power1.inOut',
           },
@@ -97,7 +100,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
           0
         );
 
-        // Phase 2 (50% - 100% scroll): Logo is violently SUCKED into the bottom section portal singularity
+        // Phase 2 (45% - 100% scroll): Logo is violently SUCKED down into the Section 2 portal singularity
         tl.to(
           logoMesh,
           {
@@ -105,22 +108,22 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             rotateX: isDesktop ? 85 : 60,
             rotateZ: isDesktop ? 360 : 180,
             scale: isDesktop ? 0.05 : 0.15, // Gravitational compression as it gets sucked in
-            z: isDesktop ? -950 : -500,
-            y: isDesktop ? 780 : 450, // Sucked deep into Section 2 seam at bottom border
-            opacity: 1.0, // Retain full 1.0 opacity until hidden inside seam
+            z: isDesktop ? -800 : -400,
+            y: isDesktop ? 580 : 380, // Sucked deep into Section 2 z-30 top border
+            opacity: 1.0, // Retain full 1.0 opacity until hidden inside Section 2 seam
             ease: 'power3.in',
           },
-          0.5
+          0.45
         );
 
         tl.to(
           portalRings,
           {
-            scale: isDesktop ? 0.2 : 0.3,
+            scale: isDesktop ? 0.1 : 0.2,
             opacity: 0,
             ease: 'power2.in',
           },
-          0.5
+          0.45
         );
       }
     );
@@ -136,32 +139,31 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[220vh] bg-transparent select-none z-10"
+      className="relative w-full min-h-screen bg-transparent select-none z-10"
     >
-      {/* Sticky Pin Container: Keeps Title & Left Content 100% STATIONARY while logo moves */}
       <div
         ref={pinContainerRef}
-        className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden"
+        className="w-full min-h-screen flex items-center justify-center relative overflow-hidden"
       >
-        {/* Volumetric Slate-Violet Portal Singularity Glow */}
-        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[650px] h-[650px] rounded-full bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.30)_0%,rgba(6,182,212,0.10)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
+        {/* Volumetric Muted Green & Platinum Silver Spotlight Glow */}
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[650px] h-[650px] rounded-full bg-[radial-gradient(circle_at_center,rgba(82,122,105,0.30)_0%,rgba(226,232,240,0.08)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
 
-        {/* Concentric Energy Portal Singularity Rings at Bottom Border */}
+        {/* Concentric Energy Portal Singularity Rings at Section 2 Top Border */}
         <div
           ref={portalRingsRef}
-          className="absolute bottom-10 right-1/4 -translate-x-1/2 w-64 h-64 md:w-96 md:h-96 rounded-full border border-slate-violet/40 pointer-events-none z-0 opacity-0 flex items-center justify-center"
+          className="absolute bottom-16 right-1/4 -translate-x-1/2 w-64 h-64 md:w-96 md:h-96 rounded-full border border-muted-green/50 pointer-events-none z-0 opacity-0 flex items-center justify-center"
         >
-          <div className="w-3/4 h-3/4 rounded-full border border-slate-violet-light/50 animate-ping opacity-30" />
-          <div className="w-1/2 h-1/2 rounded-full border border-bright-snow/60 shadow-[0_0_30px_rgba(168,85,247,0.8)]" />
+          <div className="w-3/4 h-3/4 rounded-full border border-muted-green/60 animate-ping opacity-30" />
+          <div className="w-1/2 h-1/2 rounded-full border border-bright-snow/70 shadow-[0_0_35px_rgba(82,122,105,0.9)]" />
         </div>
 
         {/* Hero Content Grid */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
-          {/* Left Column Fixed Copy - Completely stationary in viewport space */}
+          {/* Left Column Fixed Copy */}
           <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-              <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
-              <span className="tracking-widest text-slate-violet-light uppercase">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-muted-green/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+              <span className="w-2 h-2 rounded-full bg-muted-green animate-pulse" />
+              <span className="tracking-widest text-muted-green uppercase">
                 VARIATION 3: QUANTUM PORTAL SINGULARITY
               </span>
             </div>
@@ -175,7 +177,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Title stays completely stationary. The 3D logo expands forward before being violently sucked down into the Section 2 portal singularity.
+              Title stays completely stationary. The 3D logo expands forward then gets violently sucked down into the Section 2 portal singularity.
             </p>
 
             <div className="pt-2">
@@ -186,7 +188,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
           </div>
 
           {/* Right Column: 3D Quantum Portal Singularity Logo */}
-          <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px]">
+          <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px] z-10">
             <div
               ref={logoMeshRef}
               className="relative w-64 h-64 md:w-96 md:h-96 flex items-center justify-center cursor-pointer"
@@ -198,7 +200,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
                 width={400}
                 height={400}
                 priority
-                className="w-full h-full object-contain filter drop-shadow-[0_0_60px_rgba(168,85,247,0.9)] pointer-events-none select-none"
+                className="w-full h-full object-contain filter drop-shadow-[0_0_60px_rgba(82,122,105,0.9)] pointer-events-none select-none"
               />
             </div>
           </div>

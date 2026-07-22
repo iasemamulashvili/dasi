@@ -22,14 +22,17 @@ export default function HeroConceptsSandboxPage() {
       />
 
       {/* Hero Section Container */}
-      <div className="relative w-full min-h-[90vh] md:min-h-screen flex items-center justify-center">
+      <div className="relative w-full min-h-screen flex flex-col justify-between">
         {activeConcept === 'concept1' && <Concept1PureFrameless section2Ref={section2Ref} />}
         {activeConcept === 'concept2' && <Concept2GlassMonolith section2Ref={section2Ref} />}
         {activeConcept === 'concept3' && <Concept3PortalDescent section2Ref={section2Ref} />}
       </div>
 
-      {/* Section 2 Production Featured Showcase Transferred to Sandbox */}
-      <div ref={section2Ref} className="relative z-30 w-full border-t border-white/10 shadow-[0_-20px_50px_rgba(0,0,0,0.9)]">
+      {/* Section 2 Production Featured Showcase (z-30 so 3D logo dives physically behind it) */}
+      <div
+        ref={section2Ref}
+        className="relative z-30 w-full border-t border-white/10 bg-carbon-black shadow-[0_-25px_60px_rgba(0,0,0,0.95)] -mt-24 md:-mt-36"
+      >
         <WebGLFeaturedSlider />
       </div>
     </main>

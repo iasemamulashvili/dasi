@@ -22,6 +22,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
     if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current) return;
 
     const heroSection = containerRef.current;
+    const pinContainer = pinContainerRef.current;
     const logoMesh = logoMeshRef.current;
 
     // Interactive 3D Cursor Parallax Tilt
@@ -64,13 +65,15 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
+            pin: pinContainer,
             start: 'top top',
-            end: 'bottom bottom',
+            end: '+=130%',
             scrub: 0.5,
+            anticipatePin: 1,
           },
         });
 
-        // Phase 1 (0% - 55% scroll): Wide sweeping orbital corkscrew arc
+        // Phase 1 (0% - 50% scroll): Wide sweeping orbital corkscrew arc
         tl.to(
           logoMesh,
           {
@@ -80,14 +83,14 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             rotateZ: isDesktop ? -35 : -15,
             scale: isDesktop ? 1.25 : 1.10,
             z: isDesktop ? 120 : 45,
-            y: isDesktop ? 100 : 50,
+            y: isDesktop ? 90 : 45,
             opacity: 1.0,
             ease: 'power1.inOut',
           },
           0
         );
 
-        // Phase 2 (55% - 100% scroll): Curves gracefully down towards bottom center diving behind Section 2
+        // Phase 2 (50% - 100% scroll): Curves down towards bottom center, diving physically BEHIND Section 2's z-30 top border
         tl.to(
           logoMesh,
           {
@@ -95,13 +98,13 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             rotateY: isDesktop ? 540 : 360,
             rotateX: isDesktop ? 80 : 60,
             rotateZ: isDesktop ? 45 : 20,
-            scale: isDesktop ? 0.25 : 0.40,
-            z: isDesktop ? -750 : -400,
-            y: isDesktop ? 780 : 450, // Plunges fully behind Section 2's top edge boundary
-            opacity: 1.0, // Retain full 1.0 opacity throughout descent
+            scale: isDesktop ? 0.28 : 0.40,
+            z: isDesktop ? -600 : -350,
+            y: isDesktop ? 580 : 380, // Plunges physically behind Section 2's z-30 top border
+            opacity: 1.0, // Retain full 1.0 opacity so it hides cleanly behind Section 2
             ease: 'power2.in',
           },
-          0.55
+          0.5
         );
       }
     );
@@ -117,19 +120,18 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[220vh] bg-transparent select-none z-10"
+      className="relative w-full min-h-screen bg-transparent select-none z-10"
     >
-      {/* Sticky Pin Container: Keeps Title & Left Content 100% STATIONARY while logo moves */}
       <div
         ref={pinContainerRef}
-        className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden"
+        className="w-full min-h-screen flex items-center justify-center relative overflow-hidden"
       >
         {/* Volumetric Muted Green & Platinum Silver Spotlight Glow */}
         <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[650px] h-[650px] rounded-full bg-[radial-gradient(circle_at_center,rgba(82,122,105,0.25)_0%,rgba(226,232,240,0.06)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
 
         {/* Hero Content Grid */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
-          {/* Left Column Fixed Copy - Completely stationary in viewport space */}
+          {/* Left Column Fixed Copy */}
           <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-muted-green/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-muted-green animate-pulse" />
@@ -147,7 +149,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Title stays completely stationary. The 3D logo sweeps in a wide orbital corkscrew arc before diving behind Section 2.
+              Title stays completely stationary. The 3D logo sweeps in an orbital corkscrew arc before diving physically behind Section 2's top border.
             </p>
 
             <div className="pt-2">
@@ -158,7 +160,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
           </div>
 
           {/* Right Column: 3D Orbital Corkscrew Logo */}
-          <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px]">
+          <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px] z-10">
             <div
               ref={logoMeshRef}
               className="relative w-64 h-64 md:w-96 md:h-96 flex items-center justify-center cursor-pointer"
