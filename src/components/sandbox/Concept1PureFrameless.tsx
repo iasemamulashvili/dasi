@@ -25,15 +25,15 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
     const pinContainer = pinContainerRef.current;
     const logoMesh = logoMeshRef.current;
 
-    // Interactive 3D Cursor Parallax Tilt
+    // Interactive 3D Cursor Parallax Tilt (strictly on the 3D logo mesh)
     const handleMouseMove = (e: MouseEvent) => {
       const rect = heroSection.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
 
       gsap.to(logoMesh, {
-        rotateY: x * 35,
-        rotateX: -y * 35,
+        rotateY: x * 30,
+        rotateX: -y * 30,
         duration: 0.6,
         ease: 'power2.out',
       });
@@ -62,48 +62,31 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
       (context) => {
         const { isDesktop } = context.conditions as { isDesktop: boolean };
 
-        // Pin container pins hero section stationary while scroll exclusively drives logo 3D plunge
+        // Shorter scroll distance (+=60%) with immediate responsive 3D plunge
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
             pin: pinContainer,
             start: 'top top',
-            end: '+=130%',
-            scrub: 0.5,
+            end: isDesktop ? '+=65%' : '+=50%',
+            scrub: 0.3, // Ultra-responsive immediate scroll reaction
             anticipatePin: 1,
           },
         });
 
-        // Phase 1 (0% - 50% scroll): Mechanical gimbal surge forward
+        // Direct Gimbal Dip: Begins IMMEDIATELY at scroll 0
         tl.to(
           logoMesh,
           {
-            rotateY: isDesktop ? 180 : 90,
+            rotateY: isDesktop ? 90 : 45,
             rotateX: isDesktop ? 45 : 25,
-            rotateZ: isDesktop ? 15 : 5,
-            z: isDesktop ? 160 : 60,
-            scale: isDesktop ? 1.18 : 1.05,
-            y: isDesktop ? 120 : 60,
-            opacity: 1.0,
+            scale: isDesktop ? 0.38 : 0.48,
+            z: isDesktop ? -450 : -200,
+            y: isDesktop ? 560 : 360, // Dives directly behind Section 2's z-30 top border
+            opacity: 1.0, // Retain full 1.0 opacity
             ease: 'power1.inOut',
           },
           0
-        );
-
-        // Phase 2 (50% - 100% scroll): Logo plunges down y: 580px, diving physically BEHIND Section 2's z-30 top border
-        tl.to(
-          logoMesh,
-          {
-            rotateY: isDesktop ? 310 : 200,
-            rotateX: isDesktop ? 75 : 55,
-            rotateZ: isDesktop ? -20 : -10,
-            scale: isDesktop ? 0.35 : 0.45,
-            z: isDesktop ? -500 : -250,
-            y: isDesktop ? 580 : 380, // Plunges physically behind Section 2's z-30 top border
-            opacity: 1.0, // Retain full 1.0 opacity so it hides cleanly behind Section 2
-            ease: 'power2.in',
-          },
-          0.5
         );
       }
     );
@@ -135,7 +118,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-muted-green/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-muted-green animate-pulse" />
               <span className="tracking-widest text-muted-green uppercase">
-                VARIATION 1: CYBER-GIMBAL SURGE
+                VARIATION 1: DIRECT GIMBAL DIP
               </span>
             </div>
 
@@ -148,7 +131,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Title stays completely stationary. The 3D logo executes a gimbal surge before diving physically behind Section 2's top border.
+              Title stays completely stationary. The 3D logo responds immediately on scroll, executing a clean gimbal dip behind Section 2.
             </p>
 
             <div className="pt-2">
@@ -158,7 +141,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             </div>
           </div>
 
-          {/* Right Column: 3D Gimbal Surge Logo */}
+          {/* Right Column: 3D Gimbal Dip Logo */}
           <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px] z-10">
             <div
               ref={logoMeshRef}

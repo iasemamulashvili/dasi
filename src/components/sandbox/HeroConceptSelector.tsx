@@ -39,27 +39,27 @@ export default function HeroConceptSelector({
   const concepts = [
     {
       id: 'concept1' as ConceptId,
-      name: 'Variation 1: Cyber-Gimbal Surge',
-      shortName: '1. Gimbal Surge',
+      name: 'Variation 1: Direct Gimbal Dip',
+      shortName: '1. Direct Gimbal Dip',
       icon: Sparkles,
       tag: 'Muted Green & Platinum Silver',
-      desc: 'Title stays 100% stationary. Pure 3D logo executes a multi-axis mechanical gimbal surge before diving physically behind Section 2.',
+      desc: 'Immediate scroll reaction with zero delay. Pure 3D logo executes a clean pitch tilt and plunges directly behind Section 2.',
     },
     {
       id: 'concept2' as ConceptId,
-      name: 'Variation 2: Orbital Corkscrew Descent',
-      shortName: '2. Orbital Corkscrew',
+      name: 'Variation 2: Orbital Arc Sweep',
+      shortName: '2. Orbital Arc Sweep',
       icon: Compass,
       tag: 'Muted Green & Platinum Silver',
-      desc: 'Title stays 100% stationary. Pure 3D logo sweeps out in a wide orbital corkscrew arc before diving physically behind Section 2.',
+      desc: 'Immediate scroll reaction with zero delay. Pure 3D logo executes a gentle orbital right-to-left arc before diving behind Section 2.',
     },
     {
       id: 'concept3' as ConceptId,
-      name: 'Variation 3: Quantum Portal Singularity',
-      shortName: '3. Portal Singularity (Sucked In)',
+      name: 'Variation 3: Vortex Portal Suction',
+      shortName: '3. Vortex Portal (Sucked In)',
       icon: Zap,
       tag: 'Muted Green & Platinum Silver',
-      desc: 'Title stays 100% stationary. Pure 3D logo expands forward then gets violently sucked down into the Section 2 portal singularity.',
+      desc: 'Immediate scroll reaction with zero delay. Concentric rings awaken as pure 3D logo is sucked down into the Section 2 portal seam.',
     },
   ];
 
@@ -101,7 +101,7 @@ export default function HeroConceptSelector({
               <span className="text-emerald-400 font-bold">{fps} FPS</span>
             </div>
             <span className="opacity-30">|</span>
-            <span className="text-muted-green font-bold">DIVES BEHIND SECTION 2</span>
+            <span className="text-muted-green font-bold">IMMEDIATE RESPONSIVE SCROLL</span>
           </div>
         </div>
 

@@ -32,8 +32,8 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
       const y = (e.clientY - rect.top) / rect.height - 0.5;
 
       gsap.to(logoMesh, {
-        rotateY: x * 40,
-        rotateX: -y * 40,
+        rotateY: x * 30,
+        rotateX: -y * 30,
         duration: 0.6,
         ease: 'power2.out',
       });
@@ -62,49 +62,33 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
       (context) => {
         const { isDesktop } = context.conditions as { isDesktop: boolean };
 
+        // Shorter scroll distance (+=60%) with immediate responsive 3D plunge
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
             pin: pinContainer,
             start: 'top top',
-            end: '+=130%',
-            scrub: 0.5,
+            end: isDesktop ? '+=65%' : '+=50%',
+            scrub: 0.3, // Ultra-responsive immediate scroll reaction
             anticipatePin: 1,
           },
         });
 
-        // Phase 1 (0% - 50% scroll): Wide sweeping orbital corkscrew arc
+        // Orbital Arc Sweep: Begins IMMEDIATELY at scroll 0
         tl.to(
           logoMesh,
           {
-            x: isDesktop ? 140 : 40,
-            rotateY: isDesktop ? 360 : 180,
-            rotateX: isDesktop ? 55 : 30,
-            rotateZ: isDesktop ? -35 : -15,
-            scale: isDesktop ? 1.25 : 1.10,
-            z: isDesktop ? 120 : 45,
-            y: isDesktop ? 90 : 45,
-            opacity: 1.0,
+            x: isDesktop ? 60 : 20,
+            rotateY: isDesktop ? 120 : 60,
+            rotateX: isDesktop ? 35 : 20,
+            rotateZ: isDesktop ? -20 : -10,
+            scale: isDesktop ? 0.35 : 0.45,
+            z: isDesktop ? -500 : -220,
+            y: isDesktop ? 560 : 360, // Dives gracefully behind Section 2's z-30 top border
+            opacity: 1.0, // Retain full 1.0 opacity
             ease: 'power1.inOut',
           },
           0
-        );
-
-        // Phase 2 (50% - 100% scroll): Curves down towards bottom center, diving physically BEHIND Section 2's z-30 top border
-        tl.to(
-          logoMesh,
-          {
-            x: 0,
-            rotateY: isDesktop ? 540 : 360,
-            rotateX: isDesktop ? 80 : 60,
-            rotateZ: isDesktop ? 45 : 20,
-            scale: isDesktop ? 0.28 : 0.40,
-            z: isDesktop ? -600 : -350,
-            y: isDesktop ? 580 : 380, // Plunges physically behind Section 2's z-30 top border
-            opacity: 1.0, // Retain full 1.0 opacity so it hides cleanly behind Section 2
-            ease: 'power2.in',
-          },
-          0.5
         );
       }
     );
@@ -136,7 +120,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-muted-green/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-muted-green animate-pulse" />
               <span className="tracking-widest text-muted-green uppercase">
-                VARIATION 2: ORBITAL CORKSCREW DESCENT
+                VARIATION 2: ORBITAL ARC SWEEP
               </span>
             </div>
 
@@ -149,7 +133,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Title stays completely stationary. The 3D logo sweeps in an orbital corkscrew arc before diving physically behind Section 2's top border.
+              Title stays completely stationary. The 3D logo responds immediately on scroll, executing a gentle orbital arc sweep behind Section 2.
             </p>
 
             <div className="pt-2">
@@ -159,7 +143,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             </div>
           </div>
 
-          {/* Right Column: 3D Orbital Corkscrew Logo */}
+          {/* Right Column: 3D Orbital Arc Sweep Logo */}
           <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px] z-10">
             <div
               ref={logoMeshRef}

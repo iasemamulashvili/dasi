@@ -34,8 +34,8 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
       const y = (e.clientY - rect.top) / rect.height - 0.5;
 
       gsap.to(logoMesh, {
-        rotateY: x * 45,
-        rotateX: -y * 45,
+        rotateY: x * 35,
+        rotateX: -y * 35,
         duration: 0.6,
         ease: 'power2.out',
       });
@@ -64,28 +64,30 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
       (context) => {
         const { isDesktop } = context.conditions as { isDesktop: boolean };
 
+        // Shorter scroll distance (+=60%) with immediate responsive portal suction
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
             pin: pinContainer,
             start: 'top top',
-            end: '+=130%',
-            scrub: 0.5,
+            end: isDesktop ? '+=65%' : '+=50%',
+            scrub: 0.3, // Ultra-responsive immediate scroll reaction
             anticipatePin: 1,
           },
         });
 
-        // Phase 1 (0% - 45% scroll): Logo expands forward into camera near-plane, portal energy awakens
+        // Vortex Portal Suction: Begins IMMEDIATELY at scroll 0
         tl.to(
           logoMesh,
           {
             rotateY: isDesktop ? 180 : 90,
-            rotateX: isDesktop ? 45 : 25,
-            z: isDesktop ? 200 : 80,
-            scale: isDesktop ? 1.38 : 1.15,
-            y: isDesktop ? 100 : 50,
-            opacity: 1.0,
-            ease: 'power1.inOut',
+            rotateX: isDesktop ? 55 : 30,
+            rotateZ: isDesktop ? 180 : 90,
+            scale: isDesktop ? 0.08 : 0.20, // Gravitational compression as it gets sucked in
+            z: isDesktop ? -750 : -350,
+            y: isDesktop ? 560 : 360, // Sucked directly into Section 2 z-30 top border
+            opacity: 1.0, // Retain full 1.0 opacity
+            ease: 'power2.in',
           },
           0
         );
@@ -93,37 +95,11 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
         tl.to(
           portalRings,
           {
-            scale: isDesktop ? 1.4 : 1.2,
+            scale: isDesktop ? 1.2 : 1.1,
             opacity: 0.9,
             ease: 'power1.inOut',
           },
           0
-        );
-
-        // Phase 2 (45% - 100% scroll): Logo is violently SUCKED down into the Section 2 portal singularity
-        tl.to(
-          logoMesh,
-          {
-            rotateY: isDesktop ? 540 : 360,
-            rotateX: isDesktop ? 85 : 60,
-            rotateZ: isDesktop ? 360 : 180,
-            scale: isDesktop ? 0.05 : 0.15, // Gravitational compression as it gets sucked in
-            z: isDesktop ? -800 : -400,
-            y: isDesktop ? 580 : 380, // Sucked deep into Section 2 z-30 top border
-            opacity: 1.0, // Retain full 1.0 opacity until hidden inside Section 2 seam
-            ease: 'power3.in',
-          },
-          0.45
-        );
-
-        tl.to(
-          portalRings,
-          {
-            scale: isDesktop ? 0.1 : 0.2,
-            opacity: 0,
-            ease: 'power2.in',
-          },
-          0.45
         );
       }
     );
@@ -164,7 +140,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-muted-green/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-muted-green animate-pulse" />
               <span className="tracking-widest text-muted-green uppercase">
-                VARIATION 3: QUANTUM PORTAL SINGULARITY
+                VARIATION 3: VORTEX PORTAL SUCTION
               </span>
             </div>
 
@@ -177,7 +153,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Title stays completely stationary. The 3D logo expands forward then gets violently sucked down into the Section 2 portal singularity.
+              Title stays completely stationary. The 3D logo responds immediately on scroll, getting sucked into the Section 2 portal singularity.
             </p>
 
             <div className="pt-2">
@@ -187,7 +163,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             </div>
           </div>
 
-          {/* Right Column: 3D Quantum Portal Singularity Logo */}
+          {/* Right Column: 3D Vortex Portal Suction Logo */}
           <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px] z-10">
             <div
               ref={logoMeshRef}
