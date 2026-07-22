@@ -16,16 +16,12 @@ interface Concept1PureFramelessProps {
 export default function Concept1PureFrameless({ section2Ref }: Concept1PureFramelessProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pinContainerRef = useRef<HTMLDivElement>(null);
-  const leftContentRef = useRef<HTMLDivElement>(null);
-  const logoWrapperRef = useRef<HTMLDivElement>(null);
   const logoMeshRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !logoWrapperRef.current || !leftContentRef.current) return;
+    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current) return;
 
     const heroSection = containerRef.current;
-    const pinContainer = pinContainerRef.current;
-    const leftContent = leftContentRef.current;
     const logoMesh = logoMeshRef.current;
 
     // Interactive 3D Cursor Parallax Tilt (strictly on the 3D logo mesh)
@@ -54,7 +50,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
     heroSection.addEventListener('mousemove', handleMouseMove);
     heroSection.addEventListener('mouseleave', handleMouseLeave);
 
-    // Responsive GSAP ScrollTrigger Descent Timeline
+    // Responsive GSAP ScrollTrigger Timeline
     const mm = gsap.matchMedia();
 
     mm.add(
@@ -65,30 +61,16 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
       (context) => {
         const { isDesktop } = context.conditions as { isDesktop: boolean };
 
-        // Pin container holds hero section stationary in viewport while scroll drives logo flight
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
-            pin: pinContainer,
             start: 'top top',
-            end: isDesktop ? '+=180%' : '+=120%',
-            scrub: 0.6, // Silky smooth responsive scrub
-            anticipatePin: 1,
+            end: 'bottom bottom',
+            scrub: 0.5,
           },
         });
 
-        // Ensure left content (Title & Headlines) stays 100% stationary and pinned
-        tl.to(
-          leftContent,
-          {
-            y: 0,
-            opacity: 1.0,
-            ease: 'none',
-          },
-          0
-        );
-
-        // Phase 1 (0% - 60% scroll): Independent Cyber-Gimbal Surge forward into camera space
+        // Phase 1 (0% - 55% scroll): Cyber-Gimbal Surge forward into camera space
         tl.to(
           logoMesh,
           {
@@ -97,14 +79,14 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             rotateZ: isDesktop ? 15 : 5,
             z: isDesktop ? 160 : 60,
             scale: isDesktop ? 1.20 : 1.08,
-            y: isDesktop ? 150 : 80,
+            y: isDesktop ? 160 : 90,
             opacity: 1.0,
             ease: 'power1.inOut',
           },
           0
         );
 
-        // Phase 2 (60% - 100% scroll): Steep angular pitch plunge diving completely behind Section 2
+        // Phase 2 (55% - 100% scroll): Steep angular pitch plunge diving completely behind Section 2
         tl.to(
           logoMesh,
           {
@@ -117,7 +99,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             opacity: 1.0, // Retain full 1.0 opacity throughout descent
             ease: 'power2.in',
           },
-          0.6
+          0.55
         );
       }
     );
@@ -133,16 +115,20 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0 z-10"
+      className="relative w-full h-[220vh] bg-transparent select-none z-10"
     >
-      <div ref={pinContainerRef} className="w-full h-full min-h-screen flex items-center justify-center relative">
-        {/* Volumetric Electric Violet Spotlight Glow */}
-        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[650px] h-[650px] rounded-full bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.25)_0%,rgba(147,51,234,0.08)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
+      {/* Sticky Pin Container: Keeps Title & Left Content 100% STATIONARY while logo moves */}
+      <div
+        ref={pinContainerRef}
+        className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden"
+      >
+        {/* Volumetric Slate-Violet & Platinum Silver Spotlight Glow */}
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[650px] h-[650px] rounded-full bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.22)_0%,rgba(226,232,240,0.06)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
 
         {/* Hero Content Grid */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
-          {/* Left Column Fixed Copy - Completely stationary & independent of logo movement */}
-          <div ref={leftContentRef} className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
+          {/* Left Column Fixed Copy - Completely stationary in viewport space */}
+          <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/30 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
               <span className="tracking-widest text-slate-violet-light uppercase">
@@ -159,7 +145,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Title stays completely stationary while the 3D logo moves independently in a multi-axis gimbal flight before diving behind Section 2.
+              Title stays completely stationary. The 3D logo executes an independent multi-axis gimbal surge before plunging behind Section 2.
             </p>
 
             <div className="pt-2">
@@ -170,13 +156,10 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
           </div>
 
           {/* Right Column: 3D Gimbal Surge Logo */}
-          <div
-            ref={logoWrapperRef}
-            className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px]"
-          >
+          <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px]">
             <div
               ref={logoMeshRef}
-              className="relative w-64 h-64 md:w-96 md:h-96 flex items-center justify-center cursor-pointer transition-shadow duration-300"
+              className="relative w-64 h-64 md:w-96 md:h-96 flex items-center justify-center cursor-pointer"
               style={{ transformStyle: 'preserve-3d' }}
             >
               <Image

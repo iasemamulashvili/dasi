@@ -16,19 +16,17 @@ interface Concept3PortalDescentProps {
 export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDescentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pinContainerRef = useRef<HTMLDivElement>(null);
-  const leftContentRef = useRef<HTMLDivElement>(null);
-  const logoWrapperRef = useRef<HTMLDivElement>(null);
   const logoMeshRef = useRef<HTMLDivElement>(null);
+  const portalRingsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !logoWrapperRef.current || !leftContentRef.current) return;
+    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !portalRingsRef.current) return;
 
     const heroSection = containerRef.current;
-    const pinContainer = pinContainerRef.current;
-    const leftContent = leftContentRef.current;
     const logoMesh = logoMeshRef.current;
+    const portalRings = portalRingsRef.current;
 
-    // Interactive 3D Cursor Parallax Tilt (strictly on the 3D logo mesh)
+    // Interactive 3D Cursor Parallax Tilt
     const handleMouseMove = (e: MouseEvent) => {
       const rect = heroSection.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
@@ -68,54 +66,61 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
-            pin: pinContainer,
             start: 'top top',
-            end: isDesktop ? '+=180%' : '+=120%',
-            scrub: 0.6,
-            anticipatePin: 1,
+            end: 'bottom bottom',
+            scrub: 0.5,
           },
         });
 
-        // Ensure left content (Title & Headlines) stays 100% stationary and pinned
-        tl.to(
-          leftContent,
-          {
-            y: 0,
-            opacity: 1.0,
-            ease: 'none',
-          },
-          0
-        );
-
-        // Phase 1 (0% - 60% scroll): Aggressive camera-forward acceleration into camera near-plane
+        // Phase 1 (0% - 50% scroll): Logo expands forward into camera near-plane, portal energy awakens
         tl.to(
           logoMesh,
           {
             rotateY: isDesktop ? 180 : 90,
-            rotateX: isDesktop ? 50 : 30,
+            rotateX: isDesktop ? 45 : 25,
             z: isDesktop ? 200 : 80,
-            scale: isDesktop ? 1.38 : 1.18,
-            y: isDesktop ? 130 : 70,
+            scale: isDesktop ? 1.38 : 1.15,
+            y: isDesktop ? 120 : 60,
             opacity: 1.0,
             ease: 'power1.inOut',
           },
           0
         );
 
-        // Phase 2 (60% - 100% scroll): 360-degree target-lock spin & hyper-speed warp plunge behind Section 2
+        tl.to(
+          portalRings,
+          {
+            scale: isDesktop ? 1.4 : 1.2,
+            opacity: 0.9,
+            ease: 'power1.inOut',
+          },
+          0
+        );
+
+        // Phase 2 (50% - 100% scroll): Logo is violently SUCKED into the bottom section portal singularity
         tl.to(
           logoMesh,
           {
-            rotateY: isDesktop ? 360 : 180,
-            rotateX: isDesktop ? 95 : 65,
-            rotateZ: isDesktop ? 15 : 5,
-            scale: isDesktop ? 0.18 : 0.32,
+            rotateY: isDesktop ? 540 : 360,
+            rotateX: isDesktop ? 85 : 60,
+            rotateZ: isDesktop ? 360 : 180,
+            scale: isDesktop ? 0.05 : 0.15, // Gravitational compression as it gets sucked in
             z: isDesktop ? -950 : -500,
-            y: isDesktop ? 780 : 450, // Plunges fully behind Section 2's top edge boundary
-            opacity: 1.0, // Retain full 1.0 opacity throughout descent
+            y: isDesktop ? 780 : 450, // Sucked deep into Section 2 seam at bottom border
+            opacity: 1.0, // Retain full 1.0 opacity until hidden inside seam
+            ease: 'power3.in',
+          },
+          0.5
+        );
+
+        tl.to(
+          portalRings,
+          {
+            scale: isDesktop ? 0.2 : 0.3,
+            opacity: 0,
             ease: 'power2.in',
           },
-          0.6
+          0.5
         );
       }
     );
@@ -131,20 +136,33 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-transparent select-none pt-24 md:pt-0 z-10"
+      className="relative w-full h-[220vh] bg-transparent select-none z-10"
     >
-      <div ref={pinContainerRef} className="w-full h-full min-h-screen flex items-center justify-center relative">
-        {/* Volumetric Deep Rose & Solar Gold Spotlight Glow */}
-        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[650px] h-[650px] rounded-full bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.25)_0%,rgba(245,158,11,0.08)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
+      {/* Sticky Pin Container: Keeps Title & Left Content 100% STATIONARY while logo moves */}
+      <div
+        ref={pinContainerRef}
+        className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden"
+      >
+        {/* Volumetric Slate-Violet Portal Singularity Glow */}
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[650px] h-[650px] rounded-full bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.30)_0%,rgba(6,182,212,0.10)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
+
+        {/* Concentric Energy Portal Singularity Rings at Bottom Border */}
+        <div
+          ref={portalRingsRef}
+          className="absolute bottom-10 right-1/4 -translate-x-1/2 w-64 h-64 md:w-96 md:h-96 rounded-full border border-slate-violet/40 pointer-events-none z-0 opacity-0 flex items-center justify-center"
+        >
+          <div className="w-3/4 h-3/4 rounded-full border border-slate-violet-light/50 animate-ping opacity-30" />
+          <div className="w-1/2 h-1/2 rounded-full border border-bright-snow/60 shadow-[0_0_30px_rgba(168,85,247,0.8)]" />
+        </div>
 
         {/* Hero Content Grid */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
-          {/* Left Column Fixed Copy - Completely stationary & independent of logo movement */}
-          <div ref={leftContentRef} className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-rose-500/30 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-              <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse" />
-              <span className="tracking-widest text-rose-300 uppercase">
-                VARIATION 3: HYPER-SPEED ECLIPSE WARP
+          {/* Left Column Fixed Copy - Completely stationary in viewport space */}
+          <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+              <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
+              <span className="tracking-widest text-slate-violet-light uppercase">
+                VARIATION 3: QUANTUM PORTAL SINGULARITY
               </span>
             </div>
 
@@ -157,7 +175,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Title stays completely stationary while the 3D logo executes a camera zoom and target-lock flip, diving deep behind Section 2.
+              Title stays completely stationary. The 3D logo expands forward before being violently sucked down into the Section 2 portal singularity.
             </p>
 
             <div className="pt-2">
@@ -167,14 +185,11 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             </div>
           </div>
 
-          {/* Right Column: 3D Hyper-Speed Eclipse Warp Logo */}
-          <div
-            ref={logoWrapperRef}
-            className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px]"
-          >
+          {/* Right Column: 3D Quantum Portal Singularity Logo */}
+          <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px]">
             <div
               ref={logoMeshRef}
-              className="relative w-64 h-64 md:w-96 md:h-96 flex items-center justify-center cursor-pointer transition-shadow duration-300"
+              className="relative w-64 h-64 md:w-96 md:h-96 flex items-center justify-center cursor-pointer"
               style={{ transformStyle: 'preserve-3d' }}
             >
               <Image
@@ -183,7 +198,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
                 width={400}
                 height={400}
                 priority
-                className="w-full h-full object-contain filter drop-shadow-[0_0_60px_rgba(244,63,94,0.9)] pointer-events-none select-none"
+                className="w-full h-full object-contain filter drop-shadow-[0_0_60px_rgba(168,85,247,0.9)] pointer-events-none select-none"
               />
             </div>
           </div>

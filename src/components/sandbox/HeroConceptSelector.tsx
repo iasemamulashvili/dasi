@@ -42,24 +42,24 @@ export default function HeroConceptSelector({
       name: 'Variation 1: Cyber-Gimbal Surge',
       shortName: '1. Gimbal Surge',
       icon: Sparkles,
-      tag: 'Violet Spotlight Halo',
-      desc: 'Pure 3D logo performing a multi-axis yaw/pitch gimbal surge forward into camera space before plunging steeply behind Section 2.',
+      tag: 'Slate-Violet & Platinum Silver',
+      desc: 'Title stays 100% stationary. Pure 3D logo executes a multi-axis mechanical gimbal surge before plunging behind Section 2.',
     },
     {
       id: 'concept2' as ConceptId,
-      name: 'Variation 2: Quantum Gimbal Twist',
-      shortName: '2. Quantum Twist',
+      name: 'Variation 2: Orbital Corkscrew Descent',
+      shortName: '2. Orbital Corkscrew',
       icon: Compass,
-      tag: 'Cyan Rim Spotlight',
-      desc: 'Pure 3D logo executing a rapid dual-axis corkscrew gimbal spin with cyan rim lighting, plunging deep into Z-camera space behind Section 2.',
+      tag: 'Muted Green & Platinum Silver',
+      desc: 'Title stays 100% stationary. Pure 3D logo sweeps out in a wide orbital corkscrew arc before diving behind Section 2.',
     },
     {
       id: 'concept3' as ConceptId,
-      name: 'Variation 3: Hyper-Speed Eclipse Warp',
-      shortName: '3. Eclipse Warp',
+      name: 'Variation 3: Quantum Portal Singularity',
+      shortName: '3. Portal Singularity (Sucked In)',
       icon: Zap,
-      tag: 'Solar Rose Eclipse Glow',
-      desc: 'Pure 3D logo executing an aggressive camera-forward zoom, 360-degree target-lock flip, and hyper-speed vertical plunge behind Section 2.',
+      tag: 'Electric Violet & Bright Snow',
+      desc: 'Title stays 100% stationary. Pure 3D logo expands forward then gets violently sucked down into the Section 2 portal singularity.',
     },
   ];
 
@@ -101,7 +101,7 @@ export default function HeroConceptSelector({
               <span className="text-emerald-400 font-bold">{fps} FPS</span>
             </div>
             <span className="opacity-30">|</span>
-            <span className="text-slate-violet-light font-bold">1.0 OPACITY LOCKED</span>
+            <span className="text-slate-violet-light font-bold">TITLE STATIONARY</span>
           </div>
         </div>
 
