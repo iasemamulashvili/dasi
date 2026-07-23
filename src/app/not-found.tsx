@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import ErrorVariant0Fog from '@/components/errors/ErrorVariant0Fog';
-import ErrorVariant1Matrix from '@/components/errors/ErrorVariant1Matrix';
-import ErrorVariant2Arcade from '@/components/errors/ErrorVariant2Arcade';
-import ErrorVariant3Space from '@/components/errors/ErrorVariant3Space';
+import ErrorVariant0Legacy from '@/components/errors/ErrorVariant0Legacy';
+import ErrorVariant1Concept1 from '@/components/errors/ErrorVariant1Concept1';
+import ErrorVariant2Concept2 from '@/components/errors/ErrorVariant2Concept2';
+import ErrorVariant3Concept3 from '@/components/errors/ErrorVariant3Concept3';
 
 export default function NotFound() {
   const [variantIdx, setVariantIdx] = useState<number | null>(null);
 
   useEffect(() => {
-    // Stochastic selection with equal 25% probability across 4 variants
+    // Stochastic selection with equal 25% probability across 4 ported variants
     const randomVariant = Math.floor(Math.random() * 4);
     setVariantIdx(randomVariant);
   }, []);
@@ -26,14 +26,14 @@ export default function NotFound() {
 
   switch (variantIdx) {
     case 0:
-      return <ErrorVariant0Fog />;
+      return <ErrorVariant0Legacy />;
     case 1:
-      return <ErrorVariant1Matrix />;
+      return <ErrorVariant1Concept1 />;
     case 2:
-      return <ErrorVariant2Arcade />;
+      return <ErrorVariant2Concept2 />;
     case 3:
-      return <ErrorVariant3Space />;
+      return <ErrorVariant3Concept3 />;
     default:
-      return <ErrorVariant0Fog />;
+      return <ErrorVariant0Legacy />;
   }
 }

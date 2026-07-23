@@ -304,7 +304,7 @@ function KineticCard({
           
           {isMobile ? (
             <div className="flex items-center justify-between w-full pointer-events-auto pt-1">
-              <div className="grid grid-cols-3 gap-1.5 w-full items-center">
+              <div className="grid grid-cols-3 gap-2 w-full items-center">
                 {activeStores.map((store) => (
                   <a
                     key={store.id}
@@ -314,9 +314,9 @@ function KineticCard({
                     className="cursor-pointer flex justify-center items-center w-full min-w-0"
                     title={store.label}
                   >
-                    {store.id === 'ios' ? <AppStoreBadge className="h-[18px] sm:h-[22px] w-full max-w-[85px] object-contain" /> : 
-                     store.id === 'android' ? <PlayStoreBadge className="h-[18px] sm:h-[22px] w-full max-w-[85px] object-contain" /> : 
-                     <PokiPlayBadge className="h-[18px] sm:h-[22px] w-full max-w-[85px] object-contain" />}
+                    {store.id === 'ios' ? <AppStoreBadge className="h-[26px] sm:h-[30px] w-full max-w-none object-contain" /> : 
+                     store.id === 'android' ? <PlayStoreBadge className="h-[26px] sm:h-[30px] w-full max-w-none object-contain" /> : 
+                     <PokiPlayBadge className="h-[26px] sm:h-[30px] w-full max-w-none object-contain" />}
                   </a>
                 ))}
               </div>

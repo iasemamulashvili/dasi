@@ -510,14 +510,14 @@ export default function Hero() {
         )}
 
         {/* Gamified Collectable Title & Drop Zone Container */}
-        <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-8 flex-wrap w-full">
+        <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-6 md:flex-nowrap w-full">
           <h1
             ref={titleRef}
             aria-label="DASI GAMES"
-            className="text-5xl md:text-8xl font-normal tracking-wider select-none flex flex-wrap font-russo-one"
+            className="text-5xl md:text-8xl font-normal tracking-wider select-none flex flex-wrap font-russo-one md:w-auto shrink-0"
             style={{ transformStyle: 'preserve-3d' }}
           >
-            <span aria-hidden="true" className="flex flex-wrap w-full">
+            <span aria-hidden="true" className="flex flex-wrap md:w-auto">
               {titleText.split('').map((char, index) => {
                 if (char === ' ') return <span key={index} className="w-6 md:w-10">&nbsp;</span>;
                 const isCarried = collectedCount > 0 && carriedLetters.current.includes(index);
@@ -656,17 +656,17 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Kinetic Entrance Tagline */}
-        <div className="overflow-hidden">
+        {/* Kinetic Entrance Tagline with baseline descender padding */}
+        <div className="py-2 overflow-visible">
           <p 
             aria-label="Crafting unique gaming experiences"
-            className="text-xl md:text-3xl font-light tracking-wide text-bright-snow/90 flex flex-wrap gap-x-2"
+            className="text-xl md:text-3xl font-light tracking-wide text-bright-snow/90 flex flex-wrap gap-x-2 leading-relaxed pb-1"
           >
-            <span aria-hidden="true" className="flex flex-wrap gap-x-2">
+            <span aria-hidden="true" className="flex flex-wrap gap-x-2 pb-1">
               {"Crafting unique gaming experiences".split(' ').map((word, wIdx) => (
-                <span key={wIdx} className="inline-block overflow-hidden">
+                <span key={wIdx} className="inline-block py-1">
                   {word.split('').map((char, cIdx) => (
-                    <span key={cIdx} className="entrance-char inline-block origin-bottom-left">
+                    <span key={cIdx} className="entrance-char inline-block origin-bottom-left py-0.5">
                       {char}
                     </span>
                   ))}
@@ -700,7 +700,7 @@ export default function Hero() {
         {/* Right Column: Dynamic Scroll-driven Canvas with Midground Parallax Ref */}
         <div
           ref={layerMidRef}
-          className="relative md:absolute w-full max-w-[320px] md:max-w-none md:-right-12 md:-bottom-12 lg:-right-16 lg:-bottom-16 md:w-[42vw] lg:w-[44vw] xl:w-[40vw] md:h-[84%] lg:h-[86%] order-first md:order-none mb-8 md:mb-0 flex items-center justify-center pointer-events-none select-none z-10"
+          className="relative md:absolute w-full max-w-[320px] md:max-w-none md:-right-16 lg:-right-24 xl:-right-28 md:-bottom-16 lg:-bottom-24 xl:-bottom-28 md:w-[38vw] lg:w-[40vw] xl:w-[36vw] md:h-[80%] lg:h-[82%] order-first md:order-none mb-8 md:mb-0 flex items-center justify-center pointer-events-none select-none z-10"
         >
           <ScrollLogoCanvas heroContainerRef={containerRef} />
         </div>

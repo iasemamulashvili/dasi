@@ -495,7 +495,10 @@ export default function ContactForm({ jobs = [], settings }: ContactFormProps) {
                       exit={{ opacity: 0, y: -4, scale: 0.98 }}
                       transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                       role="listbox"
-                      className="absolute left-0 right-0 mt-1 z-50 max-h-60 overflow-y-auto bg-carbon-black-2/95 backdrop-blur-xl border border-graphite-light rounded-none shadow-2xl py-1"
+                      data-lenis-prevent="true"
+                      onWheel={(e) => e.stopPropagation()}
+                      onTouchMove={(e) => e.stopPropagation()}
+                      className="absolute left-0 right-0 mt-1 z-50 max-h-60 overflow-y-auto overscroll-contain bg-carbon-black-2/95 backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_16px_40px_rgba(0,0,0,0.8)] rounded-none py-1"
                     >
                       {subjectsList.map((sub, index) => {
                         const isSelected = formData.subject === sub;
