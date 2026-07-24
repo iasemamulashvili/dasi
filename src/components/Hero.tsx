@@ -489,8 +489,8 @@ export default function Hero() {
         ref={layerForeRef}
         className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col justify-center min-h-[calc(100vh-80px)] pt-24 md:pt-0"
       >
-        {/* Left Column Content Wrapper (constrained to max-w-3xl to allow absolute canvas on the right) */}
-        <div className="max-w-3xl flex flex-col items-start justify-center gap-6 w-full">
+        {/* Left Column Content Wrapper (expanded max-w to allow full width for title and release box) */}
+        <div className="max-w-5xl lg:max-w-6xl flex flex-col items-start justify-center gap-6 w-full">
         {/* Cyberpunk HUD Game-style Alert Pill */}
         {collectedCount > 0 && (
           <div className="flex items-center gap-3 px-4 py-2 bg-carbon-black-2/80 backdrop-blur-md border border-slate-violet/30 rounded-xl text-xs font-silkscreen text-bright-snow shadow-[0_8px_32px_rgba(0,0,0,0.6)] transition-all duration-300 animate-fadeIn select-none border-l-4 border-l-slate-violet-light">
@@ -697,10 +697,10 @@ export default function Hero() {
         </div>
         </div>
 
-        {/* Right Column: Dynamic Scroll-driven Canvas with Midground Parallax Ref */}
+        {/* Right Column: Dynamic Scroll-driven Canvas positioned strictly in the bottom-right quadrant */}
         <div
           ref={layerMidRef}
-          className="relative md:absolute w-full max-w-[340px] md:max-w-none md:right-0 md:bottom-0 lg:right-4 lg:bottom-4 md:w-[42vw] lg:w-[46vw] xl:w-[44vw] md:h-[85%] lg:h-[88%] order-first md:order-none mb-8 md:mb-0 flex items-center justify-center pointer-events-none select-none z-10"
+          className="relative md:absolute w-full max-w-[280px] md:max-w-[360px] md:right-4 md:bottom-4 lg:right-8 lg:bottom-8 xl:right-12 xl:bottom-12 md:w-[28vw] lg:w-[26vw] xl:w-[24vw] md:h-[55%] lg:h-[60%] order-first md:order-none mb-8 md:mb-0 flex items-end justify-end pointer-events-none select-none z-10"
         >
           <ScrollLogoCanvas heroContainerRef={containerRef} />
         </div>
