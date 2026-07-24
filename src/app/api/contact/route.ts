@@ -1,18 +1,45 @@
 import { NextResponse } from 'next/server';
+import React from 'react';
 import { Resend } from 'resend';
 import { getSettings } from '@/utils/db';
+import { checkRateLimit } from '@/utils/rateLimit';
+import ContactFormEmail from '@/components/emails/ContactFormEmail';
+import { render } from '@react-email/components';
 
 export async function POST(request: Request) {
   try {
+    const forwarded = request.headers.get('x-forwarded-for');
+    const clientIp = forwarded ? forwarded.split(',')[0].trim() : '127.0.0.1';
+
+    const rateLimit = checkRateLimit(clientIp, 5, 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please wait a minute before submitting again.' },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': String(rateLimit.reset),
+            'X-RateLimit-Limit': String(rateLimit.limit),
+            'X-RateLimit-Remaining': String(rateLimit.remaining),
+            'X-RateLimit-Reset': String(rateLimit.reset),
+          }
+        }
+      );
+    }
+
     const data = await request.formData();
-    const name = data.get('name') as string;
-    const email = data.get('email') as string;
-    const subject = data.get('subject') as string;
-    const message = data.get('message') as string;
-    // Collect all attachments from form data
+    const name = (data.get('name') as string) || 'Anonymous';
+    const email = (data.get('email') as string) || '';
+    const subject = (data.get('subject') as string) || 'General Inquiry';
+    const message = (data.get('message') as string) || '';
+
+    if (!email || !message) {
+      return NextResponse.json({ error: 'Email and Message are required fields.' }, { status: 400 });
+    }
+
     const attachments = [];
     const legacyFile = data.get('file') as File | null;
-    if (legacyFile) {
+    if (legacyFile && legacyFile.size > 0) {
       const arrayBuffer = await legacyFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       attachments.push({
@@ -21,7 +48,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // Dynamic multi-uploads
     const uploadLabels: { [key: string]: string } = {
       cv: 'CV',
       portfolio: 'Portfolio',
@@ -41,66 +67,57 @@ export async function POST(request: Request) {
         });
       }
     }
-    // Collect all URL inputs from form data
-    const urls: { label: string; value: string }[] = [];
+
+    const customFields: Record<string, string> = {};
     for (const [key, value] of data.entries()) {
       if (key.startsWith('url_') && typeof value === 'string' && value.trim()) {
         const typeKey = key.replace('url_', '');
         const urlLabel = uploadLabels[typeKey] || typeKey.toUpperCase();
-        urls.push({ label: urlLabel, value });
+        customFields[`Link: ${urlLabel}`] = value;
       }
     }
 
-    console.log('Contact form submission received:', {
+    console.log(`[POST /api/contact] Received inquiry from IP ${clientIp}:`, {
       name,
       email,
       subject,
-      message,
       attachmentsCount: attachments.length,
-      attachedFiles: attachments.map(a => a.filename).join(', '),
-      urlsSubmitted: urls.map(u => `${u.label}: ${u.value}`).join(', ') || 'none'
     });
 
     const resendApiKey = process.env.RESEND_API_KEY;
     const settings = await getSettings();
-    const destEmail = settings.contactEmail;
+    const destEmail = settings.contactEmail || 'contact@dasigames.com';
 
     if (resendApiKey) {
       const resend = new Resend(resendApiKey);
 
-      // Send the email
+      const emailHtml = await render(
+        React.createElement(ContactFormEmail, {
+          name,
+          email,
+          subject,
+          message,
+          resumeFileName: attachments[0]?.filename,
+          customFields,
+        })
+      );
+
       await resend.emails.send({
         from: 'Dasi Games Website <noreply@dasigames.com>',
         to: destEmail,
         replyTo: email,
-        subject: `Website Contact: ${subject}`,
-        html: `
-          <div style="font-family: sans-serif; max-width: 600px; color: #333;">
-            <h2 style="color: #2952a3; border-bottom: 1px solid #ddd; padding-bottom: 8px;">New Submission</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Subject:</strong> ${subject}</p>
-            ${urls.length > 0 ? `
-            <p><strong>Custom Links:</strong></p>
-            <ul style="background-color: #f7f9fc; padding: 15px; border-radius: 8px; border: 1px solid #e1e8ed; list-style-type: none; margin: 0 0 15px 0; padding-left: 15px;">
-              ${urls.map(u => `<li><strong>${u.label}:</strong> <a href="${u.value}" target="_blank">${u.value}</a></li>`).join('')}
-            </ul>
-            ` : ''}
-            <p><strong>Message:</strong></p>
-            <p style="white-space: pre-line; background-color: #f7f9fc; padding: 15px; border-radius: 8px; border: 1px solid #e1e8ed;">${message}</p>
-          </div>
-        `,
+        subject: `[Website Inquiry] ${subject} - ${name}`,
+        html: emailHtml,
         attachments,
       });
 
       console.log('Email sent successfully via Resend');
     } else {
-      console.warn('RESEND_API_KEY is not defined. Email was NOT sent (Local Simulation Mode).');
-      // Simulate network delay locally
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      console.warn('RESEND_API_KEY is not set. Inquiry recorded in simulation mode.');
+      await new Promise((resolve) => setTimeout(resolve, 600));
     }
 
-    return NextResponse.json({ success: true, message: 'Message processed successfully' });
+    return NextResponse.json({ success: true, message: 'Message sent successfully' });
   } catch (error: any) {
     console.error('Contact submit error:', error);
     return NextResponse.json({ error: error.message || 'Failed to process request' }, { status: 500 });

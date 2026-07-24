@@ -35,10 +35,10 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* General / Address */}
         <div className="flex flex-col gap-4">
-          <h4 className="text-bright-snow font-silkscreen tracking-widest text-xs border-b border-graphite-light pb-3.5 mb-3.5 uppercase">
+          <h3 className="text-bright-snow font-silkscreen tracking-widest text-xs border-b border-graphite-light pb-3.5 mb-3.5 uppercase">
             Dasi Games
-          </h4>
-          <p className="text-sm leading-relaxed font-outfit font-light">
+          </h3>
+          <p className="text-sm leading-relaxed font-outfit font-light text-alabaster-grey/90">
             201 Shalva Nutsubidze Street<br />
             0186 Tbilisi<br />
             Georgia
@@ -55,23 +55,23 @@ export default function Footer() {
 
         {/* Sitemap */}
         <div className="flex flex-col gap-4">
-          <h4 className="text-bright-snow font-silkscreen tracking-widest text-xs border-b border-graphite-light pb-3.5 mb-3.5 uppercase">
+          <h3 className="text-bright-snow font-silkscreen tracking-widest text-xs border-b border-graphite-light pb-3.5 mb-3.5 uppercase">
             Site Map
-          </h4>
+          </h3>
           <div className="flex flex-col items-start gap-2 text-sm">
-            <button onClick={(e) => handleNavClick(e, '#home')} className="font-silkscreen text-xs tracking-widest hover:text-bright-snow transition-colors focus:outline-none cursor-pointer py-1">
+            <button onClick={(e) => handleNavClick(e, '#home')} className="font-silkscreen text-xs tracking-widest hover:text-bright-snow transition-colors focus:outline-none cursor-pointer py-1" aria-label="Navigate to Home">
               HOME
             </button>
-            <button onClick={(e) => handleNavClick(e, '#portfolio')} className="font-silkscreen text-xs tracking-widest hover:text-bright-snow transition-colors focus:outline-none cursor-pointer py-1">
+            <button onClick={(e) => handleNavClick(e, '#portfolio')} className="font-silkscreen text-xs tracking-widest hover:text-bright-snow transition-colors focus:outline-none cursor-pointer py-1" aria-label="Navigate to Games Portfolio">
               GAMES
             </button>
-            <button onClick={(e) => handleNavClick(e, '#about')} className="font-silkscreen text-xs tracking-widest hover:text-bright-snow transition-colors focus:outline-none cursor-pointer py-1">
+            <button onClick={(e) => handleNavClick(e, '#about')} className="font-silkscreen text-xs tracking-widest hover:text-bright-snow transition-colors focus:outline-none cursor-pointer py-1" aria-label="Navigate to About Section">
               ABOUT
             </button>
-            <button onClick={(e) => handleNavClick(e, '#careers')} className="font-silkscreen text-xs tracking-widest hover:text-bright-snow transition-colors focus:outline-none cursor-pointer py-1">
+            <button onClick={(e) => handleNavClick(e, '#careers')} className="font-silkscreen text-xs tracking-widest hover:text-bright-snow transition-colors focus:outline-none cursor-pointer py-1" aria-label="Navigate to Careers Section">
               CAREER
             </button>
-            <button onClick={(e) => handleNavClick(e, '#contact')} className="font-silkscreen text-xs tracking-widest hover:text-bright-snow transition-colors focus:outline-none cursor-pointer py-1">
+            <button onClick={(e) => handleNavClick(e, '#contact')} className="font-silkscreen text-xs tracking-widest hover:text-bright-snow transition-colors focus:outline-none cursor-pointer py-1" aria-label="Navigate to Contact Form">
               CONTACT
             </button>
           </div>
@@ -79,16 +79,16 @@ export default function Footer() {
 
         {/* Follow Us */}
         <div className="flex flex-col gap-4">
-          <h4 className="text-bright-snow font-silkscreen tracking-widest text-xs border-b border-graphite-light pb-3.5 mb-3.5 uppercase">
+          <h3 className="text-bright-snow font-silkscreen tracking-widest text-xs border-b border-graphite-light pb-3.5 mb-3.5 uppercase">
             Follow Us
-          </h4>
+          </h3>
           <div className="flex gap-4">
             <a
               href="https://www.linkedin.com/company/dasi-games/mycompany/"
               target="_blank"
               rel="noopener noreferrer"
               className="p-3 bg-carbon-black-2 border border-graphite-light rounded-none hover:border-platinum-silver hover:text-bright-snow transition-all duration-300"
-              aria-label="LinkedIn Profile"
+              aria-label="Visit Dasi Games LinkedIn Profile"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-linkedin"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
             </a>
@@ -97,7 +97,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className="p-3 bg-carbon-black-2 border border-graphite-light rounded-none hover:border-platinum-silver hover:text-bright-snow transition-all duration-300"
-              aria-label="Facebook Page"
+              aria-label="Visit Dasi Games Facebook Page"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
             </a>
@@ -106,19 +106,20 @@ export default function Footer() {
 
         {/* Platforms */}
         <div className="flex flex-col gap-4">
-          <h4 className="text-bright-snow font-silkscreen tracking-widest text-xs border-b border-graphite-light pb-3.5 mb-3.5 uppercase">
+          <h3 className="text-bright-snow font-silkscreen tracking-widest text-xs border-b border-graphite-light pb-3.5 mb-3.5 uppercase">
             Platforms
-          </h4>
+          </h3>
           <div className="flex flex-col gap-3">
             <a
               href="https://play.google.com/store/apps/dev?id=5818328852601157830&hl=en"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-4 py-3 bg-carbon-black-2 border border-graphite-light rounded-none hover:border-platinum-silver hover:text-bright-snow transition-all duration-300 group"
+              aria-label="Open Dasi Games Developer Page on Google Play Store"
             >
               <Play size={18} className="text-platinum-silver group-hover:scale-110 transition-transform" />
               <div className="flex flex-col items-start">
-                <span className="text-[9px] tracking-wider text-alabaster-grey/60 uppercase font-silkscreen">Get it on</span>
+                <span className="text-[9px] tracking-wider text-alabaster-grey/80 uppercase font-silkscreen">Get it on</span>
                 <span className="text-xs font-silkscreen text-bright-snow uppercase">Google Play</span>
               </div>
             </a>
@@ -127,10 +128,11 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-4 py-3 bg-carbon-black-2 border border-graphite-light rounded-none hover:border-platinum-silver hover:text-bright-snow transition-all duration-300 group"
+              aria-label="Open Dasi Games Developer Page on Apple App Store"
             >
               <Download size={18} className="text-platinum-silver group-hover:scale-110 transition-transform" />
               <div className="flex flex-col items-start">
-                <span className="text-[9px] tracking-wider text-alabaster-grey/60 uppercase font-silkscreen">Download on the</span>
+                <span className="text-[9px] tracking-wider text-alabaster-grey/80 uppercase font-silkscreen">Download on the</span>
                 <span className="text-xs font-silkscreen text-bright-snow uppercase">App Store</span>
               </div>
             </a>
@@ -139,7 +141,7 @@ export default function Footer() {
       </div>
       
       {/* Copyright */}
-      <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-graphite-light text-center text-[10px] font-silkscreen text-alabaster-grey/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-graphite-light text-center text-[10px] font-silkscreen text-alabaster-grey/80 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p>&copy; {new Date().getFullYear()} Dasi Games. All rights reserved.</p>
         <p className="tracking-widest">CRAFTED FOR UNIQUE EXPERIENCE</p>
       </div>

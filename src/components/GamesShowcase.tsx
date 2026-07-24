@@ -290,9 +290,9 @@ function KineticCard({
               className="w-9 h-9 rounded-lg object-cover border border-graphite-light/50"
             />
             <div>
-              <h4 className="text-[13px] font-bold text-bright-snow font-russo-one tracking-wide">
+              <h3 className="text-[13px] font-bold text-bright-snow font-russo-one tracking-wide">
                 {game.title}
-              </h4>
+              </h3>
             </div>
           </div>
           <p className={`text-[11px] text-alabaster-grey/75 font-outfit leading-relaxed mt-2.5 line-clamp-2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-70'}`}>
