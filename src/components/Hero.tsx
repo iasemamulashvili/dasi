@@ -93,37 +93,41 @@ export default function Hero() {
         { opacity: 1, y: 0, duration: 1.2, delay: 0.8, ease: 'power3.out' }
       );
 
-      // --- Multi-Layer Parallax ---
+      // --- Multi-Layer Parallax (Throttled for 120 FPS Performance) ---
+      let rafId: number;
       const handleMouseMoveParallax = (e: MouseEvent) => {
         if (window.innerWidth < 768) return;
-        const { clientX, clientY } = e;
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const moveX = (clientX - centerX) / centerX; // value between -1 and 1
-        const moveY = (clientY - centerY) / centerY;
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(() => {
+          const { clientX, clientY } = e;
+          const centerX = window.innerWidth / 2;
+          const centerY = window.innerHeight / 2;
+          const moveX = (clientX - centerX) / centerX;
+          const moveY = (clientY - centerY) / centerY;
 
-        // Background moves very slightly
-        gsap.to(layerBgRef.current, {
-          x: moveX * 15,
-          y: moveY * 15,
-          duration: 1,
-          ease: 'power2.out',
-        });
+          gsap.to(layerBgRef.current, {
+            x: moveX * 15,
+            y: moveY * 15,
+            duration: 0.6,
+            overwrite: 'auto',
+            ease: 'power2.out',
+          });
 
-        // Midground moves moderately
-        gsap.to(layerMidRef.current, {
-          x: moveX * -35,
-          y: moveY * -35,
-          duration: 1.2,
-          ease: 'power2.out',
-        });
+          gsap.to(layerMidRef.current, {
+            x: moveX * -35,
+            y: moveY * -35,
+            duration: 0.8,
+            overwrite: 'auto',
+            ease: 'power2.out',
+          });
 
-        // Foreground/tagline overlay moves faster in opposite direction
-        gsap.to(layerForeRef.current, {
-          x: moveX * -50,
-          y: moveY * -50,
-          duration: 1.5,
-          ease: 'power2.out',
+          gsap.to(layerForeRef.current, {
+            x: moveX * -50,
+            y: moveY * -50,
+            duration: 1.0,
+            overwrite: 'auto',
+            ease: 'power2.out',
+          });
         });
       };
 

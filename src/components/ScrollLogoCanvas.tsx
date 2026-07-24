@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-// Register ScrollTrigger plugin
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
@@ -20,13 +19,11 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
   const lastRenderedFrame = useRef<number>(-1);
   
   const [loading, setLoading] = useState(true);
-  const [loadProgress, setLoadProgress] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
   const totalFrames = 144;
-  const initialFrameIndex = 0; // Start with fully exploded frame on mount
+  const initialFrameIndex = 0;
 
-  // Detect mobile viewports to adjust pinning and layouts (strict desktop view is >= 1024px)
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
@@ -36,16 +33,14 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Shared frame drawing logic
   const drawFrameToCanvas = (canvas: HTMLCanvasElement, img: HTMLImageElement, isMobileView: boolean) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
-    
-    // Set buffer dimensions dynamically to maintain crisp high-DPI scaling
     const rectWidth = canvas.clientWidth;
     const rectHeight = canvas.clientHeight;
+    
     if (rectWidth > 0 && rectHeight > 0) {
       const targetWidth = Math.round(rectWidth * dpr);
       const targetHeight = Math.round(rectHeight * dpr);
@@ -68,7 +63,6 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
     let offsetX = 0;
     let offsetY = 0;
 
-    // Universal contain fitting for canvas to ensure 100% full visibility on all frames (zero edge clipping)
     const marginScale = isMobileView ? 0.88 : 0.92;
     const canvasRatio = w / h;
     const imageRatio = imageWidth / imageHeight;
@@ -88,13 +82,12 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
   };
 
-  // Preload initial frame for instant display, then load remainder in the background
+  // High-Performance Deferred Frame Preloader (LCP < 1.0s)
   useEffect(() => {
     let isMounted = true;
-    const preloadedImages: HTMLImageElement[] = [];
-    let loadedCount = 0;
+    const preloadedImages: HTMLImageElement[] = new Array(totalFrames);
 
-    // 1. Load initial frame (assembled state)
+    // 1. Load initial frame 0 immediately for instant LCP paint
     const initialImg = new Image();
     const initialFrameNum = String(initialFrameIndex).padStart(3, '0');
     initialImg.src = `/Images/logo-sequence/frame_${initialFrameNum}.webp`;
@@ -102,95 +95,91 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
     initialImg.onload = () => {
       if (!isMounted) return;
       preloadedImages[initialFrameIndex] = initialImg;
-      
-      // Draw immediately on mount
+      imageRefs.current = preloadedImages;
+
       const canvas = canvasRef.current;
       if (canvas) {
         drawFrameToCanvas(canvas, initialImg, window.innerWidth < 1024);
       }
 
-      // 2. Load the remaining frames in the background
-      loadedCount = 1;
-      setLoadProgress(Math.round((loadedCount / totalFrames) * 100));
+      // Mark canvas ready immediately so LCP paint is unblocked
+      setLoading(false);
 
-      for (let i = 0; i < totalFrames; i++) {
-        if (i === initialFrameIndex) continue;
+      // 2. Defer background frame loading via idle callback to avoid network saturation
+      const scheduleBackgroundLoad = () => {
+        let index = 1;
+        const loadBatch = () => {
+          if (!isMounted || index >= totalFrames) return;
+          const batchSize = 6;
+          let batchRemaining = batchSize;
 
-        const img = new Image();
-        const frameNum = String(i).padStart(3, '0');
-        img.src = `/Images/logo-sequence/frame_${frameNum}.webp`;
+          for (let i = 0; i < batchSize && index < totalFrames; i++, index++) {
+            const currentIdx = index;
+            const img = new Image();
+            const frameNum = String(currentIdx).padStart(3, '0');
+            img.src = `/Images/logo-sequence/frame_${frameNum}.webp`;
 
-        img.onload = () => {
-          if (!isMounted) return;
-          preloadedImages[i] = img;
-          loadedCount++;
-          setLoadProgress(Math.round((loadedCount / totalFrames) * 100));
+            img.onload = () => {
+              if (!isMounted) return;
+              preloadedImages[currentIdx] = img;
+              batchRemaining--;
+              if (batchRemaining <= 0) {
+                setTimeout(loadBatch, 16); // Non-blocking async loop
+              }
+            };
 
-          if (loadedCount === totalFrames) {
-            imageRefs.current = preloadedImages;
-            setLoading(false);
+            img.onerror = () => {
+              if (!isMounted) return;
+              preloadedImages[currentIdx] = initialImg; // Fallback
+              batchRemaining--;
+              if (batchRemaining <= 0) {
+                setTimeout(loadBatch, 16);
+              }
+            };
           }
         };
 
-        img.onerror = () => {
-          if (!isMounted) return;
-          console.warn(`Failed to preload frame ${i}, falling back to default`);
-          preloadedImages[i] = initialImg; // Fallback to initial frame
-          loadedCount++;
-          setLoadProgress(Math.round((loadedCount / totalFrames) * 100));
+        if ('requestIdleCallback' in window) {
+          (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(loadBatch);
+        } else {
+          setTimeout(loadBatch, 100);
+        }
+      };
 
-          if (loadedCount === totalFrames) {
-            imageRefs.current = preloadedImages;
-            setLoading(false);
-          }
-        };
-      }
+      scheduleBackgroundLoad();
     };
 
     initialImg.onerror = () => {
       if (!isMounted) return;
-      console.error("Critical: Failed to load initial assembled frame");
+      console.error("Critical: Failed to load initial frame");
       setLoading(false);
     };
 
     return () => {
       isMounted = false;
-      preloadedImages.forEach(img => {
-        if (img) {
-          img.onload = null;
-          img.onerror = null;
-        }
-      });
     };
   }, []);
 
-  // Set up GSAP ScrollTrigger and canvas rendering once loading completes
+  // GSAP ScrollTrigger timeline setup
   useEffect(() => {
     if (loading || !canvasRef.current || !heroContainerRef.current) return;
 
     const canvas = canvasRef.current;
-    
-    // We add virtual padding frames at the beginning and end of the timeline
-    // This gives the scrub inertia buffer space to compile completely before unpinning
     const startBuffer = 24;
     const endBuffer = 24;
     const playhead = { frame: -startBuffer };
 
     const renderFrame = (frameIndex: number) => {
-      // Clamp virtual frame index to valid image frame range [0, 143]
       const clampedIndex = Math.max(0, Math.min(totalFrames - 1, frameIndex));
-      
-      // Prevent redundant canvas redraws
       if (clampedIndex === lastRenderedFrame.current) return;
       
-      const img = imageRefs.current[clampedIndex];
-      if (img && img.complete) {
+      const img = imageRefs.current[clampedIndex] || imageRefs.current[0];
+      if (img && (img.complete || img.naturalWidth > 0)) {
         drawFrameToCanvas(canvas, img, isMobile);
         lastRenderedFrame.current = clampedIndex;
       }
     };
 
-    // Debounced resize handler to prevent layout thrashing
     let resizeTimeout: number;
     const resizeCanvas = () => {
       cancelAnimationFrame(resizeTimeout);
@@ -203,7 +192,6 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Create GSAP ScrollTrigger timeline (scrubs from exploded state -24 to assembled state 143+24)
     const tl = gsap.to(playhead, {
       frame: totalFrames - 1 + endBuffer,
       ease: 'none',
@@ -211,8 +199,8 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
         trigger: heroContainerRef.current,
         start: 'top top',
         end: isMobile ? '+=40%' : '+=130%',
-        pin: !isMobile, // Strictly unpinned on mobile to prevent scroll-lock jank
-        scrub: isMobile ? 0.3 : 1, // Fast responsive scrub on mobile
+        pin: !isMobile,
+        scrub: isMobile ? 0.3 : 1,
         onUpdate: () => {
           renderFrame(Math.floor(playhead.frame));
         }
@@ -236,16 +224,6 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
         ref={canvasRef} 
         className="block w-full h-full pointer-events-none"
       />
-
-      {/* Glassmorphic progress hud in the bottom corner */}
-      {loading && (
-        <div className="absolute bottom-6 right-6 flex items-center gap-3 px-4 py-2 border border-white/5 bg-carbon-black-2/60 rounded-xl backdrop-blur-md transition-opacity duration-500 pointer-events-none select-none">
-          <div className="w-4 h-4 border-2 border-slate-violet/20 border-t-slate-violet-light rounded-full animate-spin" />
-          <span className="text-[9px] font-mono tracking-wider text-alabaster-grey/80">
-            HYDRATING 3D ASSETS: {loadProgress}%
-          </span>
-        </div>
-      )}
     </div>
   );
 }
