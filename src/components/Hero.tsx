@@ -697,10 +697,10 @@ export default function Hero() {
         </div>
         </div>
 
-        {/* Right Column: Dynamic Scroll-driven Canvas positioned strictly in the bottom-right quadrant */}
+        {/* Right Column: Dynamic Scroll-driven Canvas enlarged in the bottom-right quadrant (z-10 beneath z-20 title/release box) */}
         <div
           ref={layerMidRef}
-          className="relative md:absolute w-full max-w-[280px] md:max-w-[360px] md:right-4 md:bottom-4 lg:right-8 lg:bottom-8 xl:right-12 xl:bottom-12 md:w-[28vw] lg:w-[26vw] xl:w-[24vw] md:h-[55%] lg:h-[60%] order-first md:order-none mb-8 md:mb-0 flex items-end justify-end pointer-events-none select-none z-10"
+          className="relative md:absolute w-full max-w-[320px] md:max-w-[480px] lg:max-w-[540px] md:right-0 md:bottom-0 lg:right-4 lg:bottom-2 md:w-[38vw] lg:w-[36vw] xl:w-[34vw] md:h-[68%] lg:h-[72%] order-first md:order-none mb-8 md:mb-0 flex items-end justify-end pointer-events-none select-none z-10"
         >
           <ScrollLogoCanvas heroContainerRef={containerRef} />
         </div>
