@@ -596,7 +596,7 @@ export default function Hero() {
               ref={dumpZoneRef}
               onMouseEnter={handleDumpZoneMouseEnter}
               onClick={handleDumpZoneMouseEnter}
-              className={`flex w-full md:w-auto items-center justify-between md:justify-start gap-6 px-6 py-3.5 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-500 relative select-none overflow-hidden [text-shadow:none] ${
+              className={`flex items-center justify-between gap-5 px-5 h-14 min-w-[175px] border-dashed border-2 rounded-xl text-xs font-silkscreen tracking-widest transition-all duration-300 relative select-none overflow-hidden [text-shadow:none] shrink-0 ${
                 collectedCount > 0
                   ? 'border-platinum-silver text-platinum-silver bg-carbon-black-2/90'
                   : 'border-graphite-light text-alabaster-grey/70 bg-transparent'
@@ -606,21 +606,21 @@ export default function Hero() {
                   : 'hover:border-platinum-silver hover:text-bright-snow'
               }`}
             >
-              <span className="font-silkscreen text-xs tracking-widest">RELEASE</span>
+              <span>RELEASE</span>
 
               {/* Wind Particles (hidden unless blowing) - contained inside the release box */}
-              <div className="absolute inset-y-0 left-4 right-16 pointer-events-none overflow-hidden flex flex-col justify-around">
+              <div className="absolute inset-y-0 left-4 right-14 pointer-events-none overflow-hidden flex flex-col justify-around">
                 <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
                 <div className="wind-line w-full h-[2.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
                 <div className="wind-line w-full h-[1.5px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
                 <div className="wind-line w-full h-[2px] bg-gradient-to-l from-platinum-silver to-transparent opacity-0 origin-right" />
               </div>
 
-              {/* Integrated Wall Fan mounted to the right border */}
+              {/* Integrated Wall Fan with ample padding on all sides */}
               <div className="relative flex items-center justify-center shrink-0">
                 {/* Fan SVG (Option F: Vortex Singularity - Flush Centrifugal Spiral) */}
                 <svg
-                  className={`w-9 h-9 transition-all duration-300 ${
+                  className={`w-8 h-8 transition-all duration-300 ${
                     collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
                   }`}
                   viewBox="0 0 64 64"
