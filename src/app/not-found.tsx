@@ -1,17 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import ErrorVariant0Legacy from '@/components/errors/ErrorVariant0Legacy';
-import ErrorVariant1Concept1 from '@/components/errors/ErrorVariant1Concept1';
-import ErrorVariant2Concept2 from '@/components/errors/ErrorVariant2Concept2';
-import ErrorVariant3Concept3 from '@/components/errors/ErrorVariant3Concept3';
+import ErrorConcept1 from '@/components/errors/ErrorConcept1';
+import ErrorConcept2 from '@/components/errors/ErrorConcept2';
+import ErrorConcept3 from '@/components/errors/ErrorConcept3';
 
 export default function NotFound() {
   const [variantIdx, setVariantIdx] = useState<number | null>(null);
 
   useEffect(() => {
-    // Stochastic selection with equal 25% probability across 4 ported variants
-    const randomVariant = Math.floor(Math.random() * 4);
+    // Equal 33.3% probability across the 3 sandbox concepts (concept1, concept2, concept3)
+    const randomVariant = Math.floor(Math.random() * 3);
     setVariantIdx(randomVariant);
   }, []);
 
@@ -26,14 +25,12 @@ export default function NotFound() {
 
   switch (variantIdx) {
     case 0:
-      return <ErrorVariant0Legacy />;
+      return <ErrorConcept1 />;
     case 1:
-      return <ErrorVariant1Concept1 />;
+      return <ErrorConcept2 />;
     case 2:
-      return <ErrorVariant2Concept2 />;
-    case 3:
-      return <ErrorVariant3Concept3 />;
+      return <ErrorConcept3 />;
     default:
-      return <ErrorVariant0Legacy />;
+      return <ErrorConcept1 />;
   }
 }

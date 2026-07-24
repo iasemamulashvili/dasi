@@ -596,7 +596,7 @@ export default function Hero() {
               ref={dumpZoneRef}
               onMouseEnter={handleDumpZoneMouseEnter}
               onClick={handleDumpZoneMouseEnter}
-              className={`flex w-full md:w-auto items-center justify-between md:justify-start gap-3 pl-5 pr-2 py-2 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-500 relative select-none overflow-hidden [text-shadow:none] ${
+              className={`flex w-full md:w-auto items-center justify-between md:justify-start gap-4 pl-6 pr-3 py-2.5 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-500 relative select-none overflow-hidden [text-shadow:none] ${
                 collectedCount > 0
                   ? 'border-platinum-silver text-platinum-silver bg-carbon-black-2/90'
                   : 'border-graphite-light text-alabaster-grey/70 bg-transparent'
@@ -617,10 +617,10 @@ export default function Hero() {
               </div>
 
               {/* Integrated Wall Fan mounted to the right border */}
-              <div className="relative flex items-center justify-center pl-1">
+              <div className="relative flex items-center justify-center pl-2 pr-1">
                 {/* Fan SVG (Option F: Vortex Singularity - Flush Centrifugal Spiral) */}
                 <svg
-                  className={`w-11 h-11 transition-all duration-300 ${
+                  className={`w-10 h-10 transition-all duration-300 ${
                     collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
                   }`}
                   viewBox="0 0 64 64"
@@ -700,7 +700,7 @@ export default function Hero() {
         {/* Right Column: Dynamic Scroll-driven Canvas with Midground Parallax Ref */}
         <div
           ref={layerMidRef}
-          className="relative md:absolute w-full max-w-[320px] md:max-w-none md:-right-16 lg:-right-24 xl:-right-28 md:-bottom-16 lg:-bottom-24 xl:-bottom-28 md:w-[38vw] lg:w-[40vw] xl:w-[36vw] md:h-[80%] lg:h-[82%] order-first md:order-none mb-8 md:mb-0 flex items-center justify-center pointer-events-none select-none z-10"
+          className="relative md:absolute w-full max-w-[340px] md:max-w-none md:right-0 md:bottom-0 lg:right-4 lg:bottom-4 md:w-[42vw] lg:w-[46vw] xl:w-[44vw] md:h-[85%] lg:h-[88%] order-first md:order-none mb-8 md:mb-0 flex items-center justify-center pointer-events-none select-none z-10"
         >
           <ScrollLogoCanvas heroContainerRef={containerRef} />
         </div>

@@ -303,23 +303,21 @@ function KineticCard({
         <div className="flex items-center justify-end border-t border-graphite-light/20 pt-2.5 mt-2 relative">
           
           {isMobile ? (
-            <div className="flex items-center justify-between w-full pointer-events-auto pt-1">
-              <div className="grid grid-cols-3 gap-2 w-full items-center">
-                {activeStores.map((store) => (
-                  <a
-                    key={store.id}
-                    href={store.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cursor-pointer flex justify-center items-center w-full min-w-0"
-                    title={store.label}
-                  >
-                    {store.id === 'ios' ? <AppStoreBadge className="h-[26px] sm:h-[30px] w-full max-w-none object-contain" /> : 
-                     store.id === 'android' ? <PlayStoreBadge className="h-[26px] sm:h-[30px] w-full max-w-none object-contain" /> : 
-                     <PokiPlayBadge className="h-[26px] sm:h-[30px] w-full max-w-none object-contain" />}
-                  </a>
-                ))}
-              </div>
+            <div className="flex items-center justify-end gap-2 w-full pt-1 pointer-events-auto">
+              {activeStores.map((store) => (
+                <a
+                  key={store.id}
+                  href={store.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cursor-pointer flex justify-center items-center w-[calc(33.33%-0.5rem)] flex-1 max-w-[110px]"
+                  title={store.label}
+                >
+                  {store.id === 'ios' ? <AppStoreBadge className="h-[26px] sm:h-[30px] w-full object-contain" /> : 
+                   store.id === 'android' ? <PlayStoreBadge className="h-[26px] sm:h-[30px] w-full object-contain" /> : 
+                   <PokiPlayBadge className="h-[26px] sm:h-[30px] w-full object-contain" />}
+                </a>
+              ))}
             </div>
           ) : (
             <div className="flex items-center gap-2 relative h-[30px] min-w-[120px] justify-end pointer-events-auto">

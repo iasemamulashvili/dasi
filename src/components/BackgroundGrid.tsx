@@ -60,22 +60,31 @@ export default function BackgroundGrid() {
       items.forEach((item) => {
         gsap.fromTo(
           item,
-          { y: -40 },
+          { y: -50 },
           {
-            y: 40,
+            y: 50,
             ease: 'none',
             scrollTrigger: {
               trigger: item,
               start: 'top bottom',
               end: 'bottom top',
-              scrub: 1.5,
+              scrub: 1.2,
+              refreshPriority: -1, // Ensures pinned hero triggers refresh first
             },
           }
         );
       });
     }, containerRef);
 
-    return () => ctx.revert();
+    // Refresh ScrollTrigger calculations after initial layout and canvas hydration
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      ctx.revert();
+    };
   }, [pathname]);
 
   if (pathname?.startsWith('/admin')) return null;
