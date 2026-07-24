@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sparkles, Compass, Zap, Cpu } from 'lucide-react';
+import { Sparkles, Sun, Flame, Cpu } from 'lucide-react';
 
 export type ConceptId = 'concept1' | 'concept2' | 'concept3';
 
@@ -39,27 +39,27 @@ export default function HeroConceptSelector({
   const concepts = [
     {
       id: 'concept1' as ConceptId,
-      name: 'Variation 1: Direct Gimbal Dip',
-      shortName: '1. Direct Gimbal Dip',
+      name: 'Variant 1: Pure Gravitational Descent',
+      shortName: '1. Pure Gravitational Descent',
       icon: Sparkles,
-      tag: 'Muted Green & Platinum Silver',
-      desc: 'Immediate scroll reaction with zero delay. Pure 3D logo executes a clean pitch tilt and plunges directly behind Section 2.',
+      tag: 'Clean Baseline',
+      desc: 'Strictly forward-facing logo with narrow axis pointing downward. Fluid gravitational pull sucking the base beneath Section 2 with zero visual noise.',
     },
     {
       id: 'concept2' as ConceptId,
-      name: 'Variation 2: Orbital Arc Sweep',
-      shortName: '2. Orbital Arc Sweep',
-      icon: Compass,
-      tag: 'Muted Green & Platinum Silver',
-      desc: 'Immediate scroll reaction with zero delay. Pure 3D logo executes a gentle orbital right-to-left arc before diving behind Section 2.',
+      name: 'Variant 2: Volumetric Aura Pull',
+      shortName: '2. Volumetric Aura Pull',
+      icon: Sun,
+      tag: 'Ambient Lighting',
+      desc: 'Sophisticated volumetric aura and floor light streaks enhancing the forward-facing downward suction into Section 2.',
     },
     {
       id: 'concept3' as ConceptId,
-      name: 'Variation 3: Vortex Portal Suction',
-      shortName: '3. Vortex Portal (Sucked In)',
-      icon: Zap,
-      tag: 'Muted Green & Platinum Silver',
-      desc: 'Immediate scroll reaction with zero delay. Concentric rings awaken as pure 3D logo is sucked down into the Section 2 portal seam.',
+      name: 'Variant 3: Gravitational Void Siphon',
+      shortName: '3. Gravitational Void Siphon',
+      icon: Flame,
+      tag: 'Alternate Visual',
+      desc: 'Sleek horizon event seam with particle siphon trails pulling the forward-facing logo smoothly beneath Section 2.',
     },
   ];
 
@@ -82,11 +82,11 @@ export default function HeroConceptSelector({
                   onClick={() => onSelectConcept(concept.id)}
                   className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                     isActive
-                      ? 'bg-muted-green/20 text-bright-snow border border-muted-green/50 shadow-[0_0_20px_rgba(82,122,105,0.3)]'
+                      ? 'bg-slate-violet/30 text-bright-snow border border-slate-violet-light/50 shadow-[0_0_20px_rgba(167,139,250,0.3)]'
                       : 'text-alabaster-grey/70 hover:text-bright-snow hover:bg-white/5 border border-transparent'
                   }`}
                 >
-                  <Icon size={14} className={isActive ? 'text-muted-green' : 'opacity-60'} />
+                  <Icon size={14} className={isActive ? 'text-slate-violet-light' : 'opacity-60'} />
                   <span className="font-outfit">{concept.shortName}</span>
                 </button>
               );
@@ -96,19 +96,19 @@ export default function HeroConceptSelector({
           {/* FPS & Performance HUD */}
           <div className="flex items-center gap-3 px-3 py-1.5 bg-carbon-black/60 border border-white/5 rounded-xl text-[10px] font-mono text-alabaster-grey/80 shrink-0 self-end md:self-auto">
             <div className="flex items-center gap-1.5">
-              <Cpu size={12} className="text-muted-green" />
+              <Cpu size={12} className="text-slate-violet-light" />
               <span>PERF:</span>
               <span className="text-emerald-400 font-bold">{fps} FPS</span>
             </div>
             <span className="opacity-30">|</span>
-            <span className="text-muted-green font-bold">IMMEDIATE RESPONSIVE SCROLL</span>
+            <span className="text-slate-violet-light font-bold">FORWARD-FACING GRAVITATIONAL PULL</span>
           </div>
         </div>
 
         {/* Concept Description Sub-Bar */}
         <div className="pointer-events-auto mt-2 px-4 py-2 bg-carbon-black-2/60 backdrop-blur-md border border-white/5 rounded-xl text-xs font-outfit text-alabaster-grey/90 flex items-center justify-between shadow-lg">
           <div className="flex items-center gap-2">
-            <span className="text-muted-green font-bold font-mono text-[11px] uppercase">
+            <span className="text-slate-violet-light font-bold font-mono text-[11px] uppercase">
               [{currentConcept.tag}]
             </span>
             <span className="line-clamp-1">{currentConcept.desc}</span>

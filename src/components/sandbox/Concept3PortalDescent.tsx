@@ -17,25 +17,27 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
   const containerRef = useRef<HTMLDivElement>(null);
   const pinContainerRef = useRef<HTMLDivElement>(null);
   const logoMeshRef = useRef<HTMLDivElement>(null);
-  const portalRingsRef = useRef<HTMLDivElement>(null);
+  const eventHorizonRef = useRef<HTMLDivElement>(null);
+  const siphonParticlesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current || !portalRingsRef.current) return;
+    if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current) return;
 
     const heroSection = containerRef.current;
     const pinContainer = pinContainerRef.current;
     const logoMesh = logoMeshRef.current;
-    const portalRings = portalRingsRef.current;
+    const eventHorizon = eventHorizonRef.current;
+    const siphonParticles = siphonParticlesRef.current;
 
-    // Interactive 3D Cursor Parallax Tilt
+    // Subtle 3D Cursor Parallax Tilt (Strictly forward-facing, capped at 6deg max)
     const handleMouseMove = (e: MouseEvent) => {
       const rect = heroSection.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
 
       gsap.to(logoMesh, {
-        rotateY: x * 35,
-        rotateX: -y * 35,
+        rotateY: x * 6,
+        rotateX: -y * 6,
         duration: 0.6,
         ease: 'power2.out',
       });
@@ -64,43 +66,56 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
       (context) => {
         const { isDesktop } = context.conditions as { isDesktop: boolean };
 
-        // Shorter scroll distance (+=60%) with immediate responsive portal suction
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
             pin: pinContainer,
             start: 'top top',
             end: isDesktop ? '+=65%' : '+=50%',
-            scrub: 0.3, // Ultra-responsive immediate scroll reaction
+            scrub: 0.3, // Responsive 1:1 scroll reaction
             anticipatePin: 1,
           },
         });
 
-        // Vortex Portal Suction: Begins IMMEDIATELY at scroll 0
+        // Variant 3: Gravitational Void Siphon
+        // Forward-facing downward compression + event horizon seam suction
         tl.to(
           logoMesh,
           {
-            rotateY: isDesktop ? 180 : 90,
-            rotateX: isDesktop ? 55 : 30,
-            rotateZ: isDesktop ? 180 : 90,
-            scale: isDesktop ? 0.08 : 0.20, // Gravitational compression as it gets sucked in
-            z: isDesktop ? -750 : -350,
-            y: isDesktop ? 560 : 360, // Sucked directly into Section 2 z-30 top border
-            opacity: 1.0, // Retain full 1.0 opacity
+            rotateY: 0,
+            rotateZ: 0,
+            rotateX: isDesktop ? 25 : 18,
+            scale: isDesktop ? 0.38 : 0.44, // Gravitational compression as base is siphoned
+            y: isDesktop ? 560 : 360,
+            opacity: 1.0,
             ease: 'power2.in',
           },
           0
         );
 
-        tl.to(
-          portalRings,
-          {
-            scale: isDesktop ? 1.2 : 1.1,
-            opacity: 0.9,
-            ease: 'power1.inOut',
-          },
-          0
-        );
+        if (eventHorizon) {
+          tl.to(
+            eventHorizon,
+            {
+              opacity: 1.0,
+              scaleX: 1.2,
+              ease: 'power1.inOut',
+            },
+            0
+          );
+        }
+
+        if (siphonParticles) {
+          tl.to(
+            siphonParticles,
+            {
+              opacity: 0.7,
+              y: 80,
+              ease: 'power2.in',
+            },
+            0
+          );
+        }
       }
     );
 
@@ -115,32 +130,39 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
   return (
     <div
       ref={containerRef}
-      className="relative w-full min-h-screen bg-transparent select-none z-10"
+      className="relative w-full min-h-screen bg-transparent select-none z-10 font-outfit"
     >
       <div
         ref={pinContainerRef}
         className="w-full min-h-screen flex items-center justify-center relative overflow-hidden"
       >
-        {/* Volumetric Muted Green & Platinum Silver Spotlight Glow */}
-        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[650px] h-[650px] rounded-full bg-[radial-gradient(circle_at_center,rgba(82,122,105,0.30)_0%,rgba(226,232,240,0.08)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
+        {/* Volumetric Dark Background Halo */}
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle_at_center,rgba(167,139,250,0.20)_0%,rgba(226,232,240,0.05)_50%,transparent_75%)] filter blur-[110px] pointer-events-none z-0" />
 
-        {/* Concentric Energy Portal Singularity Rings at Section 2 Top Border */}
+        {/* Glass-Etched Horizon Event Seam at Section 2 Top Border */}
         <div
-          ref={portalRingsRef}
-          className="absolute bottom-16 right-1/4 -translate-x-1/2 w-64 h-64 md:w-96 md:h-96 rounded-full border border-muted-green/50 pointer-events-none z-0 opacity-0 flex items-center justify-center"
+          ref={eventHorizonRef}
+          className="absolute bottom-0 right-1/4 -translate-x-1/2 w-[450px] h-2 bg-gradient-to-r from-transparent via-slate-violet-light/70 to-transparent pointer-events-none z-0 opacity-0 filter drop-shadow-[0_0_15px_rgba(167,139,250,0.9)]"
+        />
+
+        {/* Vertical Particle Siphon Streaks */}
+        <div
+          ref={siphonParticlesRef}
+          className="absolute bottom-4 right-1/4 -translate-x-1/2 w-48 h-32 pointer-events-none z-0 opacity-0 flex justify-around"
         >
-          <div className="w-3/4 h-3/4 rounded-full border border-muted-green/60 animate-ping opacity-30" />
-          <div className="w-1/2 h-1/2 rounded-full border border-bright-snow/70 shadow-[0_0_35px_rgba(82,122,105,0.9)]" />
+          <div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-slate-violet-light/60 to-transparent animate-pulse" />
+          <div className="w-[2px] h-full bg-gradient-to-b from-transparent via-bright-snow/70 to-transparent animate-pulse delay-100" />
+          <div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-slate-violet-light/60 to-transparent animate-pulse delay-200" />
         </div>
 
-        {/* Hero Content Grid */}
+        {/* Hero Content Grid - Copy stays 100% stationary */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
           {/* Left Column Fixed Copy */}
           <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-muted-green/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-              <span className="w-2 h-2 rounded-full bg-muted-green animate-pulse" />
-              <span className="tracking-widest text-muted-green uppercase">
-                VARIATION 3: VORTEX PORTAL SUCTION
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+              <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
+              <span className="tracking-widest text-slate-violet-light uppercase">
+                VARIANT 3: GRAVITATIONAL VOID SIPHON
               </span>
             </div>
 
@@ -153,7 +175,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Title stays completely stationary. The 3D logo responds immediately on scroll, getting sucked into the Section 2 portal singularity.
+              Alternate visual treatment. The forward-facing logo undergoes sleek gravitational compression as its narrow apex is siphoned into the event horizon seam.
             </p>
 
             <div className="pt-2">
@@ -163,7 +185,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             </div>
           </div>
 
-          {/* Right Column: 3D Vortex Portal Suction Logo */}
+          {/* Right Column: 3D Void Siphon Logo */}
           <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px] z-10">
             <div
               ref={logoMeshRef}
@@ -176,7 +198,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
                 width={400}
                 height={400}
                 priority
-                className="w-full h-full object-contain filter drop-shadow-[0_0_60px_rgba(82,122,105,0.9)] pointer-events-none select-none"
+                className="w-full h-full object-contain filter drop-shadow-[0_0_60px_rgba(167,139,250,0.7)] pointer-events-none select-none"
               />
             </div>
           </div>

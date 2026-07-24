@@ -25,15 +25,15 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
     const pinContainer = pinContainerRef.current;
     const logoMesh = logoMeshRef.current;
 
-    // Interactive 3D Cursor Parallax Tilt (strictly on the 3D logo mesh)
+    // Subtle 3D Cursor Parallax Tilt (Strictly forward-facing, capped at 6deg max)
     const handleMouseMove = (e: MouseEvent) => {
       const rect = heroSection.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
 
       gsap.to(logoMesh, {
-        rotateY: x * 30,
-        rotateX: -y * 30,
+        rotateY: x * 6,
+        rotateX: -y * 6,
         duration: 0.6,
         ease: 'power2.out',
       });
@@ -62,29 +62,29 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
       (context) => {
         const { isDesktop } = context.conditions as { isDesktop: boolean };
 
-        // Shorter scroll distance (+=60%) with immediate responsive 3D plunge
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSection,
             pin: pinContainer,
             start: 'top top',
             end: isDesktop ? '+=65%' : '+=50%',
-            scrub: 0.3, // Ultra-responsive immediate scroll reaction
+            scrub: 0.3, // Responsive 1:1 scroll reaction
             anticipatePin: 1,
           },
         });
 
-        // Direct Gimbal Dip: Begins IMMEDIATELY at scroll 0
+        // Variant 1: Pure Gravitational Descent
+        // Strictly forward-facing (rotateY: 0, rotateZ: 0), narrow apex points down, base sucked beneath Section 2
         tl.to(
           logoMesh,
           {
-            rotateY: isDesktop ? 90 : 45,
-            rotateX: isDesktop ? 45 : 25,
-            scale: isDesktop ? 0.38 : 0.48,
-            z: isDesktop ? -450 : -200,
-            y: isDesktop ? 560 : 360, // Dives directly behind Section 2's z-30 top border
-            opacity: 1.0, // Retain full 1.0 opacity
-            ease: 'power1.inOut',
+            rotateY: 0,
+            rotateZ: 0,
+            rotateX: isDesktop ? 22 : 15, // Subtle downward pitch as base is sucked down first
+            scale: isDesktop ? 0.42 : 0.48,
+            y: isDesktop ? 560 : 360, // Plunges beneath Section 2's z-30 top border
+            opacity: 1.0,
+            ease: 'power2.in',
           },
           0
         );
@@ -102,23 +102,23 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
   return (
     <div
       ref={containerRef}
-      className="relative w-full min-h-screen bg-transparent select-none z-10"
+      className="relative w-full min-h-screen bg-transparent select-none z-10 font-outfit"
     >
       <div
         ref={pinContainerRef}
         className="w-full min-h-screen flex items-center justify-center relative overflow-hidden"
       >
-        {/* Volumetric Muted Green & Platinum Silver Spotlight Glow */}
-        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[650px] h-[650px] rounded-full bg-[radial-gradient(circle_at_center,rgba(82,122,105,0.25)_0%,rgba(226,232,240,0.06)_50%,transparent_75%)] filter blur-[120px] pointer-events-none z-0" />
+        {/* Subtle Ambient Background Halo */}
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[550px] h-[550px] rounded-full bg-[radial-gradient(circle_at_center,rgba(167,139,250,0.12)_0%,rgba(24,24,27,0.04)_60%,transparent_80%)] filter blur-[100px] pointer-events-none z-0" />
 
-        {/* Hero Content Grid - Headlines stay stationary */}
+        {/* Hero Content Grid - Copy stays 100% stationary */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
           {/* Left Column Fixed Copy */}
           <div className="flex-1 flex flex-col items-start justify-center gap-6 order-last md:order-first w-full max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-muted-green/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-              <span className="w-2 h-2 rounded-full bg-muted-green animate-pulse" />
-              <span className="tracking-widest text-muted-green uppercase">
-                VARIATION 1: DIRECT GIMBAL DIP
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+              <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
+              <span className="tracking-widest text-slate-violet-light uppercase">
+                VARIANT 1: PURE GRAVITATIONAL DESCENT
               </span>
             </div>
 
@@ -131,7 +131,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Title stays completely stationary. The 3D logo responds immediately on scroll, executing a clean gimbal dip behind Section 2.
+              Clean baseline. The logo remains strictly forward-facing with its narrow apex pointing downward, executing a seamless gravitational descent beneath Section 2.
             </p>
 
             <div className="pt-2">
@@ -141,7 +141,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             </div>
           </div>
 
-          {/* Right Column: 3D Gimbal Dip Logo */}
+          {/* Right Column: Pure Forward-Facing Gravitational Logo */}
           <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px] z-10">
             <div
               ref={logoMeshRef}
@@ -154,7 +154,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
                 width={400}
                 height={400}
                 priority
-                className="w-full h-full object-contain filter drop-shadow-[0_0_55px_rgba(82,122,105,0.85)] pointer-events-none select-none"
+                className="w-full h-full object-contain filter drop-shadow-[0_0_40px_rgba(167,139,250,0.35)] pointer-events-none select-none"
               />
             </div>
           </div>
