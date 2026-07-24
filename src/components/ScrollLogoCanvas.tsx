@@ -68,29 +68,21 @@ export default function ScrollLogoCanvas({ heroContainerRef }: ScrollLogoCanvasP
     let offsetX = 0;
     let offsetY = 0;
 
-    if (isMobileView) {
-      // Safe, contained fitting for mobile layout to avoid horizontal cuts
-      const marginScale = 0.85;
-      const canvasRatio = w / h;
-      const imageRatio = imageWidth / imageHeight;
+    // Universal contain fitting for canvas to ensure 100% full visibility on all frames (zero edge clipping)
+    const marginScale = isMobileView ? 0.88 : 0.92;
+    const canvasRatio = w / h;
+    const imageRatio = imageWidth / imageHeight;
 
-      if (canvasRatio > imageRatio) {
-        drawHeight = h * marginScale;
-        drawWidth = drawHeight * imageRatio;
-        offsetX = (w - drawWidth) / 2;
-        offsetY = (h - drawHeight) / 2;
-      } else {
-        drawWidth = w * marginScale;
-        drawHeight = drawWidth / imageRatio;
-        offsetX = (w - drawWidth) / 2;
-        offsetY = (h - drawHeight) / 2;
-      }
+    if (canvasRatio > imageRatio) {
+      drawHeight = h * marginScale;
+      drawWidth = drawHeight * imageRatio;
+      offsetX = (w - drawWidth) / 2;
+      offsetY = (h - drawHeight) / 2;
     } else {
-      // Desktop: Contain height scaling to position logo cleanly down and to the right
-      drawHeight = h * 0.82;
-      drawWidth = drawHeight * (imageWidth / imageHeight);
-      offsetX = (w - drawWidth) * 0.88; // Shift towards the right within canvas bounds
-      offsetY = (h - drawHeight) * 0.88; // Shift towards the bottom within canvas bounds
+      drawWidth = w * marginScale;
+      drawHeight = drawWidth / imageRatio;
+      offsetX = (w - drawWidth) / 2;
+      offsetY = (h - drawHeight) / 2;
     }
 
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
