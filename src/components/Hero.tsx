@@ -596,7 +596,7 @@ export default function Hero() {
               ref={dumpZoneRef}
               onMouseEnter={handleDumpZoneMouseEnter}
               onClick={handleDumpZoneMouseEnter}
-              className={`flex w-full md:w-auto items-center justify-between md:justify-start gap-4 pl-6 pr-3 py-2.5 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-500 relative select-none overflow-hidden [text-shadow:none] ${
+              className={`flex w-full md:w-auto items-center justify-between md:justify-start gap-6 px-6 py-3.5 border-dashed border-2 rounded-xl text-sm font-sans tracking-widest transition-all duration-500 relative select-none overflow-hidden [text-shadow:none] ${
                 collectedCount > 0
                   ? 'border-platinum-silver text-platinum-silver bg-carbon-black-2/90'
                   : 'border-graphite-light text-alabaster-grey/70 bg-transparent'
@@ -606,7 +606,7 @@ export default function Hero() {
                   : 'hover:border-platinum-silver hover:text-bright-snow'
               }`}
             >
-              <span>RELEASE</span>
+              <span className="font-silkscreen text-xs tracking-widest">RELEASE</span>
 
               {/* Wind Particles (hidden unless blowing) - contained inside the release box */}
               <div className="absolute inset-y-0 left-4 right-16 pointer-events-none overflow-hidden flex flex-col justify-around">
@@ -617,10 +617,10 @@ export default function Hero() {
               </div>
 
               {/* Integrated Wall Fan mounted to the right border */}
-              <div className="relative flex items-center justify-center pl-2 pr-1">
+              <div className="relative flex items-center justify-center shrink-0">
                 {/* Fan SVG (Option F: Vortex Singularity - Flush Centrifugal Spiral) */}
                 <svg
-                  className={`w-10 h-10 transition-all duration-300 ${
+                  className={`w-9 h-9 transition-all duration-300 ${
                     collectedCount > 0 ? 'text-platinum-silver scale-105' : 'text-alabaster-grey/60'
                   }`}
                   viewBox="0 0 64 64"
