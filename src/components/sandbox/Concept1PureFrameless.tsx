@@ -68,22 +68,26 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             pin: pinContainer,
             start: 'top top',
             end: isDesktop ? '+=65%' : '+=50%',
-            scrub: 0.3, // Responsive 1:1 scroll reaction
+            scrub: 0.3,
             anticipatePin: 1,
           },
         });
 
-        // Variant 1: Pure Gravitational Descent
-        // Strictly forward-facing (rotateY: 0, rotateZ: 0), narrow apex points down, base sucked beneath Section 2
+        // Set transformOrigin to bottom center so the bottom edge stretches downward into Section 2
+        gsap.set(logoMesh, { transformOrigin: '50% 100%' });
+
+        // VARIANT 1: LINEAR GRAVITATIONAL SIPHON (The Benchmark)
+        // Bottom stretches downwards (scaleY 1.45) while horizontal width shrinks (scaleX 0.48), creating a natural sucking stretch
         tl.to(
           logoMesh,
           {
             rotateY: 0,
             rotateZ: 0,
-            rotateX: isDesktop ? 22 : 15, // Subtle downward pitch as base is sucked down first
-            scale: isDesktop ? 0.42 : 0.48,
+            rotateX: isDesktop ? 22 : 15,
+            scaleY: isDesktop ? 1.45 : 1.30, // Elastic vertical downward stretch
+            scaleX: isDesktop ? 0.48 : 0.52, // Overall logo size shrinks horizontally
             y: isDesktop ? 560 : 360, // Plunges beneath Section 2's z-30 top border
-            opacity: 1.0,
+            opacity: 0.95,
             ease: 'power2.in',
           },
           0
@@ -118,7 +122,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
               <span className="tracking-widest text-slate-violet-light uppercase">
-                VARIANT 1: PURE GRAVITATIONAL DESCENT
+                VARIANT 1: LINEAR GRAVITATIONAL SIPHON
               </span>
             </div>
 
@@ -131,7 +135,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Clean baseline. The logo remains strictly forward-facing with its narrow apex pointing downward, executing a seamless gravitational descent beneath Section 2.
+              <strong className="text-bright-snow font-semibold">Elastic Sucking Motion:</strong> As scroll begins, the logo shrinks in width while its bottom edge stretches downward into Section 2 (<code className="text-slate-violet-light">scaleY: 1.45</code>), creating a natural gravitational suction effect.
             </p>
 
             <div className="pt-2">
@@ -141,7 +145,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
             </div>
           </div>
 
-          {/* Right Column: Pure Forward-Facing Gravitational Logo */}
+          {/* Right Column: Logo with Clean V1 Crisp Styling */}
           <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px] z-10">
             <div
               ref={logoMeshRef}
@@ -154,7 +158,7 @@ export default function Concept1PureFrameless({ section2Ref }: Concept1PureFrame
                 width={400}
                 height={400}
                 priority
-                className="w-full h-full object-contain filter drop-shadow-[0_0_40px_rgba(167,139,250,0.35)] pointer-events-none select-none"
+                className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(167,139,250,0.30)] pointer-events-none select-none"
               />
             </div>
           </div>

@@ -17,8 +17,6 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
   const containerRef = useRef<HTMLDivElement>(null);
   const pinContainerRef = useRef<HTMLDivElement>(null);
   const logoMeshRef = useRef<HTMLDivElement>(null);
-  const eventHorizonRef = useRef<HTMLDivElement>(null);
-  const siphonParticlesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current) return;
@@ -26,8 +24,6 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
     const heroSection = containerRef.current;
     const pinContainer = pinContainerRef.current;
     const logoMesh = logoMeshRef.current;
-    const eventHorizon = eventHorizonRef.current;
-    const siphonParticles = siphonParticlesRef.current;
 
     // Subtle 3D Cursor Parallax Tilt (Strictly forward-facing, capped at 6deg max)
     const handleMouseMove = (e: MouseEvent) => {
@@ -72,50 +68,29 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             pin: pinContainer,
             start: 'top top',
             end: isDesktop ? '+=65%' : '+=50%',
-            scrub: 0.3, // Responsive 1:1 scroll reaction
+            scrub: 0.25, // Snappier 1:1 scroll reaction
             anticipatePin: 1,
           },
         });
 
-        // Variant 3: Gravitational Void Siphon
-        // Forward-facing downward compression + event horizon seam suction
+        gsap.set(logoMesh, { transformOrigin: '50% 100%' });
+
+        // VARIANT 3: KINETIC VACUUM DROP (Snap Pull)
+        // Deeper 3D pitch perspective (rotateX 34) with sharp exponential acceleration (power3.in) as if sucked by vacuum force
         tl.to(
           logoMesh,
           {
             rotateY: 0,
             rotateZ: 0,
-            rotateX: isDesktop ? 25 : 18,
-            scale: isDesktop ? 0.38 : 0.44, // Gravitational compression as base is siphoned
-            y: isDesktop ? 560 : 360,
-            opacity: 1.0,
-            ease: 'power2.in',
+            rotateX: isDesktop ? 34 : 22, // Deeper downward pitch perspective
+            scaleY: isDesktop ? 1.35 : 1.25, // Controlled kinetic stretch
+            scaleX: isDesktop ? 0.50 : 0.54, // Proportional size shrink
+            y: isDesktop ? 550 : 360,
+            opacity: 0.95,
+            ease: 'power3.in', // Accelerating vacuum pull
           },
           0
         );
-
-        if (eventHorizon) {
-          tl.to(
-            eventHorizon,
-            {
-              opacity: 1.0,
-              scaleX: 1.2,
-              ease: 'power1.inOut',
-            },
-            0
-          );
-        }
-
-        if (siphonParticles) {
-          tl.to(
-            siphonParticles,
-            {
-              opacity: 0.7,
-              y: 80,
-              ease: 'power2.in',
-            },
-            0
-          );
-        }
       }
     );
 
@@ -136,24 +111,8 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
         ref={pinContainerRef}
         className="w-full min-h-screen flex items-center justify-center relative overflow-hidden"
       >
-        {/* Volumetric Dark Background Halo */}
-        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle_at_center,rgba(167,139,250,0.20)_0%,rgba(226,232,240,0.05)_50%,transparent_75%)] filter blur-[110px] pointer-events-none z-0" />
-
-        {/* Glass-Etched Horizon Event Seam at Section 2 Top Border */}
-        <div
-          ref={eventHorizonRef}
-          className="absolute bottom-0 right-1/4 -translate-x-1/2 w-[450px] h-2 bg-gradient-to-r from-transparent via-slate-violet-light/70 to-transparent pointer-events-none z-0 opacity-0 filter drop-shadow-[0_0_15px_rgba(167,139,250,0.9)]"
-        />
-
-        {/* Vertical Particle Siphon Streaks */}
-        <div
-          ref={siphonParticlesRef}
-          className="absolute bottom-4 right-1/4 -translate-x-1/2 w-48 h-32 pointer-events-none z-0 opacity-0 flex justify-around"
-        >
-          <div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-slate-violet-light/60 to-transparent animate-pulse" />
-          <div className="w-[2px] h-full bg-gradient-to-b from-transparent via-bright-snow/70 to-transparent animate-pulse delay-100" />
-          <div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-slate-violet-light/60 to-transparent animate-pulse delay-200" />
-        </div>
+        {/* Subtle Ambient Background Halo */}
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[550px] h-[550px] rounded-full bg-[radial-gradient(circle_at_center,rgba(167,139,250,0.12)_0%,rgba(24,24,27,0.04)_60%,transparent_80%)] filter blur-[100px] pointer-events-none z-0" />
 
         {/* Hero Content Grid - Copy stays 100% stationary */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
@@ -162,7 +121,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
               <span className="tracking-widest text-slate-violet-light uppercase">
-                VARIANT 3: GRAVITATIONAL VOID SIPHON
+                VARIANT 3: KINETIC VACUUM DROP
               </span>
             </div>
 
@@ -175,7 +134,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Alternate visual treatment. The forward-facing logo undergoes sleek gravitational compression as its narrow apex is siphoned into the event horizon seam.
+              <strong className="text-bright-snow font-semibold">Snap Vacuum Flavor:</strong> Combines a deeper 3D downward pitch (<code className="text-slate-violet-light">rotateX: 34deg</code>) with an accelerating vacuum curve (<code className="text-slate-violet-light">power3.in</code>) for a snappy, high-energy suction plunge into Section 2.
             </p>
 
             <div className="pt-2">
@@ -185,7 +144,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
             </div>
           </div>
 
-          {/* Right Column: 3D Void Siphon Logo */}
+          {/* Right Column: 3D Logo with Crisp V1 Colors */}
           <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px] z-10">
             <div
               ref={logoMeshRef}
@@ -198,7 +157,7 @@ export default function Concept3PortalDescent({ section2Ref }: Concept3PortalDes
                 width={400}
                 height={400}
                 priority
-                className="w-full h-full object-contain filter drop-shadow-[0_0_60px_rgba(167,139,250,0.7)] pointer-events-none select-none"
+                className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(167,139,250,0.30)] pointer-events-none select-none"
               />
             </div>
           </div>

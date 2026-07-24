@@ -17,8 +17,6 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
   const containerRef = useRef<HTMLDivElement>(null);
   const pinContainerRef = useRef<HTMLDivElement>(null);
   const logoMeshRef = useRef<HTMLDivElement>(null);
-  const lightAuraRef = useRef<HTMLDivElement>(null);
-  const floorGlowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current || !pinContainerRef.current || !logoMeshRef.current) return;
@@ -26,8 +24,6 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
     const heroSection = containerRef.current;
     const pinContainer = pinContainerRef.current;
     const logoMesh = logoMeshRef.current;
-    const lightAura = lightAuraRef.current;
-    const floorGlow = floorGlowRef.current;
 
     // Subtle 3D Cursor Parallax Tilt (Strictly forward-facing, capped at 6deg max)
     const handleMouseMove = (e: MouseEvent) => {
@@ -72,50 +68,31 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             pin: pinContainer,
             start: 'top top',
             end: isDesktop ? '+=65%' : '+=50%',
-            scrub: 0.3, // Responsive 1:1 scroll reaction
+            scrub: 0.3,
             anticipatePin: 1,
           },
         });
 
-        // Variant 2: Volumetric Aura Pull
-        // Forward-facing downward gravitational pull + ambient lighting aura & floor flare
+        // Set transformOrigin to lower 90% for a funnel vortex stretch
+        gsap.set(logoMesh, { transformOrigin: '50% 90%' });
+
+        // VARIANT 2: FLUID FUNNEL STRETCH (Vortex Taper)
+        // More exaggerated vertical elongation (scaleY 1.70) with a narrow funnel taper (scaleX 0.40) & subtle skew
         tl.to(
           logoMesh,
           {
             rotateY: 0,
             rotateZ: 0,
-            rotateX: isDesktop ? 22 : 15,
-            scale: isDesktop ? 0.42 : 0.48,
-            y: isDesktop ? 560 : 360,
-            opacity: 1.0,
+            rotateX: isDesktop ? 26 : 18,
+            skewY: isDesktop ? -6 : -3, // Subtle downward skew pull
+            scaleY: isDesktop ? 1.70 : 1.45, // Hyper-extended vertical stretch
+            scaleX: isDesktop ? 0.40 : 0.46, // Tapered funnel width
+            y: isDesktop ? 580 : 380,
+            opacity: 0.95,
             ease: 'power2.in',
           },
           0
         );
-
-        if (lightAura) {
-          tl.to(
-            lightAura,
-            {
-              opacity: 0.85,
-              scale: 1.25,
-              ease: 'power1.inOut',
-            },
-            0
-          );
-        }
-
-        if (floorGlow) {
-          tl.to(
-            floorGlow,
-            {
-              opacity: 1.0,
-              scaleX: 1.4,
-              ease: 'power2.in',
-            },
-            0
-          );
-        }
       }
     );
 
@@ -136,17 +113,8 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
         ref={pinContainerRef}
         className="w-full min-h-screen flex items-center justify-center relative overflow-hidden"
       >
-        {/* Volumetric Volumetric Light Pillar & Aura Glow */}
-        <div
-          ref={lightAuraRef}
-          className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle_at_center,rgba(167,139,250,0.30)_0%,rgba(226,232,240,0.08)_50%,transparent_75%)] filter blur-[110px] pointer-events-none z-0 opacity-40 transition-opacity duration-300"
-        />
-
-        {/* Floor Seam Glow Flare at Section 2 Interface */}
-        <div
-          ref={floorGlowRef}
-          className="absolute bottom-0 right-1/4 -translate-x-1/2 w-[400px] h-12 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(167,139,250,0.6)_0%,transparent_70%)] filter blur-[20px] pointer-events-none z-0 opacity-0"
-        />
+        {/* Ambient Subtle Halo - Matching V1 non-glowing aesthetic */}
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[550px] h-[550px] rounded-full bg-[radial-gradient(circle_at_center,rgba(167,139,250,0.15)_0%,rgba(24,24,27,0.04)_60%,transparent_80%)] filter blur-[100px] pointer-events-none z-0" />
 
         {/* Hero Content Grid - Copy stays 100% stationary */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between gap-12">
@@ -155,7 +123,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-carbon-black-2/80 border border-slate-violet/40 rounded-xl text-[10px] font-silkscreen text-bright-snow shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
               <span className="w-2 h-2 rounded-full bg-slate-violet-light animate-pulse" />
               <span className="tracking-widest text-slate-violet-light uppercase">
-                VARIANT 2: VOLUMETRIC AURA PULL
+                VARIANT 2: FLUID FUNNEL STRETCH
               </span>
             </div>
 
@@ -168,7 +136,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             </p>
 
             <p className="text-sm md:text-base text-alabaster-grey leading-relaxed font-outfit font-light max-w-xl">
-              Sophisticated ambient lighting. Volumetric aura and floor light flares awaken on scroll as the forward-facing logo sinks beneath Section 2.
+              <strong className="text-bright-snow font-semibold">Funnel Vortex Flavor:</strong> Features an ultra-fluid vertical stretch (<code className="text-slate-violet-light">scaleY: 1.70</code>) with narrow funnel tapering (<code className="text-slate-violet-light">scaleX: 0.40</code>) and subtle downward skew as it enters Section 2. Uses clean Variation 1 colors without harsh over-glow.
             </p>
 
             <div className="pt-2">
@@ -178,7 +146,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
             </div>
           </div>
 
-          {/* Right Column: 3D Volumetric Light Logo */}
+          {/* Right Column: 3D Logo with Crisp V1 Colors */}
           <div className="flex-1 flex items-center justify-center relative w-full h-[350px] md:h-[500px] perspective-[1200px] z-10">
             <div
               ref={logoMeshRef}
@@ -191,7 +159,7 @@ export default function Concept2GlassMonolith({ section2Ref }: Concept2GlassMono
                 width={400}
                 height={400}
                 priority
-                className="w-full h-full object-contain filter drop-shadow-[0_0_60px_rgba(167,139,250,0.7)] pointer-events-none select-none"
+                className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(167,139,250,0.30)] pointer-events-none select-none"
               />
             </div>
           </div>
