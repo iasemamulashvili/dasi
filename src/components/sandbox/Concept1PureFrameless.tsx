@@ -15,9 +15,10 @@ interface Concept1PureFramelessProps {
 }
 
 /**
- * VARIANT 1: ELASTIC LIQUID WARP & PLUNGE (Liquid Rubber Physics)
- * Demonstrates extreme elastic vertical stretch (scaleY: 2.10) with horizontal width pinching (scaleX: 0.30),
- * making the logo feel like a viscous fluid drop being sucked beneath Section 2.
+ * VARIANT 1: GRAVITATIONAL SIPHON (Instant Liquid Rubber Stretch)
+ * Uses official Dasi Logo (/Logo_White_PNG.png).
+ * Starts movement instantly on scroll without pinning delay, stretching scaleY to 2.10 and plunging
+ * y: 950px (desktop) / 650px (mobile) to hide 100% deep behind Section 2.
  */
 export default function Concept1PureFrameless({
   heroContainerRef,
@@ -69,31 +70,30 @@ export default function Concept1PureFrameless({
     // Anchor transformOrigin to bottom center for liquid stretch
     gsap.set(logoMesh, { transformOrigin: '50% 100%' });
 
+    // Instant, Unpinned ScrollTrigger (Starts on first pixel of scroll, completes when hero leaves view)
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: heroSection,
         start: 'top top',
-        end: isMobile ? '+=60%' : '+=130%',
-        pin: !isMobile,
-        scrub: isMobile ? 0.3 : 1,
-        anticipatePin: 1,
+        end: 'bottom top',
+        scrub: 0.15,
       },
     });
 
-    // Extreme liquid rubber stretch on scroll
+    // Instant Sucking Stretch & Deep Plunge
     tl.to(
       logoMesh,
       {
         rotateY: 0,
         rotateZ: 0,
-        rotateX: isMobile ? 15 : 24,
-        scaleY: isMobile ? 1.65 : 2.10, // Extreme liquid vertical elongation
-        scaleX: isMobile ? 0.42 : 0.30, // Ultra-narrow width pinch
-        y: isMobile ? 260 : 540,        // Plunges beneath Section 2 (z-30)
-        opacity: 0.95,
+        rotateX: isMobile ? 18 : 28,
+        scaleY: isMobile ? 1.60 : 2.10, // Liquid vertical elongation
+        scaleX: isMobile ? 0.40 : 0.30, // Ultra-narrow width pinch
+        y: isMobile ? 650 : 950,        // Deep descent to completely clear Section 2 border
+        opacity: 0,                     // Clean fade behind Section 2 (z-30)
         ease: 'power2.in',
       },
-      0.30
+      0
     );
 
     return () => {
@@ -113,7 +113,7 @@ export default function Concept1PureFrameless({
       >
         <Image
           src="/Logo_White_PNG.png"
-          alt="Dasi Games 3D Liquid Logo"
+          alt="Dasi Games 3D Logo"
           width={400}
           height={400}
           priority

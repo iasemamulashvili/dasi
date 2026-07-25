@@ -39,27 +39,27 @@ export default function HeroConceptSelector({
   const concepts = [
     {
       id: 'concept1' as ConceptId,
-      name: 'Variant 1: Linear Gravitational Siphon',
-      shortName: 'Variant 1 (Linear Siphon)',
+      name: 'Variant 1: Gravitational Siphon (Liquid Rubber Stretch)',
+      shortName: 'Variant 1 (Liquid Stretch)',
       icon: Sparkles,
-      tag: 'Linear Siphon',
-      desc: 'Bottom stretches downward (scaleY: 1.45) while logo width shrinks (scaleX: 0.48) during pinned hero scroll.',
+      tag: 'Liquid Rubber Stretch',
+      desc: 'Instant liquid vertical stretch (scaleY: 2.10) with width pinching (scaleX: 0.30) and deep y: 950px plunge behind Section 2.',
     },
     {
       id: 'concept2' as ConceptId,
-      name: 'Variant 2: Fluid Funnel Stretch',
-      shortName: 'Variant 2 (Fluid Funnel)',
+      name: 'Variant 2: Fluid Funnel & Vortex Twist',
+      shortName: 'Variant 2 (Vortex Twist)',
       icon: Waves,
-      tag: 'Fluid Funnel',
-      desc: 'Hyper-extended vertical elongation (scaleY: 1.70) with a narrow funnel taper (scaleX: 0.40) and subtle downward skew.',
+      tag: '3D Vortex Twist',
+      desc: 'Instant 3D pitch & Z-rotation twist (-14deg) with funnel elongation (scaleY: 1.65) plunging deep into Section 2.',
     },
     {
       id: 'concept3' as ConceptId,
       name: 'Variant 3: Kinetic Vacuum Drop',
       shortName: 'Variant 3 (Kinetic Vacuum)',
       icon: Zap,
-      tag: 'Kinetic Vacuum',
-      desc: 'Deeper 3D downward pitch perspective (rotateX: 34deg) with an accelerating vacuum curve (power3.in).',
+      tag: 'Kinetic Vacuum Snap',
+      desc: 'Instant exponential acceleration (power4.in) with steep 3D wedge pitch (rotateX: 48deg) snapping deep behind Section 2.',
     },
   ];
 
