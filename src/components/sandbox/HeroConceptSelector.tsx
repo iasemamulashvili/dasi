@@ -43,7 +43,7 @@ export default function HeroConceptSelector({
       shortName: 'Variant 1 (Linear Siphon)',
       icon: Sparkles,
       tag: 'Linear Siphon',
-      desc: 'Bottom stretches downward (scaleY: 1.45) while logo width shrinks (scaleX: 0.48), creating an elastic gravitational suction effect beneath Section 2.',
+      desc: 'Bottom stretches downward (scaleY: 1.45) while logo width shrinks (scaleX: 0.48) during pinned hero scroll.',
     },
     {
       id: 'concept2' as ConceptId,
@@ -59,18 +59,18 @@ export default function HeroConceptSelector({
       shortName: 'Variant 3 (Kinetic Vacuum)',
       icon: Zap,
       tag: 'Kinetic Vacuum',
-      desc: 'Deeper 3D downward pitch perspective (rotateX: 34deg) with an accelerating vacuum curve (power3.in) for a snappy suction plunge.',
+      desc: 'Deeper 3D downward pitch perspective (rotateX: 34deg) with an accelerating vacuum curve (power3.in).',
     },
   ];
 
   const currentConcept = concepts.find((c) => c.id === activeConcept) || concepts[0];
 
   return (
-    <div className="fixed bottom-4 inset-x-4 md:bottom-auto md:top-24 md:left-1/2 md:-translate-x-1/2 z-[90] w-auto max-w-4xl mx-auto pointer-events-none select-none">
-      <div className="pointer-events-auto bg-carbon-black-2/95 backdrop-blur-xl border border-white/15 rounded-2xl p-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.85)] flex flex-col md:flex-row items-center justify-between gap-3">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[92vw] max-w-2xl pointer-events-none select-none">
+      <div className="pointer-events-auto bg-carbon-black-2/95 backdrop-blur-2xl border border-white/15 rounded-2xl p-2 shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex items-center justify-between gap-3">
         
         {/* Tab Switchers */}
-        <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto no-scrollbar py-0.5">
+        <div className="flex items-center gap-1.5 w-full overflow-x-auto no-scrollbar py-0.5">
           {concepts.map((concept) => {
             const Icon = concept.icon;
             const isActive = activeConcept === concept.id;
@@ -92,24 +92,9 @@ export default function HeroConceptSelector({
         </div>
 
         {/* FPS & Performance HUD */}
-        <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 bg-carbon-black/80 border border-white/10 rounded-xl text-[10px] font-mono text-alabaster-grey/80 shrink-0 self-end md:self-auto">
-          <div className="flex items-center gap-1.5">
-            <Cpu size={12} className="text-slate-violet-light" />
-            <span>PERF:</span>
-            <span className="text-emerald-400 font-bold">{fps} FPS</span>
-          </div>
-          <span className="opacity-30">|</span>
-          <span className="text-slate-violet-light font-bold">ELASTIC SUCKING SCROLL</span>
-        </div>
-      </div>
-
-      {/* Concept Description Sub-Bar (Desktop Only) */}
-      <div className="hidden md:flex pointer-events-auto mt-2 px-4 py-2 bg-carbon-black-2/80 backdrop-blur-md border border-white/10 rounded-xl text-xs font-outfit text-alabaster-grey/90 items-center justify-between shadow-lg">
-        <div className="flex items-center gap-2">
-          <span className="text-slate-violet-light font-bold font-mono text-[11px] uppercase">
-            [{currentConcept.tag}]
-          </span>
-          <span className="line-clamp-1">{currentConcept.desc}</span>
+        <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 bg-carbon-black/80 border border-white/10 rounded-xl text-[10px] font-mono text-alabaster-grey/80 shrink-0">
+          <Cpu size={12} className="text-slate-violet-light" />
+          <span className="text-emerald-400 font-bold">{fps} FPS</span>
         </div>
       </div>
     </div>

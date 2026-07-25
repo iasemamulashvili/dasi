@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -19,6 +19,14 @@ export default function Concept2GlassMonolith({
   section2Ref,
 }: Concept2GlassMonolithProps) {
   const logoMeshRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (!heroContainerRef.current || !logoMeshRef.current) return;
@@ -27,7 +35,7 @@ export default function Concept2GlassMonolith({
     const logoMesh = logoMeshRef.current;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (window.innerWidth < 768) return;
+      if (window.innerWidth < 1024) return;
       const rect = heroSection.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -52,54 +60,43 @@ export default function Concept2GlassMonolith({
     heroSection.addEventListener('mousemove', handleMouseMove);
     heroSection.addEventListener('mouseleave', handleMouseLeave);
 
-    const mm = gsap.matchMedia();
+    gsap.set(logoMesh, { transformOrigin: '50% 90%' });
 
-    mm.add(
-      {
-        isDesktop: '(min-width: 768px)',
-        isMobile: '(max-width: 767px)',
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: heroSection,
+        start: 'top top',
+        end: isMobile ? '+=40%' : '+=130%',
+        pin: !isMobile,
+        scrub: isMobile ? 0.3 : 1,
+        anticipatePin: 1,
       },
-      (context) => {
-        const { isDesktop } = context.conditions as { isDesktop: boolean };
+    });
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: heroSection,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 0.3,
-          },
-        });
-
-        // Set transformOrigin to lower 90% for a funnel vortex stretch
-        gsap.set(logoMesh, { transformOrigin: '50% 90%' });
-
-        // VARIANT 2: FLUID FUNNEL STRETCH (Vortex Taper)
-        // More exaggerated vertical elongation (scaleY 1.70) with a narrow funnel taper (scaleX 0.40) & subtle skew
-        tl.to(
-          logoMesh,
-          {
-            rotateY: 0,
-            rotateZ: 0,
-            rotateX: isDesktop ? 26 : 18,
-            skewY: isDesktop ? -6 : -3,
-            scaleY: isDesktop ? 1.70 : 1.45,
-            scaleX: isDesktop ? 0.40 : 0.46,
-            y: isDesktop ? 560 : 390,
-            opacity: 0.95,
-            ease: 'power2.in',
-          },
-          0
-        );
-      }
+    // VARIANT 2: FLUID FUNNEL STRETCH (Vortex Taper)
+    tl.to(
+      logoMesh,
+      {
+        rotateY: 0,
+        rotateZ: 0,
+        rotateX: isMobile ? 18 : 28,
+        skewY: isMobile ? -3 : -6,
+        scaleY: isMobile ? 1.45 : 1.70,
+        scaleX: isMobile ? 0.46 : 0.40,
+        y: isMobile ? 390 : 560,
+        opacity: 0.95,
+        ease: 'power2.in',
+      },
+      0.35
     );
 
     return () => {
       heroSection.removeEventListener('mousemove', handleMouseMove);
       heroSection.removeEventListener('mouseleave', handleMouseLeave);
-      mm.revert();
+      if (tl.scrollTrigger) tl.scrollTrigger.kill();
+      tl.kill();
     };
-  }, [heroContainerRef, section2Ref]);
+  }, [heroContainerRef, isMobile, section2Ref]);
 
   return (
     <div className="w-full h-full flex items-center justify-center relative perspective-[1200px] pointer-events-auto select-none">

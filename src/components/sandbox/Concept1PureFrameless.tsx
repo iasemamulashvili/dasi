@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -19,6 +19,14 @@ export default function Concept1PureFrameless({
   section2Ref,
 }: Concept1PureFramelessProps) {
   const logoMeshRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (!heroContainerRef.current || !logoMeshRef.current) return;
@@ -28,7 +36,7 @@ export default function Concept1PureFrameless({
 
     // Subtle 3D Cursor Parallax Tilt (Strictly forward-facing, capped at 6deg max)
     const handleMouseMove = (e: MouseEvent) => {
-      if (window.innerWidth < 768) return;
+      if (window.innerWidth < 1024) return;
       const rect = heroSection.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -53,54 +61,45 @@ export default function Concept1PureFrameless({
     heroSection.addEventListener('mousemove', handleMouseMove);
     heroSection.addEventListener('mouseleave', handleMouseLeave);
 
-    // Responsive GSAP ScrollTrigger Timeline
-    const mm = gsap.matchMedia();
+    // 1:1 Production Hero Pinning & Sucking Motion Timeline
+    gsap.set(logoMesh, { transformOrigin: '50% 100%' });
 
-    mm.add(
-      {
-        isDesktop: '(min-width: 768px)',
-        isMobile: '(max-width: 767px)',
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: heroSection,
+        start: 'top top',
+        end: isMobile ? '+=40%' : '+=130%',
+        pin: !isMobile,
+        scrub: isMobile ? 0.3 : 1,
+        anticipatePin: 1,
       },
-      (context) => {
-        const { isDesktop } = context.conditions as { isDesktop: boolean };
+    });
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: heroSection,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 0.3,
-          },
-        });
-
-        // Set transformOrigin to bottom center so the bottom edge stretches downward into Section 2
-        gsap.set(logoMesh, { transformOrigin: '50% 100%' });
-
-        // VARIANT 1: LINEAR GRAVITATIONAL SIPHON (Benchmark Sucking Stretch)
-        // Bottom stretches downwards (scaleY 1.45) while horizontal width shrinks (scaleX 0.48)
-        tl.to(
-          logoMesh,
-          {
-            rotateY: 0,
-            rotateZ: 0,
-            rotateX: isDesktop ? 22 : 16,
-            scaleY: isDesktop ? 1.45 : 1.30, // Elastic vertical downward stretch
-            scaleX: isDesktop ? 0.48 : 0.54, // Logo width shrinks
-            y: isDesktop ? 540 : 380, // Plunges beneath Section 2's z-30 top border
-            opacity: 0.95,
-            ease: 'power2.in',
-          },
-          0
-        );
-      }
+    // VARIANT 1: LINEAR GRAVITATIONAL SIPHON
+    // First 35% scroll: Logo stays prominent in hero quadrant.
+    // 35% -> 100% scroll: Logo executes bottom-anchored elastic sucking stretch (scaleY 1.45, scaleX 0.48, rotateX 24deg) plunging beneath Section 2's top border.
+    tl.to(
+      logoMesh,
+      {
+        rotateY: 0,
+        rotateZ: 0,
+        rotateX: isMobile ? 16 : 24,
+        scaleY: isMobile ? 1.30 : 1.45,
+        scaleX: isMobile ? 0.54 : 0.48,
+        y: isMobile ? 380 : 540,
+        opacity: 0.95,
+        ease: 'power2.in',
+      },
+      0.35
     );
 
     return () => {
       heroSection.removeEventListener('mousemove', handleMouseMove);
       heroSection.removeEventListener('mouseleave', handleMouseLeave);
-      mm.revert();
+      if (tl.scrollTrigger) tl.scrollTrigger.kill();
+      tl.kill();
     };
-  }, [heroContainerRef, section2Ref]);
+  }, [heroContainerRef, isMobile, section2Ref]);
 
   return (
     <div className="w-full h-full flex items-center justify-center relative perspective-[1200px] pointer-events-auto select-none">

@@ -18,11 +18,11 @@ export default function HeroConceptsSandboxPage() {
 
   return (
     <>
-      {/* Exact 1:1 Production Header */}
+      {/* 1:1 Production Header */}
       <Header />
 
-      <main className="relative min-h-screen w-full bg-carbon-black text-bright-snow overflow-x-hidden selection:bg-slate-violet/30 flex-1">
-        {/* Floating Mobile-Responsive Concept Selector */}
+      <main className="flex-1">
+        {/* Floating Mobile-Responsive Concept Selector (Docked cleanly at bottom, out of way) */}
         <HeroConceptSelector
           activeConcept={activeConcept}
           onSelectConcept={setActiveConcept}
@@ -45,16 +45,16 @@ export default function HeroConceptsSandboxPage() {
           )}
         />
 
-        {/* 1:1 Production Section 2 (Featured Releases Showcase) */}
+        {/* 1:1 Production Section 2 (Featured Releases Showcase) - Standard Flow matching app/page.tsx */}
         <div
           ref={section2Ref}
-          className="relative z-30 w-full border-t border-white/10 bg-carbon-black shadow-[0_-25px_60px_rgba(0,0,0,0.95)] -mt-16 md:-mt-28"
+          className="relative z-30 w-full bg-carbon-black border-t border-white/10 shadow-[0_-25px_60px_rgba(0,0,0,0.95)]"
         >
           <WebGLFeaturedSlider />
         </div>
       </main>
 
-      {/* Exact 1:1 Production Footer */}
+      {/* 1:1 Production Footer */}
       <Footer />
     </>
   );

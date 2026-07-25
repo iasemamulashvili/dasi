@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -19,6 +19,14 @@ export default function Concept3PortalDescent({
   section2Ref,
 }: Concept3PortalDescentProps) {
   const logoMeshRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (!heroContainerRef.current || !logoMeshRef.current) return;
@@ -27,7 +35,7 @@ export default function Concept3PortalDescent({
     const logoMesh = logoMeshRef.current;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (window.innerWidth < 768) return;
+      if (window.innerWidth < 1024) return;
       const rect = heroSection.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -52,52 +60,42 @@ export default function Concept3PortalDescent({
     heroSection.addEventListener('mousemove', handleMouseMove);
     heroSection.addEventListener('mouseleave', handleMouseLeave);
 
-    const mm = gsap.matchMedia();
+    gsap.set(logoMesh, { transformOrigin: '50% 100%' });
 
-    mm.add(
-      {
-        isDesktop: '(min-width: 768px)',
-        isMobile: '(max-width: 767px)',
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: heroSection,
+        start: 'top top',
+        end: isMobile ? '+=40%' : '+=130%',
+        pin: !isMobile,
+        scrub: isMobile ? 0.25 : 1,
+        anticipatePin: 1,
       },
-      (context) => {
-        const { isDesktop } = context.conditions as { isDesktop: boolean };
+    });
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: heroSection,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 0.25,
-          },
-        });
-
-        gsap.set(logoMesh, { transformOrigin: '50% 100%' });
-
-        // VARIANT 3: KINETIC VACUUM DROP (Snap Pull)
-        // Deeper 3D pitch perspective (rotateX 34) with sharp exponential acceleration (power3.in)
-        tl.to(
-          logoMesh,
-          {
-            rotateY: 0,
-            rotateZ: 0,
-            rotateX: isDesktop ? 34 : 22,
-            scaleY: isDesktop ? 1.35 : 1.25,
-            scaleX: isDesktop ? 0.50 : 0.54,
-            y: isDesktop ? 540 : 370,
-            opacity: 0.95,
-            ease: 'power3.in',
-          },
-          0
-        );
-      }
+    // VARIANT 3: KINETIC VACUUM DROP (Snap Pull)
+    tl.to(
+      logoMesh,
+      {
+        rotateY: 0,
+        rotateZ: 0,
+        rotateX: isMobile ? 22 : 34,
+        scaleY: isMobile ? 1.25 : 1.35,
+        scaleX: isMobile ? 0.54 : 0.50,
+        y: isMobile ? 370 : 540,
+        opacity: 0.95,
+        ease: 'power3.in',
+      },
+      0.35
     );
 
     return () => {
       heroSection.removeEventListener('mousemove', handleMouseMove);
       heroSection.removeEventListener('mouseleave', handleMouseLeave);
-      mm.revert();
+      if (tl.scrollTrigger) tl.scrollTrigger.kill();
+      tl.kill();
     };
-  }, [heroContainerRef, section2Ref]);
+  }, [heroContainerRef, isMobile, section2Ref]);
 
   return (
     <div className="w-full h-full flex items-center justify-center relative perspective-[1200px] pointer-events-auto select-none">
