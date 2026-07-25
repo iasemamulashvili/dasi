@@ -705,18 +705,18 @@ export default function Hero({ logoComponent }: HeroProps = {}) {
         </div>
         </div>
 
-        {/* Right Column: Dynamic Scroll-driven Canvas / Custom Logo Slot (z-10 beneath z-20 title/release box) */}
+        {/* Right Column: Dynamic Scroll-driven Canvas / Custom Logo Slot (z-10 isolate beneath z-20 title/release box) */}
         <div
           ref={layerMidRef}
-          className="relative md:absolute w-full max-w-[220px] sm:max-w-[260px] md:max-w-[420px] lg:max-w-[480px] mx-auto md:mx-0 md:right-0 md:bottom-0 lg:right-4 lg:bottom-2 md:w-[36vw] lg:w-[34vw] xl:w-[32vw] h-[160px] sm:h-[200px] md:h-[68%] lg:h-[72%] my-1 md:my-0 flex items-center justify-center md:items-end md:justify-end pointer-events-none select-none z-10"
+          className="relative md:absolute w-full max-w-[220px] sm:max-w-[260px] md:max-w-[420px] lg:max-w-[480px] mx-auto md:mx-0 md:right-0 md:bottom-0 lg:right-4 lg:bottom-2 md:w-[36vw] lg:w-[34vw] xl:w-[32vw] h-[160px] sm:h-[200px] md:h-[68%] lg:h-[72%] my-1 md:my-0 flex items-center justify-center md:items-end md:justify-end pointer-events-none select-none z-10 isolate"
         >
           {typeof logoComponent === 'function' ? logoComponent(containerRef) : (logoComponent || <ScrollLogoCanvas heroContainerRef={containerRef} />)}
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none opacity-50">
-        <span className="text-[9px] tracking-widest text-alabaster-grey/50 font-silkscreen uppercase">Scroll to Explore</span>
+      {/* Scroll indicator (z-20 sitting in front of descending z-10 logo) */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none select-none">
+        <span className="text-[9px] tracking-widest text-alabaster-grey/80 font-silkscreen uppercase">Scroll to Explore</span>
         <div className="w-[1.5px] h-10 bg-gradient-to-b from-slate-violet-light to-transparent animate-pulse" />
       </div>
     </section>
