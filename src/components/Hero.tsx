@@ -714,16 +714,10 @@ export default function Hero({ logoComponent }: HeroProps = {}) {
         </div>
       </div>
 
-      {/* Scroll indicator with z-20 layer mask for physical logo siphoning */}
-      <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 z-20 pointer-events-none select-none">
-        {/* Subtle gradient floor shield masking logo passing behind at z-10 */}
-        <div className="absolute -bottom-4 w-72 h-20 bg-gradient-to-t from-carbon-black via-carbon-black/90 to-transparent pointer-events-none -z-10" />
-
-        <div className="px-4 py-1.5 rounded-full bg-carbon-black/85 backdrop-blur-md border border-white/10 text-[9px] tracking-[0.2em] font-silkscreen text-alabaster-grey/80 uppercase shadow-[0_8px_25px_rgba(0,0,0,0.85)] flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-slate-violet-light animate-pulse" />
-          <span>Scroll to Explore</span>
-        </div>
-        <div className="w-[1.5px] h-8 bg-gradient-to-b from-slate-violet-light to-transparent animate-pulse" />
+      {/* Scroll indicator */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none opacity-50">
+        <span className="text-[9px] tracking-widest text-alabaster-grey/50 font-silkscreen uppercase">Scroll to Explore</span>
+        <div className="w-[1.5px] h-10 bg-gradient-to-b from-slate-violet-light to-transparent animate-pulse" />
       </div>
     </section>
   );

@@ -16,9 +16,9 @@ interface DasiHeroLogoSiphonProps {
 
 /**
  * DasiHeroLogoSiphon Component
- * Perfected single logo scroll-driven siphon component.
- * Combines 3D liquid rubber vertical stretch (scaleY: 1.75 / scaleX: 0.35) with true physical DOM layer stacking (z-10).
- * Glides seamlessly behind the z-20 "SCROLL TO EXPLORE" HUD badge on mobile and z-30 Section 2 on desktop.
+ * Official 3D Dasi White Logo (/Logo_White_PNG.png). Zero clipPath rects, zero artificial frame boxes.
+ * Instant liquid rubber stretch (scaleY: 1.75 / scaleX: 0.35) with deep y translation (950px desktop / 520px mobile)
+ * plunging 100.0% deep behind Section 2 (z-30 bg-carbon-black) with zero residual shape sticking out.
  */
 export default function DasiHeroLogoSiphon({
   heroContainerRef,
@@ -75,13 +75,13 @@ export default function DasiHeroLogoSiphon({
       scrollTrigger: {
         trigger: heroSection,
         start: 'top top',
-        end: isMobile ? 'top+=280 top' : 'top+=500 top',
-        scrub: 0.2,
+        end: isMobile ? 'top+=300 top' : 'top+=500 top',
+        scrub: 0.15,
       },
     });
 
     if (isMobile) {
-      // Mobile: Swift, elegant liquid stretch that glides behind z-20 "SCROLL TO EXPLORE" & z-30 Section 2
+      // Mobile: Liquid stretch + deep plunge behind z-30 Section 2 with complete fade out at end
       tl.to(
         logoMesh,
         {
@@ -90,13 +90,14 @@ export default function DasiHeroLogoSiphon({
           rotateX: 18,
           scaleY: 1.45,
           scaleX: 0.45,
-          y: 280, // Physical descent past z-20 Scroll to Explore into z-30 Section 2
+          y: 520,      // Deep plunge past z-30 Section 2 top border
+          opacity: 0,  // Complete 100% hide once cleared behind Section 2
           ease: 'power2.in',
         },
         0
       );
     } else {
-      // Desktop: Ultra-smooth liquid siphon plunge behind z-30 Section 2
+      // Desktop: Ultra-smooth liquid siphon plunge deep behind z-30 Section 2
       tl.to(
         logoMesh,
         {
@@ -105,7 +106,8 @@ export default function DasiHeroLogoSiphon({
           rotateX: 26,
           scaleY: 1.75,
           scaleX: 0.35,
-          y: 600,
+          y: 950,      // Deep plunge past z-30 Section 2 top border
+          opacity: 0,  // Complete 100% hide once cleared behind Section 2
           ease: 'power2.in',
         },
         0
@@ -124,7 +126,7 @@ export default function DasiHeroLogoSiphon({
     <div className="w-full h-full flex items-center justify-center relative perspective-[1200px] pointer-events-auto select-none">
       <div
         ref={logoMeshRef}
-        className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-64 md:h-64 lg:w-[320px] lg:h-[320px] flex items-center justify-center cursor-pointer"
+        className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-64 md:h-64 lg:w-[320px] lg:h-[320px] flex items-center justify-center cursor-pointer"
         style={{ transformStyle: 'preserve-3d' }}
       >
         <Image
