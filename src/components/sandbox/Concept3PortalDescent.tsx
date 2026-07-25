@@ -15,11 +15,10 @@ interface Concept3PortalDescentProps {
 }
 
 /**
- * VARIANT 3: KINETIC VACUUM DROP (Instant Exponential Vacuum Plunge)
- * Slightly reduced logo size (320px max). Zero particle trails.
- * Fast completion scroll trigger (ends within top+=450px on desktop / top+=220px on mobile).
- * On Mobile: Dissolves cleanly above "SCROLL TO EXPLORE" text without touching or overlapping it.
- * On Desktop: Steep 3D wedge pitch & exponential vacuum acceleration snapping deep y: 540px behind Section 2 before Section 2 covers the view.
+ * VARIANT 3: KINETIC VACUUM DROP (Exponential Vacuum Plunge with Bottom-to-Top Clip Wipe)
+ * Uses official Dasi Logo (/Logo_White_PNG.png). Zero particle trails.
+ * On scroll, animates clipPath from inset(0% 0% 0% 0%) to inset(0% 0% 100% 0%), wiping the logo away
+ * from bottom to top as it descends below the next element (Section 2 on desktop / Scroll to Explore on mobile).
  */
 export default function Concept3PortalDescent({
   heroContainerRef,
@@ -67,33 +66,36 @@ export default function Concept3PortalDescent({
     heroSection.addEventListener('mousemove', handleMouseMove);
     heroSection.addEventListener('mouseleave', handleMouseLeave);
 
-    gsap.set(logoMesh, { transformOrigin: '50% 100%' });
+    gsap.set(logoMesh, {
+      transformOrigin: '50% 100%',
+      clipPath: 'inset(0% 0% 0% 0%)',
+    });
 
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: heroSection,
         start: 'top top',
-        end: isMobile ? 'top+=220 top' : 'top+=450 top',
+        end: isMobile ? 'top+=180 top' : 'top+=400 top',
         scrub: 0.15,
       },
     });
 
     if (isMobile) {
-      // Mobile: Dissolves cleanly above "SCROLL TO EXPLORE" text without touching or overlapping it
+      // Mobile: Bottom-to-top wipe (inset 0% -> 100% at bottom) before reaching "SCROLL TO EXPLORE"
       tl.to(
         logoMesh,
         {
           rotateX: 20,
           scaleY: 1.10,
           scaleX: 0.52,
-          y: 75,
-          opacity: 0,
+          y: 65,
+          clipPath: 'inset(0% 0% 100% 0%)',
           ease: 'power4.in',
         },
         0
       );
     } else {
-      // Desktop: Steep 3D wedge pitch & exponential vacuum plunge deep behind Section 2 border
+      // Desktop: Steep 3D wedge pitch & exponential vacuum plunge with bottom-to-top wipe behind Section 2 border
       tl.to(
         logoMesh,
         {
@@ -103,7 +105,7 @@ export default function Concept3PortalDescent({
           scaleY: 1.15,
           scaleX: 0.44,
           y: 540,
-          opacity: 0,
+          clipPath: 'inset(0% 0% 100% 0%)',
           ease: 'power4.in',
         },
         0
@@ -122,7 +124,7 @@ export default function Concept3PortalDescent({
     <div className="w-full h-full flex items-center justify-center relative perspective-[1200px] pointer-events-auto select-none">
       <div
         ref={logoMeshRef}
-        className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-64 md:h-64 lg:w-[320px] lg:h-[320px] flex items-center justify-center cursor-pointer"
+        className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-64 md:h-64 lg:w-[320px] lg:h-[320px] flex items-center justify-center cursor-pointer"
         style={{ transformStyle: 'preserve-3d' }}
       >
         <Image

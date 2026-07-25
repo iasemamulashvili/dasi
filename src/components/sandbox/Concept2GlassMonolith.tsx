@@ -15,11 +15,10 @@ interface Concept2GlassMonolithProps {
 }
 
 /**
- * VARIANT 2: FLUID FUNNEL & VORTEX TWIST (Instant 3D Funnel Twist)
- * Slightly reduced logo size (320px max).
- * Fast completion scroll trigger (ends within top+=450px on desktop / top+=220px on mobile).
- * On Mobile: Dissolves cleanly above "SCROLL TO EXPLORE" text without touching or overlapping it.
- * On Desktop: 3D Vortex pitch & twist funneling y: 520px behind Section 2 before Section 2 covers the view.
+ * VARIANT 2: FLUID FUNNEL & VORTEX TWIST (3D Funnel Twist with Bottom-to-Top Clip Wipe)
+ * Uses official Dasi Logo (/Logo_White_PNG.png).
+ * On scroll, animates clipPath from inset(0% 0% 0% 0%) to inset(0% 0% 100% 0%), wiping the logo away
+ * from bottom to top as it descends below the next element (Section 2 on desktop / Scroll to Explore on mobile).
  */
 export default function Concept2GlassMonolith({
   heroContainerRef,
@@ -67,33 +66,36 @@ export default function Concept2GlassMonolith({
     heroSection.addEventListener('mousemove', handleMouseMove);
     heroSection.addEventListener('mouseleave', handleMouseLeave);
 
-    gsap.set(logoMesh, { transformOrigin: '50% 90%' });
+    gsap.set(logoMesh, {
+      transformOrigin: '50% 90%',
+      clipPath: 'inset(0% 0% 0% 0%)',
+    });
 
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: heroSection,
         start: 'top top',
-        end: isMobile ? 'top+=220 top' : 'top+=450 top',
+        end: isMobile ? 'top+=180 top' : 'top+=400 top',
         scrub: 0.15,
       },
     });
 
     if (isMobile) {
-      // Mobile: Dissolves cleanly above "SCROLL TO EXPLORE" text without touching or overlapping it
+      // Mobile: Bottom-to-top wipe (inset 0% -> 100% at bottom) before reaching "SCROLL TO EXPLORE"
       tl.to(
         logoMesh,
         {
           rotateZ: -10,
           scaleY: 1.25,
           scaleX: 0.52,
-          y: 75,
-          opacity: 0,
+          y: 65,
+          clipPath: 'inset(0% 0% 100% 0%)',
           ease: 'power2.inOut',
         },
         0
       );
     } else {
-      // Desktop: Fast 3D Vortex pitch & twist funneling deep behind Section 2 border
+      // Desktop: Fast 3D Vortex pitch & twist with bottom-to-top wipe behind Section 2 border
       tl.to(
         logoMesh,
         {
@@ -103,7 +105,7 @@ export default function Concept2GlassMonolith({
           scaleY: 1.55,
           scaleX: 0.38,
           y: 520,
-          opacity: 0,
+          clipPath: 'inset(0% 0% 100% 0%)',
           ease: 'power2.inOut',
         },
         0
@@ -122,7 +124,7 @@ export default function Concept2GlassMonolith({
     <div className="w-full h-full flex items-center justify-center relative perspective-[1200px] pointer-events-auto select-none">
       <div
         ref={logoMeshRef}
-        className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-64 md:h-64 lg:w-[320px] lg:h-[320px] flex items-center justify-center cursor-pointer"
+        className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-64 md:h-64 lg:w-[320px] lg:h-[320px] flex items-center justify-center cursor-pointer"
         style={{ transformStyle: 'preserve-3d' }}
       >
         <Image
