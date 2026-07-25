@@ -2,6 +2,9 @@
 
 import { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import Header from '@/components/Header';
+import Hero from '@/components/Hero';
+import Footer from '@/components/Footer';
 import HeroConceptSelector, { ConceptId } from '@/components/sandbox/HeroConceptSelector';
 import Concept1PureFrameless from '@/components/sandbox/Concept1PureFrameless';
 import Concept2GlassMonolith from '@/components/sandbox/Concept2GlassMonolith';
@@ -14,27 +17,45 @@ export default function HeroConceptsSandboxPage() {
   const section2Ref = useRef<HTMLDivElement>(null);
 
   return (
-    <main className="relative min-h-screen w-full bg-carbon-black text-bright-snow overflow-x-hidden selection:bg-slate-violet/30">
-      {/* Floating Top UI Concept Selector & Performance HUD */}
-      <HeroConceptSelector
-        activeConcept={activeConcept}
-        onSelectConcept={setActiveConcept}
-      />
+    <>
+      {/* Exact 1:1 Production Header */}
+      <Header />
 
-      {/* Hero Section Container */}
-      <div className="relative w-full min-h-screen flex flex-col justify-between">
-        {activeConcept === 'concept1' && <Concept1PureFrameless section2Ref={section2Ref} />}
-        {activeConcept === 'concept2' && <Concept2GlassMonolith section2Ref={section2Ref} />}
-        {activeConcept === 'concept3' && <Concept3PortalDescent section2Ref={section2Ref} />}
-      </div>
+      <main className="relative min-h-screen w-full bg-carbon-black text-bright-snow overflow-x-hidden selection:bg-slate-violet/30 flex-1">
+        {/* Floating Mobile-Responsive Concept Selector */}
+        <HeroConceptSelector
+          activeConcept={activeConcept}
+          onSelectConcept={setActiveConcept}
+        />
 
-      {/* Section 2 Production Featured Showcase (z-30 so 3D logo dives physically behind it) */}
-      <div
-        ref={section2Ref}
-        className="relative z-30 w-full border-t border-white/10 bg-carbon-black shadow-[0_-25px_60px_rgba(0,0,0,0.95)] -mt-24 md:-mt-36"
-      >
-        <WebGLFeaturedSlider />
-      </div>
-    </main>
+        {/* 1:1 Production Hero Section with Injected SVG Concept Logo */}
+        <Hero
+          logoComponent={(heroRef: React.RefObject<HTMLDivElement | null>) => (
+            <>
+              {activeConcept === 'concept1' && (
+                <Concept1PureFrameless heroContainerRef={heroRef} section2Ref={section2Ref} />
+              )}
+              {activeConcept === 'concept2' && (
+                <Concept2GlassMonolith heroContainerRef={heroRef} section2Ref={section2Ref} />
+              )}
+              {activeConcept === 'concept3' && (
+                <Concept3PortalDescent heroContainerRef={heroRef} section2Ref={section2Ref} />
+              )}
+            </>
+          )}
+        />
+
+        {/* 1:1 Production Section 2 (Featured Releases Showcase) */}
+        <div
+          ref={section2Ref}
+          className="relative z-30 w-full border-t border-white/10 bg-carbon-black shadow-[0_-25px_60px_rgba(0,0,0,0.95)] -mt-16 md:-mt-28"
+        >
+          <WebGLFeaturedSlider />
+        </div>
+      </main>
+
+      {/* Exact 1:1 Production Footer */}
+      <Footer />
+    </>
   );
 }

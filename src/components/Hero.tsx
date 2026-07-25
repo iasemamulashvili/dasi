@@ -6,7 +6,11 @@ import gsap from 'gsap';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import ScrollLogoCanvas from './ScrollLogoCanvas';
 
-export default function Hero() {
+export interface HeroProps {
+  logoComponent?: React.ReactNode | ((heroContainerRef: React.RefObject<HTMLDivElement | null>) => React.ReactNode);
+}
+
+export default function Hero({ logoComponent }: HeroProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
@@ -706,7 +710,7 @@ export default function Hero() {
           ref={layerMidRef}
           className="relative md:absolute w-full max-w-[320px] md:max-w-[480px] lg:max-w-[540px] md:right-0 md:bottom-0 lg:right-4 lg:bottom-2 md:w-[38vw] lg:w-[36vw] xl:w-[34vw] md:h-[68%] lg:h-[72%] order-first md:order-none mb-8 md:mb-0 flex items-end justify-end pointer-events-none select-none z-10"
         >
-          <ScrollLogoCanvas heroContainerRef={containerRef} />
+          {typeof logoComponent === 'function' ? logoComponent(containerRef) : (logoComponent || <ScrollLogoCanvas heroContainerRef={containerRef} />)}
         </div>
       </div>
 
