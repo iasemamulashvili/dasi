@@ -14,6 +14,11 @@ interface Concept1PureFramelessProps {
   section2Ref: React.RefObject<HTMLDivElement | null>;
 }
 
+/**
+ * VARIANT 1: ELASTIC LIQUID WARP & PLUNGE (Liquid Rubber Physics)
+ * Demonstrates extreme elastic vertical stretch (scaleY: 2.10) with horizontal width pinching (scaleX: 0.30),
+ * making the logo feel like a viscous fluid drop being sucked beneath Section 2.
+ */
 export default function Concept1PureFrameless({
   heroContainerRef,
   section2Ref,
@@ -34,7 +39,7 @@ export default function Concept1PureFrameless({
     const heroSection = heroContainerRef.current;
     const logoMesh = logoMeshRef.current;
 
-    // Subtle 3D Cursor Parallax Tilt (Strictly forward-facing, capped at 6deg max)
+    // 3D Cursor Parallax Tilt (Desktop only)
     const handleMouseMove = (e: MouseEvent) => {
       if (window.innerWidth < 1024) return;
       const rect = heroSection.getBoundingClientRect();
@@ -61,36 +66,34 @@ export default function Concept1PureFrameless({
     heroSection.addEventListener('mousemove', handleMouseMove);
     heroSection.addEventListener('mouseleave', handleMouseLeave);
 
-    // 1:1 Production Hero Pinning & Sucking Motion Timeline
+    // Anchor transformOrigin to bottom center for liquid stretch
     gsap.set(logoMesh, { transformOrigin: '50% 100%' });
 
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: heroSection,
         start: 'top top',
-        end: isMobile ? '+=40%' : '+=130%',
+        end: isMobile ? '+=60%' : '+=130%',
         pin: !isMobile,
         scrub: isMobile ? 0.3 : 1,
         anticipatePin: 1,
       },
     });
 
-    // VARIANT 1: LINEAR GRAVITATIONAL SIPHON
-    // First 35% scroll: Logo stays prominent in hero quadrant.
-    // 35% -> 100% scroll: Logo executes bottom-anchored elastic sucking stretch (scaleY 1.45, scaleX 0.48, rotateX 24deg) plunging beneath Section 2's top border.
+    // Extreme liquid rubber stretch on scroll
     tl.to(
       logoMesh,
       {
         rotateY: 0,
         rotateZ: 0,
-        rotateX: isMobile ? 16 : 24,
-        scaleY: isMobile ? 1.30 : 1.45,
-        scaleX: isMobile ? 0.54 : 0.48,
-        y: isMobile ? 380 : 540,
+        rotateX: isMobile ? 15 : 24,
+        scaleY: isMobile ? 1.65 : 2.10, // Extreme liquid vertical elongation
+        scaleX: isMobile ? 0.42 : 0.30, // Ultra-narrow width pinch
+        y: isMobile ? 260 : 540,        // Plunges beneath Section 2 (z-30)
         opacity: 0.95,
         ease: 'power2.in',
       },
-      0.35
+      0.30
     );
 
     return () => {
@@ -105,12 +108,12 @@ export default function Concept1PureFrameless({
     <div className="w-full h-full flex items-center justify-center relative perspective-[1200px] pointer-events-auto select-none">
       <div
         ref={logoMeshRef}
-        className="relative w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] flex items-center justify-center cursor-pointer"
+        className="relative w-48 h-48 sm:w-60 sm:h-60 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] flex items-center justify-center cursor-pointer"
         style={{ transformStyle: 'preserve-3d' }}
       >
         <Image
           src="/Logo_White_PNG.png"
-          alt="Dasi Games 3D Logo"
+          alt="Dasi Games 3D Liquid Logo"
           width={400}
           height={400}
           priority

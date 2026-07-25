@@ -14,11 +14,17 @@ interface Concept3PortalDescentProps {
   section2Ref: React.RefObject<HTMLDivElement | null>;
 }
 
+/**
+ * VARIANT 3: PARTICLE SIPHON DEPTH FLATTEN (Particle Dissolve Siphon)
+ * Demonstrates 3D depth flattening (rotateX: 45deg) paired with kinetic vertical particle siphon streams
+ * that channel energy down into Section 2 as the logo slips beneath.
+ */
 export default function Concept3PortalDescent({
   heroContainerRef,
   section2Ref,
 }: Concept3PortalDescentProps) {
   const logoMeshRef = useRef<HTMLDivElement>(null);
+  const particleSiphonRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -33,6 +39,7 @@ export default function Concept3PortalDescent({
 
     const heroSection = heroContainerRef.current;
     const logoMesh = logoMeshRef.current;
+    const particleSiphon = particleSiphonRef.current;
 
     const handleMouseMove = (e: MouseEvent) => {
       if (window.innerWidth < 1024) return;
@@ -66,28 +73,41 @@ export default function Concept3PortalDescent({
       scrollTrigger: {
         trigger: heroSection,
         start: 'top top',
-        end: isMobile ? '+=40%' : '+=130%',
+        end: isMobile ? '+=60%' : '+=130%',
         pin: !isMobile,
         scrub: isMobile ? 0.25 : 1,
         anticipatePin: 1,
       },
     });
 
-    // VARIANT 3: KINETIC VACUUM DROP (Snap Pull)
+    // 3D Depth Flattening (rotateX 45deg, scaleY 0.85, scaleX 0.40)
     tl.to(
       logoMesh,
       {
         rotateY: 0,
         rotateZ: 0,
-        rotateX: isMobile ? 22 : 34,
-        scaleY: isMobile ? 1.25 : 1.35,
-        scaleX: isMobile ? 0.54 : 0.50,
-        y: isMobile ? 370 : 540,
+        rotateX: isMobile ? 30 : 45,   // Deep 3D flattening pitch
+        scaleY: isMobile ? 0.90 : 0.85, // Flattened sheet height
+        scaleX: isMobile ? 0.50 : 0.40, // Compressed width
+        y: isMobile ? 260 : 540,        // Slips beneath Section 2 (z-30)
         opacity: 0.95,
         ease: 'power3.in',
       },
-      0.35
+      0.25
     );
+
+    if (particleSiphon) {
+      tl.to(
+        particleSiphon,
+        {
+          opacity: 1.0,
+          scaleY: 1.8,
+          y: 120,
+          ease: 'power2.in',
+        },
+        0.35
+      );
+    }
 
     return () => {
       heroSection.removeEventListener('mousemove', handleMouseMove);
@@ -99,14 +119,25 @@ export default function Concept3PortalDescent({
 
   return (
     <div className="w-full h-full flex items-center justify-center relative perspective-[1200px] pointer-events-auto select-none">
+      {/* Vertical Particle Siphon Streaks */}
+      <div
+        ref={particleSiphonRef}
+        className="absolute bottom-2 left-1/2 -translate-x-1/2 w-44 h-36 pointer-events-none z-0 opacity-0 flex justify-around items-end"
+      >
+        <div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-slate-violet-light/80 to-transparent animate-pulse" />
+        <div className="w-[2px] h-full bg-gradient-to-b from-transparent via-bright-snow/90 to-transparent animate-pulse delay-100" />
+        <div className="w-[1.5px] h-full bg-gradient-to-b from-transparent via-slate-violet-light/80 to-transparent animate-pulse delay-200" />
+        <div className="w-[2px] h-full bg-gradient-to-b from-transparent via-bright-snow/90 to-transparent animate-pulse delay-300" />
+      </div>
+
       <div
         ref={logoMeshRef}
-        className="relative w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] flex items-center justify-center cursor-pointer"
+        className="relative w-48 h-48 sm:w-60 sm:h-60 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] flex items-center justify-center cursor-pointer"
         style={{ transformStyle: 'preserve-3d' }}
       >
         <Image
           src="/Logo_White_PNG.png"
-          alt="Dasi Games 3D Logo"
+          alt="Dasi Games 3D Siphon Logo"
           width={400}
           height={400}
           priority

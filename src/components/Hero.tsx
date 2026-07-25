@@ -705,10 +705,10 @@ export default function Hero({ logoComponent }: HeroProps = {}) {
         </div>
         </div>
 
-        {/* Right Column: Dynamic Scroll-driven Canvas enlarged in the bottom-right quadrant (z-10 beneath z-20 title/release box) */}
+        {/* Right Column: Dynamic Scroll-driven Canvas / Custom Logo Slot (z-10 beneath z-20 title/release box) */}
         <div
           ref={layerMidRef}
-          className="relative md:absolute w-full max-w-[320px] md:max-w-[480px] lg:max-w-[540px] md:right-0 md:bottom-0 lg:right-4 lg:bottom-2 md:w-[38vw] lg:w-[36vw] xl:w-[34vw] md:h-[68%] lg:h-[72%] order-first md:order-none mb-8 md:mb-0 flex items-end justify-end pointer-events-none select-none z-10"
+          className="relative md:absolute w-full max-w-[280px] sm:max-w-[320px] md:max-w-[480px] lg:max-w-[540px] mx-auto md:mx-0 md:right-0 md:bottom-0 lg:right-4 lg:bottom-2 md:w-[38vw] lg:w-[36vw] xl:w-[34vw] h-[240px] sm:h-[280px] md:h-[68%] lg:h-[72%] my-4 md:my-0 flex items-center justify-center md:items-end md:justify-end pointer-events-none select-none z-10"
         >
           {typeof logoComponent === 'function' ? logoComponent(containerRef) : (logoComponent || <ScrollLogoCanvas heroContainerRef={containerRef} />)}
         </div>
