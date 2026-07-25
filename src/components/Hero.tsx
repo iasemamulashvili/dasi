@@ -705,19 +705,21 @@ export default function Hero({ logoComponent }: HeroProps = {}) {
         </div>
         </div>
 
-        {/* Right Column: Dynamic Scroll-driven Canvas / Custom Logo Slot (z-10 isolate beneath z-20 title/release box) */}
+        {/* Right Column: Dynamic Scroll-driven Canvas / Custom Logo Slot (z-10 isolate beneath z-30 title/release box) */}
         <div
           ref={layerMidRef}
-          className="relative md:absolute w-full max-w-[220px] sm:max-w-[260px] md:max-w-[420px] lg:max-w-[480px] mx-auto md:mx-0 md:right-0 md:bottom-0 lg:right-4 lg:bottom-2 md:w-[36vw] lg:w-[34vw] xl:w-[32vw] h-[160px] sm:h-[200px] md:h-[68%] lg:h-[72%] my-1 md:my-0 flex items-center justify-center md:items-end md:justify-end pointer-events-none select-none z-10 isolate"
+          className="relative md:absolute w-full max-w-[200px] sm:max-w-[240px] md:max-w-[420px] lg:max-w-[480px] mx-auto md:mx-0 md:right-0 md:bottom-0 lg:right-4 lg:bottom-2 md:w-[36vw] lg:w-[34vw] xl:w-[32vw] h-[140px] sm:h-[180px] md:h-[68%] lg:h-[72%] my-0 mb-12 md:mb-0 flex items-center justify-center md:items-end md:justify-end pointer-events-none select-none z-10 isolate"
         >
           {typeof logoComponent === 'function' ? logoComponent(containerRef) : (logoComponent || <ScrollLogoCanvas heroContainerRef={containerRef} />)}
         </div>
       </div>
 
-      {/* Scroll indicator (z-20 sitting in front of descending z-10 logo) */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none select-none">
-        <span className="text-[9px] tracking-widest text-alabaster-grey/80 font-silkscreen uppercase">Scroll to Explore</span>
-        <div className="w-[1.5px] h-10 bg-gradient-to-b from-slate-violet-light to-transparent animate-pulse" />
+      {/* Scroll indicator (z-30 with mix-blend-difference for instant white-to-black letter inversion over logo) */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-30 pointer-events-none select-none mix-blend-difference">
+        <span className="text-[10px] tracking-[0.25em] font-bold text-white font-silkscreen uppercase drop-shadow-md">
+          Scroll to Explore
+        </span>
+        <div className="w-[1.5px] h-8 bg-white animate-pulse" />
       </div>
     </section>
   );
