@@ -16,8 +16,10 @@ interface Concept3PortalDescentProps {
 
 /**
  * VARIANT 3: KINETIC VACUUM DROP (Instant Exponential Vacuum Plunge)
- * Uses official Dasi Logo (/Logo_White_PNG.png). Zero particle trails.
- * Starts movement instantly on scroll, flattening into a 3D wedge (rotateX: 48deg) that snaps down with exponential acceleration (power4.in) and y: 980px plunge behind Section 2.
+ * Slightly reduced logo size (320px max). Zero particle trails.
+ * Fast completion scroll trigger (ends within top+=450px on desktop / top+=220px on mobile).
+ * On Mobile: Dissolves cleanly above "SCROLL TO EXPLORE" text without touching or overlapping it.
+ * On Desktop: Steep 3D wedge pitch & exponential vacuum acceleration snapping deep y: 540px behind Section 2 before Section 2 covers the view.
  */
 export default function Concept3PortalDescent({
   heroContainerRef,
@@ -67,31 +69,46 @@ export default function Concept3PortalDescent({
 
     gsap.set(logoMesh, { transformOrigin: '50% 100%' });
 
-    // Instant, Unpinned ScrollTrigger
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: heroSection,
         start: 'top top',
-        end: 'bottom top',
+        end: isMobile ? 'top+=220 top' : 'top+=450 top',
         scrub: 0.15,
       },
     });
 
-    // Steep 3D Pitch + Exponential Vacuum Acceleration + Deep Plunge
-    tl.to(
-      logoMesh,
-      {
-        rotateY: 0,
-        rotateZ: 0,
-        rotateX: isMobile ? 32 : 48,   // Deep 3D wedge pitch
-        scaleY: isMobile ? 1.10 : 1.20, // Snappy wedge height
-        scaleX: isMobile ? 0.50 : 0.44, // Width compression
-        y: isMobile ? 680 : 980,        // Deep plunge to completely clear Section 2 border
-        opacity: 0,                     // Clean fade behind Section 2 (z-30)
-        ease: 'power4.in',
-      },
-      0
-    );
+    if (isMobile) {
+      // Mobile: Dissolves cleanly above "SCROLL TO EXPLORE" text without touching or overlapping it
+      tl.to(
+        logoMesh,
+        {
+          rotateX: 20,
+          scaleY: 1.10,
+          scaleX: 0.52,
+          y: 75,
+          opacity: 0,
+          ease: 'power4.in',
+        },
+        0
+      );
+    } else {
+      // Desktop: Steep 3D wedge pitch & exponential vacuum plunge deep behind Section 2 border
+      tl.to(
+        logoMesh,
+        {
+          rotateY: 0,
+          rotateZ: 0,
+          rotateX: 44,
+          scaleY: 1.15,
+          scaleX: 0.44,
+          y: 540,
+          opacity: 0,
+          ease: 'power4.in',
+        },
+        0
+      );
+    }
 
     return () => {
       heroSection.removeEventListener('mousemove', handleMouseMove);
@@ -105,14 +122,14 @@ export default function Concept3PortalDescent({
     <div className="w-full h-full flex items-center justify-center relative perspective-[1200px] pointer-events-auto select-none">
       <div
         ref={logoMeshRef}
-        className="relative w-48 h-48 sm:w-60 sm:h-60 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] flex items-center justify-center cursor-pointer"
+        className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-64 md:h-64 lg:w-[320px] lg:h-[320px] flex items-center justify-center cursor-pointer"
         style={{ transformStyle: 'preserve-3d' }}
       >
         <Image
           src="/Logo_White_PNG.png"
           alt="Dasi Games 3D Logo"
-          width={400}
-          height={400}
+          width={360}
+          height={360}
           priority
           className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(167,139,250,0.30)] pointer-events-none select-none"
         />

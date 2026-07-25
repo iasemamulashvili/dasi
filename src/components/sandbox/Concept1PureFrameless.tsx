@@ -16,9 +16,10 @@ interface Concept1PureFramelessProps {
 
 /**
  * VARIANT 1: GRAVITATIONAL SIPHON (Instant Liquid Rubber Stretch)
- * Uses official Dasi Logo (/Logo_White_PNG.png).
- * Starts movement instantly on scroll without pinning delay, stretching scaleY to 2.10 and plunging
- * y: 950px (desktop) / 650px (mobile) to hide 100% deep behind Section 2.
+ * Slightly reduced logo size (320px max).
+ * Fast completion scroll trigger (ends within top+=450px on desktop / top+=220px on mobile).
+ * On Mobile: Dissolves to opacity 0 BEFORE reaching the "SCROLL TO EXPLORE" text indicator.
+ * On Desktop: Liquid stretches (scaleY: 1.85, scaleX: 0.35) and plunges y: 520px behind Section 2 before Section 2 covers the view.
  */
 export default function Concept1PureFrameless({
   heroContainerRef,
@@ -67,34 +68,48 @@ export default function Concept1PureFrameless({
     heroSection.addEventListener('mousemove', handleMouseMove);
     heroSection.addEventListener('mouseleave', handleMouseLeave);
 
-    // Anchor transformOrigin to bottom center for liquid stretch
     gsap.set(logoMesh, { transformOrigin: '50% 100%' });
 
-    // Instant, Unpinned ScrollTrigger (Starts on first pixel of scroll, completes when hero leaves view)
+    // Fast-completion ScrollTrigger (completes early in scroll cycle before Section 2 covers view)
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: heroSection,
         start: 'top top',
-        end: 'bottom top',
+        end: isMobile ? 'top+=220 top' : 'top+=450 top',
         scrub: 0.15,
       },
     });
 
-    // Instant Sucking Stretch & Deep Plunge
-    tl.to(
-      logoMesh,
-      {
-        rotateY: 0,
-        rotateZ: 0,
-        rotateX: isMobile ? 18 : 28,
-        scaleY: isMobile ? 1.60 : 2.10, // Liquid vertical elongation
-        scaleX: isMobile ? 0.40 : 0.30, // Ultra-narrow width pinch
-        y: isMobile ? 650 : 950,        // Deep descent to completely clear Section 2 border
-        opacity: 0,                     // Clean fade behind Section 2 (z-30)
-        ease: 'power2.in',
-      },
-      0
-    );
+    if (isMobile) {
+      // Mobile: Dissolves cleanly above "SCROLL TO EXPLORE" text without touching or overlapping it
+      tl.to(
+        logoMesh,
+        {
+          scaleY: 1.30,
+          scaleX: 0.50,
+          y: 75,
+          opacity: 0,
+          ease: 'power2.in',
+        },
+        0
+      );
+    } else {
+      // Desktop: Fast liquid stretch and deep plunge behind Section 2 border
+      tl.to(
+        logoMesh,
+        {
+          rotateY: 0,
+          rotateZ: 0,
+          rotateX: 24,
+          scaleY: 1.85,
+          scaleX: 0.35,
+          y: 520,
+          opacity: 0,
+          ease: 'power2.in',
+        },
+        0
+      );
+    }
 
     return () => {
       heroSection.removeEventListener('mousemove', handleMouseMove);
@@ -108,14 +123,14 @@ export default function Concept1PureFrameless({
     <div className="w-full h-full flex items-center justify-center relative perspective-[1200px] pointer-events-auto select-none">
       <div
         ref={logoMeshRef}
-        className="relative w-48 h-48 sm:w-60 sm:h-60 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] flex items-center justify-center cursor-pointer"
+        className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-64 md:h-64 lg:w-[320px] lg:h-[320px] flex items-center justify-center cursor-pointer"
         style={{ transformStyle: 'preserve-3d' }}
       >
         <Image
           src="/Logo_White_PNG.png"
           alt="Dasi Games 3D Logo"
-          width={400}
-          height={400}
+          width={360}
+          height={360}
           priority
           className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(167,139,250,0.30)] pointer-events-none select-none"
         />

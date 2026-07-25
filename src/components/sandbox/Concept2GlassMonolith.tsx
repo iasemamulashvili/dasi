@@ -16,9 +16,10 @@ interface Concept2GlassMonolithProps {
 
 /**
  * VARIANT 2: FLUID FUNNEL & VORTEX TWIST (Instant 3D Funnel Twist)
- * Uses official Dasi Logo (/Logo_White_PNG.png).
- * Starts movement instantly on scroll, combining vertical stretch (scaleY: 1.65) with 3D Z-rotation twist (-14deg)
- * and deep y: 950px plunge behind Section 2.
+ * Slightly reduced logo size (320px max).
+ * Fast completion scroll trigger (ends within top+=450px on desktop / top+=220px on mobile).
+ * On Mobile: Dissolves cleanly above "SCROLL TO EXPLORE" text without touching or overlapping it.
+ * On Desktop: 3D Vortex pitch & twist funneling y: 520px behind Section 2 before Section 2 covers the view.
  */
 export default function Concept2GlassMonolith({
   heroContainerRef,
@@ -68,31 +69,46 @@ export default function Concept2GlassMonolith({
 
     gsap.set(logoMesh, { transformOrigin: '50% 90%' });
 
-    // Instant, Unpinned ScrollTrigger
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: heroSection,
         start: 'top top',
-        end: 'bottom top',
+        end: isMobile ? 'top+=220 top' : 'top+=450 top',
         scrub: 0.15,
       },
     });
 
-    // 3D Vortex Funnel Pitch + Deep Plunge
-    tl.to(
-      logoMesh,
-      {
-        rotateY: 0,
-        rotateZ: isMobile ? -8 : -14,   // Vortex twist angle
-        rotateX: isMobile ? 22 : 36,   // 3D Pitch
-        scaleY: isMobile ? 1.45 : 1.65, // Vertical elongation
-        scaleX: isMobile ? 0.44 : 0.38, // Narrow funnel taper
-        y: isMobile ? 650 : 950,        // Deep descent to completely clear Section 2 border
-        opacity: 0,                     // Clean fade behind Section 2 (z-30)
-        ease: 'power2.inOut',
-      },
-      0
-    );
+    if (isMobile) {
+      // Mobile: Dissolves cleanly above "SCROLL TO EXPLORE" text without touching or overlapping it
+      tl.to(
+        logoMesh,
+        {
+          rotateZ: -10,
+          scaleY: 1.25,
+          scaleX: 0.52,
+          y: 75,
+          opacity: 0,
+          ease: 'power2.inOut',
+        },
+        0
+      );
+    } else {
+      // Desktop: Fast 3D Vortex pitch & twist funneling deep behind Section 2 border
+      tl.to(
+        logoMesh,
+        {
+          rotateY: 0,
+          rotateZ: -14,
+          rotateX: 32,
+          scaleY: 1.55,
+          scaleX: 0.38,
+          y: 520,
+          opacity: 0,
+          ease: 'power2.inOut',
+        },
+        0
+      );
+    }
 
     return () => {
       heroSection.removeEventListener('mousemove', handleMouseMove);
@@ -106,14 +122,14 @@ export default function Concept2GlassMonolith({
     <div className="w-full h-full flex items-center justify-center relative perspective-[1200px] pointer-events-auto select-none">
       <div
         ref={logoMeshRef}
-        className="relative w-48 h-48 sm:w-60 sm:h-60 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] flex items-center justify-center cursor-pointer"
+        className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-64 md:h-64 lg:w-[320px] lg:h-[320px] flex items-center justify-center cursor-pointer"
         style={{ transformStyle: 'preserve-3d' }}
       >
         <Image
           src="/Logo_White_PNG.png"
           alt="Dasi Games 3D Logo"
-          width={400}
-          height={400}
+          width={360}
+          height={360}
           priority
           className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(167,139,250,0.30)] pointer-events-none select-none"
         />
